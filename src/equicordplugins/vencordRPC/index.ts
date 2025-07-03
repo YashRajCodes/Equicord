@@ -274,9 +274,9 @@ async function createActivity(): Promise<Activity | undefined> {
     const isSecret = secretStuff.includes(channelId) || secretStuff.includes(guildId);
 
     if (isSecret) {
-        appName = "#secret";
-        details = "Super Secret Server";
-        state = "69 online / 420 total";
+        appName = "Hidden Channel/Guild";
+        details = "#secret";
+        state = "hehe";
         imageBig = chino;
     } else if (!channelId) {
         appName = "Friends List";
