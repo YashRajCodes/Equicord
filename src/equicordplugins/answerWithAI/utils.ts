@@ -25,30 +25,90 @@ type ImagePart = {
 export type ContentPayload = string | (TextPart | ImagePart)[];
 
 export function parseMessageContent(message: Message): ContentPayload | null {
-    if (!settings.store.supportImages) {
-        return message.content || null;
+    const textParts: string[] = [];
+
+    if (message.content && message.content.trim().length > 0) {
+        textParts.push(message.content);
     }
 
-    const text = message.content;
+    message.embeds.forEach(embed => {
+        const embedBuffer: string[] = [];
 
-    const images = message.attachments
+        if (embed.provider?.name) {
+            embedBuffer.push(`> ${embed.provider.name}`);
+        }
+
+        if (embed.author?.name) {
+            embedBuffer.push(`**${embed.author.name}**`);
+        }
+
+        if (embed.rawTitle) {
+            embedBuffer.push(`## ${embed.rawTitle}`);
+        }
+
+        if (embed.rawDescription) {
+            embedBuffer.push(embed.rawDescription);
+        }
+
+        if (embed.fields && Array.isArray(embed.fields)) {
+            embed.fields.forEach(field => {
+                if (field.rawName && field.rawValue) {
+                    embedBuffer.push(`**${field.rawName}**: ${field.rawValue}`);
+                }
+            });
+        }
+
+        if (embed.footer?.text) {
+            embedBuffer.push(`_${embed.footer.text}_`);
+        }
+
+        if (embedBuffer.length > 0) {
+            textParts.push(embedBuffer.join("\n"));
+        }
+    });
+
+    const combinedText = textParts.join("\n\n");
+
+    if (!settings.store.supportImages) {
+        return combinedText || null;
+    }
+
+    const imageUrls = new Set<string>();
+
+    message.attachments
         .filter(att => att.content_type?.startsWith("image/"))
-        .map(att => att.url);
+        .forEach(att => imageUrls.add(att.url));
 
-    if (images.length === 0) {
-        return text || null;
+    message.embeds.forEach(embed => {
+        if (embed.image?.url) {
+            imageUrls.add(embed.image.url);
+        }
+
+        if (embed.thumbnail?.url) {
+            imageUrls.add(embed.thumbnail.url);
+        }
+
+        if (embed.images && Array.isArray(embed.images)) {
+            embed.images.forEach(img => {
+                if (img.url) imageUrls.add(img.url);
+            });
+        }
+    });
+
+    if (imageUrls.size === 0) {
+        return combinedText || null;
     }
 
     const payload: (TextPart | ImagePart)[] = [];
 
-    if (text && text.trim().length > 0) {
+    if (combinedText.length > 0) {
         payload.push({
             type: "text",
-            text: text
+            text: combinedText
         });
     }
 
-    images.forEach(url => {
+    imageUrls.forEach(url => {
         payload.push({
             type: "image_url",
             image_url: { url }
