@@ -34,17 +34,8 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
     ));
 };
 
-function getMessageContent(message: Message) {
-    // Message snapshots is an array, which allows for nested snapshots, which Discord does not do yet.
-    // no point collecting content or rewriting this to render in a certain way that makes sense
-    // for something currently impossible.
-    return message.content
-        || message.messageSnapshots?.[0]?.message.content
-        || message.embeds?.find(embed => embed.type === "auto_moderation_message")?.rawDescription || "";
-}
-
 export default definePlugin({
-    name: "Answer With AI",
+    name: "AnswerWithAI",
     description: "Adds a button to answer messages using AI.",
     authors: [EquicordDevs.yash],
     settings,
