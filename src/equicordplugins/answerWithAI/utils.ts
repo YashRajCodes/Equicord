@@ -9,6 +9,55 @@ import { Message } from "@vencord/discord-types";
 
 import { settings } from "./settings";
 
+type TextPart = {
+    type: "text";
+    text: string;
+};
+
+type ImagePart = {
+    type: "image_url";
+    image_url: {
+        url: string;
+        detail?: "auto" | "high" | "low";
+    };
+};
+
+export type ContentPayload = string | (TextPart | ImagePart)[];
+
+export function parseMessageContent(message: Message): ContentPayload | null {
+    if (!settings.store.supportImages) {
+        return message.content || null;
+    }
+
+    const text = message.content;
+
+    const images = message.attachments
+        .filter(att => att.content_type?.startsWith("image/"))
+        .map(att => att.url);
+
+    if (images.length === 0) {
+        return text || null;
+    }
+
+    const payload: (TextPart | ImagePart)[] = [];
+
+    if (text && text.trim().length > 0) {
+        payload.push({
+            type: "text",
+            text: text
+        });
+    }
+
+    images.forEach(url => {
+        payload.push({
+            type: "image_url",
+            image_url: { url }
+        });
+    });
+
+    return payload;
+}
+
 export async function handleResponse(message: Message, response: string): Promise<string> {
     if (settings.store.autoRespond) {
         sendMessage(
@@ -23,7 +72,7 @@ export async function handleResponse(message: Message, response: string): Promis
     }
 }
 
-export async function getResponse(prompt: string): Promise<string> {
+export async function getResponse(payload: ContentPayload): Promise<string> {
     const req = await fetch("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -39,7 +88,7 @@ export async function getResponse(prompt: string): Promise<string> {
                 },
                 {
                     role: "user",
-                    content: prompt
+                    content: payload
                 }
             ],
             max_tokens: settings.store.maxTokens,
@@ -47,7 +96,18 @@ export async function getResponse(prompt: string): Promise<string> {
     });
 
     const data = await req.json();
-    return data.choices[0].message.content;
+
+    if (data.error) {
+        console.log(`API Error: ${data.error.message || "An unknown error occurred"}`);
+    }
+
+    const response = data.choices[0].message.content;
+
+    if (!response || response.trim().length === 0) {
+        console.log("no response from AI model");
+    }
+
+    return response;
 }
 
 export function cl(className: string) {

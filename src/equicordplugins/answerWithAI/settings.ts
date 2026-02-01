@@ -17,8 +17,8 @@ export const settings = definePluginSettings({
     model: {
         type: OptionType.STRING,
         description: "AI Model to use",
-        default: "inception/mercury",
-        placeholder: "e.g., inception/mercury, openai/gpt-5.2-chat, etc."
+        default: "google/gemini-3-flash-preview",
+        placeholder: "e.g. google/gemini-3-flash-preview, inception/mercury, openai/gpt-5.2-chat, etc."
     },
     systemPrompt: {
         type: OptionType.STRING,
@@ -34,6 +34,11 @@ export const settings = definePluginSettings({
     autoRespond: {
         type: OptionType.BOOLEAN,
         description: "Automatically respond to messages on receiving a response",
+        default: true
+    },
+    supportImages: {
+        type: OptionType.BOOLEAN,
+        description: "Pass images to the AI for context (if any)",
         default: true
     }
 });

@@ -12,11 +12,11 @@ import { ChannelStore, Menu } from "@webpack/common";
 
 import { AnswerIcon } from "./answerIcon";
 import { settings } from "./settings";
-import { getResponse, handleResponse } from "./utils";
+import { getResponse, handleResponse, parseMessageContent } from "./utils";
 
 const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { message: Message; }) => {
-    const content = getMessageContent(message);
-    if (!content) return;
+    const payload = parseMessageContent(message);
+    if (!payload) return;
 
     const group = findGroupChildrenByChildId("copy-text", children);
     if (!group) return;
@@ -27,7 +27,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
             label="Answer With AI"
             icon={AnswerIcon}
             action={async () => {
-                const ans = await getResponse(content);
+                const ans = await getResponse(payload);
                 handleResponse(message, ans);
             }}
         />
@@ -54,8 +54,8 @@ export default definePlugin({
     messagePopoverButton: {
         icon: AnswerIcon,
         render(message: Message) {
-            const content = getMessageContent(message);
-            if (!content) return null;
+            const payload = parseMessageContent(message);
+            if (!payload) return null;
 
             return {
                 label: "Answer With AI",
@@ -63,7 +63,7 @@ export default definePlugin({
                 message,
                 channel: ChannelStore.getChannel(message.channel_id),
                 onClick: async () => {
-                    const ans = await getResponse(content);
+                    const ans = await getResponse(payload);
                     handleResponse(message, ans);
                 }
             };
