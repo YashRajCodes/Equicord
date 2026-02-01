@@ -6,13 +6,16 @@
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { EquicordDevs } from "@utils/constants";
-import definePlugin from "@utils/types";
+import definePlugin, { IconComponent } from "@utils/types";
 import { Message } from "@vencord/discord-types";
 import { ChannelStore, Menu } from "@webpack/common";
+import { findExportedComponentLazy } from "webpack";
 
-import { AnswerIcon } from "./answerIcon";
 import { settings } from "./settings";
 import { getResponse, handleResponse, parseMessageContent } from "./utils";
+
+const RobotIconLazy = findExportedComponentLazy("RobotIcon");
+const RobotIcon: IconComponent = props => <RobotIconLazy {...props} />;
 
 const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { message: Message; }) => {
     const payload = parseMessageContent(message);
@@ -25,7 +28,7 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
         <Menu.MenuItem
             id="vc-awai"
             label="Answer With AI"
-            icon={AnswerIcon}
+            icon={RobotIcon}
             action={async () => {
                 const ans = await getResponse(payload);
                 handleResponse(message, ans);
@@ -43,14 +46,14 @@ export default definePlugin({
         "message": messageCtxPatch
     },
     messagePopoverButton: {
-        icon: AnswerIcon,
+        icon: RobotIcon,
         render(message: Message) {
             const payload = parseMessageContent(message);
             if (!payload) return null;
 
             return {
                 label: "Answer With AI",
-                icon: AnswerIcon,
+                icon: RobotIcon,
                 message,
                 channel: ChannelStore.getChannel(message.channel_id),
                 onClick: async () => {
