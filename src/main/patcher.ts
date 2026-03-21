@@ -20,9 +20,12 @@ import { onceDefined } from "@shared/onceDefined";
 import electron, { app, BrowserWindowConstructorOptions, Menu } from "electron";
 import { dirname, join } from "path";
 
+import { verifyClientIntegrity } from "./integrity";
 import { RendererSettings } from "./settings";
 import { patchTrayMenu } from "./trayMenu";
 import { IS_VANILLA } from "./utils/constants";
+
+verifyClientIntegrity();
 
 console.log("[Equicord] Starting up...");
 
