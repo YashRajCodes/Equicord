@@ -8,7 +8,6 @@ import { basename } from "path";
 
 const BLOCKED_CLIENTS = [
     Buffer.from("bGlnaHRjb3Jk", "base64").toString(),
-    "discord"
 ];
 
 export function verifyClientIntegrity() {
