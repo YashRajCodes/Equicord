@@ -25,8 +25,6 @@ import { RendererSettings } from "./settings";
 import { patchTrayMenu } from "./trayMenu";
 import { IS_VANILLA } from "./utils/constants";
 
-verifyClientIntegrity();
-
 console.log("[Equicord] Starting up...");
 
 // Our injector file at app/index.js
@@ -42,7 +40,7 @@ if (IS_VESKTOP || IS_EQUIBOP) require.main!.filename = join(dirname(injectorPath
 // @ts-expect-error Untyped method? Dies from cringe
 app.setAppPath(asarPath);
 
-if (!IS_VANILLA) {
+if (!IS_VANILLA && verifyClientIntegrity()) {
     const settings = RendererSettings.store;
 
     patchTrayMenu();

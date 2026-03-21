@@ -8,16 +8,17 @@ import { basename } from "path";
 
 const BLOCKED_CLIENTS = [
     Buffer.from("bGlnaHRjb3Jk", "base64").toString(),
+    "discord"
 ];
 
 export function verifyClientIntegrity() {
-    const exeName = basename(process.execPath).toLowerCase();
+    const execName = basename(process.execPath).toLowerCase();
     for (const blocked of BLOCKED_CLIENTS) {
-        if (exeName.includes(blocked)) {
-            throw new Error(
-                `[Equicord] Unauthorized client detected: "${blocked}". Equicord cannot load in this environment.`
-            );
+        if (execName.includes(blocked)) {
+            console.error(`[Equicord] Unauthorized client detected: "${blocked}". Equicord cannot load in this environment.`);
+            return false;
         }
     }
     console.log("[Equicord] Client integrity verified.");
+    return true;
 }
