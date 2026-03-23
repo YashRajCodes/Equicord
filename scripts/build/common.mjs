@@ -50,9 +50,9 @@ const missing = requiredDeps.filter(d => {
 if (missing.length) {
     console.error(`\x1b[31mMissing ${missing.length} package(s): ${missing.join(", ")}\x1b[0m`);
     const rl = createInterface({ input: process.stdin, output: process.stderr });
-    const ans = await new Promise(r => rl.question("\x1b[33mRun 'pnpm install'? [Y/n]\x1b[0m", r));
+    const ans = await new Promise(r => rl.question("\x1b[33mRun 'pnpm install'? [Y/n]: \x1b[0m", r));
     rl.close();
-    if (!ans || /^y/i.test(ans)) execSync("pnpm install", { cwd: root, stdio: "inherit" });
+    if (!ans || /^y/i.test(ans)) execSync("pnpm install --frozen-lockfile", { cwd: root, stdio: "inherit" });
 }
 
 export const VERSION = PackageJSON.version;
