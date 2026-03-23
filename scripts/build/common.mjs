@@ -23,7 +23,7 @@ import "../checkNodeVersion.js";
 
 import { exec, execSync } from "child_process";
 import esbuild, { build, context } from "esbuild";
-import { constants as FsConstants, existsSync, readFileSync } from "fs";
+import { constants as FsConstants, readFileSync } from "fs";
 import { access, readdir, readFile } from "fs/promises";
 import { minify as minifyHtml } from "html-minifier-terser";
 import { dirname, join, relative, resolve } from "path";
@@ -37,6 +37,10 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
 
 const PackageJSON = JSON.parse(readFileSync(join(root, "package.json"), "utf-8"));
 
+const rawList = execSync("pnpm list --json --depth 0", { cwd: root, encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] });
+const pnpmList = JSON.parse(rawList)[0];
+const installedDeps = { ...pnpmList.dependencies, ...pnpmList.devDependencies };
+
 const requiredDeps = [
     ...Object.keys(PackageJSON.dependencies || {}),
     ...Object.keys(PackageJSON.devDependencies || {})
@@ -44,7 +48,7 @@ const requiredDeps = [
 
 const missing = requiredDeps.filter(d => {
     const v = PackageJSON.dependencies?.[d] ?? PackageJSON.devDependencies?.[d];
-    return !v?.startsWith("link:") && !v?.startsWith("workspace:") && !existsSync(join(root, "node_modules", d, "package.json"));
+    return !v?.startsWith("link:") && !v?.startsWith("workspace:") && !installedDeps?.[d];
 });
 
 if (missing.length) {
