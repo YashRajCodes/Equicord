@@ -16,8 +16,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 const PackageJSON = JSON.parse(readFileSync(join(root, "package.json"), "utf-8"));
 
-const rawList = execSync("pnpm list --json --depth 0", { cwd: root, encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] });
-const pnpmList = JSON.parse(rawList)[0];
+const pnpmList = JSON.parse(execSync("pnpm list --json --depth 0", { cwd: root, encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] }))[0];
 const installedDeps = { ...pnpmList.dependencies, ...pnpmList.devDependencies };
 
 const requiredDeps = [
