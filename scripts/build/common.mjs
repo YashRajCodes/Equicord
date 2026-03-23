@@ -29,7 +29,7 @@ import { minify as minifyHtml } from "html-minifier-terser";
 import { dirname, join, relative, resolve } from "path";
 import { fileURLToPath } from "url";
 import { promisify } from "util";
-import { createInterface } from "readline";
+import { createInterface } from "readline/promises";
 
 import { getPluginTarget } from "../utils.mjs";
 
@@ -50,9 +50,11 @@ const missing = requiredDeps.filter(d => {
 if (missing.length) {
     console.error(`\x1b[31mMissing ${missing.length} package(s): ${missing.join(", ")}\x1b[0m`);
     const rl = createInterface({ input: process.stdin, output: process.stderr });
-    const ans = await new Promise(r => rl.question("\x1b[33mRun 'pnpm install'? [Y/n]: \x1b[0m", r));
-    rl.close();
-    if (!ans || /^y/i.test(ans)) execSync("pnpm install --frozen-lockfile", { cwd: root, stdio: "inherit" });
+    rl.on("SIGINT", () => { rl.close(); process.exit(1); });
+    try {
+        const ans = await rl.question("\x1b[33mRun 'pnpm install'? [Y/n]: \x1b[0m");
+        if (!ans || /^y/i.test(ans)) execSync("pnpm install --frozen-lockfile", { cwd: root, stdio: "inherit" });
+    } finally { rl.close(); }
 }
 
 export const VERSION = PackageJSON.version;
