@@ -4,25 +4,20 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-// @ts-check
-
 import { execSync } from "child_process";
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { createInterface } from "readline/promises";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-
 const PackageJSON = JSON.parse(readFileSync(join(root, "package.json"), "utf-8"));
 
-const pnpmList = JSON.parse(execSync("pnpm list --json", { cwd: root, encoding: "utf-8", stdio: ["ignore", "pipe", "ignore"] }))[0];
-const installedDeps = { ...pnpmList.dependencies, ...pnpmList.devDependencies };
-const requiredDeps = [...Object.keys(PackageJSON.dependencies || {}), ...Object.keys(PackageJSON.devDependencies || {})];
-
+const allDeps = { ...PackageJSON.dependencies, ...PackageJSON.devDependencies };
+const requiredDeps = Object.keys(allDeps);
 const missing = requiredDeps.filter(d => {
-    const v = PackageJSON.dependencies?.[d] ?? PackageJSON.devDependencies?.[d];
-    return !v?.startsWith("link:") && !v?.startsWith("workspace:") && !installedDeps?.[d];
+    const v = allDeps[d];
+    return !v.startsWith("link:") && !v.startsWith("workspace:") && !existsSync(join(root, "node_modules", d, "package.json"));
 });
 
 if (missing.length) {
@@ -33,5 +28,6 @@ if (missing.length) {
         const ans = await rl.question("\x1b[33mRun 'pnpm install'? [Y/n]: \x1b[0m");
         if (!ans || /^y/i.test(ans)) execSync("pnpm install --frozen-lockfile", { cwd: root, stdio: "inherit" });
     } finally { rl.close(); }
+} else {
+    console.log("\x1b[32mAll dependencies are installed.\x1b[0m");
 }
-
