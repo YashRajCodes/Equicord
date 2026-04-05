@@ -32,6 +32,7 @@ import {
     fromMorse,
     generatePoissonDiskPosition,
     getCuteAnimeBoys,
+    getCuteKitsune,
     getCuteNeko,
     getCutePats,
     getMessage,
@@ -359,6 +360,13 @@ export default definePlugin({
             description: "Send Neko",
             execute: async () => ({
                 content: await getCuteNeko()
+            })
+        },
+        {
+            name: "kitsune",
+            description: "Send Kitsune",
+            execute: async () => ({
+                content: await getCuteKitsune()
             })
         },
         {

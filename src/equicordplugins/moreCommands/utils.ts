@@ -46,6 +46,12 @@ export async function getCuteNeko(): Promise<string> {
     return url ?? "";
 }
 
+export async function getCuteKitsune(): Promise<string> {
+    const res = await fetch("https://nekos.best/api/v2/kitsune");
+    const url = (await res.json()).results[0].url as string | null;
+    return url ?? "";
+}
+
 export async function getCutePats(): Promise<string> {
     const res = await fetch("https://api.waifu.pics/sfw/pat");
     const url = (await res.json()).url as string | null;
