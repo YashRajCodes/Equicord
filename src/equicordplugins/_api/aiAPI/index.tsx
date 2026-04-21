@@ -4,11 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { definePluginSettings } from "@api/Settings";
 import SettingsPlugin from "@plugins/_core/settings";
 import { EquicordDevs } from "@utils/constants";
-import definePlugin, { IconComponent } from "@utils/types";
+import definePlugin, { IconComponent, OptionType } from "@utils/types";
 import { findExportedComponentLazy } from "@webpack";
 
+import { ProviderName, providerOptions, providers } from "./providers";
 import ConfigTab from "./ui/config";
 
 const RobotIconLazy = findExportedComponentLazy("RobotIcon");
@@ -18,10 +20,33 @@ const RobotIcon: IconComponent = props => (
     </div>
 );
 
+const settings = definePluginSettings({
+    currentProvider: {
+        type: OptionType.SELECT,
+        description: "current ai provider being used.",
+        options: providerOptions
+    },
+    providerSettings: {
+        type: OptionType.CUSTOM,
+        description: "a dict with settings for each provider.",
+        hidden: true,
+        default: {}
+    }
+});
+
+const getProvider = (name?: string) => {
+    const target = (name ?? settings.store.currentProvider) as ProviderName;
+    const ProviderClass = providers[target] ?? providers.openrouter;
+
+    return new ProviderClass(() => settings.store.providerSettings?.[target] ?? {});
+};
+
 export default definePlugin({
     name: "aiAPI",
     description: "API for plugins to interact with AI services",
     authors: [EquicordDevs.yash],
+    settings,
+    getProvider,
     start() {
         SettingsPlugin.customEntries.push({
             key: "ai_configuration",
@@ -29,5 +54,5 @@ export default definePlugin({
             Component: ConfigTab,
             Icon: RobotIcon
         });
-    }
+    },
 });
