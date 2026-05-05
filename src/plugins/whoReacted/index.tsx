@@ -97,7 +97,7 @@ export default definePlugin({
             find: ",reactionRef:",
             replacement: {
                 match: /(\i)\?null:\(0,\i\.jsx\)\(\i\.\i,{className:\i\.reactionCount,.*?}\),/,
-                replace: "$&$1?null:$self.renderUsers(this.props),"
+                replace: "$&$1?null:$self.renderUsers(arguments[0]),"
             }
         },
         {
