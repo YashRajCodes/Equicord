@@ -71,7 +71,7 @@ function stopPlayback(active: Playback): void {
 
 export default definePlugin({
     name: "SoundboardPermissionsBypass",
-    description: "Play soundboard sounds through your microphone instead of Discord's soundboard feature.",
+    description: "This plugin plays all soundboard sounds through your microphone instead.",
     authors: [EquicordDevs.yash],
     tags: ["Fun", "Voice"],
 
