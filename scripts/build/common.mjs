@@ -223,7 +223,13 @@ export const gitRemotePlugin = {
             let remote = process.env.EQUICORD_REMOTE;
             if (!remote) {
                 const proc = Bun.spawn(["git", "remote", "get-url", "origin"], { stdout: "pipe" });
-                remote = (await new Response(proc.stdout).text()).trim()
+                const [stdout, exitCode] = await Promise.all([
+                    new Response(proc.stdout).text(),
+                    proc.exited
+                ]);
+                if (exitCode !== 0)
+                    throw new Error(`git remote get-url origin failed with exit code ${exitCode}`);
+                remote = stdout.trim()
                     .replace("https://github.com/", "")
                     .replace("git@github.com:", "")
                     .replace(/.git$/, "");
