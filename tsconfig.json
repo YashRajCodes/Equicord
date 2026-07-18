@@ -3,8 +3,11 @@
         "resolveJsonModule": true,
         "allowSyntheticDefaultImports": true,
         "esModuleInterop": true,
-        "skipLibCheck": false,
+        "skipLibCheck": true,
         "allowJs": true,
+        "types": [
+            "bun"
+        ],
         "lib": [
             "DOM",
             "DOM.Iterable",

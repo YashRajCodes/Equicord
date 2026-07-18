@@ -1,0 +1,102 @@
+{
+    "$schema": "./node_modules/oxlint/configuration_schema.json",
+    "plugins": [
+        "oxc",
+        "typescript",
+        "unicorn",
+        "react"
+    ],
+    "categories": {
+        "correctness": "off"
+    },
+    "ignorePatterns": [
+        "dist/**",
+        "packages/vencord-types/**",
+        "src/userplugins/**"
+    ],
+    "rules": {
+        "react/react-in-jsx-scope": "off",
+        "react/display-name": "off",
+        "react/no-unescaped-entities": "off",
+        "yoda": "error",
+        "eqeqeq": [
+            "error",
+            "always",
+            {
+                "null": "ignore"
+            }
+        ],
+        "prefer-destructuring": [
+            "error",
+            {
+                "VariableDeclarator": {
+                    "array": false,
+                    "object": true
+                },
+                "AssignmentExpression": {
+                    "array": false,
+                    "object": false
+                }
+            }
+        ],
+        "operator-assignment": "error",
+        "no-useless-computed-key": "off",
+        "no-unneeded-ternary": [
+            "error",
+            {
+                "defaultAssignment": false
+            }
+        ],
+        "no-invalid-regexp": "error",
+        "no-constant-condition": [
+            "error",
+            {
+                "checkLoops": false
+            }
+        ],
+        "no-duplicate-imports": "error",
+        "no-useless-escape": [
+            "error",
+            {
+                "allowRegexCharacters": [
+                    "i"
+                ]
+            }
+        ],
+        "typescript/dot-notation": [
+            "error",
+            {
+                "allowPrivateClassPropertyAccess": true,
+                "allowProtectedClassPropertyAccess": true
+            }
+        ],
+        "no-fallthrough": "error",
+        "for-direction": "error",
+        "no-async-promise-executor": "error",
+        "no-cond-assign": "error",
+        "no-dupe-else-if": "error",
+        "no-duplicate-case": "error",
+        "no-irregular-whitespace": "error",
+        "no-loss-of-precision": "error",
+        "no-misleading-character-class": "error",
+        "no-prototype-builtins": "error",
+        "no-regex-spaces": "error",
+        "no-shadow-restricted-names": "error",
+        "no-unexpected-multiline": "error",
+        "no-unsafe-optional-chaining": "error",
+        "no-useless-backreference": "error",
+        "use-isnan": "error",
+        "prefer-const": [
+            "error",
+            {
+                "destructuring": "all"
+            }
+        ],
+        "prefer-spread": "error",
+        "no-restricted-globals": [
+            "error",
+            "event",
+            "name"
+        ]
+    }
+}

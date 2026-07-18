@@ -1,0 +1,31 @@
+{
+    "$schema": "./node_modules/oxfmt/configuration_schema.json",
+    "printWidth": 120,
+    "tabWidth": 4,
+    "useTabs": false,
+    "semi": true,
+    "singleQuote": false,
+    "jsxSingleQuote": false,
+    "trailingComma": "none",
+    "bracketSpacing": true,
+    "arrowParens": "avoid",
+    "endOfLine": "lf",
+    "sortImports": {
+        "internalPattern": [
+            "@api/",
+            "@components/",
+            "@debug/",
+            "@equicordplugins/",
+            "@main/",
+            "@plugins/",
+            "@shared/",
+            "@utils/",
+            "@webpack/"
+        ]
+    },
+    "ignorePatterns": [
+        "dist/**",
+        "packages/vencord-types/**",
+        "src/userplugins/**"
+    ]
+}

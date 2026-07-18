@@ -46,12 +46,6 @@ export async function getCuteNeko(): Promise<string> {
     return url ?? "";
 }
 
-export async function getCutePats(): Promise<string> {
-    const res = await fetch("https://api.waifu.pics/sfw/pat");
-    const url = (await res.json()).url as string | null;
-    return url ?? "";
-}
-
 export function mock(input: string): string {
     let output = "";
     for (let i = 0; i < input.length; i++) {
@@ -210,11 +204,9 @@ export function uwuifyArray(arr) {
     return newArr;
 }
 
-export function getMessage(opts, other) {
+export function getFavoriteGif(opts: CommandArgument[], other: CommandContext) {
     const frecencyStore = UserSettingsActionCreators.FrecencyUserSettingsActionCreators.getCurrentValue();
-
     const gifsArray = Object.keys(frecencyStore.favoriteGifs.gifs);
-
     const chosenGifUrl = gifsArray[Math.floor(Math.random() * gifsArray.length)];
 
     return `${chosenGifUrl}`;

@@ -26,9 +26,11 @@ import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell, systemPreferen
 import monacoHtml from "file://monacoWin.html?minify&base64";
 import { FSWatcher, mkdirSync, readFileSync, watch, writeFileSync } from "fs";
 import { open, readdir, readFile, unlink } from "fs/promises";
+import { release } from "os";
 import { join, normalize } from "path";
 
 import { registerCspIpcHandlers } from "./csp/manager";
+import { getThemeInfo, stripBOM, UserThemeHeader } from "./themes";
 import { ALLOWED_PROTOCOLS, QUICK_CSS_PATH, SETTINGS_DIR, THEMES_DIR } from "./utils/constants";
 import { makeLinksOpenExternally } from "./utils/externalLinks";
 
@@ -49,13 +51,21 @@ function readCss() {
     return readFile(QUICK_CSS_PATH, "utf-8").catch(() => "");
 }
 
-async function listThemes(): Promise<{ fileName: string; content: string; }[]> {
-    try {
-        const files = await readdir(THEMES_DIR);
-        return await Promise.all(files.map(async fileName => ({ fileName, content: await getThemeData(fileName) })));
-    } catch {
-        return [];
+async function listThemes(): Promise<UserThemeHeader[]> {
+    const files = await readdir(THEMES_DIR).catch(() => []);
+
+    const themeInfo: UserThemeHeader[] = [];
+
+    for (const fileName of files) {
+        if (!fileName.endsWith(".css")) continue;
+
+        const data = await getThemeData(fileName).then(stripBOM).catch(() => null);
+        if (data == null) continue;
+
+        themeInfo.push(getThemeInfo(data, fileName));
     }
+
+    return themeInfo;
 }
 
 function getThemeData(fileName: string) {
@@ -84,7 +94,6 @@ ipcMain.handle(IpcEvents.SET_QUICK_CSS, (_, css) =>
     writeFileSync(QUICK_CSS_PATH, css)
 );
 
-ipcMain.handle(IpcEvents.GET_THEMES_DIR, () => THEMES_DIR);
 ipcMain.handle(IpcEvents.GET_THEMES_LIST, () => listThemes());
 ipcMain.handle(IpcEvents.GET_THEME_DATA, (_, fileName) => getThemeData(fileName));
 ipcMain.handle(IpcEvents.DELETE_THEME, (_, fileName) => {
@@ -192,3 +201,7 @@ if (IS_DISCORD_DESKTOP) {
         e.returnValue = readFileSync(join(__dirname, "renderer.js"), "utf-8");
     });
 }
+
+ipcMain.on(IpcEvents.SUPPORTS_WINDOWS_MATERIAL, e => {
+    e.returnValue = process.platform === "win32" && Number(release().split(".")[2]) >= 22621;
+});

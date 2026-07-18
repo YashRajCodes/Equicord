@@ -17,14 +17,13 @@
 */
 
 import type { MessageObject } from "@api/MessageEvents";
-import type { Channel, CloudUpload, Guild, GuildFeatures, Message, User } from "@vencord/discord-types";
-import { ChannelActionCreators, ChannelStore, ComponentDispatch, Constants, FluxDispatcher, GuildStore, i18n, InviteActions, MessageActions, RestAPI, SelectedChannelStore, SelectedGuildStore, Toasts, UserProfileActions, UserProfileStore, UserSettingsActionCreators, UserUtils } from "@webpack/common";
+import type { Channel, CloudUpload, Guild, GuildFeatures, MediaModalItem, MediaModalProps, Message, User } from "@vencord/discord-types";
+import { ChannelActionCreators, ChannelStore, ComponentDispatch, Constants, FluxDispatcher, GuildStore, i18n, InviteActions, MessageActions, openMediaModal, RestAPI, SelectedChannelStore, SelectedGuildStore, Toasts, UserProfileActions, UserProfileStore, UserSettingsActionCreators, UserUtils } from "@webpack/common";
 import { Except } from "type-fest";
 
 import { copyToClipboard } from "./clipboard";
 import { runtimeHashMessageKey } from "./intlHash";
 import { Logger } from "./Logger";
-import { MediaModalItem, MediaModalProps, openMediaModal } from "./modal";
 
 const IntlManagerLogger = new Logger("IntlManager");
 
@@ -68,18 +67,18 @@ export async function openInviteModal(code: string) {
     });
 
     return new Promise<boolean>(r => {
-        let onClose: () => void, onAccept: () => void;
         let inviteAccepted = false;
-
-        FluxDispatcher.subscribe("INVITE_ACCEPT", onAccept = () => {
+        const onAccept = () => {
             inviteAccepted = true;
-        });
-
-        FluxDispatcher.subscribe("INVITE_MODAL_CLOSE", onClose = () => {
+        };
+        const onClose = () => {
             FluxDispatcher.unsubscribe("INVITE_MODAL_CLOSE", onClose);
             FluxDispatcher.unsubscribe("INVITE_ACCEPT", onAccept);
             r(inviteAccepted);
-        });
+        };
+
+        FluxDispatcher.subscribe("INVITE_ACCEPT", onAccept);
+        FluxDispatcher.subscribe("INVITE_MODAL_CLOSE", onClose);
     });
 }
 
@@ -91,8 +90,8 @@ export function getCurrentGuild(): Guild | undefined {
     return GuildStore.getGuild(getCurrentChannel()?.guild_id!);
 }
 
-export function openPrivateChannel(userId: string) {
-    ChannelActionCreators.openPrivateChannel(userId);
+export function openPrivateChannel(userId: string, navigateToChannel = true) {
+    return ChannelActionCreators.openPrivateChannel({ recipientIds: [userId], navigateToChannel });
 }
 
 export const enum Theme {

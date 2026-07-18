@@ -12,9 +12,18 @@ on:
                 default: both
             webhook_url:
                 type: string
-                description: "Webhook URL that the report will be posted to. This will be
+                description:
+                    "Webhook URL that the report will be posted to. This will be
                     visible for everyone, so DO NOT pass sensitive webhooks like
                     discord webhook. This is meant to be used by Equibot."
+                required: false
+            pr_repo:
+                type: string
+                description: "Fork repo to checkout when testing a PR"
+                required: false
+            pr_branch:
+                type: string
+                description: "Branch to checkout when testing a PR"
                 required: false
     schedule:
         #   # Every day at midnight
@@ -29,18 +38,18 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v6
+            - uses: actions/checkout@v7
               with:
-                  ref: ${{ github.event_name == 'schedule' && 'dev' || github.ref }}
+                  repository: ${{ inputs.pr_repo || github.repository }}
+                  ref: ${{ inputs.pr_branch || (github.event_name == 'schedule' && 'dev' || github.ref) }}
 
             - uses: oven-sh/setup-bun@v2
-
               with:
                   bun-version: latest
 
             - name: Install dependencies
               run: |
-                  bun install
+                  bun install --frozen-lockfile
 
             - name: Build Equicord Reporter Version
               run: bun run buildReporter

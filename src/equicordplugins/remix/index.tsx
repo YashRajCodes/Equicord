@@ -5,13 +5,11 @@
  */
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { disableStyle, enableStyle } from "@api/Styles";
 import { PaintbrushIcon } from "@components/Icons";
 import { EquicordDevs } from "@utils/constants";
-import { closeModal, openModal } from "@utils/modal";
 import definePlugin from "@utils/types";
 import { extractAndLoadChunksLazy } from "@webpack";
-import { ChannelStore, DraftType, FluxDispatcher, Menu, PendingReplyStore, SelectedChannelStore, UploadHandler } from "@webpack/common";
+import { ChannelStore, closeModal, DraftType, FluxDispatcher, Menu, openModal, PendingReplyStore, SelectedChannelStore, UploadHandler } from "@webpack/common";
 
 import RemixModal from "./RemixModal";
 import css from "./styles.css?managed";
@@ -77,15 +75,10 @@ export default definePlugin({
         "channel-attach": UploadContextMenuPatch,
         "message": MessageContextMenuPatch,
     },
+    managedStyle: css,
     async start() {
 
         await requireCreateStickerModal();
         await requireSettingsMenu();
-
-        enableStyle(css);
-    },
-
-    stop() {
-        disableStyle(css);
     },
 });

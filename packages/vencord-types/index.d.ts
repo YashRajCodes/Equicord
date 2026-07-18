@@ -1,4 +1,4 @@
-/* eslint-disable */
+/* oxlint-disable */
 
 /// <reference path="Vencord.d.ts" />
 /// <reference path="globals.d.ts" />
