@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 export const enum UserType {
     Banned = -1,
@@ -83,19 +83,19 @@ export interface ReviewDBCurrentUser extends ReviewDBUser {
 }
 
 export interface ReviewAuthor {
-    id: number,
-    discordID: string,
-    username: string,
-    profilePhoto: string,
+    id: number;
+    discordID: string;
+    username: string;
+    profilePhoto: string;
     badges: Badge[];
 }
 
 export interface Review {
-    comment: string,
-    id: number,
-    score?: number,
-    star: number,
-    sender: ReviewAuthor,
+    comment: string;
+    id: number;
+    score?: number;
+    star: number;
+    sender: ReviewAuthor;
     timestamp: number;
     type?: ReviewType;
     replies?: Review[];

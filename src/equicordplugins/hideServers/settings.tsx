@@ -46,6 +46,6 @@ export default definePluginSettings({
                     Reset Hidden Servers
                 </Button>
             </div>
-        ),
-    },
+        )
+    }
 });

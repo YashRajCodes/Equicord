@@ -28,7 +28,14 @@ export function openDevTools(event: IpcMainInvokeEvent): boolean {
     return true;
 }
 
-export async function complete(_: IpcMainInvokeEvent, appId: string, authCode: string, questTarget: number, questId: string, activityReferrer?: string): Promise<{ success: boolean; error: string | null; }> {
+export async function complete(
+    _: IpcMainInvokeEvent,
+    appId: string,
+    authCode: string,
+    questTarget: number,
+    questId: string,
+    activityReferrer?: string
+): Promise<{ success: boolean; error: string | null }> {
     const authorization = await authorize(appId, authCode, questId, activityReferrer);
 
     if (authorization.error || !authorization.token) {
@@ -44,11 +51,15 @@ export async function complete(_: IpcMainInvokeEvent, appId: string, authCode: s
     return { success: true, error: null };
 }
 
-function getActivityHeaders(questId: string, authToken: string = "", activityReferrer?: string): Record<string, string> {
+function getActivityHeaders(
+    questId: string,
+    authToken: string = "",
+    activityReferrer?: string
+): Record<string, string> {
     const headers: Record<string, string> = {
         "Content-Type": "application/json",
         "X-Auth-Token": authToken,
-        "X-Discord-Quest-ID": questId,
+        "X-Discord-Quest-ID": questId
     };
 
     if (activityReferrer) {
@@ -74,7 +85,12 @@ function getResponseToken(data: unknown): string | false {
     return false;
 }
 
-async function authorize(appId: string, authCode: string, questId: string, activityReferrer?: string): Promise<{ token: string | false; error: unknown; }> {
+async function authorize(
+    appId: string,
+    authCode: string,
+    questId: string,
+    activityReferrer?: string
+): Promise<{ token: string | false; error: unknown }> {
     let error: unknown = null;
 
     const token = await fetch(`https://${appId}.discordsays.com/.proxy/acf/authorize`, {
@@ -82,7 +98,7 @@ async function authorize(appId: string, authCode: string, questId: string, activ
         body: JSON.stringify({ code: authCode }),
         method: "POST",
         mode: "cors",
-        credentials: "include",
+        credentials: "include"
     })
         .then(async res => {
             const data = await readJson(res);
@@ -103,7 +119,13 @@ async function authorize(appId: string, authCode: string, questId: string, activ
     return { token, error };
 }
 
-async function progress(appId: string, token: string, questTarget: number, questId: string, activityReferrer?: string): Promise<{ success: boolean; error: unknown; }> {
+async function progress(
+    appId: string,
+    token: string,
+    questTarget: number,
+    questId: string,
+    activityReferrer?: string
+): Promise<{ success: boolean; error: unknown }> {
     let error: unknown = null;
 
     const success = await fetch(`https://${appId}.discordsays.com/.proxy/acf/quest/progress`, {
@@ -111,7 +133,7 @@ async function progress(appId: string, token: string, questTarget: number, quest
         body: JSON.stringify({ progress: questTarget }),
         method: "POST",
         mode: "cors",
-        credentials: "include",
+        credentials: "include"
     })
         .then(res => res.ok)
         .catch(e => {

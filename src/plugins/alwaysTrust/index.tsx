@@ -14,12 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { findByPropsLazy } from "@webpack";
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { findByPropsLazy } from "@webpack";
 import { Alerts, Button, GuildStore } from "@webpack/common";
 
 const DeleteGuild = findByPropsLazy("deleteGuild", "sendTransferOwnershipPincode").deleteGuild;
@@ -52,9 +53,9 @@ const settings = definePluginSettings({
     },
     confirmModal: {
         type: OptionType.BOOLEAN,
-        description: "Should a \"are you sure you want to delete\" modal be shown?",
+        description: 'Should a "are you sure you want to delete" modal be shown?',
         default: true
-    },
+    }
 });
 
 export default definePlugin({
@@ -103,5 +104,5 @@ export default definePlugin({
         } else {
             return GetPropsAndDeleteGuild(server.id);
         }
-    },
+    }
 });

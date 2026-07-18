@@ -4,12 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { ensureSafePath } from "@main/ipcMain";
-import { DATA_DIR } from "@main/utils/constants";
 import { randomUUID } from "crypto";
-import { dialog, type IpcMainInvokeEvent } from "electron";
 import { mkdir, readFile, rm, writeFile } from "fs/promises";
 import { basename, extname, join, resolve } from "path";
+
+import { dialog, type IpcMainInvokeEvent } from "electron";
+
+import { ensureSafePath } from "@main/ipcMain";
+import { DATA_DIR } from "@main/utils/constants";
 
 interface TempEntry {
     tmpDir: string;
@@ -31,12 +33,12 @@ const ALLOWED_EXTENSIONS = new Set([".mp4", ".m4v"]);
 const MAX_CLIP_SIZE = 500 * 1024 * 1024; // 500MB
 const MIME_TYPES: Record<string, string> = {
     ".mp4": "video/mp4",
-    ".m4v": "video/mp4",
+    ".m4v": "video/mp4"
 };
 
 const CLIP_FOOTER = Buffer.from([
-    0x75, 0x75, 0x69, 0x64,
-    0xA1, 0xC8, 0x52, 0x99, 0x33, 0x46, 0x4D, 0xB8, 0x88, 0xF0, 0x83, 0xF5, 0x7A, 0x75, 0xA5, 0xEF,
+    0x75, 0x75, 0x69, 0x64, 0xa1, 0xc8, 0x52, 0x99, 0x33, 0x46, 0x4d, 0xb8, 0x88, 0xf0, 0x83, 0xf5, 0x7a, 0x75, 0xa5,
+    0xef
 ]);
 const CLIP_FOOTER_SIZE = CLIP_FOOTER.length;
 
@@ -66,12 +68,14 @@ async function parseClipMetadata(filePath: string): Promise<RawClipAttachment[] 
     }
 }
 
-export async function chooseVideoFile(_: IpcMainInvokeEvent): Promise<{ token: string; name: string; type: string; } | null> {
+export async function chooseVideoFile(
+    _: IpcMainInvokeEvent
+): Promise<{ token: string; name: string; type: string } | null> {
     try {
         const { filePaths, canceled } = await dialog.showOpenDialog({
             title: "Select clip file",
             filters: [{ name: "MP4 Video", extensions: ["mp4", "m4v"] }],
-            properties: ["openFile"],
+            properties: ["openFile"]
         });
 
         if (canceled || filePaths.length === 0) return null;
@@ -110,8 +114,18 @@ export async function createTempVideoFile(_: IpcMainInvokeEvent, token: string):
     }
 }
 
-export async function createTempVideoFileFromBytes(_: IpcMainInvokeEvent, name: string, data: Uint8Array): Promise<string | null> {
-    if (typeof name !== "string" || !(data instanceof Uint8Array) || data.byteLength === 0 || data.byteLength > MAX_CLIP_SIZE) return null;
+export async function createTempVideoFileFromBytes(
+    _: IpcMainInvokeEvent,
+    name: string,
+    data: Uint8Array
+): Promise<string | null> {
+    if (
+        typeof name !== "string" ||
+        !(data instanceof Uint8Array) ||
+        data.byteLength === 0 ||
+        data.byteLength > MAX_CLIP_SIZE
+    )
+        return null;
 
     const fileName = basename(name);
     if (fileName !== name || !ALLOWED_EXTENSIONS.has(extname(fileName).toLowerCase())) return null;
@@ -162,7 +176,7 @@ export async function deleteTempVideoFile(_: IpcMainInvokeEvent, token: string):
 
     try {
         await rm(entry.tmpDir, { force: true, recursive: true });
-    } catch { }
+    } catch {}
 }
 
 export async function parseClipFileMetadata(_: IpcMainInvokeEvent, token: string): Promise<RawClipAttachment[] | null> {

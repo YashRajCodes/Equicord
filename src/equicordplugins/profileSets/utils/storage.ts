@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { ProfilePreset } from "@vencord/discord-types";
+
 import { DataStore } from "@api/index";
 import { Logger } from "@utils/Logger";
-import { ProfilePreset } from "@vencord/discord-types";
 import { UserStore } from "@webpack/common";
 
 const logger = new Logger("ProfilePresets");
@@ -56,7 +57,9 @@ export async function loadPresets(section: PresetSection) {
             const legacyBaseStored = await DataStore.get(LEGACY_PRESETS_KEY);
             const legacyToUse = Array.isArray(legacyStored)
                 ? legacyStored
-                : (Array.isArray(legacyBaseStored) ? legacyBaseStored : null);
+                : Array.isArray(legacyBaseStored)
+                  ? legacyBaseStored
+                  : null;
             if (legacyToUse) {
                 resetPresets(legacyToUse);
                 await DataStore.set(key, legacyToUse);

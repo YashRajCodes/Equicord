@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { classNameFactory } from "@utils/css";
 import { Channel, RenderModalProps } from "@vencord/discord-types";
 import { findByPropsLazy, findComponentByCodeLazy } from "@webpack";
-import { Avatar, Button, ChannelStore, MessageStore, Modal,React, Text, UserStore } from "@webpack/common";
+
+import { classNameFactory } from "@utils/css";
+import { Avatar, Button, ChannelStore, MessageStore, Modal, React, Text, UserStore } from "@webpack/common";
 
 const cl = classNameFactory("vc-boo-");
 
@@ -22,17 +23,21 @@ function formatMessageDate(timestamp: string | Date): string {
 const GroupDmsRecipientsIcon = findComponentByCodeLazy('["aria-hidden"],"aria-label":');
 const SelectedChannelActionCreators = findByPropsLazy("selectPrivateChannel");
 
-function GroupDmsIcon({ channel }: { channel: Channel; }) {
-    return channel.icon ? <Avatar
-        src={`https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.png`}
-        size="SIZE_40"
-        aria-label={channel?.name || "Unnamed Group"}
-    /> : <GroupDmsRecipientsIcon
-        recipients={channel?.recipients ?? []}
-        channel={channel}
-        size="SIZE_40"
-        isTyping={null}
-    />;
+function GroupDmsIcon({ channel }: { channel: Channel }) {
+    return channel.icon ? (
+        <Avatar
+            src={`https://cdn.discordapp.com/channel-icons/${channel.id}/${channel.icon}.png`}
+            size="SIZE_40"
+            aria-label={channel?.name || "Unnamed Group"}
+        />
+    ) : (
+        <GroupDmsRecipientsIcon
+            recipients={channel?.recipients ?? []}
+            channel={channel}
+            size="SIZE_40"
+            isTyping={null}
+        />
+    );
 }
 
 interface GhostedUsersModalProps {
@@ -55,7 +60,11 @@ export function getChannelDisplayName(channelId: string): string {
     return user?.username || "Unknown User";
 }
 
-export function GhostedUsersModal({ modalProps, ghostedChannels: initialChannels, onClearGhost }: GhostedUsersModalProps) {
+export function GhostedUsersModal({
+    modalProps,
+    ghostedChannels: initialChannels,
+    onClearGhost
+}: GhostedUsersModalProps) {
     const [ghostedChannels, setGhostedChannels] = React.useState(initialChannels);
 
     const handleChannelClick = (channelId: string) => {
@@ -85,13 +94,17 @@ export function GhostedUsersModal({ modalProps, ghostedChannels: initialChannels
             {...modalProps}
             size="md"
             title={`Ghosted Users (${ghostedChannels.length})`}
-            actions={ghostedChannels.length > 0 ? [
-                {
-                    text: "Clear All",
-                    variant: "primary",
-                    onClick: handleClearAll
-                }
-            ] : []}
+            actions={
+                ghostedChannels.length > 0
+                    ? [
+                          {
+                              text: "Clear All",
+                              variant: "primary",
+                              onClick: handleClearAll
+                          }
+                      ]
+                    : []
+            }
         >
             <div className={cl("modal-content")}>
                 {ghostedChannels.length === 0 ? (
@@ -112,18 +125,17 @@ export function GhostedUsersModal({ modalProps, ghostedChannels: initialChannels
                                 onClick={() => handleChannelClick(channelId)}
                                 className={cl("ghosted-entry")}
                             >
-                                {channel.isGroupDM() ?
-                                    <GroupDmsIcon
-                                        channel={channel}
-                                    /> : <Avatar
+                                {channel.isGroupDM() ? (
+                                    <GroupDmsIcon channel={channel} />
+                                ) : (
+                                    <Avatar
                                         src={UserStore.getUser(userId)?.getAvatarURL(undefined, 128, true)}
                                         size="SIZE_40"
                                         aria-label={displayName}
-                                    />}
+                                    />
+                                )}
                                 <div className={cl("user-info")}>
-                                    <Text variant="text-md/normal">
-                                        {displayName}
-                                    </Text>
+                                    <Text variant="text-md/normal">{displayName}</Text>
                                     {lastMessageDate && (
                                         <Text variant="text-xs/normal" className={cl("modal-text")}>
                                             {lastMessageDate}

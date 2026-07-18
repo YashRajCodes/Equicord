@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import type { CSSProperties, HTMLAttributes } from "react";
 
@@ -27,7 +27,17 @@ export interface FlexProps extends HTMLAttributes<HTMLDivElement> {
     flexWrap?: CSSProperties["flexWrap"];
 }
 
-export function Flex({ flexDirection, gap = "1em", alignContent, justifyContent, alignItems, flexWrap, children, style, ...restProps }: FlexProps) {
+export function Flex({
+    flexDirection,
+    gap = "1em",
+    alignContent,
+    justifyContent,
+    alignItems,
+    flexWrap,
+    children,
+    style,
+    ...restProps
+}: FlexProps) {
     style = {
         display: "flex",
         flexDirection,

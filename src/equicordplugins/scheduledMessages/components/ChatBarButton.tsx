@@ -24,7 +24,9 @@ export const ScheduledMessagesButton: ChatBarButtonFactory = ({ isMainChat }) =>
 
     useEffect(() => {
         stateUpdaters.add(setEnabled);
-        return () => { stateUpdaters.delete(setEnabled); };
+        return () => {
+            stateUpdaters.delete(setEnabled);
+        };
     }, []);
 
     if (!isMainChat) return null;

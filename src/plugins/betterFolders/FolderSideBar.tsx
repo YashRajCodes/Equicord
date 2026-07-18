@@ -14,12 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { findComponentByCodeLazy } from "@webpack";
+import type { CSSProperties } from "react";
 
 import ErrorBoundary from "@components/ErrorBoundary";
-import { findComponentByCodeLazy } from "@webpack";
 import { Animations, ChannelRTCStore, useStateFromStores } from "@webpack/common";
-import type { CSSProperties } from "react";
 
 import { ExpandedGuildFolderStore, settings, SortedGuildStore } from ".";
 
@@ -40,48 +41,59 @@ function getExpandedFolderIds() {
     return expandedFolderIds;
 }
 
-export default ErrorBoundary.wrap(guildsBarProps => {
-    const expandedFolderIds = useStateFromStores([ExpandedGuildFolderStore, SortedGuildStore], () => getExpandedFolderIds());
-    const isFullscreen = useStateFromStores([ChannelRTCStore], () => ChannelRTCStore.isFullscreenInContext());
+export default ErrorBoundary.wrap(
+    guildsBarProps => {
+        const expandedFolderIds = useStateFromStores([ExpandedGuildFolderStore, SortedGuildStore], () =>
+            getExpandedFolderIds()
+        );
+        const isFullscreen = useStateFromStores([ChannelRTCStore], () => ChannelRTCStore.isFullscreenInContext());
 
-    const Sidebar = (
-        <GuildsBar
-            {...guildsBarProps}
-            isBetterFolders={true}
-            betterFoldersExpandedIds={expandedFolderIds}
-        />
-    );
+        const Sidebar = (
+            <GuildsBar {...guildsBarProps} isBetterFolders={true} betterFoldersExpandedIds={expandedFolderIds} />
+        );
 
-    const visible = !!expandedFolderIds.size;
-    const guilds = document.querySelector(guildsBarProps.className.split(" ").map(c => `.${c}`).join(""));
+        const visible = !!expandedFolderIds.size;
+        const guilds = document.querySelector(
+            guildsBarProps.className
+                .split(" ")
+                .map(c => `.${c}`)
+                .join("")
+        );
 
-    // We need to display none if we are in fullscreen. Yes this seems horrible doing with css, but it's literally how Discord does it.
-    // Also display flex otherwise to fix scrolling.
-    const sidebarStyle = {
-        display: isFullscreen ? "none" : "flex"
-    } satisfies CSSProperties;
+        // We need to display none if we are in fullscreen. Yes this seems horrible doing with css, but it's literally how Discord does it.
+        // Also display flex otherwise to fix scrolling.
+        const sidebarStyle = {
+            display: isFullscreen ? "none" : "flex"
+        } satisfies CSSProperties;
 
-    if (!guilds || !settings.store.sidebarAnim) {
-        return visible
-            ? <div className="vc-betterFolders-sidebar" style={sidebarStyle}>{Sidebar}</div>
-            : null;
-    }
+        if (!guilds || !settings.store.sidebarAnim) {
+            return visible ? (
+                <div className="vc-betterFolders-sidebar" style={sidebarStyle}>
+                    {Sidebar}
+                </div>
+            ) : null;
+        }
 
-    return (
-        <Animations.Transition
-            items={visible}
-            from={{ width: 0 }}
-            enter={{ width: guilds.getBoundingClientRect().width }}
-            leave={{ width: 0 }}
-            config={{ duration: 200 }}
-        >
-            {(animationStyle: any, show: any) =>
-                show && (
-                    <Animations.animated.div className="vc-betterFolders-sidebar" style={{ ...animationStyle, ...sidebarStyle }}>
-                        {Sidebar}
-                    </Animations.animated.div>
-                )
-            }
-        </Animations.Transition>
-    );
-}, { noop: true });
+        return (
+            <Animations.Transition
+                items={visible}
+                from={{ width: 0 }}
+                enter={{ width: guilds.getBoundingClientRect().width }}
+                leave={{ width: 0 }}
+                config={{ duration: 200 }}
+            >
+                {(animationStyle: any, show: any) =>
+                    show && (
+                        <Animations.animated.div
+                            className="vc-betterFolders-sidebar"
+                            style={{ ...animationStyle, ...sidebarStyle }}
+                        >
+                            {Sidebar}
+                        </Animations.animated.div>
+                    )
+                }
+            </Animations.Transition>
+        );
+    },
+    { noop: true }
+);

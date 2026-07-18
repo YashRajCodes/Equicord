@@ -13,19 +13,19 @@ const settings = definePluginSettings({
     noShiftDelete: {
         type: OptionType.BOOLEAN,
         description: "Remove requirement to hold shift for deleting a message.",
-        default: true,
+        default: true
     },
     noShiftPin: {
         type: OptionType.BOOLEAN,
         description: "Remove requirement to hold shift for pinning a message.",
-        default: true,
+        default: true
     },
     noQuickReacts: {
         default: true,
         restartNeeded: true,
         type: OptionType.BOOLEAN,
-        description: "Hide quick reacts. By default, showing the full menu hides quick react buttons.",
-    },
+        description: "Hide quick reacts. By default, showing the full menu hides quick react buttons."
+    }
 });
 
 export default definePlugin({
@@ -46,7 +46,7 @@ export default definePlugin({
                 {
                     predicate: () => settings.store.noShiftDelete,
                     match: /onClick:.{10,20}(?=,dangerous:!0)/,
-                    replace: "onClick:() => $self.deleteMessage(arguments[0].message)",
+                    replace: "onClick:() => $self.deleteMessage(arguments[0].message)"
                 },
                 {
                     predicate: () => settings.store.noShiftPin,
@@ -57,9 +57,9 @@ export default definePlugin({
                     predicate: () => !settings.store.noQuickReacts,
                     match: /\i(\?null:\(0,\i\.jsxs\).{0,100}message:\i\}\)),\(0,\i\.jsxs?\)\(\i,\{\}\)/,
                     replace: "false$1"
-                },
+                }
             ]
-        },
+        }
     ],
 
     deleteMessage({ channel_id, id }) {
@@ -69,5 +69,5 @@ export default definePlugin({
         if (message.pinned) return PinActions.unpinMessage(channel, message.id);
 
         PinActions.pinMessage(channel, message.id);
-    },
+    }
 });

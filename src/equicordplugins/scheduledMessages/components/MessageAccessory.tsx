@@ -12,7 +12,7 @@ import { TimerIcon } from "./Icons";
 
 const cl = classNameFactory("vc-scheduled-msg-");
 
-export function MessageAccessory({ message }: { message: ExtendedMessage; }) {
+export function MessageAccessory({ message }: { message: ExtendedMessage }) {
     const data = phantomMessageMap.get(message?.id) ?? message?.scheduledMessageData;
     if (!data) return null;
 
@@ -25,15 +25,21 @@ export function MessageAccessory({ message }: { message: ExtendedMessage; }) {
         const hrs = Math.floor(mins / 60);
         const days = Math.floor(hrs / 24);
 
-        timeLeftStr = days > 0 ? ` (${days}d ${hrs % 24}h remaining)`
-            : hrs > 0 ? ` (${hrs}h ${mins % 60}m remaining)`
-                : ` (${mins}m remaining)`;
+        timeLeftStr =
+            days > 0
+                ? ` (${days}d ${hrs % 24}h remaining)`
+                : hrs > 0
+                  ? ` (${hrs}h ${mins % 60}m remaining)`
+                  : ` (${mins}m remaining)`;
     }
 
     return (
         <div className={cl("accessory")}>
             <TimerIcon width={14} height={14} />
-            <span>Scheduled for {new Date(scheduledTime).toLocaleString()}{timeLeftStr}</span>
+            <span>
+                Scheduled for {new Date(scheduledTime).toLocaleString()}
+                {timeLeftStr}
+            </span>
         </div>
     );
 }

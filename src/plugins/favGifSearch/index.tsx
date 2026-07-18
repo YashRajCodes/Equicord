@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -33,8 +33,7 @@ interface SearchBarComponentProps {
     className?: string;
 }
 
-type TSearchBarComponent =
-    React.FC<SearchBarComponentProps>;
+type TSearchBarComponent = React.FC<SearchBarComponentProps>;
 
 interface Gif {
     format: number;
@@ -51,10 +50,10 @@ interface Instance {
         resultType?: string;
     };
     props: {
-        favCopy: Gif[],
+        favCopy: Gif[];
 
-        favorites: Gif[],
-    },
+        favorites: Gif[];
+    };
     forceUpdate: () => void;
 }
 
@@ -94,7 +93,8 @@ export default definePlugin({
                     // https://regex101.com/r/07gpzP/1
                     // ($1 renderHeaderContent=function { ... switch (x) ... case FAVORITES:return) ($2) ($3 case default: ... return r.jsx(($<searchComp>), {...props}))
                     match: /(renderHeaderContent\(\).{1,150}FAVORITES:return)(.{1,150});(case.{1,200}default:.{0,50}?return\(0,\i\.jsx\)\((?<searchComp>\i\.\i),)/,
-                    replace: "$1 this?.state?.resultType === 'Favorites' ? $self.renderSearchBar(this, $<searchComp>) : $2;$3"
+                    replace:
+                        "$1 this?.state?.resultType === 'Favorites' ? $self.renderSearchBar(this, $<searchComp>) : $2;$3"
                 },
                 {
                     // to persist filtered favorites when component re-renders.
@@ -102,7 +102,6 @@ export default definePlugin({
                     match: /(,suggestions:\i,favorites:)(\i),/,
                     replace: "$1$self.getFav($2),favCopy:$2,"
                 }
-
             ]
         }
     ],
@@ -125,45 +124,50 @@ export default definePlugin({
         if (!this.instance || this.instance.dead) return favorites;
         const { favorites: filteredFavorites } = this.instance.props;
 
-        return filteredFavorites != null && filteredFavorites?.length !== favorites.length ? filteredFavorites : favorites;
-
+        return filteredFavorites != null && filteredFavorites?.length !== favorites.length
+            ? filteredFavorites
+            : favorites;
     }
 });
 
-function SearchBar({ instance, SearchBarComponent }: { instance: Instance; SearchBarComponent: TSearchBarComponent; }) {
+function SearchBar({ instance, SearchBarComponent }: { instance: Instance; SearchBarComponent: TSearchBarComponent }) {
     const [query, setQuery] = useState("");
     const ref = useRef<HTMLElement>(null);
 
-    const onChange = useCallback((searchQuery: string) => {
-        setQuery(searchQuery);
-        const { props } = instance;
+    const onChange = useCallback(
+        (searchQuery: string) => {
+            setQuery(searchQuery);
+            const { props } = instance;
 
-        // return early
-        if (searchQuery === "") {
-            props.favorites = props.favCopy;
-            instance.forceUpdate();
-            return;
-        }
+            // return early
+            if (searchQuery === "") {
+                props.favorites = props.favCopy;
+                instance.forceUpdate();
+                return;
+            }
 
-        // scroll back to top
-        ref.current
-            ?.closest("#gif-picker-tab-panel")
-            ?.querySelector('[class*="scrollerBase"]')
-            ?.scrollTo(0, 0);
+            // scroll back to top
+            ref.current?.closest("#gif-picker-tab-panel")?.querySelector('[class*="scrollerBase"]')?.scrollTo(0, 0);
 
-        const result =
-            props.favCopy
+            const result = props.favCopy
                 .map(gif => ({
-                    score: fuzzySearch(searchQuery.toLowerCase(), getTargetString(gif.url ?? gif.src).replace(/(%20|[_-])/g, " ").toLowerCase()),
-                    gif,
+                    score: fuzzySearch(
+                        searchQuery.toLowerCase(),
+                        getTargetString(gif.url ?? gif.src)
+                            .replace(/(%20|[_-])/g, " ")
+                            .toLowerCase()
+                    ),
+                    gif
                 }))
-                .filter(m => m.score != null) as { score: number; gif: Gif; }[];
+                .filter(m => m.score != null) as { score: number; gif: Gif }[];
 
-        result.sort((a, b) => b.score - a.score);
-        props.favorites = result.map(e => e.gif);
+            result.sort((a, b) => b.score - a.score);
+            props.favorites = result.map(e => e.gif);
 
-        instance.forceUpdate();
-    }, [instance.state]);
+            instance.forceUpdate();
+        },
+        [instance.state]
+    );
 
     useEffect(() => {
         return () => {

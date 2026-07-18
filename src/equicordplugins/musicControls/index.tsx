@@ -14,10 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./styles.css";
-
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -32,7 +31,16 @@ import { TidalPlayer } from "./tidal/TidalPlayer";
 export default definePlugin({
     name: "MusicControls",
     description: "Music Controls and Lyrics for multiple services ",
-    authors: [Devs.Ven, Devs.afn, Devs.KraXen72, Devs.Av32000, Devs.nin0dev, Devs.thororen, EquicordDevs.vmohammad, Devs.Joona],
+    authors: [
+        Devs.Ven,
+        Devs.afn,
+        Devs.KraXen72,
+        Devs.Av32000,
+        Devs.nin0dev,
+        Devs.thororen,
+        EquicordDevs.vmohammad,
+        Devs.Joona
+    ],
     settings,
     tags: ["Media", "Activity"],
     searchTerms: [
@@ -43,7 +51,7 @@ export default definePlugin({
         // Tidal
         "Tidal",
         "TidalControls",
-        "TidalLyrics",
+        "TidalLyrics"
     ],
 
     patches: [
@@ -54,21 +62,23 @@ export default definePlugin({
                 match: /(?<=\i\.jsxs?\)\()(\i),{(?=[^}]*?userTag:\i,occluded:)/,
                 // react.jsx(WrapperComponent, { VencordOriginal: AccountPanel, ...
                 replace: "$self.PanelWrapper,{VencordOriginal:$1,"
-            },
+            }
         },
         {
             find: ".PLAYER_DEVICES",
-            replacement: [{
-                // Adds POST and a Marker to the SpotifyAPI (so we can easily find it)
-                match: /get:(\i)\.bind\(null,(\i\.\i)\.get\)/,
-                replace: "post:$1.bind(null,$2.post),vcSpotifyMarker:1,$&"
-            },
-            {
-                // Spotify Connect API returns status 202 instead of 204 when skipping tracks.
-                // Discord rejects 202 which causes the request to send twice. This patch prevents this.
-                match: /202===\i\.status/,
-                replace: "false",
-            }]
+            replacement: [
+                {
+                    // Adds POST and a Marker to the SpotifyAPI (so we can easily find it)
+                    match: /get:(\i)\.bind\(null,(\i\.\i)\.get\)/,
+                    replace: "post:$1.bind(null,$2.post),vcSpotifyMarker:1,$&"
+                },
+                {
+                    // Spotify Connect API returns status 202 instead of 204 when skipping tracks.
+                    // Discord rejects 202 which causes the request to send twice. This patch prevents this.
+                    match: /202===\i\.status/,
+                    replace: "false"
+                }
+            ]
         },
         {
             find: 'repeat:"off"!==',
@@ -83,11 +93,12 @@ export default definePlugin({
                     replace: ""
                 }
             ]
-        },
+        }
     ],
 
     PanelWrapper({ VencordOriginal, ...props }) {
-        const { showTidalControls, showTidalLyrics, showSpotifyLyrics, showSpotifyControls, lyricsPosition } = settings.store;
+        const { showTidalControls, showTidalLyrics, showSpotifyLyrics, showSpotifyControls, lyricsPosition } =
+            settings.store;
         return (
             <>
                 <ErrorBoundary
@@ -114,5 +125,5 @@ export default definePlugin({
     async start() {
         await migrateOldLyrics();
         toggleHoverControls(settings.store.hoverControls);
-    },
+    }
 });

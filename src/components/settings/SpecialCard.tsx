@@ -14,9 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./SpecialCard.css";
+import type { PropsWithChildren } from "react";
 
 import { Card } from "@components/Card";
 import { Divider } from "@components/Divider";
@@ -24,7 +25,6 @@ import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { classNameFactory } from "@utils/css";
 import { Clickable } from "@webpack/common";
-import type { PropsWithChildren } from "react";
 
 const cl = classNameFactory("vc-special-");
 
@@ -39,17 +39,29 @@ interface StyledCardProps {
     buttonOnClick?: () => void;
 }
 
-export function SpecialCard({ title, subtitle, description, cardImage, backgroundImage, backgroundColor, buttonTitle, buttonOnClick: onClick, children }: PropsWithChildren<StyledCardProps>) {
+export function SpecialCard({
+    title,
+    subtitle,
+    description,
+    cardImage,
+    backgroundImage,
+    backgroundColor,
+    buttonTitle,
+    buttonOnClick: onClick,
+    children
+}: PropsWithChildren<StyledCardProps>) {
     const cardStyle: React.CSSProperties = {
         backgroundColor: backgroundColor || "#9c85ef",
-        backgroundImage: `url(${backgroundImage || ""})`,
+        backgroundImage: `url(${backgroundImage || ""})`
     };
 
     return (
         <Card className={cl("card", "card-special")} style={cardStyle}>
             <div className={cl("card-flex")}>
                 <div className={cl("card-flex-main")}>
-                    <Heading className={cl("title")} tag="h5">{title}</Heading>
+                    <Heading className={cl("title")} tag="h5">
+                        {title}
+                    </Heading>
                     <Paragraph className={cl("subtitle")}>{subtitle}</Paragraph>
                     <Paragraph className={cl("text")}>{description}</Paragraph>
 
@@ -57,12 +69,7 @@ export function SpecialCard({ title, subtitle, description, cardImage, backgroun
                 </div>
                 {cardImage && (
                     <div className={cl("image-container")}>
-                        <img
-                            role="presentation"
-                            src={cardImage}
-                            alt=""
-                            className={cl("image")}
-                        />
+                        <img role="presentation" src={cardImage} alt="" className={cl("image")} />
                     </div>
                 )}
             </div>
@@ -70,9 +77,7 @@ export function SpecialCard({ title, subtitle, description, cardImage, backgroun
                 <>
                     <Divider className={cl("seperator")} />
                     <Clickable onClick={onClick} className={cl("hyperlink")}>
-                        <Paragraph className={cl("hyperlink-text")}>
-                            {buttonTitle}
-                        </Paragraph>
+                        <Paragraph className={cl("hyperlink-text")}>{buttonTitle}</Paragraph>
                     </Clickable>
                 </>
             )}

@@ -65,7 +65,8 @@ export default definePlugin({
         if (
             currentNotice?.[1] === backOnlineMessage ||
             noticesQueue.some(([, noticeMessage]) => noticeMessage === backOnlineMessage)
-        ) return;
+        )
+            return;
 
         showNotice(backOnlineMessage, "Exit idle", () => {
             popNotice();

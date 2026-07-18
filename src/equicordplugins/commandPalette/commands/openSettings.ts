@@ -69,12 +69,7 @@ const ROUTE_LOOKUP = (() => {
 })();
 
 function normalizeRoute(route: string): string {
-    return route
-        .trim()
-        .toLowerCase()
-        .replace(/^\/+/, "")
-        .replace(/\s+/g, "_")
-        .replace(/&/g, "and");
+    return route.trim().toLowerCase().replace(/^\/+/, "").replace(/\s+/g, "_").replace(/&/g, "and");
 }
 
 function resolveRouteCandidates(route: string): string[] {
@@ -90,9 +85,7 @@ function resolveRouteCandidates(route: string): string[] {
         const base = normalizeRoute(candidate);
         if (!base) continue;
 
-        const expanded = base.endsWith("_panel")
-            ? [base, base.slice(0, -"_panel".length)]
-            : [`${base}_panel`, base];
+        const expanded = base.endsWith("_panel") ? [base, base.slice(0, -"_panel".length)] : [`${base}_panel`, base];
 
         for (const item of expanded) {
             const key = normalizeRoute(item);

@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { getCurrentChannel } from "@utils/discord";
 import { UserProfileStore, useStateFromStores } from "@webpack/common";
@@ -22,8 +22,14 @@ import { UserProfileStore, useStateFromStores } from "@webpack/common";
 import { PronounsFormat, settings } from "./settings";
 
 function useDiscordPronouns(id: string, useGlobalProfile: boolean = false): string | undefined {
-    const globalPronouns: string | undefined = useStateFromStores([UserProfileStore], () => UserProfileStore.getUserProfile(id)?.pronouns);
-    const guildPronouns: string | undefined = useStateFromStores([UserProfileStore], () => UserProfileStore.getGuildMemberProfile(id, getCurrentChannel()?.getGuildId())?.pronouns);
+    const globalPronouns: string | undefined = useStateFromStores(
+        [UserProfileStore],
+        () => UserProfileStore.getUserProfile(id)?.pronouns
+    );
+    const guildPronouns: string | undefined = useStateFromStores(
+        [UserProfileStore],
+        () => UserProfileStore.getGuildMemberProfile(id, getCurrentChannel()?.getGuildId())?.pronouns
+    );
 
     if (useGlobalProfile) return globalPronouns;
     return guildPronouns || globalPronouns;

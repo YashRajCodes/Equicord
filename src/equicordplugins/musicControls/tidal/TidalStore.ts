@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Logger } from "@utils/Logger";
 import { proxyLazyWebpack } from "@webpack";
+
+import { Logger } from "@utils/Logger";
 import { Flux, FluxDispatcher } from "@webpack/common";
 
 import { settings } from "../settings";
@@ -24,11 +25,11 @@ export interface Track {
 
 export interface PlayerState {
     track: Track | null;
-    isPlaying: boolean,
-    position: number,
-    repeat: Repeat,
-    shuffle: boolean,
-    volume: number,
+    isPlaying: boolean;
+    position: number;
+    repeat: Repeat;
+    shuffle: boolean;
+    volume: number;
 }
 
 export type Repeat = 0 | 1 | 2;
@@ -39,7 +40,7 @@ function mapApiResponseToTrack(apiData: any): Track | null {
     if (!apiData?.track) return null;
 
     const { track } = apiData;
-    const artist = track.artist?.name || (track.artists?.[0]?.name) || "Unknown Artist";
+    const artist = track.artist?.name || track.artists?.[0]?.name || "Unknown Artist";
 
     return {
         name: track.title || "Unknown Title",
@@ -50,11 +51,13 @@ function mapApiResponseToTrack(apiData: any): Track | null {
         url: track.url || null,
         album: track.album?.title || null,
         id: track.id?.toString() || "0",
-        vibrantColor: track.album.vibrantColor || null,
+        vibrantColor: track.album.vibrantColor || null
     };
 }
 
-type Message = { type: "update"; all: boolean; fields?: any; field?: string; value?: any; } | { type: "subscribed" | "unsubscribed" | "ok" | "error";[key: string]: any; };
+type Message =
+    | { type: "update"; all: boolean; fields?: any; field?: string; value?: any }
+    | { type: "subscribed" | "unsubscribed" | "ok" | "error"; [key: string]: any };
 
 class TidalSocket {
     public onChange: (e: Message) => void;
@@ -80,15 +83,15 @@ class TidalSocket {
 
     get routes() {
         return {
-            "play": () => this.socket?.send(JSON.stringify({ action: "resume" })),
-            "pause": () => this.socket?.send(JSON.stringify({ action: "pause" })),
-            "toggle": () => this.socket?.send(JSON.stringify({ action: "toggle" })),
-            "previous": () => this.socket?.send(JSON.stringify({ action: "previous" })),
-            "next": () => this.socket?.send(JSON.stringify({ action: "next" })),
-            "seek": (seconds: number) => this.socket?.send(JSON.stringify({ action: "seek", time: seconds })),
-            "shuffle": (shuffle: boolean) => this.socket?.send(JSON.stringify({ action: "setShuffleMode", shuffle })),
-            "repeat": (mode: Repeat) => this.socket?.send(JSON.stringify({ action: "setRepeatMode", mode })),
-            "volume": (volume: number) => this.socket?.send(JSON.stringify({ action: "volume", volume })),
+            play: () => this.socket?.send(JSON.stringify({ action: "resume" })),
+            pause: () => this.socket?.send(JSON.stringify({ action: "pause" })),
+            toggle: () => this.socket?.send(JSON.stringify({ action: "toggle" })),
+            previous: () => this.socket?.send(JSON.stringify({ action: "previous" })),
+            next: () => this.socket?.send(JSON.stringify({ action: "next" })),
+            seek: (seconds: number) => this.socket?.send(JSON.stringify({ action: "seek", time: seconds })),
+            shuffle: (shuffle: boolean) => this.socket?.send(JSON.stringify({ action: "setShuffleMode", shuffle })),
+            repeat: (mode: Repeat) => this.socket?.send(JSON.stringify({ action: "setRepeatMode", mode })),
+            volume: (volume: number) => this.socket?.send(JSON.stringify({ action: "volume", volume }))
         };
     }
 
@@ -106,13 +109,21 @@ class TidalSocket {
 
         this.socket.addEventListener("error", e => {
             if (!this.ready) setTimeout(() => this.reconnect(), 5_000);
-            this.onChange({ type: "update", all: true, fields: { playing: false, track: null, currentTime: 0, repeatMode: 0, shuffle: false, volume: 100 } });
+            this.onChange({
+                type: "update",
+                all: true,
+                fields: { playing: false, track: null, currentTime: 0, repeatMode: 0, shuffle: false, volume: 100 }
+            });
         });
 
         this.socket.addEventListener("close", e => {
             this.ready = false;
             if (!this.ready) setTimeout(() => this.reconnect(), 10_000);
-            this.onChange({ type: "update", all: true, fields: { playing: false, track: null, currentTime: 0, repeatMode: 0, shuffle: false, volume: 100 } });
+            this.onChange({
+                type: "update",
+                all: true,
+                fields: { playing: false, track: null, currentTime: 0, repeatMode: 0, shuffle: false, volume: 100 }
+            });
         });
 
         this.socket.addEventListener("message", e => {
@@ -160,10 +171,13 @@ export const TidalStore = proxyLazyWebpack(() => {
 
                 if (track) {
                     store.track = { ...track };
-                    store.position = (apiData.currentTime || 0);
+                    store.position = apiData.currentTime || 0;
                     if (track.vibrantColor) {
                         if (this.playerElement) {
-                            this.playerElement.style.setProperty("--eq-tdl-slider-gradient", `linear-gradient(to right, ${track.vibrantColor} 80%, #E5E5E5 100%)`);
+                            this.playerElement.style.setProperty(
+                                "--eq-tdl-slider-gradient",
+                                `linear-gradient(to right, ${track.vibrantColor} 80%, #E5E5E5 100%)`
+                            );
                             this.playerElement.style.setProperty("--eq-tdl-slider-grabber", track.vibrantColor);
                         } else {
                             this.playerElement = document.querySelector("#eq-tdl-player");
@@ -183,7 +197,6 @@ export const TidalStore = proxyLazyWebpack(() => {
 
         public openExternal(path: string) {
             VencordNative.native.openExternal(path.replace("http://www.tidal.com", "tidal://"));
-
         }
 
         set position(p: number) {

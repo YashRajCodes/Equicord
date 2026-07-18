@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { RenderModalProps } from "@vencord/discord-types";
+
 import { BaseText } from "@components/BaseText";
 import { SpotifyStore, Track } from "@equicordplugins/musicControls/spotify/SpotifyStore";
 import { openImageModal } from "@utils/discord";
-import { RenderModalProps } from "@vencord/discord-types";
-import { Modal,React } from "@webpack/common";
+import { Modal, React } from "@webpack/common";
 
 import { cl, NoteSvg, scrollClasses, useLyrics } from "./util";
 
@@ -20,7 +21,11 @@ const formatTime = (time: number) => {
 
 function getTitleNode(track: Track | null) {
     if (!track) {
-        return <BaseText size="sm" weight="semibold">No track playing</BaseText>;
+        return (
+            <BaseText size="sm" weight="semibold">
+                No track playing
+            </BaseText>
+        );
     }
     return (
         <div className={cl("header-content")}>
@@ -29,15 +34,19 @@ function getTitleNode(track: Track | null) {
                     src={track.album.image.url}
                     alt={track.album.name}
                     className={cl("album-image")}
-                    onClick={() => openImageModal({
-                        url: track.album.image.url,
-                        width: track.album.image.width,
-                        height: track.album.image.height,
-                    })}
+                    onClick={() =>
+                        openImageModal({
+                            url: track.album.image.url,
+                            width: track.album.image.width,
+                            height: track.album.image.height
+                        })
+                    }
                 />
             )}
             <div>
-                <BaseText size="sm" weight="semibold">{track.name}</BaseText>
+                <BaseText size="sm" weight="semibold">
+                    {track.name}
+                </BaseText>
                 <BaseText size="sm">by {track.artists.map(a => a.name).join(", ")}</BaseText>
                 <BaseText size="sm">on {track.album.name}</BaseText>
             </div>
@@ -48,7 +57,7 @@ function getTitleNode(track: Track | null) {
 const modalCurrentLine = cl("modal-line-current");
 const modalLine = cl("modal-line");
 
-export function LyricsModal({ props }: { props: RenderModalProps; }) {
+export function LyricsModal({ props }: { props: RenderModalProps }) {
     const { track, lyricsInfo, currLrcIndex } = useLyrics({ scroll: false });
     const currentLyrics = lyricsInfo?.lyricsVersions[lyricsInfo.useLyric];
 

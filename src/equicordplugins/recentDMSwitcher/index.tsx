@@ -5,13 +5,24 @@
  */
 
 import "./styles.css";
-
 import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs, IS_MAC } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
-import { Button, ChannelRouter, ChannelStore, closeModal, IconUtils, openModal,React, RelationshipStore, SelectedChannelStore, Toasts, UserStore } from "@webpack/common";
+import {
+    Button,
+    ChannelRouter,
+    ChannelStore,
+    closeModal,
+    IconUtils,
+    openModal,
+    React,
+    RelationshipStore,
+    SelectedChannelStore,
+    Toasts,
+    UserStore
+} from "@webpack/common";
 
 const STORAGE_KEY = "RDMSwitch_history";
 
@@ -46,7 +57,7 @@ const settings = definePluginSettings({
         description: "Number of users to show in overlay",
         markers: makeRange(10, 50, 10),
         stickToMarkers: true,
-        default: 20,
+        default: 20
     },
     overlayRowLength: {
         type: OptionType.SLIDER,
@@ -77,7 +88,8 @@ const settings = definePluginSettings({
                     cycleIndex = -1;
                     await DataStore.set(STORAGE_KEY, []);
                     Toasts.show({ id: Toasts.genId(), type: Toasts.Type.SUCCESS, message: "Cleared RDMS history" });
-                }}>
+                }}
+            >
                 "Clear RDMS History
             </Button>
         )
@@ -127,10 +139,7 @@ function beginCycleSession() {
     suppressRdmsWhileCycling = true;
 
     const currentId = SelectedChannelStore.getChannelId();
-    cycleSnapshot = sanitizeHistory([
-        ...(isDirectMessageChannel(currentId) ? [currentId!] : []),
-        ...rmdsDmChannelIds
-    ]);
+    cycleSnapshot = sanitizeHistory([...(isDirectMessageChannel(currentId) ? [currentId!] : []), ...rmdsDmChannelIds]);
 
     cycleIndex = 0;
 }
@@ -175,7 +184,7 @@ function stopEvent(e: KeyboardEvent) {
         e.preventDefault();
         e.stopPropagation();
         e.stopImmediatePropagation();
-    } catch { }
+    } catch {}
 }
 
 function onKeyDown(e: KeyboardEvent) {
@@ -199,16 +208,20 @@ function onKeyUp(e: KeyboardEvent) {
 
 function getDisplayForChannel(id: string) {
     const ch = ChannelStore.getChannel(id);
-    if (!ch) return {
-        name: "Unknown",
-        avatar: ""
-    };
+    if (!ch)
+        return {
+            name: "Unknown",
+            avatar: ""
+        };
 
     if (ch.isDM()) {
         const uid = ch.recipients?.[0];
         const user = uid ? UserStore.getUser(uid) : null;
         const friendNick = user ? RelationshipStore.getNickname(user.id) : null;
-        return { name: friendNick ?? user?.globalName ?? user?.username ?? "DM", avatar: user ? IconUtils.getUserAvatarURL(user, true, 64) : "" };
+        return {
+            name: friendNick ?? user?.globalName ?? user?.username ?? "DM",
+            avatar: user ? IconUtils.getUserAvatarURL(user, true, 64) : ""
+        };
     }
 
     if (ch.isGroupDM()) {
@@ -240,7 +253,9 @@ function OverlayContent(): any {
     const [, setTick] = React.useState(0);
     React.useEffect(() => {
         overlayRerender = () => setTick(t => t + 1);
-        return () => { overlayRerender = null; };
+        return () => {
+            overlayRerender = null;
+        };
     }, []);
 
     const mode = settings.store.overlayMode;
@@ -248,9 +263,7 @@ function OverlayContent(): any {
     const maxCount = Math.max(3, Math.min(7, settings.store.overlayRowLength));
 
     const pageSize = mode === "current" ? 1 : maxCount;
-    const visibleList = mode === "current"
-        ? [cycleSnapshot[cycleIndex]]
-        : cycleSnapshot;
+    const visibleList = mode === "current" ? [cycleSnapshot[cycleIndex]] : cycleSnapshot;
 
     let pageCount = 1;
     let currentPage = 0;
@@ -274,12 +287,10 @@ function OverlayContent(): any {
                 style={{
                     boxShadow: isActive
                         ? "0 0 0 2px var(--brand-500) inset, 0 4px 12px rgba(0,0,0,0.25)"
-                        : "0 2px 8px rgba(0,0,0,0.15)",
+                        : "0 2px 8px rgba(0,0,0,0.15)"
                 }}
             >
-                {showAvatars && avatar && (
-                    <img alt="" src={avatar} className={cl("avatar")} />
-                )}
+                {showAvatars && avatar && <img alt="" src={avatar} className={cl("avatar")} />}
                 <div className={cl("name")}>{name}</div>
             </div>
         );
@@ -294,7 +305,7 @@ function OverlayContent(): any {
                         className={cl("page-indicator")}
                         style={{
                             background: i === currentPage ? "var(--brand-500)" : "var(--interactive-muted)",
-                            opacity: i === currentPage ? 1 : 0.6,
+                            opacity: i === currentPage ? 1 : 0.6
                         }}
                     />
                 ))}
@@ -304,14 +315,11 @@ function OverlayContent(): any {
     return (
         <div className={cl("overlay-container")}>
             <div className={cl("cards-container")}>
-                <div className={cl("cards")}>
-                    {cards}
-                </div>
+                <div className={cl("cards")}>{cards}</div>
                 {dots}
             </div>
         </div>
     );
-
 }
 
 function showCycleToast() {
@@ -336,14 +344,14 @@ export default definePlugin({
     settings,
 
     flux: {
-        GUILD_SELECT({ guildId }: { guildId: string | null; }) {
+        GUILD_SELECT({ guildId }: { guildId: string | null }) {
             if (!isCyclingSessionActive) return;
             if (guildId) {
                 const targetId = cycleSnapshot[cycleIndex];
                 if (targetId) ChannelRouter.transitionToChannel(targetId);
             }
         },
-        async CHANNEL_SELECT({ channelId }: { channelId: string | null; }) {
+        async CHANNEL_SELECT({ channelId }: { channelId: string | null }) {
             if (suppressRdmsWhileCycling) return;
             if (!channelId) return;
             if (!isDirectMessageChannel(channelId)) return;

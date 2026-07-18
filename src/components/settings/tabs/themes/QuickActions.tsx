@@ -4,21 +4,21 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findLazy } from "@webpack";
+import type { ComponentType, Ref, SyntheticEvent } from "react";
+import Plugins from "~plugins";
+
 import { Settings } from "@api/Settings";
 import { FolderIcon, PaintbrushIcon, PencilIcon, PlusIcon, RestartIcon } from "@components/Icons";
 import { QuickAction, QuickActionCard } from "@components/settings";
 import { openPluginModal } from "@components/settings/tabs/plugins/PluginModal";
-import { findLazy } from "@webpack";
 import { React } from "@webpack/common";
-import type { ComponentType, Ref, SyntheticEvent } from "react";
-
-import Plugins from "~plugins";
 
 type FileInputType = ComponentType<{
     ref: Ref<HTMLInputElement>;
     onChange: (e: SyntheticEvent<HTMLInputElement>) => void;
     multiple?: boolean;
-    filters?: { name?: string; extensions: string[]; }[];
+    filters?: { name?: string; extensions: string[] }[];
 }>;
 
 const FileInput: FileInputType = findLazy(m => m.prototype?.activateUploadDialogue && m.prototype.setRef);
@@ -54,11 +54,7 @@ export function QuickActionsSection({ fileInputRef, onFileUpload, refreshLocalTh
                     Icon={FolderIcon}
                 />
             )}
-            <QuickAction
-                text="Load missing Themes"
-                action={refreshLocalThemes}
-                Icon={RestartIcon}
-            />
+            <QuickAction text="Load missing Themes" action={refreshLocalThemes} Icon={RestartIcon} />
             <QuickAction
                 text="Edit QuickCSS"
                 action={() => VencordNative.quickCss.openEditor()}

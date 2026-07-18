@@ -5,6 +5,7 @@
  */
 
 import "./UIElements.css";
+import { RenderModalProps } from "@vencord/discord-types";
 
 import { ChatBarButtonMap } from "@api/ChatButtons";
 import { MessagePopoverButtonMap } from "@api/MessagePopover";
@@ -18,8 +19,7 @@ import { classNameFactory } from "@utils/css";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { IconComponent } from "@utils/types";
-import { RenderModalProps } from "@vencord/discord-types";
-import { Clickable, Modal,openModal } from "@webpack/common";
+import { Clickable, Modal, openModal } from "@webpack/common";
 
 const cl = classNameFactory("vc-plugin-ui-elements-");
 
@@ -31,19 +31,16 @@ export function UIElementsButton() {
                     <Paragraph size="md" weight="semibold">
                         Manage plugin UI elements
                     </Paragraph>
-                    <Paragraph size="xs">
-                        Allows you to hide buttons you don't like
-                    </Paragraph>
+                    <Paragraph size="xs">Allows you to hide buttons you don't like</Paragraph>
                 </div>
-                <svg
-                    className={cl("button-arrow")}
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                >
-                    <path fill="currentColor" d="M9.3 5.3a1 1 0 0 0 0 1.4l5.29 5.3-5.3 5.3a1 1 0 1 0 1.42 1.4l6-6a1 1 0 0 0 0-1.4l-6-6a1 1 0 0 0-1.42 0Z" />
+                <svg className={cl("button-arrow")} aria-hidden="true" viewBox="0 0 24 24">
+                    <path
+                        fill="currentColor"
+                        d="M9.3 5.3a1 1 0 0 0 0 1.4l5.29 5.3-5.3 5.3a1 1 0 1 0 1.42 1.4l6-6a1 1 0 0 0 0-1.4l-6-6a1 1 0 0 0-1.42 0Z"
+                    />
                 </svg>
             </Card>
-        </Clickable >
+        </Clickable>
     );
 }
 
@@ -51,7 +48,7 @@ function Section(props: {
     title: string;
     description: string;
     settings: SettingsPluginUiElements;
-    buttonMap: Map<string, { icon: IconComponent; }>;
+    buttonMap: Map<string, { icon: IconComponent }>;
 }) {
     const { buttonMap, description, title, settings } = props;
 
@@ -74,8 +71,12 @@ function Section(props: {
 
     return (
         <section>
-            <BaseText tag="h3" size="lg" weight="semibold">{title}</BaseText>
-            <Paragraph size="sm" className={classes(Margins.top8, Margins.bottom20)}>{description}</Paragraph>
+            <BaseText tag="h3" size="lg" weight="semibold">
+                {title}
+            </BaseText>
+            <Paragraph size="sm" className={classes(Margins.top8, Margins.bottom20)}>
+                {description}
+            </Paragraph>
 
             <div className={cl("switches")}>
                 {switches.length === 0 && (

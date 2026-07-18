@@ -28,7 +28,7 @@ export const tools: Record<Tool, ToolDefinition | undefined> = {
     brush: BrushTool,
     erase: EraseTool,
     crop: CropTool,
-    shape: ShapeTool,
+    shape: ShapeTool
 };
 
 export let currentTool: Tool = "none";
@@ -92,18 +92,30 @@ export const Toolbar = () => {
     return (
         <div className="vc-remix-toolbar">
             <div className="vc-remix-tools">
-                <Button className={(tool === "brush" ? "tool-active" : "")} onClick={() => changeTool("brush")}>Brush</Button>
-                <Button className={(tool === "erase" ? "tool-active" : "")} onClick={() => changeTool("erase")}>Erase</Button>
-                <Button className={(tool === "crop" ? "tool-active" : "")} onClick={() => changeTool("crop")}>Crop</Button>
-                <Button className={(tool === "shape" ? "tool-active" : "")} onClick={() => changeTool("shape")}>Shape</Button>
+                <Button className={tool === "brush" ? "tool-active" : ""} onClick={() => changeTool("brush")}>
+                    Brush
+                </Button>
+                <Button className={tool === "erase" ? "tool-active" : ""} onClick={() => changeTool("erase")}>
+                    Erase
+                </Button>
+                <Button className={tool === "crop" ? "tool-active" : ""} onClick={() => changeTool("crop")}>
+                    Crop
+                </Button>
+                <Button className={tool === "shape" ? "tool-active" : ""} onClick={() => changeTool("shape")}>
+                    Shape
+                </Button>
             </div>
             <div className="vc-remix-settings">
                 <div className="vc-remix-setting-section">
-                    {(tool === "brush" || tool === "shape") &&
-                        <SettingColorComponent name="vc-remix-color-picker" onChange={setColor} color={colorStringToHex(color)} />
-                    }
+                    {(tool === "brush" || tool === "shape") && (
+                        <SettingColorComponent
+                            name="vc-remix-color-picker"
+                            onChange={setColor}
+                            color={colorStringToHex(color)}
+                        />
+                    )}
 
-                    {(tool === "brush" || tool === "erase" || tool === "shape") &&
+                    {(tool === "brush" || tool === "erase" || tool === "shape") && (
                         <Slider
                             minValue={1}
                             maxValue={500}
@@ -112,26 +124,28 @@ export const Toolbar = () => {
                             markers={[1, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500]}
                             hideBubble
                         />
-                    }
+                    )}
                 </div>
-                {(tool === "crop") && <Button onClick={resetBounds}>Reset</Button>}
+                {tool === "crop" && <Button onClick={resetBounds}>Reset</Button>}
                 <div className="vc-remix-setting-section">
-                    {(tool === "shape") && (<>
-                        <Select
-                            select={setShape}
-                            isSelected={v => v === currentShape}
-                            serialize={v => String(v)}
-                            placeholder="Shape"
-                            options={
-                                ["Rectangle", "Ellipse", "Line", "Arrow"].map(v => ({
+                    {tool === "shape" && (
+                        <>
+                            <Select
+                                select={setShape}
+                                isSelected={v => v === currentShape}
+                                serialize={v => String(v)}
+                                placeholder="Shape"
+                                options={["Rectangle", "Ellipse", "Line", "Arrow"].map(v => ({
                                     label: v,
-                                    value: v.toLowerCase() as Shape,
-                                }))
-                            }
-                        />
+                                    value: v.toLowerCase() as Shape
+                                }))}
+                            />
 
-                        <Paragraph className="vc-remix-setting-switch">Fill <Switch checked={fill} onChange={setFill} /></Paragraph>
-                    </>)}
+                            <Paragraph className="vc-remix-setting-switch">
+                                Fill <Switch checked={fill} onChange={setFill} />
+                            </Paragraph>
+                        </>
+                    )}
                 </div>
             </div>
             <div className="vc-remix-misc">

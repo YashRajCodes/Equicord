@@ -21,7 +21,7 @@ export async function uploadToNest(
         const response = await fetch("https://nest.rip/api/files/upload", {
             method: "POST",
             headers: {
-                "Authorization": authToken
+                Authorization: authToken
             },
             body: formData
         });
@@ -31,7 +31,7 @@ export async function uploadToNest(
             return { success: false, error: `Upload failed: ${response.status} ${errorText}` };
         }
 
-        const data = await response.json() as NestUploadResponse;
+        const data = (await response.json()) as NestUploadResponse;
 
         if (data.fileURL) {
             return { success: true, url: data.fileURL };
@@ -66,7 +66,12 @@ export async function uploadToEzHost(
             return { success: false, error: `Upload failed: ${response.status} ${errorText}` };
         }
 
-        const data = await response.json() as { success: boolean; error?: string; imageUrl?: string; rawUrl?: string; };
+        const data = (await response.json()) as {
+            success: boolean;
+            error?: string;
+            imageUrl?: string;
+            rawUrl?: string;
+        };
 
         if (!data || !data.success) {
             return { success: false, error: data?.error || "Upload failed" };
@@ -227,10 +232,10 @@ export async function uploadToGofile(
             return { success: false, error: `Upload failed: ${response.status} ${errorText}` };
         }
 
-        const data = await response.json() as {
+        const data = (await response.json()) as {
             status?: string;
             error?: string;
-            data?: { downloadPage?: string; code?: string; };
+            data?: { downloadPage?: string; code?: string };
         };
 
         if (data.status !== "ok") {
@@ -267,15 +272,16 @@ export async function uploadToTmpfiles(
             return { success: false, error: `Upload failed: ${response.status} ${errorText}` };
         }
 
-        const data = await response.json() as { status?: string; data?: { url?: string; }; };
+        const data = (await response.json()) as { status?: string; data?: { url?: string } };
         const rawUrl = data.data?.url || "";
         if (!rawUrl || data.status !== "success") {
             return { success: false, error: "No URL returned from upload" };
         }
 
-        const url = rawUrl.includes("tmpfiles.org/") && !rawUrl.includes("/dl/")
-            ? rawUrl.replace(/tmpfiles\.org\/(\d+)/, "tmpfiles.org/dl/$1")
-            : rawUrl;
+        const url =
+            rawUrl.includes("tmpfiles.org/") && !rawUrl.includes("/dl/")
+                ? rawUrl.replace(/tmpfiles\.org\/(\d+)/, "tmpfiles.org/dl/$1")
+                : rawUrl;
 
         return { success: true, url };
     } catch (e) {
@@ -300,12 +306,11 @@ export async function uploadToBuzzheavier(
         }
 
         try {
-            const data = JSON.parse(text) as { code?: number; data?: { id?: string; }; };
+            const data = JSON.parse(text) as { code?: number; data?: { id?: string } };
             if (data.code === 201 && data.data?.id) {
                 return { success: true, url: `https://buzzheavier.com/${data.data.id}` };
             }
-        } catch {
-        }
+        } catch {}
 
         const url = text.trim();
         if (!url) {
@@ -395,7 +400,7 @@ export async function uploadToPixelVault(
         });
 
         const text = await response.text();
-        let data: { resource?: string; url?: string; } | null = null;
+        let data: { resource?: string; url?: string } | null = null;
 
         try {
             data = text ? JSON.parse(text) : null;
@@ -437,7 +442,7 @@ export async function uploadToPixelDrain(
         });
 
         const text = await response.text();
-        let data: { id?: string; message?: string; } | null = null;
+        let data: { id?: string; message?: string } | null = null;
         try {
             data = text ? JSON.parse(text) : null;
         } catch {
@@ -518,7 +523,7 @@ export async function createWebdavShare(
             return { success: false, error: `Share creation failed: ${response.status} ${text.slice(0, 200)}` };
         }
 
-        let data: { ocs?: { data?: { token?: string; }; }; };
+        let data: { ocs?: { data?: { token?: string } } };
         try {
             data = JSON.parse(text);
         } catch {
@@ -537,21 +542,15 @@ export async function createWebdavShare(
 }
 
 export async function fetchFile(
-
     _: IpcMainInvokeEvent,
 
     url: string
-
-): Promise<{ success: boolean; data?: ArrayBuffer; contentType?: string; error?: string; }> {
-
+): Promise<{ success: boolean; data?: ArrayBuffer; contentType?: string; error?: string }> {
     try {
-
         const response = await fetch(url);
 
         if (!response.ok) {
-
             return { success: false, error: `Fetch failed: ${response.status} ${response.statusText}` };
-
         }
 
         const data = await response.arrayBuffer();
@@ -559,11 +558,7 @@ export async function fetchFile(
         const contentType = response.headers.get("content-type") || "";
 
         return { success: true, data, contentType };
-
     } catch (e) {
-
         return { success: false, error: e instanceof Error ? e.message : "Unknown error" };
-
     }
-
 }

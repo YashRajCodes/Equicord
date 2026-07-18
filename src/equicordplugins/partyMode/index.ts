@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
@@ -24,7 +24,7 @@ import { FluxDispatcher } from "@webpack/common";
 const enum Intensity {
     Normal,
     Better,
-    ProjectX,
+    ProjectX
 }
 
 const settings = definePluginSettings({
@@ -34,11 +34,11 @@ const settings = definePluginSettings({
         options: [
             { label: "Normal", value: Intensity.Normal, default: true },
             { label: "Better", value: Intensity.Better },
-            { label: "Project X", value: Intensity.ProjectX },
+            { label: "Project X", value: Intensity.ProjectX }
         ],
         restartNeeded: false,
         onChange: setSettings
-    },
+    }
 });
 
 export default definePlugin({
@@ -56,7 +56,7 @@ export default definePlugin({
 
     stop() {
         setPoggerState(false);
-    },
+    }
 });
 
 function setPoggerState(state: boolean) {
@@ -89,7 +89,7 @@ function setSettings(intensity: Intensity) {
         case Intensity.Better: {
             Object.assign(state, {
                 confettiSize: 12,
-                confettiCount: 8,
+                confettiCount: 8
             });
             break;
         }
@@ -97,7 +97,7 @@ function setSettings(intensity: Intensity) {
             Object.assign(state, {
                 shakeIntensity: 20,
                 confettiSize: 25,
-                confettiCount: 15,
+                confettiCount: 15
             });
             break;
         }

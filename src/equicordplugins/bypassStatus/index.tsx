@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { Message } from "@vencord/discord-types";
+import { JSX } from "react";
+
 import { playAudio } from "@api/AudioPlayer";
 import { type NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Notifications } from "@api/index";
@@ -12,9 +15,16 @@ import { Devs } from "@utils/constants";
 import { getCurrentChannel } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import type { Message } from "@vencord/discord-types";
-import { ChannelActionCreators, ChannelStore, Menu, MessageStore, NavigationRouter, PresenceStore, UserStore, WindowStore } from "@webpack/common";
-import { JSX } from "react";
+import {
+    ChannelActionCreators,
+    ChannelStore,
+    Menu,
+    MessageStore,
+    NavigationRouter,
+    PresenceStore,
+    UserStore,
+    WindowStore
+} from "@webpack/common";
 
 interface IMessageCreate {
     channelId: string;
@@ -25,17 +35,20 @@ interface IMessageCreate {
 const SILENT_PING_FLAG = 1 << 12;
 
 function Icon(enabled?: boolean): JSX.Element {
-    return <svg
-        width="18"
-        height="18"
-    >
-        <circle cx="9" cy="9" r="8" fill={!enabled ? "var(--status-danger)" : "currentColor"} />
-        <circle cx="9" cy="9" r="3.75" fill={!enabled ? "white" : "black"} />
-    </svg>;
+    return (
+        <svg width="18" height="18">
+            <circle cx="9" cy="9" r="8" fill={!enabled ? "var(--status-danger)" : "currentColor"} />
+            <circle cx="9" cy="9" r="3.75" fill={!enabled ? "white" : "black"} />
+        </svg>
+    );
 }
 
 function processIds(value: string): string {
-    return value.replace(/\s/g, "").split(",").filter(id => id.trim() !== "").join(", ");
+    return value
+        .replace(/\s/g, "")
+        .split(",")
+        .filter(id => id.trim() !== "")
+        .join(", ");
 }
 
 async function showNotification(message: Message, guildId: string | undefined): Promise<void> {
@@ -75,7 +88,9 @@ function ContextCallback(name: "guild" | "user" | "channel"): NavContextMenuPatc
         if (!type) return;
         const enabled = settings.store[`${name}s`].split(", ").includes(type.id);
         if (name === "user" && type.id === UserStore.getCurrentUser().id) return;
-        children.splice(-1, 0, (
+        children.splice(
+            -1,
+            0,
             <Menu.MenuGroup>
                 <Menu.MenuItem
                     id={`status-${name}-bypass`}
@@ -89,7 +104,7 @@ function ContextCallback(name: "guild" | "user" | "channel"): NavContextMenuPatc
                     }}
                 />
             </Menu.MenuGroup>
-        ));
+        );
     };
 }
 
@@ -99,30 +114,31 @@ const settings = definePluginSettings({
         description: "Guilds to let bypass (notified when pinged anywhere in guild)",
         default: "",
         placeholder: "Separate with commas",
-        onChange: value => settings.store.guilds = processIds(value)
+        onChange: value => (settings.store.guilds = processIds(value))
     },
     channels: {
         type: OptionType.STRING,
         description: "Channels to let bypass (notified when pinged in that channel)",
         default: "",
         placeholder: "Separate with commas",
-        onChange: value => settings.store.channels = processIds(value)
+        onChange: value => (settings.store.channels = processIds(value))
     },
     users: {
         type: OptionType.STRING,
         description: "Users to let bypass (notified for all messages sent in DMs)",
         default: "",
         placeholder: "Separate with commas",
-        onChange: value => settings.store.users = processIds(value)
+        onChange: value => (settings.store.users = processIds(value))
     },
     allowOutsideOfDms: {
         type: OptionType.BOOLEAN,
-        description: "Allow selected users to bypass status outside of DMs too (acts like a channel/guild bypass, but it's for all messages sent by the selected users)"
+        description:
+            "Allow selected users to bypass status outside of DMs too (acts like a channel/guild bypass, but it's for all messages sent by the selected users)"
     },
     notificationSound: {
         type: OptionType.BOOLEAN,
         description: "Whether the notification sound should be played",
-        default: true,
+        default: true
     },
     respectSilentPings: {
         type: OptionType.BOOLEAN,
@@ -135,11 +151,11 @@ const settings = definePluginSettings({
         options: [
             {
                 label: "Online",
-                value: "online",
+                value: "online"
             },
             {
                 label: "Idle",
-                value: "idle",
+                value: "idle"
             },
             {
                 label: "Do Not Disturb",
@@ -148,7 +164,7 @@ const settings = definePluginSettings({
             },
             {
                 label: "Invisible",
-                value: "invisible",
+                value: "invisible"
             }
         ]
     }
@@ -156,7 +172,8 @@ const settings = definePluginSettings({
 
 export default definePlugin({
     name: "BypassStatus",
-    description: "Still get notifications from specific sources when in do not disturb mode. Right-click on users/channels/guilds to set them to bypass do not disturb mode.",
+    description:
+        "Still get notifications from specific sources when in do not disturb mode. Right-click on users/channels/guilds to set them to bypass do not disturb mode.",
     tags: ["Activity", "Customisation", "Notifications", "Servers"],
     authors: [Devs.Inbestigator],
     dependencies: ["AudioPlayerAPI"],
@@ -166,12 +183,24 @@ export default definePlugin({
                 const currentUser = UserStore.getCurrentUser();
                 const userStatus = await PresenceStore.getStatus(currentUser.id);
                 const currentChannelId = getCurrentChannel()?.id ?? "0";
-                if (message.state === "SENDING" || message.content === "" || message.author.id === currentUser.id || (channelId === currentChannelId && WindowStore.isFocused()) || userStatus !== settings.store.statusToUse) {
+                if (
+                    message.state === "SENDING" ||
+                    message.content === "" ||
+                    message.author.id === currentUser.id ||
+                    (channelId === currentChannelId && WindowStore.isFocused()) ||
+                    userStatus !== settings.store.statusToUse
+                ) {
                     return;
                 }
-                if (settings.store.respectSilentPings && (message.flags & SILENT_PING_FLAG)) { return; }
+                if (settings.store.respectSilentPings && message.flags & SILENT_PING_FLAG) {
+                    return;
+                }
                 const mentioned = MessageStore.getMessage(channelId, message.id)?.mentioned;
-                if ((settings.store.guilds.split(", ").includes(guildId) || settings.store.channels.split(", ").includes(channelId)) && mentioned) {
+                if (
+                    (settings.store.guilds.split(", ").includes(guildId) ||
+                        settings.store.channels.split(", ").includes(channelId)) &&
+                    mentioned
+                ) {
                     await showNotification(message, guildId);
                 } else if (settings.store.users.split(", ").includes(message.author.id)) {
                     const userChannelId = await ChannelActionCreators.getOrEnsurePrivateChannel(message.author.id);
@@ -188,6 +217,6 @@ export default definePlugin({
     contextMenus: {
         "guild-context": ContextCallback("guild"),
         "channel-context": ContextCallback("channel"),
-        "user-context": ContextCallback("user"),
+        "user-context": ContextCallback("user")
     }
 });

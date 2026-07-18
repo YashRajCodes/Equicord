@@ -8,7 +8,7 @@ import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
-import { closeAllModals,SettingsRouter, useState } from "@webpack/common";
+import { closeAllModals, SettingsRouter, useState } from "@webpack/common";
 
 import { registerAction } from "./commands";
 import { openCommandPalette } from "./components/CommandPalette";
@@ -33,7 +33,7 @@ export const settings = definePluginSettings({
 
                 const updateKeys = () => {
                     if (keys.size === 0 || !document.querySelector(`.${cl("key-recorder-button")}`)) {
-                        const longestArray = keyLists.reduce((a, b) => a.length > b.length ? a : b);
+                        const longestArray = keyLists.reduce((a, b) => (a.length > b.length ? a : b));
                         if (longestArray.length > 0) {
                             settings.store.hotkey = longestArray.map(key => key.toLowerCase());
                         }
@@ -66,8 +66,13 @@ export const settings = definePluginSettings({
                 <>
                     <div className={cl("key-recorder-container")} onClick={() => recordKeybind(setIsRecording)}>
                         <div className={`${cl("key-recorder")} ${isRecording ? cl("recording") : ""}`}>
-                            {settings.store.hotkey.map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" + ")}
-                            <button className={`${cl("key-recorder-button")} ${isRecording ? cl("recording-button") : ""}`} disabled={isRecording}>
+                            {settings.store.hotkey
+                                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                                .join(" + ")}
+                            <button
+                                className={`${cl("key-recorder-button")} ${isRecording ? cl("recording-button") : ""}`}
+                                disabled={isRecording}
+                            >
                                 {isRecording ? "Recording..." : "Record keybind"}
                             </button>
                         </div>
@@ -108,7 +113,6 @@ export default definePlugin({
     },
 
     event(e: KeyboardEvent) {
-
         enum Modifiers {
             control = "ctrlKey",
             shift = "shiftKey",

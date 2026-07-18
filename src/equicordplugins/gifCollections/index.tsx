@@ -5,12 +5,15 @@
  */
 
 import "./style.css";
-
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { FluxDispatcher, React } from "@webpack/common";
 
-import { addCollectionContextMenuPatch, getGifPickerContextMenuItems, RemoveItemContextMenuItems } from "./components/contextMenus";
+import {
+    addCollectionContextMenuPatch,
+    getGifPickerContextMenuItems,
+    RemoveItemContextMenuItems
+} from "./components/contextMenus";
 import { settings, SortingOptions } from "./settings";
 import { Category, Collection, Gif, GifPickerInstance } from "./types";
 import { cache_collections, refreshCacheCollection, updateGif } from "./utils/collectionManager";
@@ -30,7 +33,7 @@ export default definePlugin({
     authors: [EquicordDevs.creations],
     settings,
     contextMenus: {
-        "message": addCollectionContextMenuPatch,
+        message: addCollectionContextMenuPatch
     },
 
     patches: [
@@ -39,28 +42,28 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(render\(\){)(.{1,50}getItemGrid)/,
-                    replace: "$1;$self.insertCollections(this);$2",
+                    replace: "$1;$self.insertCollections(this);$2"
                 },
                 {
                     match: /("span",\{className:\i\.\i,children:)(\i)/,
-                    replace: "$1$self.hidePrefix($2),",
-                },
-            ],
+                    replace: "$1$self.hidePrefix($2),"
+                }
+            ]
         },
         {
             find: "renderHeaderContent()",
             replacement: {
                 match: /(renderContent\(\){)(.{1,50}resultItems)/,
-                replace: "$1$self.renderContent(this);$2",
-            },
+                replace: "$1$self.renderContent(this);$2"
+            }
         },
         {
-            find: "type:\"GIF_PICKER_QUERY\"",
+            find: 'type:"GIF_PICKER_QUERY"',
             replacement: {
                 match: /(function \i\(.{1,10}\){)(.{1,200}.GIFS_SEARCH,query:)/,
-                replace: "$1if($self.shouldStopFetch(arguments[0])) return;$2",
-            },
-        },
+                replace: "$1if($self.shouldStopFetch(arguments[0])) return;$2"
+            }
+        }
     ],
 
     start() {
@@ -94,21 +97,27 @@ export default definePlugin({
         const collection = cache_collections.find(c => c.name === instance.props.query);
         if (!collection) return;
 
-        instance.props.resultItems = collection.gifs.map(g => ({
-            id: g.id,
-            format: getFormat(g.src),
-            src: g.src,
-            url: g.url,
-            width: g.width,
-            height: g.height,
-        })).reverse();
+        instance.props.resultItems = collection.gifs
+            .map(g => ({
+                id: g.id,
+                format: getFormat(g.src),
+                src: g.src,
+                url: g.url,
+                width: g.width,
+                height: g.height
+            }))
+            .reverse();
 
-        const expiredGifs = collection.gifs.filter(g => g.src && g.url && (isCdnUrlExpired(g.src) || isCdnUrlExpired(g.url)));
+        const expiredGifs = collection.gifs.filter(
+            g => g.src && g.url && (isCdnUrlExpired(g.src) || isCdnUrlExpired(g.url))
+        );
         if (expiredGifs.length === 0) return;
 
-        const allUrls = [...new Set<string>(
-            expiredGifs.flatMap(g => [g.src, g.url].filter((u): u is string => !!u && isCdnUrlExpired(u)))
-        )];
+        const allUrls = [
+            ...new Set<string>(
+                expiredGifs.flatMap(g => [g.src, g.url].filter((u): u is string => !!u && isCdnUrlExpired(u)))
+            )
+        ];
 
         if (!refreshingUrls) this.refreshExpiredUrls(allUrls, expiredGifs, instance.props.query);
     },

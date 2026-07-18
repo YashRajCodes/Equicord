@@ -5,6 +5,9 @@
  */
 
 import "./style.css";
+import { Message } from "@vencord/discord-types";
+import { findByCodeLazy, findCssClassesLazy } from "@webpack";
+import type { JSX, PropsWithChildren } from "react";
 
 import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
@@ -19,13 +22,20 @@ import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
-import { Message } from "@vencord/discord-types";
-import { findByCodeLazy, findCssClassesLazy } from "@webpack";
-import { ChannelStore, FluxDispatcher, Select, SelectedChannelStore, TabBar, TextInput, Tooltip, UserStore, useState } from "@webpack/common";
-import type { JSX, PropsWithChildren } from "react";
+import {
+    ChannelStore,
+    FluxDispatcher,
+    Select,
+    SelectedChannelStore,
+    TabBar,
+    TextInput,
+    Tooltip,
+    UserStore,
+    useState
+} from "@webpack/common";
 
 type IconProps = JSX.IntrinsicElements["svg"];
-type KeywordEntry = { regex: string, listIds: Array<string>, listType: ListType, ignoreCase: boolean; };
+type KeywordEntry = { regex: string; listIds: Array<string>; listType: ListType; ignoreCase: boolean };
 
 let keywordEntries: Array<KeywordEntry> = [];
 let keywordLog: Array<any> = [];
@@ -77,7 +87,10 @@ function highlightKeywords(str: string, entries: Array<KeywordEntry>) {
         return [str];
     }
 
-    const matches = regexes.map(r => str.match(r)).flat().filter(e => e !== null) as Array<string>;
+    const matches = regexes
+        .map(r => str.match(r))
+        .flat()
+        .filter(e => e !== null) as Array<string>;
     if (matches.length === 0) {
         return [str];
     }
@@ -98,15 +111,17 @@ function Collapsible({ title, children }) {
 
     return (
         <div>
-            <TextButton
-                onClick={() => setIsOpen(!isOpen)}
-                className={cl("collapsible")}>
+            <TextButton onClick={() => setIsOpen(!isOpen)} className={cl("collapsible")}>
                 <div style={{ display: "flex", alignItems: "center" }}>
-                    <div style={{
-                        marginLeft: "auto",
-                        color: "var(--text-muted)",
-                        paddingRight: "5px"
-                    }}>{isOpen ? "▼" : "▶"}</div>
+                    <div
+                        style={{
+                            marginLeft: "auto",
+                            color: "var(--text-muted)",
+                            paddingRight: "5px"
+                        }}
+                    >
+                        {isOpen ? "▼" : "▶"}
+                    </div>
                     <Heading tag="h4">{title}</Heading>
                 </div>
             </TextButton>
@@ -144,21 +159,18 @@ function ListedIds({ listIds, setListIds }) {
                     }}
                     variant="none"
                     size="iconOnly"
-                    className={cl("delete")}>
+                    className={cl("delete")}
+                >
                     <DeleteIcon />
                 </Button>
             </Flex>
         );
     });
 
-    return (
-        <>
-            {elements}
-        </>
-    );
+    return <>{elements}</>;
 }
 
-function ListTypeSelector({ listType, setListType }: { listType: ListType, setListType: (v: ListType) => void; }) {
+function ListTypeSelector({ listType, setListType }: { listType: ListType; setListType: (v: ListType) => void }) {
     return (
         <Select
             options={[
@@ -219,7 +231,8 @@ function KeywordEntries() {
                             onClick={() => removeKeywordEntry(i, update)}
                             variant="none"
                             size="iconOnly"
-                            className={cl("delete")}>
+                            className={cl("delete")}
+                        >
                             <DeleteIcon />
                         </Button>
                     </Flex>
@@ -239,10 +252,14 @@ function KeywordEntries() {
                     </Flex>
                     <div className={[Margins.top8, Margins.bottom8].join(" ")} />
                     <Flex flexDirection="row">
-                        <Button onClick={() => {
-                            values[i].listIds.push("");
-                            update();
-                        }}>Add ID</Button>
+                        <Button
+                            onClick={() => {
+                                values[i].listIds.push("");
+                                update();
+                            }}
+                        >
+                            Add ID
+                        </Button>
                         <div style={{ flexGrow: 1 }}>
                             <ListTypeSelector listType={values[i].listType} setListType={e => setListType(i, e)} />
                         </div>
@@ -255,12 +272,21 @@ function KeywordEntries() {
     return (
         <>
             {elements}
-            <div><Button onClick={() => addKeywordEntry(update)}>Add Keyword Entry</Button></div>
+            <div>
+                <Button onClick={() => addKeywordEntry(update)}>Add Keyword Entry</Button>
+            </div>
         </>
     );
 }
 
-function Icon({ height = 24, width = 24, className, children, viewBox, ...svgProps }: PropsWithChildren<BaseIconProps>) {
+function Icon({
+    height = 24,
+    width = 24,
+    className,
+    children,
+    viewBox,
+    ...svgProps
+}: PropsWithChildren<BaseIconProps>) {
     return (
         <svg
             className={classes(className, "vc-icon")}
@@ -286,10 +312,12 @@ function DoubleCheckmarkIcon(props: IconProps) {
             width={16}
             height={16}
         >
-            <path fill="currentColor"
+            <path
+                fill="currentColor"
                 d="M16.7 8.7a1 1 0 0 0-1.4-1.4l-3.26 3.24a1 1 0 0 0 1.42 1.42L16.7 8.7ZM3.7 11.3a1 1 0 0 0-1.4 1.4l4.5 4.5a1 1 0 0 0 1.4-1.4l-4.5-4.5Z"
             />
-            <path fill="currentColor"
+            <path
+                fill="currentColor"
                 d="M21.7 9.7a1 1 0 0 0-1.4-1.4L13 15.58l-3.3-3.3a1 1 0 0 0-1.4 1.42l4 4a1 1 0 0 0 1.4 0l8-8Z"
             />
         </Icon>
@@ -351,20 +379,22 @@ export default definePlugin({
                     replace: "onClick: () => $2._keyword ? $self.deleteKeyword($2.id) : $1"
                 }
             ]
-        },
+        }
     ],
 
     async start() {
         this.onUpdate = () => null;
-        keywordEntries = await DataStore.get(KEYWORD_ENTRIES_KEY) ?? [];
+        keywordEntries = (await DataStore.get(KEYWORD_ENTRIES_KEY)) ?? [];
         await DataStore.set(KEYWORD_ENTRIES_KEY, keywordEntries);
-        (await DataStore.get(KEYWORD_LOG_KEY) ?? []).map(e => JSON.parse(e)).forEach(e => {
-            try {
-                this.addToLog(e);
-            } catch (err) {
-                console.error(err);
-            }
-        });
+        ((await DataStore.get(KEYWORD_LOG_KEY)) ?? [])
+            .map(e => JSON.parse(e))
+            .forEach(e => {
+                try {
+                    this.addToLog(e);
+                } catch (err) {
+                    console.error(err);
+                }
+            });
 
         interceptor = (e: any) => {
             return this.modify(e);
@@ -414,12 +444,18 @@ export default definePlugin({
                 matches = true;
             } else {
                 for (const embed of m.embeds as any) {
-                    if (safeMatchesRegex(embed.description, entry.regex, flags) || safeMatchesRegex(embed.title, entry.regex, flags)) {
+                    if (
+                        safeMatchesRegex(embed.description, entry.regex, flags) ||
+                        safeMatchesRegex(embed.title, entry.regex, flags)
+                    ) {
                         matches = true;
                         break;
                     } else if (embed.fields != null) {
-                        for (const field of embed.fields as Array<{ name: string, value: string; }>) {
-                            if (safeMatchesRegex(field.value, entry.regex, flags) || safeMatchesRegex(field.name, entry.regex, flags)) {
+                        for (const field of embed.fields as Array<{ name: string; value: string }>) {
+                            if (
+                                safeMatchesRegex(field.value, entry.regex, flags) ||
+                                safeMatchesRegex(field.name, entry.regex, flags)
+                            ) {
                                 matches = true;
                                 break;
                             }
@@ -443,8 +479,7 @@ export default definePlugin({
         }
     },
     storeMessage(m: Message) {
-        if (m == null)
-            return;
+        if (m == null) return;
 
         DataStore.get(KEYWORD_LOG_KEY).then(log => {
             log = log ? log.map((e: string) => JSON.parse(e)) : [];
@@ -454,7 +489,10 @@ export default definePlugin({
                 log = log.slice(-settings.store.amountToKeep);
             }
 
-            DataStore.set(KEYWORD_LOG_KEY, log.map(e => JSON.stringify(e)));
+            DataStore.set(
+                KEYWORD_LOG_KEY,
+                log.map(e => JSON.stringify(e))
+            );
         });
     },
     discardMessage(id: string) {
@@ -463,12 +501,14 @@ export default definePlugin({
 
             parsed_logs = parsed_logs.filter(msg => msg.id !== id);
 
-            DataStore.set(KEYWORD_LOG_KEY, parsed_logs.map(e => JSON.stringify(e)));
+            DataStore.set(
+                KEYWORD_LOG_KEY,
+                parsed_logs.map(e => JSON.stringify(e))
+            );
         });
     },
     addToLog(m: Message) {
-        if (m == null || keywordLog.some(e => e.id === m.id))
-            return;
+        if (m == null || keywordLog.some(e => e.id === m.id)) return;
 
         let messageRecord: any;
         try {
@@ -514,7 +554,8 @@ export default definePlugin({
                             keywordLog = [];
                             DataStore.set(KEYWORD_LOG_KEY, []);
                             this.onUpdate();
-                        }}>
+                        }}
+                    >
                         <DoubleCheckmarkIcon />
                     </Button>
                 )}

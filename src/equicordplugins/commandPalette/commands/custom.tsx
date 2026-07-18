@@ -74,7 +74,11 @@ function commandForm(existing: CustomCommandData | null): PageEntry {
                 type: "picker",
                 placeholder: "Search settings pages...",
                 initial: existing?.kind === "settings" ? existing.value : "",
-                suggestions: query => filterOptions(query, DISCORD_SETTINGS_ROUTES.map(entry => ({ value: entry.route, label: entry.label }))),
+                suggestions: query =>
+                    filterOptions(
+                        query,
+                        DISCORD_SETTINGS_ROUTES.map(entry => ({ value: entry.route, label: entry.label }))
+                    ),
                 visible: values => values.kind === "settings"
             },
             {
@@ -90,7 +94,8 @@ function commandForm(existing: CustomCommandData | null): PageEntry {
             if (!values.name.trim()) return "Name is required.";
             const kind = values.kind as CustomCommandKind;
             if (kind === "url" && !parseUrl(values.url)) return "Enter a valid URL.";
-            if (kind === "settings" && !DISCORD_SETTINGS_ROUTES.some(entry => entry.route === values.route)) return "Pick a settings page from the suggestions.";
+            if (kind === "settings" && !DISCORD_SETTINGS_ROUTES.some(entry => entry.route === values.route))
+                return "Pick a settings page from the suggestions.";
             if (kind === "message" && !values.text.trim()) return "Text is required.";
             return null;
         },
@@ -104,9 +109,9 @@ function commandForm(existing: CustomCommandData | null): PageEntry {
                 value
             };
 
-            store.set(existing
-                ? store.get().map(entry => entry.id === existing.id ? next : entry)
-                : [...store.get(), next]);
+            store.set(
+                existing ? store.get().map(entry => (entry.id === existing.id ? next : entry)) : [...store.get(), next]
+            );
             registerCustomCommands();
 
             showToast(existing ? "Command saved." : "Command created.", Toasts.Type.SUCCESS);

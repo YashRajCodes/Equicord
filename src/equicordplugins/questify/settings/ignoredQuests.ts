@@ -5,6 +5,7 @@
  */
 
 import type { Quest } from "@vencord/discord-types";
+
 import { QuestStore } from "@webpack/common";
 
 import type { QuestIncludedTypes } from "../utils/filtering";
@@ -37,7 +38,13 @@ export function validateIgnoredQuests(qs?: Quest[]): void {
     const currentlyIgnoredQuests = getIgnoredQuestIDs();
     const quests = qs ?? Array.from(QuestStore.quests.values());
     const excludedQuests = Array.from(QuestStore.excludedQuests.values());
-    const validIgnored = Array.from(new Set<string>(currentlyIgnoredQuests.filter(id => quests.some(quest => quest.id === id) || excludedQuests.some(quest => quest.id === id))));
+    const validIgnored = Array.from(
+        new Set<string>(
+            currentlyIgnoredQuests.filter(
+                id => quests.some(quest => quest.id === id) || excludedQuests.some(quest => quest.id === id)
+            )
+        )
+    );
 
     setIgnoredQuestIDs(validIgnored);
     validateQuestBadgeCount();
@@ -69,8 +76,8 @@ export function ignoreAllQuests(): void {
 
     for (const quest of QuestStore.quests.values()) {
         if (
-            currentlyIgnored.has(quest.id)
-            || getQuestStatus(quest, Array.from(currentlyIgnored), false) === QuestStatus.Unclaimed
+            currentlyIgnored.has(quest.id) ||
+            getQuestStatus(quest, Array.from(currentlyIgnored), false) === QuestStatus.Unclaimed
         ) {
             ignoredQuests.add(quest.id);
         }

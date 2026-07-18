@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Paragraph } from "@components/Paragraph";
 import { RenderModalProps } from "@vencord/discord-types";
+
+import { Paragraph } from "@components/Paragraph";
 import { Modal, React } from "@webpack/common";
 
 interface ConfirmModalProps extends RenderModalProps {
@@ -25,7 +26,15 @@ interface ImportProfilesModalProps extends RenderModalProps {
     onCancel: () => void;
 }
 
-export function ConfirmModal({ title, message, confirmText, cancelText, onConfirm, onCancel, ...props }: ConfirmModalProps) {
+export function ConfirmModal({
+    title,
+    message,
+    confirmText,
+    cancelText,
+    onConfirm,
+    onCancel,
+    ...props
+}: ConfirmModalProps) {
     const closeAfter = (action: () => void) => () => {
         action();
         props.onClose();
@@ -54,7 +63,14 @@ export function ConfirmModal({ title, message, confirmText, cancelText, onConfir
     );
 }
 
-export function ImportProfilesModal({ title, message, onOverride, onMerge, onCancel, ...props }: ImportProfilesModalProps) {
+export function ImportProfilesModal({
+    title,
+    message,
+    onOverride,
+    onMerge,
+    onCancel,
+    ...props
+}: ImportProfilesModalProps) {
     const closeAfter = (action: () => void) => () => {
         action();
         props.onClose();

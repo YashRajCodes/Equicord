@@ -27,5 +27,5 @@ export const BrushTool: ToolDefinition = {
     },
     unselected() {
         Mouse.event.off("move", this.onMouseMove);
-    },
+    }
 };

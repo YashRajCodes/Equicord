@@ -14,15 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { ComponentType } from "react";
 
 import ErrorBoundary from "@components/ErrorBoundary";
-import { ComponentType } from "react";
 
 export const enum ServerListRenderPosition {
     Above,
     In,
-    Below,
+    Below
 }
 
 const componentsIn = new Map<ComponentType, number>();

@@ -9,13 +9,13 @@ import { TooltipContainer } from "@components/TooltipContainer";
 import { settings } from "@equicordplugins/musicControls/settings";
 import { TidalLrcStore } from "@equicordplugins/musicControls/tidal/lyrics/providers/store";
 import { TidalStore } from "@equicordplugins/musicControls/tidal/TidalStore";
-import { ContextMenuApi, openModal,useEffect, useState, useStateFromStores } from "@webpack/common";
+import { ContextMenuApi, openModal, useEffect, useState, useStateFromStores } from "@webpack/common";
 
 import { LyricsContextMenu } from "./ctxMenu";
 import { LyricsModal } from "./modal";
 import { cl, NoteSvg, useLyrics } from "./util";
 
-function LyricsDisplay({ scroll = true }: { scroll?: boolean; }) {
+function LyricsDisplay({ scroll = true }: { scroll?: boolean }) {
     const { showMusicNoteOnNoLyrics } = settings.use(["showMusicNoteOnNoLyrics"]);
     const { lyrics, lyricRefs } = useLyrics({ scroll });
     const currentLyrics = lyrics || null;
@@ -24,9 +24,9 @@ function LyricsDisplay({ scroll = true }: { scroll?: boolean; }) {
 
     const currLrcIndex = currentLyrics
         ? currentLyrics.findIndex((line, i) => {
-            const nextLineTime = currentLyrics[i + 1]?.time ?? Infinity;
-            return position >= line.time && position < nextLineTime;
-        })
+              const nextLineTime = currentLyrics[i + 1]?.time ?? Infinity;
+              return position >= line.time && position < nextLineTime;
+          })
         : null;
 
     const makeClassName = (index: number) => {
@@ -37,12 +37,11 @@ function LyricsDisplay({ scroll = true }: { scroll?: boolean; }) {
 
     if (!currentLyrics) {
         return showMusicNoteOnNoLyrics ? (
-            <div className="eq-tidal-lyrics"
+            <div
+                className="eq-tidal-lyrics"
                 onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <LyricsContextMenu />)}
             >
-                <TooltipContainer text="No lyrics found">
-                    {NoteElement}
-                </TooltipContainer>
+                <TooltipContainer text="No lyrics found">{NoteElement}</TooltipContainer>
             </div>
         ) : null;
     }
@@ -64,7 +63,7 @@ function LyricsDisplay({ scroll = true }: { scroll?: boolean; }) {
     );
 }
 
-export function TidalLyrics({ scroll = true }: { scroll?: boolean; } = {}) {
+export function TidalLyrics({ scroll = true }: { scroll?: boolean } = {}) {
     TidalLrcStore.init();
     const track = useStateFromStores(
         [TidalStore],

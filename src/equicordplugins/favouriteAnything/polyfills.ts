@@ -31,7 +31,7 @@
 // TODO: Remove once discord stops being insane and updates electron
 
 interface Uint8ArrayExtended<T extends ArrayBufferLike = ArrayBufferLike> extends Uint8Array<T> {
-    toBase64(options?: { alphabet?: "base64" | "base64url"; omitPadding?: boolean; }): string;
+    toBase64(options?: { alphabet?: "base64" | "base64url"; omitPadding?: boolean }): string;
 }
 
 interface Uint8ArrayConstructorExtended extends Uint8ArrayConstructor {

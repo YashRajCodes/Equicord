@@ -14,14 +14,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { CommandArgument, CommandContext, CommandOption } from "@vencord/discord-types";
 
 import { Logger } from "@utils/Logger";
 import { makeCodeblock } from "@utils/text";
-import { CommandArgument, CommandContext, CommandOption } from "@vencord/discord-types";
 
 import { sendBotMessage } from "./commandHelpers";
-import { ApplicationCommandInputType, ApplicationCommandOptionType, ApplicationCommandType, VencordCommand } from "./types";
+import {
+    ApplicationCommandInputType,
+    ApplicationCommandOptionType,
+    ApplicationCommandType,
+    VencordCommand
+} from "./types";
 
 export * from "./commandHelpers";
 export * from "./types";
@@ -63,8 +69,7 @@ export const _init = function (cmds: VencordCommand[]) {
 } as never;
 
 export const _handleCommand = function (cmd: VencordCommand, args: CommandArgument[], ctx: CommandContext) {
-    if (!cmd.isVencordCommand)
-        return cmd.execute(args, ctx);
+    if (!cmd.isVencordCommand) return cmd.execute(args, ctx);
 
     const handleError = (err: any) => {
         // TODO: cancel send if cmd.inputType === BUILT_IN_TEXT
@@ -99,7 +104,7 @@ export function prepareOption<O extends CommandOption | VencordCommand>(opt: O):
         // See comment above Placeholders
         if (opt === OptPlaceholder) opts[i] = OptionalMessageOption;
         else if (opt === ReqPlaceholder) opts[i] = RequiredMessageOption;
-        opt.choices?.forEach(x => x.displayName ||= x.name);
+        opt.choices?.forEach(x => (x.displayName ||= x.name));
 
         prepareOption(opts[i]);
     });
@@ -121,11 +126,13 @@ function registerSubCommands(cmd: VencordCommand, plugin: string) {
             name: `${cmd.name} ${o.name}`,
             id: `${o.name}-${cmd.id}`,
             displayName: `${cmd.name} ${o.name}`,
-            subCommandPath: [{
-                name: o.name,
-                type: o.type,
-                displayName: o.name
-            }],
+            subCommandPath: [
+                {
+                    name: o.name,
+                    type: o.type,
+                    displayName: o.name
+                }
+            ],
             rootCommand: cmd
         };
         registerCommand(subCmd as any, plugin);
@@ -142,8 +149,7 @@ export function registerCommand<C extends VencordCommand>(command: C, plugin: st
         return;
     }
 
-    if (BUILT_IN.some(c => c.name === command.name))
-        throw new Error(`Command '${command.name}' already exists.`);
+    if (BUILT_IN.some(c => c.name === command.name)) throw new Error(`Command '${command.name}' already exists.`);
 
     command.isVencordCommand = true;
     command.untranslatedName ??= command.name;
@@ -167,8 +173,7 @@ export function registerCommand<C extends VencordCommand>(command: C, plugin: st
 
 export function unregisterCommand(name: string) {
     const idx = BUILT_IN.findIndex(c => c.name === name);
-    if (idx === -1)
-        return false;
+    if (idx === -1) return false;
 
     BUILT_IN.splice(idx, 1);
     delete commands[name];

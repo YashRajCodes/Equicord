@@ -28,7 +28,10 @@ export const cssColors = new Proxy({} as Record<number, CssColorData>, {
         const colorKey = colorKeys[idx];
         if (!colorKey || !Colors.colors[colorKey]?.css) return undefined;
 
-        const name = colorKey.split("_").map(x => x[0].toUpperCase() + x.toLowerCase().slice(1)).join(" ");
+        const name = colorKey
+            .split("_")
+            .map(x => x[0].toUpperCase() + x.toLowerCase().slice(1))
+            .join(" ");
         target[idx] = { name, css: Colors.colors[colorKey].css, key: colorKey };
         return target[idx];
     }

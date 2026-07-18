@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import Plugins from "~plugins";
+
 import { useSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { Card } from "@components/Card";
@@ -16,8 +18,6 @@ import { Margins } from "@utils/margins";
 import { useForceUpdater } from "@utils/react";
 import { React, Tooltip } from "@webpack/common";
 
-import Plugins from "~plugins";
-
 const cl = classNameFactory("vc-changelog-");
 
 interface NewPluginsSectionProps {
@@ -25,10 +25,7 @@ interface NewPluginsSectionProps {
     onPluginToggle?: (pluginName: string, enabled: boolean) => void;
 }
 
-export function NewPluginsSection({
-    newPlugins,
-    onPluginToggle,
-}: NewPluginsSectionProps) {
+export function NewPluginsSection({ newPlugins, onPluginToggle }: NewPluginsSectionProps) {
     const settings = useSettings();
     const changes = React.useMemo(() => new ChangeList<string>(), []);
     const forceUpdate = useForceUpdater();
@@ -53,10 +50,7 @@ export function NewPluginsSection({
             .filter(p => p && !p.hidden)
             .sort((a, b) => a.name.localeCompare(b.name));
 
-    const sortedPlugins = React.useMemo(
-        () => mapPlugins(newPlugins),
-        [newPlugins],
-    );
+    const sortedPlugins = React.useMemo(() => mapPlugins(newPlugins), [newPlugins]);
 
     if (sortedPlugins.length === 0) {
         return null;
@@ -78,40 +72,25 @@ export function NewPluginsSection({
 
     return (
         <div className={cl("new-plugins-section")}>
-            <Heading className={Margins.bottom8}>
-                New Plugins ({sortedPlugins.length})
-            </Heading>
+            <Heading className={Margins.bottom8}>New Plugins ({sortedPlugins.length})</Heading>
 
-            <Paragraph className={Margins.bottom16}>
-                The following plugins have been added in recent updates:
-            </Paragraph>
+            <Paragraph className={Margins.bottom16}>The following plugins have been added in recent updates:</Paragraph>
 
             <div className={cl("new-plugins-grid")}>
                 {sortedPlugins.map(plugin => {
                     const isRequired =
                         plugin.required ||
-                        depMap[plugin.name]?.some(
-                            d => settings.plugins[d].enabled,
-                        ) ||
+                        depMap[plugin.name]?.some(d => settings.plugins[d].enabled) ||
                         plugin.name.endsWith("API");
                     const tooltipText = plugin.required
                         ? "This plugin is required for Equicord to function."
-                        : makeDependencyList(
-                            depMap[plugin.name]?.filter(
-                                d => settings.plugins[d].enabled,
-                            ),
-                        );
+                        : makeDependencyList(depMap[plugin.name]?.filter(d => settings.plugins[d].enabled));
 
                     if (isRequired) {
                         return (
                             <Tooltip text={tooltipText} key={plugin.name}>
                                 {({ onMouseLeave, onMouseEnter }) => (
-                                    <Card
-                                        className={cl(
-                                            "new-plugin-card",
-                                            "required",
-                                        )}
-                                    >
+                                    <Card className={cl("new-plugin-card", "required")}>
                                         <PluginCard
                                             onMouseLeave={onMouseLeave}
                                             onMouseEnter={onMouseEnter}
@@ -130,10 +109,7 @@ export function NewPluginsSection({
                     }
 
                     return (
-                        <Card
-                            key={plugin.name}
-                            className={cl("new-plugin-card")}
-                        >
+                        <Card key={plugin.name} className={cl("new-plugin-card")}>
                             <PluginCard
                                 onRestartNeeded={name => {
                                     changes.handleChange(name);
@@ -189,7 +165,7 @@ interface NewPluginsCompactProps {
 function CompactPluginCard({
     pluginName,
     depMap,
-    settings,
+    settings
 }: {
     pluginName: string;
     depMap: Record<string, string[]>;
@@ -198,17 +174,13 @@ function CompactPluginCard({
     const plugin = Plugins[pluginName];
     if (!plugin || plugin.hidden) return null;
 
-    const isRequired =
-        plugin.required ||
-        depMap[plugin.name]?.some(d => settings.plugins[d].enabled);
+    const isRequired = plugin.required || depMap[plugin.name]?.some(d => settings.plugins[d].enabled);
 
     const tooltipText = plugin.required
         ? "This plugin is required for Equicord to function."
         : depMap[plugin.name]?.length > 0
-            ? `This plugin is required by: ${depMap[plugin.name]
-                ?.filter(d => settings.plugins[d].enabled)
-                .join(", ")}`
-            : null;
+          ? `This plugin is required by: ${depMap[plugin.name]?.filter(d => settings.plugins[d].enabled).join(", ")}`
+          : null;
 
     return (
         <div className={`vc-changelog-entry ${isRequired ? "required" : ""}`}>
@@ -217,24 +189,15 @@ function CompactPluginCard({
                     {plugin.name}
                     {isRequired && " *"}
                 </span>
-                <span className="vc-changelog-entry-author">
-                    {plugin.authors?.[0]?.name || "Unknown"}
-                </span>
+                <span className="vc-changelog-entry-author">{plugin.authors?.[0]?.name || "Unknown"}</span>
             </div>
-            <div className="vc-changelog-entry-message">
-                {plugin.description || "No description available"}
-            </div>
-            {tooltipText && (
-                <div className="vc-changelog-dep-text">{tooltipText}</div>
-            )}
+            <div className="vc-changelog-entry-message">{plugin.description || "No description available"}</div>
+            {tooltipText && <div className="vc-changelog-dep-text">{tooltipText}</div>}
         </div>
     );
 }
 
-export function NewPluginsCompact({
-    newPlugins,
-    maxDisplay = 20,
-}: NewPluginsCompactProps) {
+export function NewPluginsCompact({ newPlugins, maxDisplay = 20 }: NewPluginsCompactProps) {
     const settings = useSettings();
 
     const depMap = React.useMemo(() => {
@@ -262,19 +225,12 @@ export function NewPluginsCompact({
         <div className={cl("new-plugins-compact")}>
             <div className="vc-changelog-plugins-list">
                 {displayPlugins.map(pluginName => (
-                    <CompactPluginCard
-                        key={pluginName}
-                        pluginName={pluginName}
-                        depMap={depMap}
-                        settings={settings}
-                    />
+                    <CompactPluginCard key={pluginName} pluginName={pluginName} depMap={depMap} settings={settings} />
                 ))}
 
                 {hasMore && (
                     <div className="vc-changelog-entry">
-                        <div className="vc-changelog-entry-message">
-                            +{newPlugins.length - maxDisplay} more plugins
-                        </div>
+                        <div className="vc-changelog-entry-message">+{newPlugins.length - maxDisplay} more plugins</div>
                     </div>
                 )}
             </div>

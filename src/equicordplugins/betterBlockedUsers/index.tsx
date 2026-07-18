@@ -5,14 +5,13 @@
  */
 
 import "./styles.css";
-
 import { EquicordDevs } from "@utils/constants";
 import { getIntlMessage, openUserProfile } from "@utils/discord";
 import definePlugin from "@utils/types";
 import { Button, React, RelationshipStore, TextInput, UserStore } from "@webpack/common";
 
 let lastSearch = "";
-let updateFunc = (v: any) => { };
+let updateFunc = (v: any) => {};
 
 export default definePlugin({
     name: "BetterBlockedUsers",
@@ -30,16 +29,17 @@ export default definePlugin({
                 },
                 {
                     match: /(?<=\{userId:(\i).*?\.globalName.{0,25}\}\)\]\}\),)(\(.*?loading:\i\}\))/,
-                    replace: "$self.renderUser($1,$2)",
+                    replace: "$self.renderUser($1,$2)"
                 },
                 {
                     match: /(?<=userIds:\i,listType:\i\}=(\i).{0,30}(\i)\.useState\(\d+\);)/,
-                    replace: "let [searchResults,setSearchResults]=$2.useState([]);$self.setUpdateFunc($1,setSearchResults);"
+                    replace:
+                        "let [searchResults,setSearchResults]=$2.useState([]);$self.setUpdateFunc($1,setSearchResults);"
                 },
                 {
                     match: /(?<=\i,children:)(\i)(?=\.slice)/,
                     replace: "(searchResults.length?searchResults:$1)"
-                },
+                }
             ]
         }
     ],
@@ -51,19 +51,22 @@ export default definePlugin({
             updateFunc(searchResults);
         }, []);
 
-        return <div className="vc-bbu-search">
-            <TextInput
-                placeholder="Search users..."
-                style={{ width: "200px" }}
-                onInput={e => {
-                    const search = (e.target as HTMLInputElement).value.toLowerCase().trim();
-                    setValue(search);
-                    lastSearch = search;
-                    const searchResults = this.getFilteredUsers(search);
-                    updateFunc(searchResults);
-                }} value={value}
-            />
-        </div>;
+        return (
+            <div className="vc-bbu-search">
+                <TextInput
+                    placeholder="Search users..."
+                    style={{ width: "200px" }}
+                    onInput={e => {
+                        const search = (e.target as HTMLInputElement).value.toLowerCase().trim();
+                        setValue(search);
+                        lastSearch = search;
+                        const searchResults = this.getFilteredUsers(search);
+                        updateFunc(searchResults);
+                    }}
+                    value={value}
+                />
+            </div>
+        );
     },
     renderUser(userId: string, rest: any) {
         return (
@@ -88,7 +91,11 @@ export default definePlugin({
         return (RelationshipStore as any).getBlockedIDs().filter(id => {
             const user = UserStore.getUser(id) as any;
             if (!user) return id === search;
-            return id === search || user?.username?.toLowerCase()?.includes(search) || user?.globalName?.toLowerCase()?.includes(search);
+            return (
+                id === search ||
+                user?.username?.toLowerCase()?.includes(search) ||
+                user?.globalName?.toLowerCase()?.includes(search)
+            );
         }) as string[];
     }
 });

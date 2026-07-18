@@ -14,25 +14,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import type { Message } from "@vencord/discord-types";
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import type { Message } from "@vencord/discord-types";
 import { ChannelStore, GuildMemberStore } from "@webpack/common";
 
 const settings = definePluginSettings({
     userList: {
-        description:
-            "List of user ids to allow or exempt pings for (separated by commas or spaces)",
+        description: "List of user ids to allow or exempt pings for (separated by commas or spaces)",
         type: OptionType.STRING,
         default: "1234567890123445,1234567890123445",
         multiline: true
     },
     roleList: {
-        description:
-            "List of role ids to allow or exempt pings for (separated by commas or spaces)",
+        description: "List of role ids to allow or exempt pings for (separated by commas or spaces)",
         type: OptionType.STRING,
         default: "1234567890123445,1234567890123445",
         multiline: true
@@ -43,19 +42,19 @@ const settings = definePluginSettings({
         options: [
             {
                 label: "Do not ping the listed users / roles",
-                value: false,
+                value: false
             },
             {
                 label: "Only ping the listed users / roles",
                 value: true,
-                default: true,
-            },
-        ],
+                default: true
+            }
+        ]
     },
     inverseShiftReply: {
         description: "Invert Discord's shift replying behaviour (enable to make shift reply mention user)",
         type: OptionType.BOOLEAN,
-        default: false,
+        default: false
     }
 });
 
@@ -81,11 +80,11 @@ export default definePlugin({
 
     patches: [
         {
-            find: ",\"Message\")}function",
+            find: ',"Message")}function',
             replacement: {
                 match: /:(\i),shouldMention:!(\i)\.shiftKey/,
                 replace: ":$1,shouldMention:$self.shouldMention($1,$2.shiftKey)"
             }
         }
-    ],
+    ]
 });

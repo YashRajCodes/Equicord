@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { filters, findAll, search, wreq } from "@webpack";
+
 import { popNotice, showNotice } from "@api/Notices";
 import { Settings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -11,13 +13,21 @@ import { loadLazyChunks } from "@debug/loadLazyChunks";
 import { reporterData } from "@debug/reporterData";
 import { getIntlMessageFromHash } from "@utils/discord";
 import { canonicalizeMatch, canonicalizeReplace } from "@utils/patches";
-import { filters, findAll, search, wreq } from "@webpack";
 import { React, Toasts, useState } from "@webpack/common";
 
 import { CLIENT_VERSION, logger, PORT, settings } from ".";
 import { Recieve } from "./types";
 import { FullOutgoingMessage, OutgoingMessage } from "./types/send";
-import { extractModule, extractOrThrow, findAllModuleIds, findModuleId, getModulePatchedBy, mkRegexFind, parseNode, toggleEnabled, } from "./util";
+import {
+    extractModule,
+    extractOrThrow,
+    findAllModuleIds,
+    findModuleId,
+    getModulePatchedBy,
+    mkRegexFind,
+    parseNode,
+    toggleEnabled
+} from "./util";
 
 export function stopWs() {
     socket?.close(1000, "Plugin Stopped");
@@ -29,7 +39,7 @@ export let socket: WebSocket | undefined;
 export function initWs(isManual = false) {
     let wasConnected = isManual;
     let hasErrored = false;
-    const ws = socket = new WebSocket(`ws://127.0.0.1:${PORT}`);
+    const ws = (socket = new WebSocket(`ws://127.0.0.1:${PORT}`));
 
     function replyData(data: OutgoingMessage) {
         ws.send(JSON.stringify(data));
@@ -51,16 +61,17 @@ export function initWs(isManual = false) {
 
         if (IS_COMPANION_TEST) {
             const toSend = JSON.stringify(reporterData, (_k, v) => {
-                if (v instanceof RegExp)
-                    return String(v);
+                if (v instanceof RegExp) return String(v);
                 return v;
             });
 
-            socket?.send(JSON.stringify({
-                type: "report",
-                data: JSON.parse(toSend),
-                ok: true
-            }));
+            socket?.send(
+                JSON.stringify({
+                    type: "report",
+                    data: JSON.parse(toSend),
+                    ok: true
+                })
+            );
         }
 
         try {
@@ -74,8 +85,7 @@ export function initWs(isManual = false) {
                     }
                 });
             }
-        }
-        catch (e) {
+        } catch (e) {
             console.error(e);
         }
     });
@@ -144,8 +154,7 @@ export function initWs(isManual = false) {
                 const m = d.data;
                 const settings = Settings.plugins[m.pluginName];
                 if (!settings) throw new Error("Plugin not found: " + m.pluginName);
-                if (m.enabled !== settings.enabled)
-                    toggleEnabled(m.pluginName, reply);
+                if (m.enabled !== settings.enabled) toggleEnabled(m.pluginName, reply);
                 break;
             }
             case "rawId": {
@@ -154,7 +163,7 @@ export function initWs(isManual = false) {
                 replyData({
                     type: "rawId",
                     ok: true,
-                    data: extractModule(m.id),
+                    data: extractModule(m.id)
                 });
                 break;
             }
@@ -173,7 +182,7 @@ export function initWs(isManual = false) {
                                     source: extractModule(m.idOrSearch, false),
                                     moduleNumber: m.idOrSearch,
                                     patchedBy: getModulePatchedBy(m.idOrSearch, true)
-                                },
+                                }
                             });
                             break;
                         }
@@ -181,8 +190,7 @@ export function initWs(isManual = false) {
                             let moduleId: number;
                             if (m.findType === "string")
                                 moduleId = +findModuleId([canonicalizeMatch(m.idOrSearch.toString())]);
-                            else
-                                moduleId = +findModuleId(mkRegexFind(m.idOrSearch));
+                            else moduleId = +findModuleId(mkRegexFind(m.idOrSearch));
                             const p = extractOrThrow(moduleId);
                             const p2 = extractModule(moduleId, false);
 
@@ -194,7 +202,7 @@ export function initWs(isManual = false) {
                                     source: p2,
                                     moduleNumber: moduleId,
                                     patchedBy: getModulePatchedBy(moduleId, true)
-                                },
+                                }
                             });
                             break;
                         }
@@ -216,7 +224,6 @@ export function initWs(isManual = false) {
                         case "id": {
                             if (typeof m.idOrSearch !== "number")
                                 throw new Error("Id is not a number, got :" + typeof m.idOrSearch);
-
                             else
                                 replyData({
                                     type: "extract",
@@ -225,7 +232,7 @@ export function initWs(isManual = false) {
                                         module: extractModule(m.idOrSearch, m.usePatched ?? undefined),
                                         moduleNumber: m.idOrSearch,
                                         patchedBy: getModulePatchedBy(m.idOrSearch, m.usePatched ?? undefined)
-                                    },
+                                    }
                                 });
 
                             break;
@@ -234,9 +241,7 @@ export function initWs(isManual = false) {
                             let moduleId;
                             if (m.findType === "string")
                                 moduleId = +findModuleId([canonicalizeMatch(m.idOrSearch.toString())]);
-
-                            else
-                                moduleId = +findModuleId(mkRegexFind(m.idOrSearch));
+                            else moduleId = +findModuleId(mkRegexFind(m.idOrSearch));
                             replyData({
                                 type: "extract",
                                 ok: true,
@@ -244,7 +249,7 @@ export function initWs(isManual = false) {
                                     module: extractModule(moduleId, m.usePatched ?? undefined),
                                     moduleNumber: moduleId,
                                     patchedBy: getModulePatchedBy(moduleId, m.usePatched ?? undefined)
-                                },
+                                }
                             });
                             break;
                         }
@@ -263,7 +268,9 @@ export function initWs(isManual = false) {
                                         moduleIds = findAllModuleIds(parsedArgs[0]);
                                         break;
                                     case "CssClasses":
-                                        moduleIds = findAllModuleIds(filters.byClassNames(...parsedArgs), { topLevelOnly: true });
+                                        moduleIds = findAllModuleIds(filters.byClassNames(...parsedArgs), {
+                                            topLevelOnly: true
+                                        });
                                         break;
                                     case "ByProps":
                                         moduleIds = findAllModuleIds(filters.byProps(...parsedArgs));
@@ -286,7 +293,8 @@ export function initWs(isManual = false) {
 
                                 const uniqueModuleIds = new Set(moduleIds).size;
                                 if (uniqueModuleIds === 0) throw "No results";
-                                if (uniqueModuleIds > 1) throw "Found more than one result! Make this filter more specific";
+                                if (uniqueModuleIds > 1)
+                                    throw "Found more than one result! Make this filter more specific";
                                 // best name ever
                                 const [foundId] = moduleIds;
                                 replyData({
@@ -297,7 +305,7 @@ export function initWs(isManual = false) {
                                         find: true,
                                         moduleNumber: +foundId,
                                         patchedBy: getModulePatchedBy(foundId)
-                                    },
+                                    }
                                 });
                             } catch (err) {
                                 return reply("Failed to find: " + err);
@@ -316,16 +324,12 @@ export function initWs(isManual = false) {
             case "testPatch": {
                 const m = d.data;
                 let candidates;
-                if (d.data.findType === "string")
-                    candidates = search(m.find.toString());
-
-                else
-                    candidates = search(...mkRegexFind(m.find));
+                if (d.data.findType === "string") candidates = search(m.find.toString());
+                else candidates = search(...mkRegexFind(m.find));
 
                 // const candidates = search(find);
                 const keys = Object.keys(candidates);
-                if (keys.length !== 1)
-                    return reply("Expected exactly one 'find' matches, found " + keys.length);
+                if (keys.length !== 1) return reply("Expected exactly one 'find' matches, found " + keys.length);
 
                 const mod = candidates[keys[0]];
                 let src = String(mod).replaceAll("\n", "");
@@ -343,7 +347,10 @@ export function initWs(isManual = false) {
 
                     try {
                         const matcher = canonicalizeMatch(parseNode(match));
-                        const replacement = canonicalizeReplace(parseNode(replace), 'Vencord.Plugins.plugins["PlaceHolderPluginName"]');
+                        const replacement = canonicalizeReplace(
+                            parseNode(replace),
+                            'Vencord.Plugins.plugins["PlaceHolderPluginName"]'
+                        );
 
                         const newSource = src.replace(matcher, replacement as string);
 
@@ -479,13 +486,18 @@ interface AllModulesNotiProps {
     close: () => void;
 }
 
-const AllModulesNoti = ErrorBoundary.wrap(function ({ done, close }: AllModulesNotiProps) {
-    const [state, setState] = useState<0 | 1 | -1>(0);
-    done.then(setState.bind(null, 1)).catch(setState.bind(null, -1));
-    if (state === 1) setTimeout(close, 5000);
-    return (<>
-        {state === 0 && "Loading lazy modules, restarting could lead to errors"}
-        {state === 1 && "Loaded all lazy modules"}
-        {state === -1 && "Failed to load lazy modules, check console for errors"}
-    </>);
-}, { noop: true });
+const AllModulesNoti = ErrorBoundary.wrap(
+    function ({ done, close }: AllModulesNotiProps) {
+        const [state, setState] = useState<0 | 1 | -1>(0);
+        done.then(setState.bind(null, 1)).catch(setState.bind(null, -1));
+        if (state === 1) setTimeout(close, 5000);
+        return (
+            <>
+                {state === 0 && "Loading lazy modules, restarting could lead to errors"}
+                {state === 1 && "Loaded all lazy modules"}
+                {state === -1 && "Failed to load lazy modules, check console for errors"}
+            </>
+        );
+    },
+    { noop: true }
+);

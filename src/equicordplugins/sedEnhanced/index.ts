@@ -9,10 +9,12 @@ import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { MessageActions, MessageStore, PendingReplyStore, UserStore } from "@webpack/common";
 
-const sedRegex = /^s(?<sep>[/|$#@!])(?<match>(?!\1)(?:(?![^\\]\1).)*.|)\1(?<replace>(?!\1)(?:(?![^\\]\1).)*.|)\1?(?<modes>[rgmisudyv]*)$/;
+const sedRegex =
+    /^s(?<sep>[/|$#@!])(?<match>(?!\1)(?:(?![^\\]\1).)*.|)\1(?<replace>(?!\1)(?:(?![^\\]\1).)*.|)\1?(?<modes>[rgmisudyv]*)$/;
 const settings = definePluginSettings({
     regexByDefault: {
-        description: "Inverts the `r` flag, so using the `r` flag enables non-regex mode, and omitting it uses regex mode.",
+        description:
+            "Inverts the `r` flag, so using the `r` flag enables non-regex mode, and omitting it uses regex mode.",
         type: OptionType.BOOLEAN,
         default: false
     }
@@ -39,7 +41,8 @@ export default definePlugin({
 
         const pendingReply = PendingReplyStore.getPendingReply(channel.id)?.message;
         const toEdit = pendingReply ?? MessageStore.getLastEditableMessage(channel.id);
-        if (pendingReply && pendingReply.author.id !== UserStore.getCurrentUser()?.id || toEdit?.id == null) return { content: "" };
+        if ((pendingReply && pendingReply.author.id !== UserStore.getCurrentUser()?.id) || toEdit?.id == null)
+            return { content: "" };
 
         const groups = content.match(sedRegex)?.groups;
         if (groups?.match == null || groups?.replace == null || groups?.modes == null) return;
@@ -64,7 +67,9 @@ export default definePlugin({
             }
         }
 
-        const replaced = flags.includes("g") ? toEdit.content.replaceAll(find, replace) : toEdit.content.replace(find, replace);
+        const replaced = flags.includes("g")
+            ? toEdit.content.replaceAll(find, replace)
+            : toEdit.content.replace(find, replace);
         if (!replaced.trim() && toEdit.attachments.length === 0) {
             MessageActions.deleteMessage(channel.id, toEdit.id);
         } else if (replaced !== toEdit.content) {

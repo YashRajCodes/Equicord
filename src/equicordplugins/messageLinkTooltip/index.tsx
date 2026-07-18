@@ -5,38 +5,50 @@
  */
 
 import "./style.css";
+import { findComponentByCodeLazy } from "@webpack";
+import type { ComponentType } from "react";
 
 import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { findComponentByCodeLazy } from "@webpack";
-import { ChannelStore, Constants, MessageStore, RestAPI, Tooltip, useEffect, useState, useStateFromStores } from "@webpack/common";
-import type { ComponentType } from "react";
+import {
+    ChannelStore,
+    Constants,
+    MessageStore,
+    RestAPI,
+    Tooltip,
+    useEffect,
+    useState,
+    useStateFromStores
+} from "@webpack/common";
 
 const MessageDisplayCompact = getUserSettingLazy("textAndImages", "messageDisplayCompact")!;
 
-const ChannelMessage = findComponentByCodeLazy("isFirstMessageInForumPost", "trackAnnouncementViews") as ComponentType<any>;
+const ChannelMessage = findComponentByCodeLazy(
+    "isFirstMessageInForumPost",
+    "trackAnnouncementViews"
+) as ComponentType<any>;
 
 const settings = definePluginSettings({
     onLink: {
         description: "Show tooltip when hovering over message links",
         type: OptionType.BOOLEAN,
         default: true,
-        restartNeeded: true,
+        restartNeeded: true
     },
     onReply: {
         description: "Show tooltip when hovering over message replies",
         type: OptionType.BOOLEAN,
         default: true,
-        restartNeeded: true,
+        restartNeeded: true
     },
     onForward: {
         description: "Show tooltip when hovering over forwarded messages",
         type: OptionType.BOOLEAN,
         default: true,
-        restartNeeded: true,
+        restartNeeded: true
     },
     display: {
         description: "Display style",
@@ -54,14 +66,15 @@ const settings = definePluginSettings({
             {
                 label: "Cozy",
                 value: "cozy"
-            },
+            }
         ]
-    },
+    }
 });
 
 export default definePlugin({
     name: "MessageLinkTooltip",
-    description: "Adds a tooltip with a message preview when hovering over message links, replies, and forwarded messages.",
+    description:
+        "Adds a tooltip with a message preview when hovering over message links, replies, and forwarded messages.",
     tags: ["Appearance", "Chat"],
     authors: [Devs.Kyuuhachi],
 
@@ -74,7 +87,7 @@ export default definePlugin({
                 match: /(?<=\.jsxs\)\()(\i\.\i),\{(?=role:"link")/,
                 replace: "$self.MentionTooltip,{Component:$1,vcProps:arguments[0],"
             },
-            predicate: () => settings.store.onLink,
+            predicate: () => settings.store.onLink
         },
         {
             find: "#{intl::REPLY_QUOTE_MESSAGE_NOT_LOADED}",
@@ -83,7 +96,7 @@ export default definePlugin({
                 match: /(\i\.\i),\{(?=className:\i\(\)\(\i\.\i,\i\.\i)/g,
                 replace: "$self.ReplyTooltip,{Component:$1,vcProps:arguments[0],"
             },
-            predicate: () => settings.store.onReply,
+            predicate: () => settings.store.onReply
         },
         {
             find: "#{intl::MESSAGE_FORWARDED}",
@@ -91,8 +104,8 @@ export default definePlugin({
                 match: /(\i\.\i),\{(?=className:\i\.\i,onClick:\i)/g,
                 replace: "$self.ForwardTooltip,{Component:$1,vcProps:arguments[0],"
             },
-            predicate: () => settings.store.onForward,
-        },
+            predicate: () => settings.store.onForward
+        }
     ],
 
     MentionTooltip({ Component, vcProps, ...props }) {
@@ -107,25 +120,25 @@ export default definePlugin({
     ForwardTooltip({ Component, vcProps, ...props }) {
         const mess = vcProps.message.messageReference;
         return withTooltip(Component, props, mess?.message_id, mess?.channel_id);
-    },
+    }
 });
 
 function withTooltip(Component, props, messageId, channelId) {
     if (!messageId) return <Component {...props} />;
-    return <Tooltip
-        tooltipClassName="c98-message-link-tooltip"
-        text={
-            <ErrorBoundary>
-                <MessagePreview
-                    channelId={channelId}
-                    messageId={messageId}
-                />
-            </ErrorBoundary>
-        }>
-        {({ onMouseEnter, onMouseLeave }) => (
-            <Component {...props} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
-        )}
-    </Tooltip>;
+    return (
+        <Tooltip
+            tooltipClassName="c98-message-link-tooltip"
+            text={
+                <ErrorBoundary>
+                    <MessagePreview channelId={channelId} messageId={messageId} />
+                </ErrorBoundary>
+            }
+        >
+            {({ onMouseEnter, onMouseLeave }) => (
+                <Component {...props} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} />
+            )}
+        </Tooltip>
+    );
 }
 
 function MessagePreview({ channelId, messageId }) {
@@ -133,26 +146,26 @@ function MessagePreview({ channelId, messageId }) {
     const message = useMessage(channelId, messageId);
     const rawCompact = MessageDisplayCompact.useSetting();
 
-    const compact = settings.store.display === "compact" ? true : settings.store.display === "cozy" ? false : rawCompact;
+    const compact =
+        settings.store.display === "compact" ? true : settings.store.display === "cozy" ? false : rawCompact;
 
     if (!message) {
         return <span>Loading...</span>;
     }
 
-    return <ChannelMessage
-        id={`message-link-tooltip-${messageId}`}
-        message={message}
-        channel={channel}
-        subscribeToComponentDispatch={false}
-        compact={compact}
-    />;
+    return (
+        <ChannelMessage
+            id={`message-link-tooltip-${messageId}`}
+            message={message}
+            channel={channel}
+            subscribeToComponentDispatch={false}
+            compact={compact}
+        />
+    );
 }
 
 function useMessage(channelId, messageId) {
-    const cachedMessage = useStateFromStores(
-        [MessageStore],
-        () => MessageStore.getMessage(channelId, messageId)
-    );
+    const cachedMessage = useStateFromStores([MessageStore], () => MessageStore.getMessage(channelId, messageId));
     const [message, setMessage] = useState(cachedMessage);
     useEffect(() => {
         if (message == null)
@@ -161,14 +174,12 @@ function useMessage(channelId, messageId) {
                     url: Constants.Endpoints.MESSAGES(channelId),
                     query: {
                         limit: 1,
-                        around: messageId,
+                        around: messageId
                     },
-                    retries: 2,
+                    retries: 2
                 });
                 const rawMessage = res.body[0];
-                const message = MessageStore.getMessages(channelId)
-                    .receiveMessage(rawMessage)
-                    .get(messageId);
+                const message = MessageStore.getMessages(channelId).receiveMessage(rawMessage).get(messageId);
                 setMessage(message);
             })();
     });

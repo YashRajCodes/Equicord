@@ -7,13 +7,13 @@
 export const Native = getNative();
 
 import "./styles.css";
+import { findByPropsLazy } from "@webpack";
 
 import { LogsIcon } from "@components/Icons";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
-import { findByPropsLazy } from "@webpack";
 import { FluxDispatcher, MessageStore, SelectedChannelStore, UserStore } from "@webpack/common";
 
 import { OpenLogsButton } from "./components/LogsButton";
@@ -22,8 +22,25 @@ import * as idb from "./db";
 import * as LoggedMessageManager from "./LoggedMessageManager";
 import { addMessage } from "./LoggedMessageManager";
 import { settings } from "./settings";
-import { FetchMessagesResponse, LoadMessagePayload, LoggedMessage, LoggedMessageJSON, MessageCreatePayload, MessageDeleteBulkPayload, MessageDeletePayload, MessageUpdatePayload } from "./types";
-import { cleanUpCachedMessage, cleanupUserObject, getNative, isGhostPinged, mapTimestamp, messageJsonToMessageClass, reAddDeletedMessages } from "./utils";
+import {
+    FetchMessagesResponse,
+    LoadMessagePayload,
+    LoggedMessage,
+    LoggedMessageJSON,
+    MessageCreatePayload,
+    MessageDeleteBulkPayload,
+    MessageDeletePayload,
+    MessageUpdatePayload
+} from "./types";
+import {
+    cleanUpCachedMessage,
+    cleanupUserObject,
+    getNative,
+    isGhostPinged,
+    mapTimestamp,
+    messageJsonToMessageClass,
+    reAddDeletedMessages
+} from "./utils";
 import { removeContextMenuBindings, setupContextMenuPatches } from "./utils/contextMenu";
 import { shouldIgnore } from "./utils/index";
 import { LimitedMap } from "./utils/LimitedMap";
@@ -49,10 +66,9 @@ export async function clearLogs(showToast = true) {
 let oldGetMessage: typeof MessageStore.getMessage;
 
 const handledMessageIds = new Set();
-async function messageDeleteHandler(payload: MessageDeletePayload & { isBulk: boolean; }) {
+async function messageDeleteHandler(payload: MessageDeletePayload & { isBulk: boolean }) {
     if (payload.mlDeleted) {
-        if (settings.store.permanentlyRemoveLogByDefault)
-            await idb.deleteMessageIDB(payload.id);
+        if (settings.store.permanentlyRemoveLogByDefault) await idb.deleteMessageIDB(payload.id);
 
         return;
     }
@@ -64,14 +80,16 @@ async function messageDeleteHandler(payload: MessageDeletePayload & { isBulk: bo
     try {
         handledMessageIds.add(payload.id);
 
-        let message: LoggedMessage | LoggedMessageJSON | null =
-            oldGetMessage?.(payload.channelId, payload.id);
+        let message: LoggedMessage | LoggedMessageJSON | null = oldGetMessage?.(payload.channelId, payload.id);
         if (message == null) {
             // most likely an edited message
             const cachedMessage = cacheSentMessages.get(`${payload.channelId},${payload.id}`);
             if (!cachedMessage) return; // Flogger.log("no message to save");
 
-            message = { ...cacheSentMessages.get(`${payload.channelId},${payload.id}`), deleted: true } as LoggedMessageJSON;
+            message = {
+                ...cacheSentMessages.get(`${payload.channelId},${payload.id}`),
+                deleted: true
+            } as LoggedMessageJSON;
         }
 
         const ghostPinged = isGhostPinged(message as any);
@@ -97,13 +115,15 @@ async function messageDeleteHandler(payload: MessageDeletePayload & { isBulk: bo
         }
 
         if (message == null || message.channel_id == null || !message.deleted) return;
-        if (payload.isBulk)
-            return message;
+        if (payload.isBulk) return message;
 
         const currentChannelId = SelectedChannelStore.getChannelId();
-        await addMessage(message, ghostPinged ? idb.DBMessageStatus.GHOST_PINGED : idb.DBMessageStatus.DELETED, currentChannelId);
-    }
-    finally {
+        await addMessage(
+            message,
+            ghostPinged ? idb.DBMessageStatus.GHOST_PINGED : idb.DBMessageStatus.DELETED,
+            currentChannelId
+        );
+    } finally {
         handledMessageIds.delete(payload.id);
     }
 }
@@ -121,10 +141,16 @@ async function messageDeleteBulkHandler({ channelId, guildId, ids }: MessageDele
     if (messages.length > 0 && settings.store.timeBasedCleanupMinutes > 0) {
         const currentChannelId = SelectedChannelStore.getChannelId();
         const cutoffTime = new Date(Date.now() - settings.store.timeBasedCleanupMinutes * 60 * 1000).toISOString();
-        const oldGuildMessages = await idb.getOlderThanTimestampForGuildsIDB(cutoffTime, currentChannelId, settings.store.preserveCurrentChannel);
+        const oldGuildMessages = await idb.getOlderThanTimestampForGuildsIDB(
+            cutoffTime,
+            currentChannelId,
+            settings.store.preserveCurrentChannel
+        );
 
         if (oldGuildMessages.length > 0) {
-            Flogger.info(`Deleting ${oldGuildMessages.length} old server messages older than ${settings.store.timeBasedCleanupMinutes} minutes (bulk cleanup)`);
+            Flogger.info(
+                `Deleting ${oldGuildMessages.length} old server messages older than ${settings.store.timeBasedCleanupMinutes} minutes (bulk cleanup)`
+            );
             await idb.deleteMessagesBulkIDB(oldGuildMessages.map(m => m.message_id));
         }
     }
@@ -152,11 +178,18 @@ async function messageUpdateHandler(payload: MessageUpdatePayload) {
         return;
     }
 
-    let message = oldGetMessage?.(payload.message.channel_id, payload.message.id) as LoggedMessage | LoggedMessageJSON | null;
+    let message = oldGetMessage?.(payload.message.channel_id, payload.message.id) as
+        | LoggedMessage
+        | LoggedMessageJSON
+        | null;
 
     if (message == null) {
         // MESSAGE_UPDATE gets dispatched when emebeds change too and content becomes null
-        if (cachedMessage != null && payload.message.content != null && cachedMessage.content !== payload.message.content) {
+        if (
+            cachedMessage != null &&
+            payload.message.content != null &&
+            cachedMessage.content !== payload.message.content
+        ) {
             message = {
                 ...cachedMessage,
                 content: payload.message.content,
@@ -164,7 +197,7 @@ async function messageUpdateHandler(payload: MessageUpdatePayload) {
                     ...(cachedMessage.editHistory ?? []),
                     {
                         content: cachedMessage.content,
-                        timestamp: (new Date()).toISOString()
+                        timestamp: new Date().toISOString()
                     }
                 ]
             };
@@ -173,7 +206,13 @@ async function messageUpdateHandler(payload: MessageUpdatePayload) {
         }
     }
 
-    if (message == null || message.channel_id == null || message.editHistory == null || message.editHistory.length === 0) return;
+    if (
+        message == null ||
+        message.channel_id == null ||
+        message.editHistory == null ||
+        message.editHistory.length === 0
+    )
+        return;
 
     const currentChannelId = SelectedChannelStore.getChannelId();
     await addMessage(message, idb.DBMessageStatus.EDITED, currentChannelId);
@@ -183,10 +222,7 @@ function messageCreateHandler(payload: MessageCreatePayload) {
     // we do this here because cache is limited and to save memory
     if (!settings.store.cacheMessagesFromServers && payload.guildId != null) {
         const ids = [payload.channelId, payload.message?.author?.id, payload.guildId];
-        const isWhitelisted =
-            settings.store.whitelistedIds
-                .split(",")
-                .some(e => ids.includes(e));
+        const isWhitelisted = settings.store.whitelistedIds.split(",").some(e => ids.includes(e));
         if (!isWhitelisted) {
             return; // dont cache messages from servers when cacheMessagesFromServers is disabled and not whitelisted.
         }
@@ -210,13 +246,15 @@ async function processMessageFetch(response: FetchMessagesResponse) {
         if (response.body.length === 0) return;
 
         const firstMessage = response.body[response.body.length - 1];
-        const messages = await idb.getMessagesByChannelAndAfterTimestampIDB(firstMessage.channel_id, firstMessage.timestamp);
+        const messages = await idb.getMessagesByChannelAndAfterTimestampIDB(
+            firstMessage.channel_id,
+            firstMessage.timestamp
+        );
 
         if (!messages.length) return;
 
-        const deletedMessages = messages.filter(m =>
-            m.status === idb.DBMessageStatus.DELETED ||
-            m.status === idb.DBMessageStatus.GHOST_PINGED
+        const deletedMessages = messages.filter(
+            m => m.status === idb.DBMessageStatus.DELETED || m.status === idb.DBMessageStatus.GHOST_PINGED
         );
 
         for (const recivedMessage of response.body) {
@@ -249,7 +287,6 @@ async function processMessageFetch(response: FetchMessagesResponse) {
         }
 
         response.body.extra = deletedMessages.map(m => m.message);
-
     } catch (e) {
         Flogger.error("Failed to fetch messages", e);
     }
@@ -274,7 +311,6 @@ export default definePlugin({
                     match: /(?<=type:"LOAD_MESSAGES_SUCCESS",.{1,100})messages:(\i)/,
                     replace: "get messages() {return $self.coolReAddDeletedMessages($1, this);}"
                 }
-
             ]
         },
         {
@@ -314,7 +350,7 @@ export default definePlugin({
 
         // only check for expired attachments if the message is not deleted
         {
-            find: "\"/ephemeral-attachments/\"",
+            find: '"/ephemeral-attachments/"',
             replacement: {
                 match: /\i\.attachments\.some\(\i\)\|\|\i\.embeds\.some/,
                 replace: "!arguments[0].deleted && $&"
@@ -346,15 +382,21 @@ export default definePlugin({
     imageUtils,
     idb,
 
-    coolReAddDeletedMessages: (messages: LoggedMessageJSON[] & { extra: LoggedMessageJSON[]; }, payload: LoadMessagePayload) => {
+    coolReAddDeletedMessages: (
+        messages: LoggedMessageJSON[] & { extra: LoggedMessageJSON[] },
+        payload: LoadMessagePayload
+    ) => {
         try {
             if (messages.extra)
-                reAddDeletedMessages(messages, messages.extra, !payload.hasMoreAfter && !payload.isBefore, !payload.hasMoreBefore && !payload.isAfter);
-        }
-        catch (e) {
+                reAddDeletedMessages(
+                    messages,
+                    messages.extra,
+                    !payload.hasMoreAfter && !payload.isBefore,
+                    !payload.hasMoreBefore && !payload.isAfter
+                );
+        } catch (e) {
             Flogger.error("Failed to re-add deleted messages", e);
-        }
-        finally {
+        } finally {
             return messages;
         }
     },
@@ -375,10 +417,10 @@ export default definePlugin({
     },
 
     flux: {
-        "MESSAGE_DELETE": messageDeleteHandler as any,
-        "MESSAGE_DELETE_BULK": messageDeleteBulkHandler,
-        "MESSAGE_UPDATE": messageUpdateHandler,
-        "MESSAGE_CREATE": messageCreateHandler
+        MESSAGE_DELETE: messageDeleteHandler as any,
+        MESSAGE_DELETE_BULK: messageDeleteBulkHandler,
+        MESSAGE_UPDATE: messageUpdateHandler,
+        MESSAGE_CREATE: messageCreateHandler
     },
 
     async start() {
@@ -387,18 +429,16 @@ export default definePlugin({
         // we have to do this because the original message logger fetches the message from the store now
         MessageStore.getMessage = (channelId: string, messageId: string) => {
             const MLMessage = idb.cachedMessages.get(messageId);
-            if (!MLMessage)
-                return this.oldGetMessage(channelId, messageId);
+            if (!MLMessage) return this.oldGetMessage(channelId, messageId);
 
-            if (MLMessage.deleted)
-                return messageJsonToMessageClass({ message: MLMessage });
+            if (MLMessage.deleted) return messageJsonToMessageClass({ message: MLMessage });
 
             // update the edited message with the latest data
             const latestMessage = this.oldGetMessage(channelId, messageId);
             return messageJsonToMessageClass({
                 message: {
                     ...MLMessage,
-                    ...(latestMessage ?? {}),
+                    ...(latestMessage ?? {})
                 }
             });
         };

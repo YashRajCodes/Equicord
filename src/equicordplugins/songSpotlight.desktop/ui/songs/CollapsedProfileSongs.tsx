@@ -4,6 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { RenderSongInfo } from "@song-spotlight/api/handlers";
+import { UserData } from "@song-spotlight/api/structs";
+import { sid } from "@song-spotlight/api/util";
+import { User } from "@vencord/discord-types";
+
 import { BaseText } from "@components/index";
 import { Native } from "@equicordplugins/songSpotlight.desktop/service";
 import {
@@ -11,13 +16,9 @@ import {
     DMSideBarClasses,
     OverlayClasses,
     ProfileCardClasses,
-    Spinner,
+    Spinner
 } from "@equicordplugins/songSpotlight.desktop/ui/common";
-import { RenderSongInfo } from "@song-spotlight/api/handlers";
-import { UserData } from "@song-spotlight/api/structs";
-import { sid } from "@song-spotlight/api/util";
 import { classes } from "@utils/index";
-import { User } from "@vencord/discord-types";
 import {
     SelectedChannelStore,
     SelectedGuildStore,
@@ -25,7 +26,7 @@ import {
     useMemo,
     UserProfileActions,
     UserStore,
-    useState,
+    useState
 } from "@webpack/common";
 
 const shownSongs = 4;
@@ -75,17 +76,25 @@ export default function CollapsedProfileSongs({ data, user, isSideBar }: Collaps
                                 channelId: SelectedChannelStore.getChannelId(),
                                 analyticsLocation: {
                                     page: guildId ? "Guild Channel" : "DM Channel",
-                                    section: "Profile Popout",
+                                    section: "Profile Popout"
                                 },
-                                tabSection: "SONG_SPOTLIGHT",
+                                tabSection: "SONG_SPOTLIGHT"
                             });
                         }}
                     >
-                        <div className={classes(OverlayClasses.overlay, ContainerClasses.innerContainer, ProfileCardClasses.card)}>
-                            <BaseText size={isSideBar ? "sm" : "xs"} weight="medium">Song Spotlight</BaseText>
+                        <div
+                            className={classes(
+                                OverlayClasses.overlay,
+                                ContainerClasses.innerContainer,
+                                ProfileCardClasses.card
+                            )}
+                        >
+                            <BaseText size={isSideBar ? "sm" : "xs"} weight="medium">
+                                Song Spotlight
+                            </BaseText>
                             <div className={ContainerClasses.icons}>
-                                {previews && data
-                                    ? previews.map((song, i) => {
+                                {previews && data ? (
+                                    previews.map((song, i) => {
                                         const render = renders.get(sid(song));
                                         const extra = i === shownSongs - 1 && data.length > shownSongs;
 
@@ -100,13 +109,17 @@ export default function CollapsedProfileSongs({ data, user, isSideBar }: Collaps
                                                 )}
                                                 {extra && (
                                                     <div className={ContainerClasses.displayCountText}>
-                                                        <BaseText size={isSideBar ? "sm" : "xs"} weight="medium">+{data.length - shownSongs}</BaseText>
+                                                        <BaseText size={isSideBar ? "sm" : "xs"} weight="medium">
+                                                            +{data.length - shownSongs}
+                                                        </BaseText>
                                                     </div>
                                                 )}
                                             </div>
                                         );
                                     })
-                                    : <Spinner type={Spinner.Type.SPINNING_CIRCLE} />}
+                                ) : (
+                                    <Spinner type={Spinner.Type.SPINNING_CIRCLE} />
+                                )}
                             </div>
                         </div>
                     </div>
@@ -115,7 +128,5 @@ export default function CollapsedProfileSongs({ data, user, isSideBar }: Collaps
         </section>
     );
 
-    return isSideBar
-        ? <div className={DMSideBarClasses.widgetPreviews}>{songsSection}</div>
-        : songsSection;
+    return isSideBar ? <div className={DMSideBarClasses.widgetPreviews}>{songsSection}</div> : songsSection;
 }

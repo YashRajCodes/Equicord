@@ -17,8 +17,7 @@ export async function exists(filename: string) {
 }
 
 export async function ensureDirectoryExists(cacheDir: string) {
-    if (!await exists(cacheDir))
-        await mkdir(cacheDir);
+    if (!(await exists(cacheDir))) await mkdir(cacheDir);
 }
 
 export function getAttachmentIdFromFilename(filename: string) {

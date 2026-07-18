@@ -26,7 +26,7 @@ interface JfNowPlayingItem {
     IndexNumber?: number;
     ProductionYear?: number;
     RunTimeTicks?: number;
-    ImageTags?: { Primary?: string; };
+    ImageTags?: { Primary?: string };
 }
 
 export interface JfMediaData {

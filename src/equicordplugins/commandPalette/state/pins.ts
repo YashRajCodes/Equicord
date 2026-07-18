@@ -20,7 +20,5 @@ export function isPinned(commandId: string): boolean {
 
 export function togglePin(commandId: string) {
     const current = pins.get();
-    pins.set(current.includes(commandId)
-        ? current.filter(id => id !== commandId)
-        : [...current, commandId]);
+    pins.set(current.includes(commandId) ? current.filter(id => id !== commandId) : [...current, commandId]);
 }

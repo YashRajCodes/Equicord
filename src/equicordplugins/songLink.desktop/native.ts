@@ -24,17 +24,19 @@ export async function getTrackData(_, trackURL: string): Promise<SongLinkResult>
     url.searchParams.set("url", trackURL);
     url.searchParams.set("userCountry", RendererSettings.store.plugins?.SongLink.userCountry || "US");
     const raw = await fetch(url.toString()).then(u => u.json());
-    const [, entry]: any = Object.entries(raw.entitiesByUniqueId)
-        .find(([key]) => !key.includes("YOUTUBE")) || [];
-    const possibleTrackInfo = entry
-        ? { title: (entry.title as string), artist: (entry.artistName as string) }
-        : null;
+    const [, entry]: any = Object.entries(raw.entitiesByUniqueId).find(([key]) => !key.includes("YOUTUBE")) || [];
+    const possibleTrackInfo = entry ? { title: entry.title as string, artist: entry.artistName as string } : null;
     return {
         // @ts-ignore
         info: possibleTrackInfo,
-        links: Object.fromEntries(Object.entries<any>(raw.linksByPlatform).map(([name, data]) => [name, {
-            url: data.url,
-            nativeUri: data.nativeAppUriDesktop
-        }]))
+        links: Object.fromEntries(
+            Object.entries<any>(raw.linksByPlatform).map(([name, data]) => [
+                name,
+                {
+                    url: data.url,
+                    nativeUri: data.nativeAppUriDesktop
+                }
+            ])
+        )
     };
 }

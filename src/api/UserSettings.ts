@@ -14,11 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { findModuleId, proxyLazyWebpack, wreq } from "@webpack";
 
 import { proxyLazy } from "@utils/lazy";
 import { Logger } from "@utils/Logger";
-import { findModuleId, proxyLazyWebpack, wreq } from "@webpack";
 
 import { isPluginEnabled } from "./PluginManager";
 
@@ -59,7 +60,8 @@ export const UserSettings: Record<PropertyKey, UserSettingDefinition<any>> | und
  * @param name The name of the setting
  */
 export function getUserSetting<T = any>(group: string, name: string): UserSettingDefinition<T> | undefined {
-    if (!isPluginEnabled("UserSettingsAPI")) throw new Error("Cannot use UserSettingsAPI without setting it as a dependency.");
+    if (!isPluginEnabled("UserSettingsAPI"))
+        throw new Error("Cannot use UserSettingsAPI without setting it as a dependency.");
 
     for (const key in UserSettings) {
         const userSetting = UserSettings[key];

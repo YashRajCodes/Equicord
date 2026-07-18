@@ -14,13 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { WebpackRequire } from "@vencord/discord-types/webpack";
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType, StartAt } from "@utils/types";
-import { WebpackRequire } from "@vencord/discord-types/webpack";
 
 const settings = definePluginSettings({
     disableAnalytics: {
@@ -46,8 +47,8 @@ export default definePlugin({
             predicate: () => settings.store.disableAnalytics,
             replacement: {
                 match: /\(0,\i\.analyticsTrackingStoreMaker\)/,
-                replace: "(()=>{})",
-            },
+                replace: "(()=>{})"
+            }
         },
         {
             find: ".METRICS_V2",
@@ -135,7 +136,9 @@ export default definePlugin({
             configurable: true,
 
             set() {
-                new Logger("NoTrack", "#8caaee").error("Failed to disable Sentry. Falling back to deleting window.DiscordSentry");
+                new Logger("NoTrack", "#8caaee").error(
+                    "Failed to disable Sentry. Falling back to deleting window.DiscordSentry"
+                );
 
                 Reflect.deleteProperty(Function.prototype, "d");
                 Reflect.deleteProperty(window, "DiscordSentry");

@@ -14,17 +14,33 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { findCssClassesLazy } from "@webpack";
 
 import { Auth, getToken } from "@plugins/reviewDB/auth";
 import { Review, ReviewType } from "@plugins/reviewDB/entities";
-import { blockUser, deleteReview, deleteReviewVote, reportReview, unblockUser, voteReview } from "@plugins/reviewDB/reviewDbApi";
+import {
+    blockUser,
+    deleteReview,
+    deleteReviewVote,
+    reportReview,
+    unblockUser,
+    voteReview
+} from "@plugins/reviewDB/reviewDbApi";
 import { settings } from "@plugins/reviewDB/settings";
 import { canBlockReviewAuthor, canDeleteReview, canReportReview, cl, showToast } from "@plugins/reviewDB/utils";
 import { openUserProfile } from "@utils/discord";
 import { classes } from "@utils/misc";
-import { findCssClassesLazy } from "@webpack";
-import { ConfirmModal, IconUtils, openModal as openVencordModal, Parser, Timestamp, useEffect, useState } from "@webpack/common";
+import {
+    ConfirmModal,
+    IconUtils,
+    openModal as openVencordModal,
+    Parser,
+    Timestamp,
+    useEffect,
+    useState
+} from "@webpack/common";
 
 import { openBlockModal } from "./BlockedUserModal";
 import { BlockButton, DeleteButton, ReportButton } from "./MessageButton";
@@ -38,7 +54,15 @@ const BotTagClasses = findCssClassesLazy("botTagVerified", "botTagRegular", "bot
 
 const dateFormat = new Intl.DateTimeFormat();
 
-export default function ReviewComponent({ review, refetch, profileId }: { review: Review; refetch(): void; profileId: string; }) {
+export default function ReviewComponent({
+    review,
+    refetch,
+    profileId
+}: {
+    review: Review;
+    refetch(): void;
+    profileId: string;
+}) {
     const [showAll, setShowAll] = useState(false);
     const [localVote, setLocalVote] = useState<boolean | null>(review.userVote ?? null);
     const [score, setScore] = useState(review.score ?? 0);
@@ -93,8 +117,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
     const isAuthorBlocked = Auth?.user?.blockedUsers?.includes(review.sender.discordID) ?? false;
 
     function blockReviewSender() {
-        if (isAuthorBlocked)
-            return unblockUser(review.sender.discordID);
+        if (isAuthorBlocked) return unblockUser(review.sender.discordID);
 
         openVencordModal(props => (
             <ConfirmModal
@@ -132,9 +155,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
             }
 
             if (await voteReview(review.id, isUpvote)) {
-                const delta = localVote == null
-                    ? isUpvote ? 1 : -1
-                    : isUpvote ? 2 : -2;
+                const delta = localVote == null ? (isUpvote ? 1 : -1) : isUpvote ? 2 : -2;
 
                 setLocalVote(isUpvote);
                 setScore(currentScore => currentScore + delta);
@@ -145,17 +166,30 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
     }
 
     return (
-        <div className={classes(cl("review"), MessageClasses.cozyMessage, AvatarClasses.wrapper, MessageClasses.message, MessageClasses.groupStart, AvatarClasses.cozy)} style={
-            {
+        <div
+            className={classes(
+                cl("review"),
+                MessageClasses.cozyMessage,
+                AvatarClasses.wrapper,
+                MessageClasses.message,
+                MessageClasses.groupStart,
+                AvatarClasses.cozy
+            )}
+            style={{
                 marginLeft: "0px",
-                paddingLeft: "52px",
+                paddingLeft: "52px"
                 // nobody knows anymore
-            }
-        }>
-
+            }}
+        >
             {review.id !== 0 && (
                 <div className={cl("vote-column")}>
-                    <span className={classes(cl("vote-column-score"), score > 0 && cl("vote-column-score-positive"), score < 0 && cl("vote-column-score-negative"))}>
+                    <span
+                        className={classes(
+                            cl("vote-column-score"),
+                            score > 0 && cl("vote-column-score-positive"),
+                            score < 0 && cl("vote-column-score-negative")
+                        )}
+                    >
                         {score}
                     </span>
                     <div className={cl("vote-column-buttons")}>
@@ -166,17 +200,32 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                             type="button"
                         >
                             <svg height="20" viewBox="0 0 12 12" width="20" fill="none">
-                                <path d="M3 7.5 6 4.5l3 3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+                                <path
+                                    d="M3 7.5 6 4.5l3 3"
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="1.8"
+                                />
                             </svg>
                         </button>
                         <button
-                            className={classes(cl("vote-column-button"), localVote === false && cl("vote-column-down-selected"))}
+                            className={classes(
+                                cl("vote-column-button"),
+                                localVote === false && cl("vote-column-down-selected")
+                            )}
                             disabled={isVoting}
                             onClick={() => submitVote(false)}
                             type="button"
                         >
                             <svg height="20" viewBox="0 0 12 12" width="20" fill="none">
-                                <path d="M3 4.5 6 7.5l3-3" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" />
+                                <path
+                                    d="M3 4.5 6 7.5l3-3"
+                                    stroke="currentColor"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="1.8"
+                                />
                             </svg>
                         </button>
                     </div>
@@ -188,7 +237,7 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                 onClick={openModal}
                 src={review.sender.profilePhoto ?? IconUtils.getDefaultAvatarURL(review.sender.discordID)}
                 style={{ left: "0px", zIndex: 0 }}
-                onError={e => e.currentTarget.src = IconUtils.getDefaultAvatarURL(review.sender.discordID)}
+                onError={e => (e.currentTarget.src = IconUtils.getDefaultAvatarURL(review.sender.discordID))}
             />
             <div style={{ display: "inline-flex", justifyContent: "center", alignItems: "center" }}>
                 <span
@@ -201,11 +250,15 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
 
                 {review.type === ReviewType.System && (
                     <span
-                        className={classes(BotTagClasses.botTagVerified, BotTagClasses.botTagRegular, BotTagClasses.px, BotTagClasses.rem)}
-                        style={{ marginLeft: "4px" }}>
-                        <span className={BotTagClasses.botText}>
-                            System
-                        </span>
+                        className={classes(
+                            BotTagClasses.botTagVerified,
+                            BotTagClasses.botTagRegular,
+                            BotTagClasses.px,
+                            BotTagClasses.rem
+                        )}
+                        style={{ marginLeft: "4px" }}
+                    >
+                        <span className={BotTagClasses.botText}>System</span>
                     </span>
                 )}
             </div>
@@ -218,33 +271,39 @@ export default function ReviewComponent({ review, refetch, profileId }: { review
                     onClick={() => openBlockModal()}
                 />
             )}
-            {review.sender.badges.map((badge, idx) => <ReviewBadge key={idx} {...badge} />)}
+            {review.sender.badges.map((badge, idx) => (
+                <ReviewBadge key={idx} {...badge} />
+            ))}
 
-            {
-                !settings.store.hideTimestamps && review.type !== ReviewType.System && (
-                    <Timestamp timestamp={new Date(review.timestamp * 1000)} >
-                        {dateFormat.format(review.timestamp * 1000)}
-                    </Timestamp>)
-            }
+            {!settings.store.hideTimestamps && review.type !== ReviewType.System && (
+                <Timestamp timestamp={new Date(review.timestamp * 1000)}>
+                    {dateFormat.format(review.timestamp * 1000)}
+                </Timestamp>
+            )}
             <div className={cl("review-comment")}>
-                {(review.comment.length > 200 && !showAll)
-                    ? (
-                        <>
-                            {Parser.parseGuildEventDescription(review.comment.substring(0, 200))}...
-                            <br />
-                            <a onClick={() => setShowAll(true)}>Read more</a>]
-                        </>
-                    )
-                    : Parser.parseGuildEventDescription(review.comment)}
+                {review.comment.length > 200 && !showAll ? (
+                    <>
+                        {Parser.parseGuildEventDescription(review.comment.substring(0, 200))}...
+                        <br />
+                        <a onClick={() => setShowAll(true)}>Read more</a>]
+                    </>
+                ) : (
+                    Parser.parseGuildEventDescription(review.comment)
+                )}
             </div>
 
             {review.id !== 0 && (
-                <div className={classes(ContainerClasses.container, ContainerClasses.isHeader, MessageClasses.buttons)} style={{
-                    padding: "0px",
-                }}>
-                    <div className={classes(ButtonClasses.wrapper, MessageClasses.buttonsInner)} >
+                <div
+                    className={classes(ContainerClasses.container, ContainerClasses.isHeader, MessageClasses.buttons)}
+                    style={{
+                        padding: "0px"
+                    }}
+                >
+                    <div className={classes(ButtonClasses.wrapper, MessageClasses.buttonsInner)}>
                         {canReportReview(review) && <ReportButton onClick={reportRev} />}
-                        {canBlockReviewAuthor(profileId, review) && <BlockButton isBlocked={isAuthorBlocked} onClick={blockReviewSender} />}
+                        {canBlockReviewAuthor(profileId, review) && (
+                            <BlockButton isBlocked={isAuthorBlocked} onClick={blockReviewSender} />
+                        )}
                         {canDeleteReview(profileId, review) && <DeleteButton onClick={delReview} />}
                     </div>
                 </div>

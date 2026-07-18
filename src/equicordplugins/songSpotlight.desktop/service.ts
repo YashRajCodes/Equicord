@@ -7,6 +7,7 @@
 import { RenderSongInfo } from "@song-spotlight/api/handlers";
 import { Song } from "@song-spotlight/api/structs";
 import { sid } from "@song-spotlight/api/util";
+
 import { PluginNative } from "@utils/types";
 import { useEffect, useState } from "@webpack/common";
 
@@ -19,7 +20,7 @@ export function useRender(song: Song) {
         setRender(null);
         Native.renderSong(song)
             .catch(() => null)
-            .then(info => info ? setRender(info) : setFailed(true));
+            .then(info => (info ? setRender(info) : setFailed(true)));
     }, [sid(song)]);
 
     return { failed, render };

@@ -14,11 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { findByProps, findByPropsLazy, proxyLazyWebpack } from "@webpack";
 
 import { isPluginEnabled } from "@api/PluginManager";
 import OpenInAppPlugin from "@plugins/openInApp";
-import { findByProps, findByPropsLazy, proxyLazyWebpack } from "@webpack";
 import { Flux, FluxDispatcher } from "@webpack/common";
 
 import { settings } from "../settings";
@@ -49,10 +50,10 @@ export interface Track {
 interface PlayerState {
     accountId: string;
     track: Track | null;
-    volumePercent: number,
-    isPlaying: boolean,
-    repeat: boolean,
-    position: number,
+    volumePercent: number;
+    isPlaying: boolean;
+    repeat: boolean;
+    position: number;
     context?: any;
     device?: Device;
 
@@ -92,9 +93,10 @@ export const SpotifyStore = proxyLazyWebpack(() => {
         public isSettingPosition = false;
 
         public openExternal(path: string) {
-            const url = settings.store.useSpotifyUris || isPluginEnabled(OpenInAppPlugin.name)
-                ? "spotify:" + path.replaceAll("/", (_, idx) => idx === 0 ? "" : ":")
-                : "https://open.spotify.com" + path;
+            const url =
+                settings.store.useSpotifyUris || isPluginEnabled(OpenInAppPlugin.name)
+                    ? "spotify:" + path.replaceAll("/", (_, idx) => (idx === 0 ? "" : ":"))
+                    : "https://open.spotify.com" + path;
 
             VencordNative.native.openExternal(url);
         }
@@ -126,7 +128,6 @@ export const SpotifyStore = proxyLazyWebpack(() => {
                 query: {
                     volume_percent: Math.round(percent)
                 }
-
             }).then(() => {
                 this.volume = percent;
                 this.emitChange();
@@ -168,8 +169,7 @@ export const SpotifyStore = proxyLazyWebpack(() => {
         }
 
         _req(method: "post" | "get" | "put", route: string, data: any = {}) {
-            if (this.device?.is_active)
-                (data.query ??= {}).device_id = this.device.id;
+            if (this.device?.is_active) (data.query ??= {}).device_id = this.device.id;
 
             const { socket } = SpotifySocket.getActiveSocketAndDevice();
             return SpotifyAPI[method](socket.accountId, socket.accessToken, {
@@ -191,7 +191,7 @@ export const SpotifyStore = proxyLazyWebpack(() => {
             store.isSettingPosition = false;
             store.emitChange();
         },
-        SPOTIFY_SET_DEVICES({ devices }: { devices: Device[]; }) {
+        SPOTIFY_SET_DEVICES({ devices }: { devices: Device[] }) {
             store.device = devices.find(d => d.is_active) ?? devices[0] ?? null;
             store.emitChange();
         }

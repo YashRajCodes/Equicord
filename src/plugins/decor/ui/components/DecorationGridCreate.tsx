@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { HTMLProps } from "react";
+
 import { BaseText } from "@components/BaseText";
 import { PlusIcon } from "@components/Icons";
 import { getIntlMessage } from "@utils/discord";
-import { HTMLProps } from "react";
 
 import { DecorationGridItem } from ".";
 
@@ -16,16 +17,12 @@ type DecorationGridCreateProps = HTMLProps<HTMLDivElement> & {
 };
 
 export default function DecorationGridCreate(props: DecorationGridCreateProps) {
-    return <DecorationGridItem
-        {...props}
-        isSelected={false}
-    >
-        <PlusIcon />
-        <BaseText
-            size="xs"
-            color="text-strong"
-        >
-            {getIntlMessage("CREATE")}
-        </BaseText>
-    </DecorationGridItem >;
+    return (
+        <DecorationGridItem {...props} isSelected={false}>
+            <PlusIcon />
+            <BaseText size="xs" color="text-strong">
+                {getIntlMessage("CREATE")}
+            </BaseText>
+        </DecorationGridItem>
+    );
 }

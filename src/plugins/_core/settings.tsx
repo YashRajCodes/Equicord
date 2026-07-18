@@ -4,8 +4,20 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { waitFor } from "@webpack";
+import type { ComponentType, PropsWithChildren, ReactNode } from "react";
+
 import { definePluginSettings } from "@api/Settings";
-import { BackupRestoreIcon, CloudIcon, LogIcon, MainSettingsIcon, PaintbrushIcon, PatchHelperIcon, PluginsIcon, UpdaterIcon } from "@components/Icons";
+import {
+    BackupRestoreIcon,
+    CloudIcon,
+    LogIcon,
+    MainSettingsIcon,
+    PaintbrushIcon,
+    PatchHelperIcon,
+    PluginsIcon,
+    UpdaterIcon
+} from "@components/Icons";
 import {
     BackupAndRestoreTab,
     ChangelogTab,
@@ -14,15 +26,13 @@ import {
     PluginsTab,
     ThemesTab,
     UpdaterTab,
-    VencordTab,
+    VencordTab
 } from "@components/settings";
 import { gitHashShort } from "@shared/vencordUserAgent";
 import { Devs } from "@utils/constants";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { IconProps, OptionType } from "@utils/types";
-import { waitFor } from "@webpack";
 import { React } from "@webpack/common";
-import type { ComponentType, PropsWithChildren, ReactNode } from "react";
 
 const enum LayoutType {
     ROOT = 0,
@@ -51,9 +61,9 @@ let LayoutTypes = {
     SIDEBAR_ITEM: 2,
     PANEL: 3,
     CATEGORY: 5,
-    CUSTOM: 19,
+    CUSTOM: 19
 };
-waitFor(["SECTION", "SIDEBAR_ITEM", "PANEL", "CUSTOM"], v => LayoutTypes = v);
+waitFor(["SECTION", "SIDEBAR_ITEM", "PANEL", "CUSTOM"], v => (LayoutTypes = v));
 
 const enum SectionType {
     HEADER = "HEADER",
@@ -61,13 +71,7 @@ const enum SectionType {
     CUSTOM = "CUSTOM"
 }
 
-type SettingsLocation =
-    | "top"
-    | "aboveNitro"
-    | "belowNitro"
-    | "aboveActivity"
-    | "belowActivity"
-    | "bottom";
+type SettingsLocation = "top" | "aboveNitro" | "belowNitro" | "aboveActivity" | "belowActivity" | "bottom";
 
 interface SettingsLayoutNode {
     type: LayoutType;
@@ -105,12 +109,13 @@ const settings = definePluginSettings({
             { label: "Below the Nitro section", value: "belowNitro" },
             { label: "Above Activity Settings", value: "aboveActivity" },
             { label: "Below Activity Settings", value: "belowActivity" },
-            { label: "At the very bottom", value: "bottom" },
-        ] as { label: string; value: SettingsLocation; default?: boolean; }[]
+            { label: "At the very bottom", value: "bottom" }
+        ] as { label: string; value: SettingsLocation; default?: boolean }[]
     },
     includeVencordInfoWhenCopying: {
         type: OptionType.BOOLEAN,
-        description: "Also copy Vencord info (Vencord, Electron, Chromium) when clicking the version info in the bottom left area of the Settings page",
+        description:
+            "Also copy Vencord info (Vencord, Electron, Chromium) when clicking the version info in the bottom left area of the Settings page",
         default: true
     }
 });
@@ -161,25 +166,29 @@ export default definePlugin({
             key: key + "_panel",
             type: LayoutTypes.PANEL,
             useTitle: () => panelTitle,
-            buildLayout: () => [{
-                type: LayoutTypes.CATEGORY,
-                key: key + "_category",
-                buildLayout: () => [{
-                    type: LayoutTypes.CUSTOM,
-                    key: key + "_custom",
-                    Component: Component,
-                    useSearchTerms: () => [title]
-                }]
-            }]
+            buildLayout: () => [
+                {
+                    type: LayoutTypes.CATEGORY,
+                    key: key + "_category",
+                    buildLayout: () => [
+                        {
+                            type: LayoutTypes.CUSTOM,
+                            key: key + "_custom",
+                            Component: Component,
+                            useSearchTerms: () => [title]
+                        }
+                    ]
+                }
+            ]
         };
 
-        return ({
+        return {
             key,
             type: LayoutTypes.SIDEBAR_ITEM,
             useTitle: () => title,
             icon: () => <Icon width={20} height={20} />,
             buildLayout: () => [panel]
-        });
+        };
     },
 
     buildLayout(originalLayoutBuilder: SettingsLayoutBuilder) {
@@ -210,18 +219,20 @@ export default definePlugin({
                 Component: ThemesTab,
                 Icon: PaintbrushIcon
             }),
-            !IS_UPDATER_DISABLED && UpdaterTab && buildEntry({
-                key: "equicord_updater",
-                title: "Updater",
-                panelTitle: "Equicord Updater",
-                Component: UpdaterTab,
-                Icon: UpdaterIcon
-            }),
+            !IS_UPDATER_DISABLED &&
+                UpdaterTab &&
+                buildEntry({
+                    key: "equicord_updater",
+                    title: "Updater",
+                    panelTitle: "Equicord Updater",
+                    Component: UpdaterTab,
+                    Icon: UpdaterIcon
+                }),
             buildEntry({
                 key: "equicord_changelog",
                 title: "Changelog",
                 Component: ChangelogTab,
-                Icon: LogIcon,
+                Icon: LogIcon
             }),
             buildEntry({
                 key: "equicord_cloud",
@@ -236,12 +247,14 @@ export default definePlugin({
                 Component: BackupAndRestoreTab,
                 Icon: BackupRestoreIcon
             }),
-            !IS_STANDALONE && PatchHelperTab && buildEntry({
-                key: "equicord_patch_helper",
-                title: "Patch Helper",
-                Component: PatchHelperTab,
-                Icon: PatchHelperIcon
-            }),
+            !IS_STANDALONE &&
+                PatchHelperTab &&
+                buildEntry({
+                    key: "equicord_patch_helper",
+                    title: "Patch Helper",
+                    Component: PatchHelperTab,
+                    Icon: PatchHelperIcon
+                }),
             ...this.customEntries.map(buildEntry)
         ].filter(isTruthy);
 
@@ -277,7 +290,12 @@ export default definePlugin({
         return layout;
     },
 
-    customSections: [] as ((SectionTypes: Record<string, string>) => { section: string; element: ComponentType; label: string; id?: string; })[],
+    customSections: [] as ((SectionTypes: Record<string, string>) => {
+        section: string;
+        element: ComponentType;
+        label: string;
+        id?: string;
+    })[],
     customEntries: [] as EntryOptions[],
 
     get electronVersion() {
@@ -290,7 +308,7 @@ export default definePlugin({
                 VencordNative.native.getVersions().chrome ??
                 // @ts-expect-error userAgentData types
                 navigator.userAgentData?.brands?.find(
-                    (b: { brand: string; }) => b.brand === "Chromium" || b.brand === "Google Chrome",
+                    (b: { brand: string }) => b.brand === "Chromium" || b.brand === "Google Chrome"
                 )?.version ??
                 null
             );
@@ -327,14 +345,11 @@ export default definePlugin({
         return "\n" + this.getInfoRows().join("\n");
     },
 
-    makeInfoElements(
-        Component: ComponentType<React.PropsWithChildren>,
-        props: PropsWithChildren,
-    ) {
+    makeInfoElements(Component: ComponentType<React.PropsWithChildren>, props: PropsWithChildren) {
         return this.getInfoRows().map((text, i) => (
             <Component key={i} {...props}>
                 {text}
             </Component>
         ));
-    },
+    }
 });

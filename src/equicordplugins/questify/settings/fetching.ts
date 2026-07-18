@@ -26,7 +26,11 @@ export function autoFetchCompatible(): boolean {
         questButtonIndicator: indicatorMode
     } = settings;
     const fetching = !settings.disableQuestsEverything && questFetchInterval > 0;
-    const notificationsCompatible = notifyOnNewQuests || notifyOnNewExcludedQuests || Boolean(newQuestAlertSound) || Boolean(newExcludedQuestAlertSound);
+    const notificationsCompatible =
+        notifyOnNewQuests ||
+        notifyOnNewExcludedQuests ||
+        Boolean(newQuestAlertSound) ||
+        Boolean(newExcludedQuestAlertSound);
     let buttonCompatible = false;
 
     if (displayMode === "always") {
@@ -56,9 +60,18 @@ export function startAutoFetchingQuests(force: boolean = false): void {
     }
 
     const { questFetchInterval } = getQuestifySettings();
-    const interval = Math.min(Math.max(questFetchInterval, minimumAutoFetchIntervalValue), maximumAutoFetchIntervalValue);
-    autoFetchInterval = setInterval(() => { void fetchAndAlertQuests("AUTO_FETCH"); }, interval * 1000);
-    QL.info("START_AUTO_FETCHING_QUESTS", { autoFetchIntervalID: autoFetchInterval, questFetchInterval, questFetchIntervalClamped: interval });
+    const interval = Math.min(
+        Math.max(questFetchInterval, minimumAutoFetchIntervalValue),
+        maximumAutoFetchIntervalValue
+    );
+    autoFetchInterval = setInterval(() => {
+        void fetchAndAlertQuests("AUTO_FETCH");
+    }, interval * 1000);
+    QL.info("START_AUTO_FETCHING_QUESTS", {
+        autoFetchIntervalID: autoFetchInterval,
+        questFetchInterval,
+        questFetchIntervalClamped: interval
+    });
 }
 
 export function stopAutoFetchingQuests(): void {
@@ -92,6 +105,6 @@ export function resetQuestsToResume(quest?: Quest, userId?: string): void {
 
     resumeQuestIDs[key] = {
         timestamp: resumeState.timestamp,
-        questIDs: resumeState.questIDs.filter(id => id !== quest.id),
+        questIDs: resumeState.questIDs.filter(id => id !== quest.id)
     };
 }

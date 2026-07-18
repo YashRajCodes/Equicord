@@ -14,7 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { JSX } from "react";
+import type { Root } from "react-dom/client";
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
@@ -23,36 +26,35 @@ import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { createRoot, Menu } from "@webpack/common";
-import { JSX } from "react";
-import type { Root } from "react-dom/client";
 
 import { Magnifier, MagnifierProps } from "./components/Magnifier";
 import { ELEMENT_ID } from "./constants";
+
 import managedStyle from "./styles.css?managed";
 
 export const settings = definePluginSettings({
     saveZoomValues: {
         type: OptionType.BOOLEAN,
         description: "Whether to save zoom and lens size values",
-        default: true,
+        default: true
     },
 
     invertScroll: {
         type: OptionType.BOOLEAN,
         description: "Invert scroll",
-        default: true,
+        default: true
     },
 
     nearestNeighbour: {
         type: OptionType.BOOLEAN,
         description: "Use Nearest Neighbour Interpolation when scaling images",
-        default: false,
+        default: false
     },
 
     square: {
         type: OptionType.BOOLEAN,
         description: "Make the lens square",
-        default: false,
+        default: false
     },
 
     zoom: {
@@ -60,14 +62,14 @@ export const settings = definePluginSettings({
         type: OptionType.SLIDER,
         markers: [1, 5, 10, 20, 30, 40, 50],
         default: 2,
-        stickToMarkers: false,
+        stickToMarkers: false
     },
     size: {
         description: "Radius / Size of the lens",
         type: OptionType.SLIDER,
         markers: [50, 100, 250, 500, 750, 1000],
         default: 100,
-        stickToMarkers: false,
+        stickToMarkers: false
     },
 
     zoomSpeed: {
@@ -75,8 +77,8 @@ export const settings = definePluginSettings({
         type: OptionType.SLIDER,
         markers: [0.1, 0.5, 1, 2, 3, 4, 5],
         default: 0.5,
-        stickToMarkers: false,
-    },
+        stickToMarkers: false
+    }
 });
 
 const imageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => {
@@ -115,7 +117,7 @@ const imageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => 
                         minValue={1}
                         maxValue={50}
                         value={settings.store.zoom}
-                        onChange={debounce((value: number) => settings.store.zoom = value, 100)}
+                        onChange={debounce((value: number) => (settings.store.zoom = value), 100)}
                     />
                 )}
             />
@@ -129,7 +131,7 @@ const imageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => 
                         minValue={50}
                         maxValue={1000}
                         value={settings.store.size}
-                        onChange={debounce((value: number) => settings.store.size = value, 100)}
+                        onChange={debounce((value: number) => (settings.store.size = value), 100)}
                     />
                 )}
             />
@@ -143,7 +145,7 @@ const imageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => 
                         minValue={0.1}
                         maxValue={5}
                         value={settings.store.zoomSpeed}
-                        onChange={debounce((value: number) => settings.store.zoomSpeed = value, 100)}
+                        onChange={debounce((value: number) => (settings.store.zoomSpeed = value), 100)}
                         renderValue={(value: number) => `${value.toFixed(3)}x`}
                     />
                 )}
@@ -154,7 +156,8 @@ const imageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => 
 
 export default definePlugin({
     name: "ImageZoom",
-    description: "Lets you zoom in to images and gifs. Use scroll wheel to zoom in and shift + scroll wheel to increase lens radius / size",
+    description:
+        "Lets you zoom in to images and gifs. Use scroll wheel to zoom in and shift + scroll wheel to increase lens radius / size",
     tags: ["Media", "Utility"],
     authors: [Devs.Aria],
     searchTerms: ["ImageUtilities"],
@@ -194,7 +197,7 @@ export default definePlugin({
 
                 {
                     match: /componentDidMount\(\){/,
-                    replace: "$&$self.renderMagnifier(this);",
+                    replace: "$&$self.renderMagnifier(this);"
                 },
 
                 {
@@ -227,7 +230,7 @@ export default definePlugin({
             onMouseOut: () => this.onMouseOut(instance),
             onMouseDown: (e: React.MouseEvent) => this.onMouseDown(e, instance),
             onMouseUp: () => this.onMouseUp(instance),
-            id: instance.props.id,
+            id: instance.props.id
         };
     },
 
@@ -238,7 +241,9 @@ export default definePlugin({
                     this.root = createRoot(this.element!);
                 }
 
-                this.currentMagnifierElement = <Magnifier size={settings.store.size} zoom={settings.store.zoom} instance={instance} />;
+                this.currentMagnifierElement = (
+                    <Magnifier size={settings.store.size} zoom={settings.store.zoom} instance={instance} />
+                );
                 this.root.render(this.currentMagnifierElement);
             }
         } catch (error) {
@@ -263,8 +268,7 @@ export default definePlugin({
         instance.setState((state: any) => ({ ...state, mouseOver: false }));
     },
     onMouseDown(e: React.MouseEvent, instance) {
-        if (e.button === 0 /* left */)
-            instance.setState((state: any) => ({ ...state, mouseDown: true }));
+        if (e.button === 0 /* left */) instance.setState((state: any) => ({ ...state, mouseDown: true }));
     },
     onMouseUp(instance) {
         instance.setState((state: any) => ({ ...state, mouseDown: false }));

@@ -14,20 +14,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./updater";
 import "./ipcPlugins";
 import "./settings";
-
-import { debounce } from "@shared/debounce";
-import { IpcEvents } from "@shared/IpcEvents";
-import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell, systemPreferences } from "electron";
-import monacoHtml from "file://monacoWin.html?minify&base64";
 import { FSWatcher, mkdirSync, readFileSync, watch, writeFileSync } from "fs";
 import { open, readdir, readFile, unlink } from "fs/promises";
 import { release } from "os";
 import { join, normalize } from "path";
+
+import { app, BrowserWindow, dialog, ipcMain, nativeTheme, shell, systemPreferences } from "electron";
+import monacoHtml from "file://monacoWin.html?minify&base64";
+
+import { debounce } from "@shared/debounce";
+import { IpcEvents } from "@shared/IpcEvents";
 
 import { registerCspIpcHandlers } from "./csp/manager";
 import { getThemeInfo, stripBOM, UserThemeHeader } from "./themes";
@@ -59,7 +60,9 @@ async function listThemes(): Promise<UserThemeHeader[]> {
     for (const fileName of files) {
         if (!fileName.endsWith(".css")) continue;
 
-        const data = await getThemeData(fileName).then(stripBOM).catch(() => null);
+        const data = await getThemeData(fileName)
+            .then(stripBOM)
+            .catch(() => null);
         if (data == null) continue;
 
         themeInfo.push(getThemeInfo(data, fileName));
@@ -83,16 +86,13 @@ ipcMain.handle(IpcEvents.OPEN_EXTERNAL, (_, url) => {
     } catch {
         throw "Malformed URL";
     }
-    if (!ALLOWED_PROTOCOLS.includes(protocol))
-        throw "Disallowed protocol.";
+    if (!ALLOWED_PROTOCOLS.includes(protocol)) throw "Disallowed protocol.";
 
     shell.openExternal(url);
 });
 
 ipcMain.handle(IpcEvents.GET_QUICK_CSS, () => readCss());
-ipcMain.handle(IpcEvents.SET_QUICK_CSS, (_, css) =>
-    writeFileSync(QUICK_CSS_PATH, css)
-);
+ipcMain.handle(IpcEvents.SET_QUICK_CSS, (_, css) => writeFileSync(QUICK_CSS_PATH, css));
 
 ipcMain.handle(IpcEvents.GET_THEMES_LIST, () => listThemes());
 ipcMain.handle(IpcEvents.GET_THEME_DATA, (_, fileName) => getThemeData(fileName));
@@ -120,16 +120,26 @@ ipcMain.handle(IpcEvents.INIT_FILE_WATCHERS, ({ sender }) => {
     let quickCssWatcher: FSWatcher | undefined;
     let rendererCssWatcher: FSWatcher | undefined;
 
-    open(QUICK_CSS_PATH, "a+").then(fd => {
-        fd.close();
-        quickCssWatcher = watch(QUICK_CSS_PATH, { persistent: false }, debounce(async () => {
-            sender.postMessage(IpcEvents.QUICK_CSS_UPDATE, await readCss());
-        }, 50));
-    }).catch(() => { });
+    open(QUICK_CSS_PATH, "a+")
+        .then(fd => {
+            fd.close();
+            quickCssWatcher = watch(
+                QUICK_CSS_PATH,
+                { persistent: false },
+                debounce(async () => {
+                    sender.postMessage(IpcEvents.QUICK_CSS_UPDATE, await readCss());
+                }, 50)
+            );
+        })
+        .catch(() => {});
 
-    const themesWatcher = watch(THEMES_DIR, { persistent: false }, debounce(() => {
-        sender.postMessage(IpcEvents.THEME_UPDATE, void 0);
-    }));
+    const themesWatcher = watch(
+        THEMES_DIR,
+        { persistent: false },
+        debounce(() => {
+            sender.postMessage(IpcEvents.THEME_UPDATE, void 0);
+        })
+    );
 
     if (IS_DEV) {
         rendererCssWatcher = watch(RENDERER_CSS_PATH, { persistent: false }, async () => {
@@ -170,7 +180,9 @@ ipcMain.handle(IpcEvents.OPEN_MONACO_EDITOR, async () => {
         }
     });
 
-    monacoWin.once("closed", () => { monacoWin = null; });
+    monacoWin.once("closed", () => {
+        monacoWin = null;
+    });
 
     makeLinksOpenExternally(monacoWin);
 

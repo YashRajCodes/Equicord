@@ -5,10 +5,19 @@
  */
 
 import { User } from "@vencord/discord-types";
-import { IconUtils, UserStore } from "@webpack/common";
 import { applyPalette, GIFEncoder, quantize } from "gifenc";
 
-import { CANVAS_CONFIG, CanvasConfig, FONT_SIZES, FontSizeCalculation, QuoteFont, QuoteImageOptions, SPACING } from "./types";
+import { IconUtils, UserStore } from "@webpack/common";
+
+import {
+    CANVAS_CONFIG,
+    CanvasConfig,
+    FONT_SIZES,
+    FontSizeCalculation,
+    QuoteFont,
+    QuoteImageOptions,
+    SPACING
+} from "./types";
 
 const CUSTOM_EMOJI_REGEX = /<a?:(\w+):(\d+)>/g;
 const CUSTOM_EMOJI_PLACEHOLDER = "\uFFFC";
@@ -102,7 +111,7 @@ async function canvasToGif(canvas: HTMLCanvasElement): Promise<Blob> {
 
     gif.writeFrame(index, canvas.width, canvas.height, {
         transparent: false,
-        palette,
+        palette
     });
 
     gif.finish();
@@ -134,19 +143,14 @@ function applyGrayscaleFilter(ctx: CanvasRenderingContext2D, config: CanvasConfi
 }
 
 function drawGradientOverlay(ctx: CanvasRenderingContext2D, config: CanvasConfig): void {
-    const gradient = ctx.createLinearGradient(
-        config.height - SPACING.gradientWidth,
-        0,
-        config.height,
-        0
-    );
+    const gradient = ctx.createLinearGradient(config.height - SPACING.gradientWidth, 0, config.height, 0);
     gradient.addColorStop(0, "rgba(0, 0, 0, 0)");
     gradient.addColorStop(1, "rgba(0, 0, 0, 1)");
     ctx.fillStyle = gradient;
     ctx.fillRect(config.height - SPACING.gradientWidth, 0, SPACING.gradientWidth, config.height);
 }
 
-function extractCustomEmojis(text: string): { text: string; emojis: CustomEmojiToken[]; } {
+function extractCustomEmojis(text: string): { text: string; emojis: CustomEmojiToken[] } {
     const emojis: CustomEmojiToken[] = [];
     const cleanText = text.replace(CUSTOM_EMOJI_REGEX, (match, name: string, id: string) => {
         emojis.push({
@@ -180,11 +184,13 @@ async function loadCustomEmojiImage(emoji: CustomEmojiToken): Promise<HTMLImageE
     const animatedVariants = emoji.animated ? [true, false] : [false];
     for (const animated of animatedVariants) {
         try {
-            const blob = await fetchImageAsBlob(IconUtils.getEmojiURL({
-                id: emoji.id,
-                animated,
-                size: 96
-            }));
+            const blob = await fetchImageAsBlob(
+                IconUtils.getEmojiURL({
+                    id: emoji.id,
+                    animated,
+                    size: 96
+                })
+            );
             return await loadImageFromBlob(blob);
         } catch {
             continue;
@@ -291,7 +297,8 @@ function calculateOptimalFontSize(
         const authorFontSize = Math.max(FONT_SIZES.authorMinimum, fontSize * FONT_SIZES.authorMultiplier);
         const usernameFontSize = Math.max(FONT_SIZES.usernameMinimum, fontSize * FONT_SIZES.usernameMultiplier);
 
-        const totalHeight = (lines.length * lineHeight) + SPACING.authorTop + authorFontSize + SPACING.username + usernameFontSize;
+        const totalHeight =
+            lines.length * lineHeight + SPACING.authorTop + authorFontSize + SPACING.username + usernameFontSize;
 
         if (totalHeight <= config.maxContentHeight) {
             return { fontSize, lineHeight, authorFontSize, usernameFontSize, lines, totalHeight };
@@ -303,7 +310,8 @@ function calculateOptimalFontSize(
     const lineHeight = FONT_SIZES.minimum * FONT_SIZES.lineHeightMultiplier;
     const authorFontSize = FONT_SIZES.authorMinimum;
     const usernameFontSize = FONT_SIZES.usernameMinimum;
-    const totalHeight = (lines.length * lineHeight) + SPACING.authorTop + authorFontSize + SPACING.username + usernameFontSize;
+    const totalHeight =
+        lines.length * lineHeight + SPACING.authorTop + authorFontSize + SPACING.username + usernameFontSize;
 
     return { fontSize: FONT_SIZES.minimum, lineHeight, authorFontSize, usernameFontSize, lines, totalHeight };
 }
@@ -387,11 +395,7 @@ function drawAuthorInfo(
     ctx.fillText(username, usernameX, usernameY);
 }
 
-function drawWatermark(
-    ctx: CanvasRenderingContext2D,
-    watermark: string,
-    config: CanvasConfig
-): void {
+function drawWatermark(ctx: CanvasRenderingContext2D, watermark: string, config: CanvasConfig): void {
     ctx.fillStyle = "#888";
     ctx.font = `300 ${FONT_SIZES.watermark}px 'M PLUS Rounded 1c', sans-serif`;
     const watermarkText = watermark.slice(0, 32);

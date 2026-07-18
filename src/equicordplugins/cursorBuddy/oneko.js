@@ -18,7 +18,7 @@ export default function oneko(options = {}) {
         image = "./oneko.gif",
         persistPosition = true,
         furColor = "#FFFFFF",
-        outlineColor = "#000000",
+        outlineColor = "#000000"
     } = options;
 
     const nekoEl = document.createElement("div");
@@ -40,61 +40,61 @@ export default function oneko(options = {}) {
         scratchSelf: [
             [-5, 0],
             [-6, 0],
-            [-7, 0],
+            [-7, 0]
         ],
         scratchWallN: [
             [0, 0],
-            [0, -1],
+            [0, -1]
         ],
         scratchWallS: [
             [-7, -1],
-            [-6, -2],
+            [-6, -2]
         ],
         scratchWallE: [
             [-2, -2],
-            [-2, -3],
+            [-2, -3]
         ],
         scratchWallW: [
             [-4, 0],
-            [-4, -1],
+            [-4, -1]
         ],
         tired: [[-3, -2]],
         sleeping: [
             [-2, 0],
-            [-2, -1],
+            [-2, -1]
         ],
         N: [
             [-1, -2],
-            [-1, -3],
+            [-1, -3]
         ],
         NE: [
             [0, -2],
-            [0, -3],
+            [0, -3]
         ],
         E: [
             [-3, 0],
-            [-3, -1],
+            [-3, -1]
         ],
         SE: [
             [-5, -1],
-            [-5, -2],
+            [-5, -2]
         ],
         S: [
             [-6, -3],
-            [-7, -2],
+            [-7, -2]
         ],
         SW: [
             [-5, -3],
-            [-6, -1],
+            [-6, -1]
         ],
         W: [
             [-4, -2],
-            [-4, -3],
+            [-4, -3]
         ],
         NW: [
             [-1, 0],
-            [-1, -1],
-        ],
+            [-1, -1]
+        ]
     };
 
     function recolorImage(src, furColor, outlineColor) {
@@ -109,12 +109,7 @@ export default function oneko(options = {}) {
 
                 ctx.drawImage(img, 0, 0);
 
-                const imageData = ctx.getImageData(
-                    0,
-                    0,
-                    canvas.width,
-                    canvas.height
-                );
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
 
                 const furRGB = hexToRgb(furColor);
@@ -151,7 +146,7 @@ export default function oneko(options = {}) {
             ? {
                   r: parseInt(result[1], 16),
                   g: parseInt(result[2], 16),
-                  b: parseInt(result[3], 16),
+                  b: parseInt(result[3], 16)
               }
             : { r: 0, g: 0, b: 0 };
     }
@@ -186,10 +181,10 @@ export default function oneko(options = {}) {
         nekoEl.style.zIndex = 2147483647;
 
         recolorImage(nekoFile, furColor, outlineColor)
-            .then((recoloredImageUrl) => {
+            .then(recoloredImageUrl => {
                 nekoEl.style.backgroundImage = `url(${recoloredImageUrl})`;
             })
-            .catch((err) => {
+            .catch(err => {
                 console.error("Failed to recolor Oneko image:", err);
                 nekoEl.style.backgroundImage = `url(${nekoFile})`; // ! Error handling for tests
             });
@@ -214,7 +209,7 @@ export default function oneko(options = {}) {
                         idleTime: idleTime,
                         idleAnimation: idleAnimation,
                         idleAnimationFrame: idleAnimationFrame,
-                        bgPos: nekoEl.style.backgroundPosition,
+                        bgPos: nekoEl.style.backgroundPosition
                     })
                 );
             });
@@ -237,9 +232,7 @@ export default function oneko(options = {}) {
 
     function setSprite(name, frame) {
         const sprite = spriteSets[name][frame % spriteSets[name].length];
-        nekoEl.style.backgroundPosition = `${sprite[0] * 32}px ${
-            sprite[1] * 32
-        }px`;
+        nekoEl.style.backgroundPosition = `${sprite[0] * 32}px ${sprite[1] * 32}px`;
     }
 
     function resetIdleAnimation() {
@@ -250,22 +243,13 @@ export default function oneko(options = {}) {
     function idle() {
         idleTime += 1;
 
-        if (
-            idleTime > 10 &&
-            Math.floor(Math.random() * 200) == 0 &&
-            idleAnimation == null
-        ) {
+        if (idleTime > 10 && Math.floor(Math.random() * 200) == 0 && idleAnimation == null) {
             let avalibleIdleAnimations = ["sleeping", "scratchSelf"];
             if (nekoPosX < 32) avalibleIdleAnimations.push("scratchWallW");
             if (nekoPosY < 32) avalibleIdleAnimations.push("scratchWallN");
-            if (nekoPosX > window.innerWidth - 32)
-                avalibleIdleAnimations.push("scratchWallE");
-            if (nekoPosY > window.innerHeight - 32)
-                avalibleIdleAnimations.push("scratchWallS");
-            idleAnimation =
-                avalibleIdleAnimations[
-                    Math.floor(Math.random() * avalibleIdleAnimations.length)
-                ];
+            if (nekoPosX > window.innerWidth - 32) avalibleIdleAnimations.push("scratchWallE");
+            if (nekoPosY > window.innerHeight - 32) avalibleIdleAnimations.push("scratchWallS");
+            idleAnimation = avalibleIdleAnimations[Math.floor(Math.random() * avalibleIdleAnimations.length)];
         }
 
         switch (idleAnimation) {

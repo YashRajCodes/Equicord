@@ -5,12 +5,12 @@
  */
 
 import "./styles.css";
+import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 
 import badges from "@plugins/_api/badges";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { isEquicordPluginDev, isPluginDev } from "@utils/misc";
 import definePlugin from "@utils/types";
-import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 
 const { roleIcon } = findCssClassesLazy("roleIcon", "separator");
 const RoleIconComponent = findComponentByCodeLazy("#{intl::ROLE_ICON_ALT_TEXT}");
@@ -34,8 +34,7 @@ const discordBadges: readonly [number, string, string][] = Object.freeze([
     [18, "Moderator Programs Alumni", "fee1624003e2fee35cb398e125dc479b"]
 ]);
 
-function CheckBadge({ badge, author }: { badge: string; author: User; }): JSX.Element | null {
-
+function CheckBadge({ badge, author }: { badge: string; author: User }): JSX.Element | null {
     switch (badge) {
         case "EquicordDonor":
             return (
@@ -91,7 +90,6 @@ function CheckBadge({ badge, author }: { badge: string; author: User; }): JSX.El
             const chatBadges = discordBadges
                 .filter(badge => (author.flags || author.publicFlags) & (1 << badge[0]))
                 .map(badge => (
-
                     <RoleIconComponent
                         key={author.id}
                         className={roleIcon}
@@ -101,9 +99,7 @@ function CheckBadge({ badge, author }: { badge: string; author: User; }): JSX.El
                     />
                 ));
             return chatBadges.length > 0 ? (
-                <span style={{ order: settings.store.DiscordProfilePosition }}>
-                    {chatBadges}
-                </span>
+                <span style={{ order: settings.store.DiscordProfilePosition }}>{chatBadges}</span>
             ) : null;
         case "DiscordNitro":
             return (author?.premiumType ?? 0) > 0 ? (
@@ -124,8 +120,7 @@ function CheckBadge({ badge, author }: { badge: string; author: User; }): JSX.El
     }
 }
 
-function ChatBadges({ author }: { author: User; }) {
-
+function ChatBadges({ author }: { author: User }) {
     return (
         <span className="vc-sbic-badge-row" style={{ margin: "2px" }}>
             {settings.store.showEquicordDonor && <CheckBadge badge={"EquicordDonor"} author={author} />}

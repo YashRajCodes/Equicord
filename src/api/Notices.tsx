@@ -14,15 +14,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
-import ErrorBoundary from "@components/ErrorBoundary";
-import { isPrimitiveReactNode } from "@utils/react";
 import { waitFor } from "@webpack";
 import { ReactNode } from "react";
 
+import ErrorBoundary from "@components/ErrorBoundary";
+import { isPrimitiveReactNode } from "@utils/react";
+
 let NoticesModule: any;
-waitFor(m => m.show && m.dismiss && !m.suppressAll, m => NoticesModule = m);
+waitFor(
+    m => m.show && m.dismiss && !m.suppressAll,
+    m => (NoticesModule = m)
+);
 
 export const noticesQueue = [] as any[];
 export let currentNotice: any = null;
@@ -40,9 +44,11 @@ export function nextNotice() {
 }
 
 export function showNotice(message: ReactNode, buttonText: string, onOkClick: () => void) {
-    const notice = isPrimitiveReactNode(message)
-        ? message
-        : <ErrorBoundary fallback={() => "Error Showing Notice"}>{message}</ErrorBoundary>;
+    const notice = isPrimitiveReactNode(message) ? (
+        message
+    ) : (
+        <ErrorBoundary fallback={() => "Error Showing Notice"}>{message}</ErrorBoundary>
+    );
 
     noticesQueue.push(["GENERIC", notice, buttonText, onOkClick]);
     if (!currentNotice) nextNotice();

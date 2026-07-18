@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Logger } from "@utils/Logger";
-import { canonicalizeMatch } from "@utils/patches";
 import { ModuleFactory } from "@vencord/discord-types/webpack";
 import * as Webpack from "@webpack";
 import { wreq } from "@webpack";
-import { AnyModuleFactory } from "@webpack/types";
 import pLimit from "p-limit";
+
+import { Logger } from "@utils/Logger";
+import { canonicalizeMatch } from "@utils/patches";
+import { AnyModuleFactory } from "@webpack/types";
 
 function getWebpackChunkMap() {
     const sym = Symbol();
@@ -47,8 +48,12 @@ export async function loadLazyChunks() {
         const chunksSearchPromises = [] as Array<() => boolean>;
 
         // This regex loads all language packs which makes webpack finds testing extremely slow, so for now, we prioritize using the one which doesnt include those
-        const CompleteLazyChunkRegex = canonicalizeMatch(/(?:(?:Promise\.all\(\[)?((?:\i\.e\("?[^)]+?"?\),?)+?)(?:\]\))?)\.then\(\i(?:\.\i)?\.bind\(\i,"?([^)]+?)"?(?:,[^)]+?)?\)\)/g);
-        const PartialLazyChunkRegex = canonicalizeMatch(/(?:(?:Promise\.all\(\[)?((?:\i\.e\("?[^)]+?"?\),?)+?)(?:\]\))?)\.then\(\i\.bind\(\i,"?([^)]+?)"?\)\)/g);
+        const CompleteLazyChunkRegex = canonicalizeMatch(
+            /(?:(?:Promise\.all\(\[)?((?:\i\.e\("?[^)]+?"?\),?)+?)(?:\]\))?)\.then\(\i(?:\.\i)?\.bind\(\i,"?([^)]+?)"?(?:,[^)]+?)?\)\)/g
+        );
+        const PartialLazyChunkRegex = canonicalizeMatch(
+            /(?:(?:Promise\.all\(\[)?((?:\i\.e\("?[^)]+?"?\),?)+?)(?:\]\))?)\.then\(\i\.bind\(\i,"?([^)]+?)"?\)\)/g
+        );
 
         let foundCssDebuggingLoad = false;
 
@@ -57,69 +62,73 @@ export async function loadLazyChunks() {
             // const hasCssDebuggingLoad = foundCssDebuggingLoad ? false : (foundCssDebuggingLoad = factoryCode.includes(".cssDebuggingEnabled&&"));
 
             // Disabled for now since this causes lots of chunks concatenated into the same module get marked as invalid, and thus not loaded.
-            const hasCssDebuggingLoad = foundCssDebuggingLoad = false;
+            const hasCssDebuggingLoad = (foundCssDebuggingLoad = false);
 
-            const lazyChunks = factoryCode.matchAll(hasCssDebuggingLoad ? CompleteLazyChunkRegex : PartialLazyChunkRegex);
+            const lazyChunks = factoryCode.matchAll(
+                hasCssDebuggingLoad ? CompleteLazyChunkRegex : PartialLazyChunkRegex
+            );
             const validChunkGroups = new Set<[chunkIds: PropertyKey[], entryPoint: PropertyKey]>();
 
             const shouldForceDefer = false;
 
-            await Promise.all(Array.from(lazyChunks).map(async ([, rawChunkIds, entryPoint]) => {
-                const chunkIds = rawChunkIds
-                    ?.matchAll(Webpack.ChunkIdsRegex)
-                    .map(m => {
-                        const numChunkId = Number(m[1]);
-                        return Number.isNaN(numChunkId) ? m[1] : String(numChunkId);
-                    })
-                    .toArray()
-                    ?? [];
+            await Promise.all(
+                Array.from(lazyChunks).map(async ([, rawChunkIds, entryPoint]) => {
+                    const chunkIds =
+                        rawChunkIds
+                            ?.matchAll(Webpack.ChunkIdsRegex)
+                            .map(m => {
+                                const numChunkId = Number(m[1]);
+                                return Number.isNaN(numChunkId) ? m[1] : String(numChunkId);
+                            })
+                            .toArray() ?? [];
 
-                if (chunkIds.length === 0) {
-                    return;
-                }
+                    if (chunkIds.length === 0) {
+                        return;
+                    }
 
-                let invalidChunkGroup = false;
+                    let invalidChunkGroup = false;
 
-                for (const id of chunkIds) {
-                    if (hasCssDebuggingLoad) {
-                        if (chunkIds.length > 1) {
-                            throw new Error("Found multiple chunks in factory that loads the CSS debugging chunk");
+                    for (const id of chunkIds) {
+                        if (hasCssDebuggingLoad) {
+                            if (chunkIds.length > 1) {
+                                throw new Error("Found multiple chunks in factory that loads the CSS debugging chunk");
+                            }
+
+                            invalidChunks.add(id);
+                            invalidChunkGroup = true;
+                            break;
                         }
 
-                        invalidChunks.add(id);
-                        invalidChunkGroup = true;
-                        break;
+                        if (wreq.u(id) == null || wreq.u(id) === "undefined.js") continue;
+
+                        const isWorkerAsset = await queue(() =>
+                            fetch(wreq.p + wreq.u(id))
+                                .then(r => r.text())
+                                .then(t => /importScripts\(|self\.postMessage/.test(t))
+                        );
+
+                        if (isWorkerAsset) {
+                            invalidChunks.add(id);
+                            invalidChunkGroup = true;
+                            continue;
+                        }
+
+                        validChunks.add(id);
                     }
 
-                    if (wreq.u(id) == null || wreq.u(id) === "undefined.js") continue;
-
-                    const isWorkerAsset = await queue(() =>
-                        fetch(wreq.p + wreq.u(id))
-                            .then(r => r.text())
-                            .then(t => /importScripts\(|self\.postMessage/.test(t))
-                    );
-
-                    if (isWorkerAsset) {
-                        invalidChunks.add(id);
-                        invalidChunkGroup = true;
-                        continue;
+                    if (!invalidChunkGroup) {
+                        const numEntryPoint = Number(entryPoint);
+                        validChunkGroups.add([
+                            chunkIds,
+                            Number.isNaN(numEntryPoint) ? entryPoint : String(numEntryPoint)
+                        ]);
                     }
-
-                    validChunks.add(id);
-                }
-
-                if (!invalidChunkGroup) {
-                    const numEntryPoint = Number(entryPoint);
-                    validChunkGroups.add([chunkIds, Number.isNaN(numEntryPoint) ? entryPoint : String(numEntryPoint)]);
-                }
-            }));
+                })
+            );
 
             // Loads all found valid chunk groups
             await Promise.all(
-                Array.from(validChunkGroups)
-                    .map(([chunkIds]) =>
-                        Promise.all(chunkIds.map(id => wreq.e(id)))
-                    )
+                Array.from(validChunkGroups).map(([chunkIds]) => Promise.all(chunkIds.map(id => wreq.e(id))))
             );
 
             // Requires the entry points for all valid chunk groups
@@ -161,8 +170,8 @@ export async function loadLazyChunks() {
         function factoryListener(factory: AnyModuleFactory | ModuleFactory) {
             let isResolved = false;
             searchAndLoadLazyChunks(String(factory))
-                .then(() => isResolved = true)
-                .catch(() => isResolved = true);
+                .then(() => (isResolved = true))
+                .catch(() => (isResolved = true));
 
             chunksSearchPromises.push(() => isResolved);
         }
@@ -193,16 +202,20 @@ export async function loadLazyChunks() {
             return !(validChunks.has(id) || invalidChunks.has(id));
         });
 
-        await Promise.all(chunksLeft.map(async id => queue(async () => {
-            const isWorkerAsset = await fetch(wreq.p + wreq.u(id))
-                .then(r => r.text())
-                .then(t => /importScripts\(|self\.postMessage/.test(t));
+        await Promise.all(
+            chunksLeft.map(async id =>
+                queue(async () => {
+                    const isWorkerAsset = await fetch(wreq.p + wreq.u(id))
+                        .then(r => r.text())
+                        .then(t => /importScripts\(|self\.postMessage/.test(t));
 
-            // Loads the chunk. Currently this only happens with the language packs which are loaded differently
-            if (!isWorkerAsset) {
-                await wreq.e(id);
-            }
-        })));
+                    // Loads the chunk. Currently this only happens with the language packs which are loaded differently
+                    if (!isWorkerAsset) {
+                        await wreq.e(id);
+                    }
+                })
+            )
+        );
 
         LazyChunkLoaderLogger.log("Finished loading all chunks!");
     } catch (e) {

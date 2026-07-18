@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-
 import { Settings, type ThemeActivationMode, useSettings } from "@api/Settings";
 import { Divider } from "@components/Divider";
 import { Heading } from "@components/Heading";
@@ -64,7 +63,7 @@ function inferAndStoreThemeActivationMode(themeId: string, css: string) {
 
     Settings.themeActivationModes = {
         ...(Settings.themeActivationModes ?? {}),
-        [themeId]: activationMode,
+        [themeId]: activationMode
     };
 }
 
@@ -78,13 +77,20 @@ interface UnifiedTheme {
 }
 
 function ThemesTab() {
-    const settings = useSettings(["themeLinks", "enabledThemeLinks", "enabledThemes", "enableOnlineThemes", "pinnedThemes", "themeActivationModes.*"]);
+    const settings = useSettings([
+        "themeLinks",
+        "enabledThemeLinks",
+        "enabledThemes",
+        "enableOnlineThemes",
+        "pinnedThemes",
+        "themeActivationModes.*"
+    ]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [currentThemeLink, setCurrentThemeLink] = useState("");
     const [themeLinkValid, setThemeLinkValid] = useState(false);
     const [userThemes, setUserThemes] = useState<UserThemeHeader[] | null>(null);
-    const [onlineThemes, setOnlineThemes] = useState<(UserThemeHeader & { link: string; })[] | null>(null);
+    const [onlineThemes, setOnlineThemes] = useState<(UserThemeHeader & { link: string })[] | null>(null);
     const [themeNames, setThemeNames] = useState<Record<string, string>>(() => {
         return settings.themeNames ?? {};
     });
@@ -126,7 +132,8 @@ function ThemesTab() {
             return new Promise<void>((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = () => {
-                    VencordNative.themes.uploadTheme(name, reader.result as string)
+                    VencordNative.themes
+                        .uploadTheme(name, reader.result as string)
                         .then(resolve)
                         .catch(reject);
                 };
@@ -178,7 +185,9 @@ function ThemesTab() {
         settings.pinnedThemes = settings.pinnedThemes.filter(f => f !== themeId);
         settings.enabledThemes = settings.enabledThemes.filter(f => f !== themeId);
         settings.enabledThemeLinks = settings.enabledThemeLinks.filter(f => f !== themeId);
-        settings.themeNames = Object.fromEntries(Object.entries(settings.themeNames).filter(([key]) => key !== themeId));
+        settings.themeNames = Object.fromEntries(
+            Object.entries(settings.themeNames).filter(([key]) => key !== themeId)
+        );
 
         const themeActivationModes = { ...(settings.themeActivationModes ?? {}) };
         delete themeActivationModes[themeId];
@@ -220,9 +229,7 @@ function ThemesTab() {
 
             const updatedTheme = { ...getThemeInfo(css, link), link };
 
-            setOnlineThemes(prev =>
-                prev?.map(t => t.link === link ? updatedTheme : t) ?? null
-            );
+            setOnlineThemes(prev => prev?.map(t => (t.link === link ? updatedTheme : t)) ?? null);
             showToast("Theme refreshed!", Toasts.Type.SUCCESS);
         } catch {
             showToast("Failed to refresh theme", Toasts.Type.FAILURE);
@@ -263,7 +270,7 @@ function ThemesTab() {
                 enabled: settings.enabledThemeLinks.includes(theme.link),
                 header: { ...theme, customName },
                 link: theme.link,
-                activationMode: settings.themeActivationModes?.[theme.link] ?? "always",
+                activationMode: settings.themeActivationModes?.[theme.link] ?? "always"
             });
         }
 
@@ -275,12 +282,19 @@ function ThemesTab() {
                 name,
                 enabled: settings.enabledThemes.includes(header.fileName),
                 header,
-                activationMode: settings.themeActivationModes?.[header.fileName] ?? "always",
+                activationMode: settings.themeActivationModes?.[header.fileName] ?? "always"
             });
         }
 
         return themes;
-    }, [onlineThemes, userThemes, themeNames, settings.enabledThemeLinks, settings.enabledThemes, settings.themeActivationModes]);
+    }, [
+        onlineThemes,
+        userThemes,
+        themeNames,
+        settings.enabledThemeLinks,
+        settings.enabledThemes,
+        settings.themeActivationModes
+    ]);
 
     const filteredThemes = useMemo(() => {
         let themes = allThemes;
@@ -305,7 +319,7 @@ function ThemesTab() {
                 break;
         }
 
-        const getThemeId = (t: UnifiedTheme) => t.type === "online" ? t.link! : t.header.fileName;
+        const getThemeId = (t: UnifiedTheme) => (t.type === "online" ? t.link! : t.header.fileName);
         themes.sort((a, b) => {
             const aId = getThemeId(a);
             const bId = getThemeId(b);
@@ -331,12 +345,14 @@ function ThemesTab() {
         <SettingsTab>
             <Heading className={Margins.top16}>Theme Management</Heading>
             <Paragraph className={Margins.bottom16}>
-                Customize Discord's appearance with themes. Add local .css files or load themes directly from URLs. Themes with a cog wheel icon have customizable settings you can modify.
+                Customize Discord's appearance with themes. Add local .css files or load themes directly from URLs.
+                Themes with a cog wheel icon have customizable settings you can modify.
             </Paragraph>
 
             <Heading>Quick Actions</Heading>
             <Paragraph className={Margins.bottom16}>
-                Shortcuts for managing your themes. Open your themes folder to add new themes, use QuickCSS for quick style tweaks, or reload themes after making changes.
+                Shortcuts for managing your themes. Open your themes folder to add new themes, use QuickCSS for quick
+                style tweaks, or reload themes after making changes.
             </Paragraph>
 
             <QuickActionsSection
@@ -366,18 +382,16 @@ function ThemesTab() {
 
             <Heading className={Margins.top20}>Installed Themes</Heading>
             <Paragraph className={Margins.bottom8}>
-                Manage your themes here. Local themes load from your themes folder, online themes from URLs. Themes with a cog wheel icon have customizable settings.
+                Manage your themes here. Local themes load from your themes folder, online themes from URLs. Themes with
+                a cog wheel icon have customizable settings.
             </Paragraph>
             <Paragraph color="text-subtle" className={Margins.bottom16}>
-                {allThemes.length} theme{allThemes.length !== 1 ? "s" : ""} installed ({localCount} local, {onlineCount} online) · {enabledCount} enabled
+                {allThemes.length} theme{allThemes.length !== 1 ? "s" : ""} installed ({localCount} local, {onlineCount}{" "}
+                online) · {enabledCount} enabled
             </Paragraph>
 
             <div className={cl("filter-row")}>
-                <TextInput
-                    placeholder="Search for a theme..."
-                    value={searchQuery}
-                    onChange={setSearchQuery}
-                />
+                <TextInput placeholder="Search for a theme..." value={searchQuery} onChange={setSearchQuery} />
                 <div>
                     <Select
                         options={filterOptions}
@@ -389,19 +403,20 @@ function ThemesTab() {
             </div>
 
             {userThemes === null ? (
-                <Paragraph color="text-muted" className={Margins.top16}>Loading themes...</Paragraph>
+                <Paragraph color="text-muted" className={Margins.top16}>
+                    Loading themes...
+                </Paragraph>
             ) : filteredThemes.length === 0 ? (
                 <Paragraph color="text-muted" className={Margins.top16}>
                     {allThemes.length === 0
                         ? "No themes installed yet. Add theme files to your themes folder or add an online theme above to get started."
-                        : "No themes match your search or filter criteria."
-                    }
+                        : "No themes match your search or filter criteria."}
                 </Paragraph>
             ) : (
                 <div className={classes(cl("grid"), Margins.top16)}>
                     {filteredThemes.map(theme => {
                         if (theme.type === "online") {
-                            const onlineTheme = theme.header as UserThemeHeader & { link: string; };
+                            const onlineTheme = theme.header as UserThemeHeader & { link: string };
                             const onlineThemesDisabled = !(settings.enableOnlineThemes ?? true);
                             return (
                                 <ThemeCard
@@ -429,7 +444,7 @@ function ThemesTab() {
                                         setThemeNames(updatedNames);
                                         settings.themeNames = {
                                             ...settings.themeNames,
-                                            [onlineTheme.link]: newName,
+                                            [onlineTheme.link]: newName
                                         };
                                     }}
                                 />
@@ -469,9 +484,7 @@ function UserscriptThemesTab() {
     return (
         <SettingsTab>
             <Heading className={Margins.top16}>Themes Not Supported</Heading>
-            <Paragraph className={Margins.bottom8}>
-                Themes are not available on the Userscript version.
-            </Paragraph>
+            <Paragraph className={Margins.bottom8}>Themes are not available on the Userscript version.</Paragraph>
             <Paragraph color="text-subtle">
                 You can install themes using the <Link href={getStylusWebStoreUrl()}>Stylus extension</Link> instead.
             </Paragraph>
@@ -479,6 +492,4 @@ function UserscriptThemesTab() {
     );
 }
 
-export default IS_USERSCRIPT
-    ? wrapTab(UserscriptThemesTab, "Themes")
-    : wrapTab(ThemesTab, "Themes");
+export default IS_USERSCRIPT ? wrapTab(UserscriptThemesTab, "Themes") : wrapTab(ThemesTab, "Themes");

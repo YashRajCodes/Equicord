@@ -20,11 +20,11 @@ const settings = definePluginSettings({
         options: [
             {
                 label: "Online",
-                value: "online",
+                value: "online"
             },
             {
                 label: "Idle",
-                value: "idle",
+                value: "idle"
             },
             {
                 label: "Do Not Disturb",
@@ -33,7 +33,7 @@ const settings = definePluginSettings({
             },
             {
                 label: "Invisible",
-                value: "invisible",
+                value: "invisible"
             }
         ]
     },
@@ -41,7 +41,7 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Prevent automatic status changes while your status is set to invisible",
         default: false
-    },
+    }
 });
 
 migratePluginSettings("AutoDNDWhilePlaying", "StatusWhilePlaying");

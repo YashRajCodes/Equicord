@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { GuildMember } from "@vencord/discord-types";
+
 import { definePluginSettings } from "@api/Settings";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { GuildMember } from "@vencord/discord-types";
 import { ChannelStore, GuildMemberStore, GuildRoleStore, React, RelationshipStore, UserStore } from "@webpack/common";
 
 const settings = definePluginSettings({
@@ -32,7 +33,8 @@ const settings = definePluginSettings({
     },
     hideBlockedMessages: {
         type: OptionType.BOOLEAN,
-        description: "Should messages from blocked users should be hidden fully (same as the old noblockedmessages plugin)",
+        description:
+            "Should messages from blocked users should be hidden fully (same as the old noblockedmessages plugin)",
         default: true,
         restartNeeded: true
     },
@@ -68,8 +70,16 @@ const settings = definePluginSettings({
 function isChannelInGuildBlocked(channelID, guild) {
     const guildID = guild ? channelID : ChannelStore.getChannel(channelID)?.guild_id;
 
-    const blacklist = settings.store.guildBlackList?.split(",").map(s => s.trim()).filter(Boolean) ?? [];
-    const whitelist = settings.store.guildWhiteList?.split(",").map(s => s.trim()).filter(Boolean) ?? [];
+    const blacklist =
+        settings.store.guildBlackList
+            ?.split(",")
+            .map(s => s.trim())
+            .filter(Boolean) ?? [];
+    const whitelist =
+        settings.store.guildWhiteList
+            ?.split(",")
+            .map(s => s.trim())
+            .filter(Boolean) ?? [];
 
     if (blacklist.includes(guildID)) return true;
     if (whitelist.length && !whitelist.includes(guildID)) return true;
@@ -88,21 +98,27 @@ function isRoleAllBlockedMembers(roleId, guildId) {
     const role = GuildRoleStore.getRole(guildId, roleId);
     if (!role) return false;
 
-    const membersWithRole: GuildMember[] = GuildMemberStore.getMembers(guildId).filter(member => member.roles.includes(roleId));
+    const membersWithRole: GuildMember[] = GuildMemberStore.getMembers(guildId).filter(member =>
+        member.roles.includes(roleId)
+    );
     if (!membersWithRole.length) return false;
     if (isChannelInGuildBlocked(guildId, true)) return true;
 
-    return membersWithRole.every(member => shouldHideUser(member.userId) && !(UserStore.getUser(member.userId).desktop || UserStore.getUser(member.userId).mobile));
+    return membersWithRole.every(
+        member =>
+            shouldHideUser(member.userId) &&
+            !(UserStore.getUser(member.userId).desktop || UserStore.getUser(member.userId).mobile)
+    );
 }
 
 function hiddenReplyComponent() {
     switch (settings.store.blockedReplyDisplay) {
         case "displayText":
-            return <Paragraph style={{ marginTop: "0px", marginBottom: "0px" }}>
-                <i>
-                    ↓ Replying to blocked message
-                </i>
-            </Paragraph>;
+            return (
+                <Paragraph style={{ marginTop: "0px", marginBottom: "0px" }}>
+                    <i>↓ Replying to blocked message</i>
+                </Paragraph>
+            );
         case "hideReply":
             return null;
     }
@@ -122,12 +138,15 @@ function activeNowView(cards) {
             if (!party) return true;
 
             const { applicationStreams, partiedMembers, priorityMembers, voiceChannels } = party;
-            voiceChannels?.forEach(vc => vc.members = vc.members?.filter(m => !shouldHideUser(m.id)) ?? []);
-            party.applicationStreams = (applicationStreams ?? []).filter(applicationStream => !shouldHideUser(applicationStream.streamUser.id));
+            voiceChannels?.forEach(vc => (vc.members = vc.members?.filter(m => !shouldHideUser(m.id)) ?? []));
+            party.applicationStreams = (applicationStreams ?? []).filter(
+                applicationStream => !shouldHideUser(applicationStream.streamUser.id)
+            );
             party.priorityMembers = priorityMembers?.filter(m => !shouldHideUser(m.user.id)) ?? [];
             party.partiedMembers = partiedMembers?.filter(m => !shouldHideUser(m.id)) ?? [];
 
-            const hasMembers = (voiceChannels?.some(vc => vc.members?.length) ?? false) ||
+            const hasMembers =
+                (voiceChannels?.some(vc => vc.members?.length) ?? false) ||
                 (party.partiedMembers?.length ?? 0) ||
                 (party.priorityMembers?.length ?? 0) ||
                 (party.applicationStreams?.length ?? 0);
@@ -156,7 +175,8 @@ export default definePlugin({
             find: ".NITRO_NOTIFICATION,[",
             replacement: {
                 match: /\i\(\)\(\i\.type.{0,40}Message must not be a thread starter message/,
-                replace: "if($self.shouldHideUser(arguments[0].message.author.id, arguments[0].message.channel_id)) return null;$&"
+                replace:
+                    "if($self.shouldHideUser(arguments[0].message.author.id, arguments[0].message.channel_id)) return null;$&"
             }
         },
         // friends list (should work with all tabs)
@@ -180,7 +200,7 @@ export default definePlugin({
                     match: /\i.memo\(function\(\i\){/,
                     replace: "$&if($self.isRoleAllBlockedMembers(arguments[0].id, arguments[0].guildId)) return null;",
                     predicate: () => settings.store.hideEmptyRoles
-                },
+                }
             ]
         },
         // "1 blocked message"
@@ -198,7 +218,8 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(?=let \i,\{repliedAuthor:)/,
-                    replace: "if(arguments[0]?.referencedMessage?.message && $self.shouldHideUser(arguments[0].referencedMessage.message.author.id, arguments[0].baseMessage.messageReference.channel_id)) { return $self.hiddenReplyComponent(); }"
+                    replace:
+                        "if(arguments[0]?.referencedMessage?.message && $self.shouldHideUser(arguments[0].referencedMessage.message.author.id, arguments[0].baseMessage.messageReference.channel_id)) { return $self.hiddenReplyComponent(); }"
                 }
             ]
         },
@@ -208,7 +229,8 @@ export default definePlugin({
             replacement: {
                 // horror but it works
                 match: /(return \i\.isMultiUserDM\(\))(?<=function\(\i,(\i),\i\){.*)/,
-                replace: "if($2.rawRecipients[0] && $2.rawRecipients[0]?.id){if($self.shouldHideUser($2.rawRecipients[0].id)) return null;}$1"
+                replace:
+                    "if($2.rawRecipients[0] && $2.rawRecipients[0]?.id){if($self.shouldHideUser($2.rawRecipients[0].id)) return null;}$1"
             }
         },
         // thank nick (644298972420374528) for these patches :3
@@ -236,6 +258,6 @@ export default definePlugin({
                 match: /(getMutualFriends\(\i\){)return (\i\.get\(\i\))/,
                 replace: "$1if($2) return $2.filter(u => !$self.shouldHideUser(u.key))"
             }
-        },
+        }
     ]
 });

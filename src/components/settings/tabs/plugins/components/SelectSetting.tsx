@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { isSettingDisabled } from "@api/PluginManager";
 import { PluginSettingSelectDef } from "@utils/types";
@@ -22,7 +22,13 @@ import { React, Select, useState } from "@webpack/common";
 
 import { resolveError, SettingProps, SettingsSection } from "./Common";
 
-export function SelectSetting({ setting, pluginSettings, definedSettings, onChange, id }: SettingProps<PluginSettingSelectDef>) {
+export function SelectSetting({
+    setting,
+    pluginSettings,
+    definedSettings,
+    onChange,
+    id
+}: SettingProps<PluginSettingSelectDef>) {
     const def = pluginSettings[id] ?? setting.options?.find(o => o.default)?.value;
 
     const [state, setState] = useState<any>(def ?? null);

@@ -6,6 +6,7 @@
 
 import { Channel, Message } from "@vencord/discord-types";
 import { findCssClassesLazy } from "@webpack";
+
 import { MessageStore, useEffect, UserStore, useState, useStateFromStores } from "@webpack/common";
 
 import { cl, settings } from ".";
@@ -74,7 +75,6 @@ export function clearChannelFromGhost(channelId: string): void {
     for (const listener of clearedChannelListeners) {
         listener(channelId);
     }
-
 }
 
 export function isChannelCleared(channelId: string): boolean {
@@ -83,23 +83,25 @@ export function isChannelCleared(channelId: string): boolean {
 
 const ChannelWrapperStyles = findCssClassesLazy("muted", "wrapper");
 
-export function Boo({ channel }: { channel: Channel; }) {
+export function Boo({ channel }: { channel: Channel }) {
     const { id } = channel;
 
     const currentUserId = useStateFromStores([UserStore], () => UserStore.getCurrentUser()?.id);
-    const lastMessage: Message = useStateFromStores([MessageStore], () =>
-        MessageStore.getMessages(id)?.last()
-    );
+    const lastMessage: Message = useStateFromStores([MessageStore], () => MessageStore.getMessages(id)?.last());
 
     const [state, setState] = useState({
         isCurrentUser: null as boolean | null,
         containsQuestionMark: false,
-        isDataProcessed: false,
+        isDataProcessed: false
     });
     const [isCleared, setIsCleared] = useState(false);
 
     const lastMessageTimestampMs = lastMessage ? new Date(lastMessage.timestamp).getTime() : 0;
-    const isInactive = !!lastMessage && settings.store.maxInactiveTimeMs > 0 && Number.isFinite(lastMessageTimestampMs) && Date.now() - lastMessageTimestampMs > settings.store.maxInactiveTimeMs;
+    const isInactive =
+        !!lastMessage &&
+        settings.store.maxInactiveTimeMs > 0 &&
+        Number.isFinite(lastMessageTimestampMs) &&
+        Date.now() - lastMessageTimestampMs > settings.store.maxInactiveTimeMs;
 
     useEffect(() => {
         if (!lastMessage || !currentUserId) return;
@@ -110,7 +112,7 @@ export function Boo({ channel }: { channel: Channel; }) {
         setState({
             isCurrentUser: lastIsCurrentUser,
             containsQuestionMark,
-            isDataProcessed: true,
+            isDataProcessed: true
         });
     }, [lastMessage, currentUserId]);
 
@@ -192,7 +194,16 @@ export function Boo({ channel }: { channel: Channel; }) {
         }
     }, [state.isCurrentUser, state.isDataProcessed, id, lastMessage?.id, isInactive]);
 
-    if (!state.isDataProcessed || !currentUserId || !lastMessage || state.isCurrentUser || isChannelExempted(channel) || isCleared || (settings.store.ignoreBots && lastMessage.author.bot) || isInactive)
+    if (
+        !state.isDataProcessed ||
+        !currentUserId ||
+        !lastMessage ||
+        state.isCurrentUser ||
+        isChannelExempted(channel) ||
+        isCleared ||
+        (settings.store.ignoreBots && lastMessage.author.bot) ||
+        isInactive
+    )
         return null;
 
     if (!settings.store.showDmIcons) return null;

@@ -20,26 +20,27 @@ interface GoogleData {
 }
 
 async function googleTranslate(text: string, targetLang: string, romanize: boolean): Promise<GoogleData | null> {
-    const url = "https://translate.googleapis.com/translate_a/single?" + new URLSearchParams({
-        // see https://stackoverflow.com/a/29537590 for more params
-        // holy shidd nvidia
-        client: "gtx",
-        // source language
-        sl: "auto",
-        // target language
-        tl: targetLang,
-        // what to return, t = translation probably
-        dt: romanize ? "rm" : "t",
-        // Send json object response instead of weird array
-        dj: "1",
-        source: "input",
-        // query, duh
-        q: text
-    });
+    const url =
+        "https://translate.googleapis.com/translate_a/single?" +
+        new URLSearchParams({
+            // see https://stackoverflow.com/a/29537590 for more params
+            // holy shidd nvidia
+            client: "gtx",
+            // source language
+            sl: "auto",
+            // target language
+            tl: targetLang,
+            // what to return, t = translation probably
+            dt: romanize ? "rm" : "t",
+            // Send json object response instead of weird array
+            dj: "1",
+            source: "input",
+            // query, duh
+            q: text
+        });
 
     const res = await fetch(url);
-    if (!res.ok)
-        return null;
+    if (!res.ok) return null;
 
     return await res.json();
 }
@@ -51,8 +52,8 @@ async function processLyrics(
 ): Promise<SyncedLyric[] | null> {
     if (!lyrics) return null;
 
-    const nonDuplicatedLyrics = lyrics.filter((lyric, index, self) =>
-        self.findIndex(l => l.text === lyric.text) === index
+    const nonDuplicatedLyrics = lyrics.filter(
+        (lyric, index, self) => self.findIndex(l => l.text === lyric.text) === index
     );
 
     const processedLyricsResp = await Promise.all(

@@ -22,7 +22,9 @@
 }
 
 .vc-icon-icon {
-    transition: transform 0.15s ease, filter 0.15s ease;
+    transition:
+        transform 0.15s ease,
+        filter 0.15s ease;
 }
 
 .vc-icon-container:hover .vc-icon-icon {
@@ -45,7 +47,7 @@
     margin-bottom: 16px;
 }
 
-.vc-icon-tab-search-bar-grid>div:first-child {
+.vc-icon-tab-search-bar-grid > div:first-child {
     flex: 1;
 }
 

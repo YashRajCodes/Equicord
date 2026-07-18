@@ -22,10 +22,10 @@ interface SettingsProto {
             status?: {
                 status: {
                     value: String;
-                },
+                };
                 showCurrentGame: {
                     value: Boolean;
-                },
+                };
             };
         };
     };
@@ -41,7 +41,7 @@ export const settings = definePluginSettings({
             { label: "Invisible", value: SteamStatus.Invisible },
             { label: "Offline (Disconnect Steam Chat)", value: SteamStatus.Offline },
             { label: "Disabled", value: SteamStatus.None }
-        ],
+        ]
     },
     idleStatus: {
         type: OptionType.SELECT,
@@ -52,7 +52,7 @@ export const settings = definePluginSettings({
             { label: "Invisible", value: SteamStatus.Invisible },
             { label: "Offline (Disconnect Steam Chat)", value: SteamStatus.Offline },
             { label: "Disabled", value: SteamStatus.None }
-        ],
+        ]
     },
     dndStatus: {
         type: OptionType.SELECT,
@@ -63,7 +63,7 @@ export const settings = definePluginSettings({
             { label: "Invisible", value: SteamStatus.Invisible },
             { label: "Offline (Disconnect Steam Chat)", value: SteamStatus.Offline },
             { label: "Disabled", value: SteamStatus.None, default: true }
-        ],
+        ]
     },
     invisibleStatus: {
         type: OptionType.SELECT,
@@ -74,7 +74,7 @@ export const settings = definePluginSettings({
             { label: "Invisible", value: SteamStatus.Invisible, default: true },
             { label: "Offline (Disconnect Steam Chat)", value: SteamStatus.Offline },
             { label: "Disabled", value: SteamStatus.None }
-        ],
+        ]
     },
     goInvisibleIfActivityIsHidden: {
         type: OptionType.BOOLEAN,
@@ -102,7 +102,9 @@ export default definePlugin({
 
                     return;
                 }
-                if (steamStatus === SteamStatus.None) { return; }
+                if (steamStatus === SteamStatus.None) {
+                    return;
+                }
 
                 // Open steam protocol URI for status change
                 open(`steam://friends/status/${steamStatus}`);

@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { ChannelStore, Toasts } from "@webpack/common";
 import { DBSchema, IDBPDatabase, openDB } from "idb";
+
+import { ChannelStore, Toasts } from "@webpack/common";
 
 import { LoggedMessageJSON } from "./types";
 import { getMessageStatus } from "./utils";
@@ -16,7 +17,7 @@ import { getAttachmentBlobUrl } from "./utils/saveImage";
 export enum DBMessageStatus {
     DELETED = "DELETED",
     EDITED = "EDITED",
-    GHOST_PINGED = "GHOST_PINGED",
+    GHOST_PINGED = "GHOST_PINGED"
 }
 
 export interface DBMessageRecord {
@@ -37,7 +38,6 @@ export interface MLIDB extends DBSchema {
             by_timestamp_and_message_id: [string, string];
         };
     };
-
 }
 
 export let db: IDBPDatabase<MLIDB>;
@@ -156,7 +156,11 @@ export async function getOlderThanTimestampIDB(timestamp: string) {
     return cacheRecords(messages);
 }
 
-export async function getOlderThanTimestampForGuildsIDB(timestamp: string, currentChannelId?: string, preserveCurrentChannel?: boolean) {
+export async function getOlderThanTimestampForGuildsIDB(
+    timestamp: string,
+    currentChannelId?: string,
+    preserveCurrentChannel?: boolean
+) {
     const allOldMessages = await getOlderThanTimestampIDB(timestamp);
     return allOldMessages.filter(record => {
         const { message } = record;
@@ -217,7 +221,7 @@ export async function addMessageIDB(message: LoggedMessageJSON, status: DBMessag
         channel_id: message.channel_id,
         message_id: message.id,
         status,
-        message,
+        message
     });
 
     cachedMessages.set(message.id, message);
@@ -230,12 +234,14 @@ export async function addMessagesBulkIDB(messages: LoggedMessageJSON[], status?:
     const { store } = tx;
 
     await Promise.all([
-        ...messages.map(message => store.add({
-            channel_id: message.channel_id,
-            message_id: message.id,
-            status: status ?? getMessageStatus(message),
-            message,
-        })),
+        ...messages.map(message =>
+            store.add({
+                channel_id: message.channel_id,
+                message_id: message.id,
+                status: status ?? getMessageStatus(message),
+                message
+            })
+        ),
         tx.done
     ]);
 

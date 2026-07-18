@@ -4,19 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { RenderModalProps } from "@vencord/discord-types";
+import { findByPropsLazy } from "@webpack";
+
 import { BaseText } from "@components/BaseText";
 import { Button, TextButton } from "@components/Button";
 import { images } from "@equicordplugins/loginWithQR/images";
 import { getIntlMessage } from "@utils/discord";
-import { RenderModalProps } from "@vencord/discord-types";
-import { findByPropsLazy } from "@webpack";
-import {
-    Modal,
-    openModal,
-    RestAPI,
-    useEffect,
-    useRef,
-    useState } from "@webpack/common";
+import { Modal, openModal, RestAPI, useEffect, useRef, useState } from "@webpack/common";
 
 import { cl } from "..";
 
@@ -25,7 +20,7 @@ const { Controller } = findByPropsLazy("Controller");
 enum VerifyState {
     Verifying,
     LoggedIn,
-    NotFound,
+    NotFound
 }
 
 function VerifyModal({
@@ -36,9 +31,7 @@ function VerifyModal({
     token: string | null;
     onAbort: () => void;
 } & RenderModalProps) {
-    const [state, setState] = useState(
-        !token ? VerifyState.NotFound : VerifyState.Verifying
-    );
+    const [state, setState] = useState(!token ? VerifyState.NotFound : VerifyState.Verifying);
     useEffect(() => () => void (state !== VerifyState.LoggedIn && onAbort()), []);
 
     const [inProgress, setInProgress] = useState(false);
@@ -55,8 +48,8 @@ function VerifyModal({
             config: {
                 duration: holdDuration,
                 // https://easings.net/#easeInOutSine
-                easing: (t: number) => -(Math.cos(Math.PI * t) - 1) / 2,
-            },
+                easing: (t: number) => -(Math.cos(Math.PI * t) - 1) / 2
+            }
         });
         timeout = setTimeout(() => {
             if (state !== VerifyState.Verifying) return;
@@ -65,8 +58,8 @@ function VerifyModal({
             RestAPI.post({
                 url: "/users/@me/remote-auth/finish",
                 body: {
-                    handshake_token: token,
-                },
+                    handshake_token: token
+                }
             })
                 .then(() => {
                     setState(VerifyState.LoggedIn);
@@ -84,8 +77,8 @@ function VerifyModal({
             config: {
                 duration: 696,
                 // https://easings.net/#easeOutCubic
-                easing: (t: number) => 1 - Math.pow(1 - t, 3),
-            },
+                easing: (t: number) => 1 - Math.pow(1 - t, 3)
+            }
         });
         clearTimeout(timeout);
     };
@@ -93,10 +86,7 @@ function VerifyModal({
     useEffect(() => {
         let frame: number;
         const update = () => {
-            buttonRef.current?.style.setProperty(
-                "--progress",
-                controllerRef.get().progress
-            );
+            buttonRef.current?.style.setProperty("--progress", controllerRef.get().progress);
 
             frame = requestAnimationFrame(update);
         };
@@ -116,13 +106,7 @@ function VerifyModal({
                             key="img-success"
                             draggable={false}
                         />
-                        <BaseText
-                            size="xl"
-                            weight="bold"
-                            color="text-strong"
-                            tag="h1"
-                            className={cl("device-header")}
-                        >
+                        <BaseText size="xl" weight="bold" color="text-strong" tag="h1" className={cl("device-header")}>
                             {getIntlMessage("QR_CODE_LOGIN_SUCCESS")}
                         </BaseText>
                         <BaseText
@@ -142,21 +126,10 @@ function VerifyModal({
                             key="img-not_found"
                             draggable={false}
                         />
-                        <BaseText
-                            size="xl"
-                            weight="bold"
-                            color="text-strong"
-                            tag="h1"
-                            className={cl("device-header")}
-                        >
+                        <BaseText size="xl" weight="bold" color="text-strong" tag="h1" className={cl("device-header")}>
                             {getIntlMessage("QR_CODE_NOT_FOUND")}
                         </BaseText>
-                        <BaseText
-                            size="md"
-                            weight="semibold"
-                            color="text-default"
-                            style={{ width: "30rem" }}
-                        >
+                        <BaseText size="md" weight="semibold" color="text-default" style={{ width: "30rem" }}>
                             {getIntlMessage("QR_CODE_NOT_FOUND_DESCRIPTION")}
                         </BaseText>
                     </>
@@ -168,13 +141,7 @@ function VerifyModal({
                             key="img-loaded"
                             draggable={false}
                         />
-                        <BaseText
-                            size="xl"
-                            weight="bold"
-                            color="text-strong"
-                            tag="h1"
-                            className={cl("device-header")}
-                        >
+                        <BaseText size="xl" weight="bold" color="text-strong" tag="h1" className={cl("device-header")}>
                             {getIntlMessage("QR_CODE_LOGIN_CONFIRM")}
                         </BaseText>
                         <BaseText size="md" weight="semibold" color="text-danger">
@@ -185,7 +152,7 @@ function VerifyModal({
                             variant="dangerPrimary"
                             className={cl("device-confirm")}
                             style={{
-                                ["--progress" as any]: `${holdDuration}ms`,
+                                ["--progress" as any]: `${holdDuration}ms`
                             }}
                             onPointerDown={startInput}
                             onPointerUp={endInput}
@@ -197,19 +164,15 @@ function VerifyModal({
                     </>
                 )}
             </div>
-            <div className={cl("device-footer")} style={{ marginTop: "20px", display: "flex", justifyContent: "flex-end", gap: "10px" }}>
+            <div
+                className={cl("device-footer")}
+                style={{ marginTop: "20px", display: "flex", justifyContent: "flex-end", gap: "10px" }}
+            >
                 {state === VerifyState.LoggedIn ? (
-                    <Button onClick={props.onClose}>
-                        {getIntlMessage("QR_CODE_LOGIN_FINISH_BUTTON")}
-                    </Button>
+                    <Button onClick={props.onClose}>{getIntlMessage("QR_CODE_LOGIN_FINISH_BUTTON")}</Button>
                 ) : (
-                    <TextButton
-                        variant="link"
-                        onClick={props.onClose}
-                    >
-                        {state === VerifyState.NotFound
-                            ? getIntlMessage("CLOSE")
-                            : getIntlMessage("CANCEL")}
+                    <TextButton variant="link" onClick={props.onClose}>
+                        {state === VerifyState.NotFound ? getIntlMessage("CLOSE") : getIntlMessage("CANCEL")}
                     </TextButton>
                 )}
             </div>
@@ -217,15 +180,6 @@ function VerifyModal({
     );
 }
 
-export default function openVerifyModal(
-    token: string | null,
-    onAbort: () => void,
-) {
-    return openModal(props => (
-        <VerifyModal
-            {...props}
-            token={token}
-            onAbort={onAbort}
-        />
-    ));
+export default function openVerifyModal(token: string | null, onAbort: () => void) {
+    return openModal(props => <VerifyModal {...props} token={token} onAbort={onAbort} />);
 }

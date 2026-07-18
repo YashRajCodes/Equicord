@@ -9,7 +9,8 @@ import definePlugin from "@utils/types";
 
 export default definePlugin({
     name: "StickerPaste",
-    description: "Makes picking a sticker in the sticker picker insert it into the chatbox instead of instantly sending",
+    description:
+        "Makes picking a sticker in the sticker picker insert it into the chatbox instead of instantly sending",
     tags: ["Emotes", "Chat"],
     authors: [Devs.ImBanana],
 
@@ -18,7 +19,7 @@ export default definePlugin({
             find: ".stickers,previewSticker:",
             replacement: {
                 match: /if\(\i\.\i\.getUploadCount/,
-                replace: "return true;$&",
+                replace: "return true;$&"
             }
         }
     ]

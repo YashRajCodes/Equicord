@@ -14,26 +14,28 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { CommandArgument, CommandContext } from "@vencord/discord-types";
+import { GIFEncoder, nearestColorIndex, quantize } from "gifenc";
 
 import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
 import { migratePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { makeLazy } from "@utils/lazy";
 import definePlugin from "@utils/types";
-import { CommandArgument, CommandContext } from "@vencord/discord-types";
 import { DraftType, UploadAttachmentStore, UploadHandler, UploadManager, UserUtils } from "@webpack/common";
-import { GIFEncoder, nearestColorIndex, quantize } from "gifenc";
 
 const DEFAULT_DELAY = 20;
 const DEFAULT_RESOLUTION = 128;
 const FRAMES = 10;
 
-const getFrames = makeLazy(() => Promise.all(
-    Array.from(
-        { length: FRAMES },
-        (_, i) => loadImage(`https://raw.githubusercontent.com/VenPlugs/petpet/main/frames/pet${i}.gif`)
-    ))
+const getFrames = makeLazy(() =>
+    Promise.all(
+        Array.from({ length: FRAMES }, (_, i) =>
+            loadImage(`https://raw.githubusercontent.com/VenPlugs/petpet/main/frames/pet${i}.gif`)
+        )
+    )
 );
 
 function loadImage(source: File | string) {
@@ -43,17 +45,21 @@ function loadImage(source: File | string) {
     return new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new Image();
         img.onload = () => {
-            if (isFile)
-                URL.revokeObjectURL(url);
+            if (isFile) URL.revokeObjectURL(url);
             resolve(img);
         };
-        img.onerror = _event => reject(Error(`An error occurred while loading ${url}. Check the console for more info.`));
+        img.onerror = _event =>
+            reject(Error(`An error occurred while loading ${url}. Check the console for more info.`));
         img.crossOrigin = "Anonymous";
         img.src = url;
     });
 }
 
-async function resolveImage(options: CommandArgument[], ctx: CommandContext, noServerPfp: boolean): Promise<File | string | null> {
+async function resolveImage(
+    options: CommandArgument[],
+    ctx: CommandContext,
+    noServerPfp: boolean
+): Promise<File | string | null> {
     for (const opt of options) {
         switch (opt.name) {
             case "image":
@@ -71,7 +77,9 @@ async function resolveImage(options: CommandArgument[], ctx: CommandContext, noS
             case "user":
                 try {
                     const user = await UserUtils.getUser(opt.value);
-                    return user.getAvatarURL(noServerPfp ? void 0 : ctx.guild?.id, 2048).replace(/\?size=\d+$/, "?size=2048");
+                    return user
+                        .getAvatarURL(noServerPfp ? void 0 : ctx.guild?.id, 2048)
+                        .replace(/\?size=\d+$/, "?size=2048");
                 } catch (err) {
                     console.error("[petpet] Failed to fetch user\n", err);
                     UploadManager.clearAll(ctx.channel.id, DraftType.SlashCommand);
@@ -87,7 +95,12 @@ function rgb888_to_rgb565(r: number, g: number, b: number): number {
     return ((r << 8) & 0xf800) | ((g << 3) & 0x07e0) | (b >> 3);
 }
 
-function applyPaletteTransparent(data: Uint8Array | Uint8ClampedArray, palette: number[][], cache: number[], threshold: number): Uint8Array {
+function applyPaletteTransparent(
+    data: Uint8Array | Uint8ClampedArray,
+    palette: number[][],
+    cache: number[],
+    threshold: number
+): Uint8Array {
     const index = new Uint8Array(Math.floor(data.length / 4));
 
     for (let i = 0; i < index.length; i += 1) {
@@ -121,12 +134,14 @@ export default definePlugin({
             options: [
                 {
                     name: "delay",
-                    description: "The delay between each frame in ms. Rounded to nearest 10ms. Defaults to the minimum value of 20.",
+                    description:
+                        "The delay between each frame in ms. Rounded to nearest 10ms. Defaults to the minimum value of 20.",
                     type: ApplicationCommandOptionType.INTEGER
                 },
                 {
                     name: "resolution",
-                    description: "Resolution for the gif. Defaults to 120. If you enter an insane number and it freezes Discord that's your fault.",
+                    description:
+                        "Resolution for the gif. Defaults to 120. If you enter an insane number and it freezes Discord that's your fault.",
                     type: ApplicationCommandOptionType.INTEGER
                 },
                 {
@@ -146,7 +161,8 @@ export default definePlugin({
                 },
                 {
                     name: "no-server-pfp",
-                    description: "Use the normal avatar instead of the server specific one when using the 'user' option",
+                    description:
+                        "Use the normal avatar instead of the server specific one when using the 'user' option",
                     type: ApplicationCommandOptionType.BOOLEAN
                 }
             ],
@@ -160,7 +176,7 @@ export default definePlugin({
                 } catch (err) {
                     UploadManager.clearAll(cmdCtx.channel.id, DraftType.SlashCommand);
                     sendBotMessage(cmdCtx.channel.id, {
-                        content: String(err),
+                        content: String(err)
                     });
                     return;
                 }
@@ -203,7 +219,13 @@ export default definePlugin({
                     const offsetX = (1 - width) * 0.5 + 0.1;
                     const offsetY = 1 - height - 0.08;
 
-                    ctx.drawImage(avatar, offsetX * resolution, offsetY * resolution, width * resolution, height * resolution);
+                    ctx.drawImage(
+                        avatar,
+                        offsetX * resolution,
+                        offsetY * resolution,
+                        width * resolution,
+                        height * resolution
+                    );
                     ctx.drawImage(frames[i], 0, 0, resolution, resolution);
 
                     const { data } = ctx.getImageData(0, 0, resolution, resolution);
@@ -213,7 +235,7 @@ export default definePlugin({
                         transparent: true,
                         transparentIndex: 255,
                         delay,
-                        palette: i === 0 ? palette : undefined,
+                        palette: i === 0 ? palette : undefined
                     });
                 }
 
@@ -224,7 +246,7 @@ export default definePlugin({
                 // Immediately after the command finishes, Discord clears all input, including pending attachments.
                 // Thus, setTimeout is needed to make this execute after Discord cleared the input
                 setTimeout(() => UploadHandler.promptToUpload([file], cmdCtx.channel, DraftType.ChannelMessage), 10);
-            },
-        },
+            }
+        }
     ]
 });

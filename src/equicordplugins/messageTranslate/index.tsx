@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-
 import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin from "@utils/types";
@@ -44,7 +43,7 @@ function triggerReRender(message: MessageWithContent) {
 
     FluxDispatcher.dispatch({
         type: "MESSAGE_UPDATE",
-        message: current,
+        message: current
     });
 }
 
@@ -61,14 +60,14 @@ export default definePlugin({
             replacement: [
                 {
                     match: /childrenMessageContent:(\i),/g,
-                    replace: "childrenMessageContent:$self.wrapContent($1,arguments[0].message.id),",
+                    replace: "childrenMessageContent:$self.wrapContent($1,arguments[0].message.id),"
                 },
                 {
                     match: /\i\.memo\(function\((\i)\)\{(?=let \i,\i)/,
-                    replace: "$&$1.message=$self.transformMessage($1.message);",
-                },
-            ],
-        },
+                    replace: "$&$1.message=$self.transformMessage($1.message);"
+                }
+            ]
+        }
     ],
 
     transformMessage(message: MessageWithContent): MessageWithContent {
@@ -86,7 +85,7 @@ export default definePlugin({
             }
             translatedMessages.set(message.id, cached.sourceLang);
             return Object.assign(Object.create(Object.getPrototypeOf(message)), message, {
-                content: cached.translated,
+                content: cached.translated
             }) as MessageWithContent;
         }
 
@@ -106,10 +105,8 @@ export default definePlugin({
         return (
             <>
                 {content}
-                {settings.store.showIndicator && (
-                    <div className={cl("indicator")}>translated from {sourceLang}</div>
-                )}
+                {settings.store.showIndicator && <div className={cl("indicator")}>translated from {sourceLang}</div>}
             </>
         );
-    },
+    }
 });

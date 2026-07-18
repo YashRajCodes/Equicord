@@ -6,7 +6,7 @@
 
 import { RenderModalProps } from "@vencord/discord-types";
 
-export type SetAliasSaveResult = { ok: true; } | { ok: false; error: string; };
+export type SetAliasSaveResult = { ok: true } | { ok: false; error: string };
 
 export interface SetAliasModalProps {
     modalProps: RenderModalProps;

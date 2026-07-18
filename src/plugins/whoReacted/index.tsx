@@ -14,7 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { CustomEmoji, Message, ReactionEmoji, User } from "@vencord/discord-types";
 
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -23,8 +25,17 @@ import { sleep } from "@utils/misc";
 import { Queue } from "@utils/Queue";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
-import { CustomEmoji, Message, ReactionEmoji, User } from "@vencord/discord-types";
-import { ChannelStore, Constants, FluxDispatcher, React, RestAPI, useEffect, useLayoutEffect, UserStore, UserSummaryItem } from "@webpack/common";
+import {
+    ChannelStore,
+    Constants,
+    FluxDispatcher,
+    React,
+    RestAPI,
+    useEffect,
+    useLayoutEffect,
+    UserStore,
+    UserSummaryItem
+} from "@webpack/common";
 
 interface ReactionCacheEntry {
     fetched: boolean;
@@ -74,7 +85,7 @@ function fetchReactions(msg: Message, emoji: ReactionEmoji, type: number) {
 
 function getReactionsWithQueue(msg: Message, e: ReactionEmoji, type: number) {
     const key = `${msg.id}:${e.name}:${e.id ?? ""}:${type}`;
-    const cache = reactions[key] ??= { fetched: false, users: new Map() };
+    const cache = (reactions[key] ??= { fetched: false, users: new Map() });
     if (!cache.fetched) {
         queue.unshift(() => fetchReactions(msg, e, type));
         cache.fetched = true;
@@ -90,7 +101,8 @@ function handleClickAvatar(event: React.UIEvent<HTMLElement, Event>) {
 function ReactionUsers({ message, emoji, type }: ReactionProps) {
     const forceUpdate = useForceUpdater();
 
-    useLayoutEffect(() => { // bc need to prevent autoscrolling
+    useLayoutEffect(() => {
+        // bc need to prevent autoscrolling
         if (Scroll?.scrollCounter > 0) {
             Scroll.setAutomaticAnchor(null);
         }
@@ -98,8 +110,7 @@ function ReactionUsers({ message, emoji, type }: ReactionProps) {
 
     useEffect(() => {
         const cb = (e: any) => {
-            if (e?.messageId === message.id)
-                forceUpdate();
+            if (e?.messageId === message.id) forceUpdate();
         };
         FluxDispatcher.subscribe("MESSAGE_REACTION_ADD_USERS", cb);
 
@@ -110,9 +121,7 @@ function ReactionUsers({ message, emoji, type }: ReactionProps) {
     const users = Array.from(reactions, ([id]) => UserStore.getUser(id)).filter(Boolean);
 
     return (
-        <div
-            style={{ marginLeft: "0.5em", transform: "scale(0.9)" }}
-        >
+        <div style={{ marginLeft: "0.5em", transform: "scale(0.9)" }}>
             <div
                 onClick={handleClickAvatar}
                 onKeyDown={handleClickAvatar}
@@ -163,7 +172,6 @@ export default definePlugin({
             }
         },
         {
-
             find: "cleanAutomaticAnchor(){",
             replacement: {
                 match: /constructor\(\i\)\{(?=.{0,100}(?:automaticAnchor|\.messages\.loadingMore))/,
@@ -172,11 +180,12 @@ export default definePlugin({
         }
     ],
 
-    renderUsers: ErrorBoundary.wrap((props: ReactionProps) => {
-        return props.message.reactions.length > 10
-            ? null
-            : <ReactionUsers {...props} />;
-    }, { noop: true }),
+    renderUsers: ErrorBoundary.wrap(
+        (props: ReactionProps) => {
+            return props.message.reactions.length > 10 ? null : <ReactionUsers {...props} />;
+        },
+        { noop: true }
+    ),
 
     setScrollObj(scroll: any) {
         Scroll = scroll;

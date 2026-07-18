@@ -57,8 +57,20 @@ export const ShapeTool: ToolDefinition = {
 
         switch (currentShape) {
             case "rectangle":
-                if (shapeFill) canvas.fillRect(this.draggingFrom.x, this.draggingFrom.y, Mouse.x - this.draggingFrom.x, Mouse.y - this.draggingFrom.y);
-                else canvas.strokeRect(this.draggingFrom.x, this.draggingFrom.y, Mouse.x - this.draggingFrom.x, Mouse.y - this.draggingFrom.y);
+                if (shapeFill)
+                    canvas.fillRect(
+                        this.draggingFrom.x,
+                        this.draggingFrom.y,
+                        Mouse.x - this.draggingFrom.x,
+                        Mouse.y - this.draggingFrom.y
+                    );
+                else
+                    canvas.strokeRect(
+                        this.draggingFrom.x,
+                        this.draggingFrom.y,
+                        Mouse.x - this.draggingFrom.x,
+                        Mouse.y - this.draggingFrom.y
+                    );
                 break;
             case "ellipse":
                 const width = Mouse.x - this.draggingFrom.x;
@@ -82,8 +94,14 @@ export const ShapeTool: ToolDefinition = {
                 const arrowLength = 10;
                 canvas.beginPath();
                 canvas.moveTo(Mouse.x, Mouse.y);
-                canvas.lineTo(Mouse.x - arrowLength * Math.cos(angle - Math.PI / 6), Mouse.y - arrowLength * Math.sin(angle - Math.PI / 6));
-                canvas.lineTo(Mouse.x - arrowLength * Math.cos(angle + Math.PI / 6), Mouse.y - arrowLength * Math.sin(angle + Math.PI / 6));
+                canvas.lineTo(
+                    Mouse.x - arrowLength * Math.cos(angle - Math.PI / 6),
+                    Mouse.y - arrowLength * Math.sin(angle - Math.PI / 6)
+                );
+                canvas.lineTo(
+                    Mouse.x - arrowLength * Math.cos(angle + Math.PI / 6),
+                    Mouse.y - arrowLength * Math.sin(angle + Math.PI / 6)
+                );
                 canvas.closePath();
                 if (shapeFill) canvas.fill();
                 else canvas.stroke();
@@ -105,5 +123,5 @@ export const ShapeTool: ToolDefinition = {
 
         Mouse.event.off("move", this.onMouseMoveListener);
         Mouse.event.off("up", this.onMouseUpListener);
-    },
+    }
 };

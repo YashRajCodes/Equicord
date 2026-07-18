@@ -4,7 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-export enum Format { IMAGE = 1, VIDEO = 2 }
+export enum Format {
+    IMAGE = 1,
+    VIDEO = 2
+}
 
 export interface Category {
     type: "Trending" | "Category";
@@ -17,10 +20,10 @@ export interface Category {
 }
 
 export interface Gif {
-    id: string,
+    id: string;
     src: string;
     url: string;
-    height: number,
+    height: number;
     width: number;
     addedAt?: number;
     channelId?: string;
@@ -35,10 +38,10 @@ export type Collection = WithRequired<Category, "gifs">;
 export interface GifPickerInstance {
     props: {
         query: string;
-        resultItems: { id: string; format: Format; src: string; url: string; width: number; height: number; }[];
+        resultItems: { id: string; format: Format; src: string; url: string; width: number; height: number }[];
         trendingCategories: Category[];
         favorites: Category[];
-        item: { name?: string; id?: string; src?: string; url?: string; height?: number; width?: number; };
+        item: { name?: string; id?: string; src?: string; url?: string; height?: number; width?: number };
     };
     forceUpdate: () => void;
 }

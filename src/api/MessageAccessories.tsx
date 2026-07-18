@@ -14,11 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { JSX, ReactNode } from "react";
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Logger } from "@utils/Logger";
-import { JSX, ReactNode } from "react";
 
 export type MessageAccessoryFactory = (props: Record<string, any>) => ReactNode;
 export type MessageAccessory = {
@@ -28,14 +29,10 @@ export type MessageAccessory = {
 
 export const accessories = new Map<string, MessageAccessory>();
 
-export function addMessageAccessory(
-    identifier: string,
-    render: MessageAccessoryFactory,
-    position?: number
-) {
+export function addMessageAccessory(identifier: string, render: MessageAccessoryFactory, position?: number) {
     accessories.set(identifier, {
         render,
-        position,
+        position
     });
 }
 
@@ -43,10 +40,7 @@ export function removeMessageAccessory(identifier: string) {
     accessories.delete(identifier);
 }
 
-export function _modifyAccessories(
-    elements: JSX.Element[],
-    props: Record<string, any>
-) {
+export function _modifyAccessories(elements: JSX.Element[], props: Record<string, any>) {
     try {
         for (const [key, accessory] of accessories.entries()) {
             const res = (

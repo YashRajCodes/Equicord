@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { isPluginEnabled } from "@api/PluginManager";
 import betterGifPicker from "@plugins/betterGifPicker";
@@ -29,15 +29,17 @@ export default definePlugin({
     tags: ["Media", "Chat"],
     authors: [Devs.Ven],
 
-    patches: [{
-        find: "handleSelectGIF=",
-        replacement: {
-            match: /handleSelectGIF=(\i)=>\{/,
-            replace: "$&if (!this?.props?.className) return $self.handleSelect($1);"
+    patches: [
+        {
+            find: "handleSelectGIF=",
+            replacement: {
+                match: /handleSelectGIF=(\i)=>\{/,
+                replace: "$&if (!this?.props?.className) return $self.handleSelect($1);"
+            }
         }
-    }],
+    ],
 
-    handleSelect(gif?: { url: string; }) {
+    handleSelect(gif?: { url: string }) {
         if (gif) {
             insertTextIntoChatInputBox(gif.url + " ");
 

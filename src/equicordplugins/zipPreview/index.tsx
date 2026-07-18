@@ -9,8 +9,9 @@ import { classes } from "@utils/misc";
 import definePlugin from "@utils/types";
 
 import { cl, SafeZipPreviewInline } from "./components";
-import managedStyle from "./style.css?managed";
 import { clearZipPreviewCache, getAttachmentFileName, isZipFile, ZipPreviewAttachmentProps } from "./utils";
+
+import managedStyle from "./style.css?managed";
 
 export default definePlugin({
     name: "ZipPreview",

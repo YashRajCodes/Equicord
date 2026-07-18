@@ -14,12 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
-import { classNameFactory } from "@utils/css";
 import { Guild, GuildMember, Role } from "@vencord/discord-types";
 import { PermissionOverwriteType } from "@vencord/discord-types/enums";
 import { extractAndLoadChunksLazy, findByPropsLazy } from "@webpack";
+
+import { classNameFactory } from "@utils/css";
 import { GuildRoleStore } from "@webpack/common";
 
 import { PermissionsSortOrder, settings } from ".";
@@ -31,9 +32,7 @@ export const cl = classNameFactory("vc-permviewer-");
 
 export function getSortedRolesForMember({ id: guildId }: Guild, member: GuildMember) {
     // The guild id is the @everyone role
-    return GuildRoleStore
-        .getSortedRoles(guildId)
-        .filter(role => role.id === guildId || member.roles.includes(role.id));
+    return GuildRoleStore.getSortedRoles(guildId).filter(role => role.id === guildId || member.roles.includes(role.id));
 }
 
 export function sortUserRoles(roles: Role[]) {
@@ -47,7 +46,7 @@ export function sortUserRoles(roles: Role[]) {
     }
 }
 
-export function sortPermissionOverwrites<T extends { id: string; type: number; }>(overwrites: T[], guildId: string) {
+export function sortPermissionOverwrites<T extends { id: string; type: number }>(overwrites: T[], guildId: string) {
     const roles = GuildRoleStore.getRolesSnapshot(guildId);
 
     return overwrites.sort((a, b) => {

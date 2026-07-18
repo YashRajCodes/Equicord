@@ -28,7 +28,7 @@ export async function getSettings(): Promise<MLSettings> {
         };
         try {
             await saveSettings(settings);
-        } catch (err) { }
+        } catch (err) {}
 
         return settings;
     }

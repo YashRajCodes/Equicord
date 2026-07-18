@@ -14,11 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
-import ErrorBoundary from "@components/ErrorBoundary";
 import { Channel, Message } from "@vencord/discord-types";
 import { JSX } from "react";
+
+import ErrorBoundary from "@components/ErrorBoundary";
 
 export interface MessageDecorationProps {
     author: {
@@ -59,18 +60,11 @@ export function removeMessageDecoration(identifier: string) {
 }
 
 export function __addDecorationsToMessage(props: MessageDecorationProps): JSX.Element {
-    const decorations = Array.from(
-        decorationsFactories.entries(),
-        ([key, Decoration]) => (
-            <ErrorBoundary noop message={`Failed to render ${key} Message Decoration`} key={key}>
-                <Decoration {...props} />
-            </ErrorBoundary>
-        )
-    );
+    const decorations = Array.from(decorationsFactories.entries(), ([key, Decoration]) => (
+        <ErrorBoundary noop message={`Failed to render ${key} Message Decoration`} key={key}>
+            <Decoration {...props} />
+        </ErrorBoundary>
+    ));
 
-    return (
-        <div className="vc-message-decorations-wrapper">
-            {decorations}
-        </div>
-    );
+    return <div className="vc-message-decorations-wrapper">{decorations}</div>;
 }

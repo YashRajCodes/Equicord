@@ -14,20 +14,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { ButtonProps } from "@vencord/discord-types";
 
 import { Button } from "@components/Button";
 import { Heart } from "@components/Heart";
 import { OpenExternalIcon } from "@components/Icons";
 import { openInviteModal } from "@utils/discord";
-import { ButtonProps } from "@vencord/discord-types";
 import { showToast } from "@webpack/common";
 
-export function DonateButton({
-    equicord = false,
-    className,
-    ...props
-}: Partial<ButtonProps> & { equicord?: boolean; }) {
+export function DonateButton({ equicord = false, className, ...props }: Partial<ButtonProps> & { equicord?: boolean }) {
     const link = equicord ? "https://github.com/sponsors/thororen1234" : "https://github.com/sponsors/Vendicated";
     return (
         <Button
@@ -44,10 +41,7 @@ export function DonateButton({
     );
 }
 
-export function InviteButton({
-    className,
-    ...props
-}: Partial<ButtonProps>) {
+export function InviteButton({ className, ...props }: Partial<ButtonProps>) {
     return (
         <Button
             {...props}
@@ -56,9 +50,7 @@ export function InviteButton({
             type="button"
             onClick={async e => {
                 e.preventDefault();
-                openInviteModal("wKgT9j2xfN").catch(() =>
-                    showToast("Invalid or expired invite"),
-                );
+                openInviteModal("wKgT9j2xfN").catch(() => showToast("Invalid or expired invite"));
             }}
             className={className || "vc-donate-button"}
         >
@@ -68,10 +60,7 @@ export function InviteButton({
     );
 }
 
-export function TranslateButton({
-    className,
-    ...props
-}: Partial<ButtonProps>) {
+export function TranslateButton({ className, ...props }: Partial<ButtonProps>) {
     const link = "https://weblate.equicord.org/projects/equicord/";
     return (
         <Button

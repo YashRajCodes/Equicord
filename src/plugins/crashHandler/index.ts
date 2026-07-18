@@ -14,7 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { filters, findBulk, proxyLazyWebpack } from "@webpack";
 
 import { DataStore } from "@api/index";
 import { showNotification } from "@api/Notifications";
@@ -23,15 +25,21 @@ import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { maybePromptToUpdate } from "@utils/updater";
-import { filters, findBulk, proxyLazyWebpack } from "@webpack";
-import { closeAllModals, DraftType, ExpressionPickerStore, FluxDispatcher, NavigationRouter, SelectedChannelStore } from "@webpack/common";
+import {
+    closeAllModals,
+    DraftType,
+    ExpressionPickerStore,
+    FluxDispatcher,
+    NavigationRouter,
+    SelectedChannelStore
+} from "@webpack/common";
 
 const CrashHandlerLogger = new Logger("CrashHandler");
 
 const { ModalStack, DraftManager } = proxyLazyWebpack(() => {
     const [ModalStack, DraftManager] = findBulk(
         filters.byProps("pushLazy", "popAll"),
-        filters.byProps("clearDraft", "saveDraft"),
+        filters.byProps("clearDraft", "saveDraft")
     );
 
     return {
@@ -83,7 +91,7 @@ export default definePlugin({
                 if (errorState?.info && "componentStack" in errorState.info) {
                     console.error("Component Stack:", errorState.info.componentStack);
                 }
-            } catch { }
+            } catch {}
         }
         _this.setState(errorState);
 
@@ -101,24 +109,27 @@ export default definePlugin({
                             color: "#eed202",
                             title: "Discord has crashed!",
                             body: "Awn :( Discord has crashed two times rapidly, not attempting to recover.",
-                            noPersist: true,
+                            noPersist: true
                         });
-                    } catch { }
+                    } catch {}
 
                     return;
                 }
 
                 shouldAttemptRecover = false;
                 // This is enough to avoid a crash loop
-                setTimeout(() => shouldAttemptRecover = true, 1000);
-            } catch { }
+                setTimeout(() => (shouldAttemptRecover = true), 1000);
+            } catch {}
 
             try {
                 if (!hasCrashedOnce) {
                     hasCrashedOnce = true;
-                    maybePromptToUpdate("Uh oh, Discord has just crashed... but good news, there is a Equicord update available that might fix this issue! Would you like to update now?", true);
+                    maybePromptToUpdate(
+                        "Uh oh, Discord has just crashed... but good news, there is a Equicord update available that might fix this issue! Would you like to update now?",
+                        true
+                    );
                 }
-            } catch { }
+            } catch {}
 
             try {
                 if (settings.store.attemptToPreventCrashes) {
@@ -136,9 +147,9 @@ export default definePlugin({
                 color: "#eed202",
                 title: "Discord has crashed!",
                 body: "Attempting to recover...",
-                noPersist: true,
+                noPersist: true
             });
-        } catch { }
+        } catch {}
 
         try {
             const channelId = SelectedChannelStore.getChannelId();
@@ -153,8 +164,7 @@ export default definePlugin({
         }
         try {
             ExpressionPickerStore.closeExpressionPicker();
-        }
-        catch (err) {
+        } catch (err) {
             CrashHandlerLogger.debug("Failed to close expression picker.", err);
         }
         try {
@@ -200,7 +210,7 @@ export default definePlugin({
         }
 
         // Set isRecovering to false before setting the state to allow us to handle the next crash error correcty, in case it happens
-        setImmediate(() => isRecovering = false);
+        setImmediate(() => (isRecovering = false));
 
         try {
             _this.setState({ error: null, info: null });

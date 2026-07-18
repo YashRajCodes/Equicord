@@ -5,6 +5,8 @@
  */
 
 import "./styles.css";
+import { Channel } from "@vencord/discord-types";
+import { findComponentByCodeLazy } from "@webpack";
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
@@ -13,8 +15,6 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
-import { Channel } from "@vencord/discord-types";
-import { findComponentByCodeLazy } from "@webpack";
 import { FluxDispatcher, Menu, React, Tooltip, UserStore } from "@webpack/common";
 
 interface CallUpdate {
@@ -28,7 +28,7 @@ const args: CallUpdate = {
     ringing: [],
     ongoingRings: [],
     messageId: "",
-    region: "",
+    region: ""
 };
 
 const ignoredChannelIds = new Set<string>();
@@ -37,9 +37,12 @@ const Deafen = findComponentByCodeLazy("0-1.02-.1H3.05a9");
 const filterOngoingRings = (currentUserId: string): CallUpdate["ongoingRings"] =>
     args.ongoingRings.filter((id: string) => id !== currentUserId);
 
-const ContextMenuPatch: NavContextMenuPatchCallback = (children, { channel }: { channel: Channel; }) => {
+const ContextMenuPatch: NavContextMenuPatchCallback = (children, { channel }: { channel: Channel }) => {
     if (!channel) return;
-    const permanentlyIgnoredUsers = settings.store.permanentlyIgnoredUsers.split(",").map(s => s.trim()).filter(Boolean);
+    const permanentlyIgnoredUsers = settings.store.permanentlyIgnoredUsers
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
 
     const [tempChecked, setTempChecked] = React.useState(ignoredChannelIds.has(channel.id));
     const [permChecked, setPermChecked] = React.useState(permanentlyIgnoredUsers.includes(channel.id));
@@ -52,10 +55,8 @@ const ContextMenuPatch: NavContextMenuPatchCallback = (children, { channel }: { 
                 label="Temporarily Ignore Calls"
                 checked={tempChecked}
                 action={() => {
-                    if (tempChecked)
-                        ignoredChannelIds.delete(channel.id);
-                    else
-                        ignoredChannelIds.add(channel.id);
+                    if (tempChecked) ignoredChannelIds.delete(channel.id);
+                    else ignoredChannelIds.add(channel.id);
 
                     setTempChecked(!tempChecked);
                 }}
@@ -85,8 +86,8 @@ const settings = definePluginSettings({
         type: OptionType.STRING,
         description: "User IDs (comma + space) who should be permanetly ignored",
         restartNeeded: true,
-        default: "",
-    },
+        default: ""
+    }
 });
 
 export default definePlugin({
@@ -106,7 +107,7 @@ export default definePlugin({
     ],
     contextMenus: {
         "user-context": ContextMenuPatch,
-        "gdm-context": ContextMenuPatch,
+        "gdm-context": ContextMenuPatch
     },
     flux: {
         async CALL_UPDATE({ ringing, ongoingRings, messageId, region }) {
@@ -118,7 +119,10 @@ export default definePlugin({
     },
     renderIgnore(channel) {
         const currentUserId = UserStore.getCurrentUser().id;
-        const permanentlyIgnoredUsers = settings.store.permanentlyIgnoredUsers.split(",").map(s => s.trim()).filter(Boolean);
+        const permanentlyIgnoredUsers = settings.store.permanentlyIgnoredUsers
+            .split(",")
+            .map(s => s.trim())
+            .filter(Boolean);
         if (ignoredChannelIds.has(channel.id) || permanentlyIgnoredUsers.includes(channel.id)) {
             FluxDispatcher.dispatch({
                 type: "CALL_UPDATE",

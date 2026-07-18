@@ -4,18 +4,27 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { existsSync, lstatSync, mkdirSync, readdirSync, renameSync, rmdirSync, statSync, unlinkSync, writeFileSync } from "original-fs";
 import { basename, dirname, join } from "path";
+
+import {
+    existsSync,
+    lstatSync,
+    mkdirSync,
+    readdirSync,
+    renameSync,
+    rmdirSync,
+    statSync,
+    unlinkSync,
+    writeFileSync
+} from "original-fs";
 
 const STUB_PACKAGE = JSON.stringify({ name: "discord", main: "index.js" });
 const VERSION_PREFIX = "app-";
 
-const makeStubIndex = (patcherPath: string) =>
-    `require(${JSON.stringify(patcherPath)});`;
+const makeStubIndex = (patcherPath: string) => `require(${JSON.stringify(patcherPath)});`;
 
 /** `_app.asar` next to `app.asar` marks any patched install. */
-export const isAlreadyPatched = (resources: string) =>
-    existsSync(join(resources, "_app.asar"));
+export const isAlreadyPatched = (resources: string) => existsSync(join(resources, "_app.asar"));
 
 /**
  * apply the folder-shim patch to a discord `resources/` directory.

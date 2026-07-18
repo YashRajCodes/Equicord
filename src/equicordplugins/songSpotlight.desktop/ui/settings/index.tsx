@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { UserData, UserDataSchema } from "@song-spotlight/api/structs";
+import { sid } from "@song-spotlight/api/util";
+import { RenderModalProps } from "@vencord/discord-types";
+
 import { BaseText } from "@components/BaseText";
 import { Button } from "@components/Button";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -16,12 +20,21 @@ import { cl } from "@equicordplugins/songSpotlight.desktop/lib/utils";
 import { Native } from "@equicordplugins/songSpotlight.desktop/service";
 import { Spinner } from "@equicordplugins/songSpotlight.desktop/ui/common";
 import SongList from "@equicordplugins/songSpotlight.desktop/ui/settings/SongList";
-import { UserData, UserDataSchema } from "@song-spotlight/api/structs";
-import { sid } from "@song-spotlight/api/util";
 import { readClipboard } from "@utils/clipboard";
 import { copyWithToast } from "@utils/discord";
-import { RenderModalProps } from "@vencord/discord-types";
-import { Alerts, Modal,openModal, Parser, showToast, Toasts, useCallback, useEffect, useMemo, useRef, useState } from "@webpack/common";
+import {
+    Alerts,
+    Modal,
+    openModal,
+    Parser,
+    showToast,
+    Toasts,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState
+} from "@webpack/common";
 
 interface ImportButtonProps {
     overwrite: boolean;
@@ -69,7 +82,7 @@ function ImportButton({ overwrite, pending, setPending, onImport }: ImportButton
                         body: "This will overwrite your current songs.",
                         onConfirm: checkClipboard,
                         confirmText: "Continue",
-                        cancelText: "Nevermind",
+                        cancelText: "Nevermind"
                     });
                 } else checkClipboard();
             }}
@@ -97,10 +110,13 @@ export default function Settings({ templateData }: SettingsProps) {
     }, [self?.data]);
     const [pending, setPending] = useState(!localData);
 
-    const isSame = useMemo(() =>
-        self?.data && localData
-            ? self.data.length === localData.length && self.data.map(sid).join(",") === localData.map(sid).join(",")
-            : true, [self?.data, localData]);
+    const isSame = useMemo(
+        () =>
+            self?.data && localData
+                ? self.data.length === localData.length && self.data.map(sid).join(",") === localData.map(sid).join(",")
+                : true,
+        [self?.data, localData]
+    );
 
     useEffect(() => {
         if (isAuthorized() && !localData) getData().then(() => setPending(false));
@@ -113,61 +129,61 @@ export default function Settings({ templateData }: SettingsProps) {
             <BaseText size="md" weight="normal">
                 You can also view your songs via the {Parser.parse("</songspotlight:1468320979938971802>")} command!
             </BaseText>
-            {localData
-                ? (
-                    <Flex flexDirection="column" gap="12px">
-                        <Flex flexDirection="column" gap={0}>
-                            <BaseText size="lg" weight="semibold">Songs</BaseText>
-                            {self?.at
-                                && (
-                                    <BaseText size="xs" weight="normal" className={cl("sub")}>
-                                        Last updated <b>{Intl.DateTimeFormat().format(new Date(self.at))}</b>
-                                    </BaseText>
-                                )}
-                        </Flex>
-                        <Flex flexDirection="column" gap="6px">
-                            <SongList
-                                localData={localData}
-                                setLocalData={setLocalData}
-                            />
-                        </Flex>
-                        <Flex flexDirection="column" gap="8px">
-                            <div className={cl("twin-buttons")}>
-                                <Button
-                                    variant="secondary"
-                                    onClick={() => copyWithToast(JSON.stringify(localData))}
-                                    disabled={pending}
-                                >
-                                    Copy to clipboard
-                                </Button>
-                                <ImportButton
-                                    overwrite={!!localData[0]}
-                                    pending={pending}
-                                    setPending={setPending}
-                                    onImport={setLocalData}
-                                />
-                            </div>
-                            <Button
-                                variant="primary"
-                                onClick={async () => {
-                                    setPending(true);
-                                    try {
-                                        await saveData(localData);
-                                        showToast("Successfully saved songs!", Toasts.Type.SUCCESS);
-                                    } finally {
-                                        setPending(false);
-                                    }
-                                }}
-                                disabled={isSame || pending}
-                            >
-                                Save
-                            </Button>
-                        </Flex>
+            {localData ? (
+                <Flex flexDirection="column" gap="12px">
+                    <Flex flexDirection="column" gap={0}>
+                        <BaseText size="lg" weight="semibold">
+                            Songs
+                        </BaseText>
+                        {self?.at && (
+                            <BaseText size="xs" weight="normal" className={cl("sub")}>
+                                Last updated <b>{Intl.DateTimeFormat().format(new Date(self.at))}</b>
+                            </BaseText>
+                        )}
                     </Flex>
-                )
-                : <Spinner type={Spinner.Type.WANDERING_CUBES} />}
+                    <Flex flexDirection="column" gap="6px">
+                        <SongList localData={localData} setLocalData={setLocalData} />
+                    </Flex>
+                    <Flex flexDirection="column" gap="8px">
+                        <div className={cl("twin-buttons")}>
+                            <Button
+                                variant="secondary"
+                                onClick={() => copyWithToast(JSON.stringify(localData))}
+                                disabled={pending}
+                            >
+                                Copy to clipboard
+                            </Button>
+                            <ImportButton
+                                overwrite={!!localData[0]}
+                                pending={pending}
+                                setPending={setPending}
+                                onImport={setLocalData}
+                            />
+                        </div>
+                        <Button
+                            variant="primary"
+                            onClick={async () => {
+                                setPending(true);
+                                try {
+                                    await saveData(localData);
+                                    showToast("Successfully saved songs!", Toasts.Type.SUCCESS);
+                                } finally {
+                                    setPending(false);
+                                }
+                            }}
+                            disabled={isSame || pending}
+                        >
+                            Save
+                        </Button>
+                    </Flex>
+                </Flex>
+            ) : (
+                <Spinner type={Spinner.Type.WANDERING_CUBES} />
+            )}
             <Flex flexDirection="column" gap="12px">
-                <BaseText size="lg" weight="semibold">Authorization</BaseText>
+                <BaseText size="lg" weight="semibold">
+                    Authorization
+                </BaseText>
                 <div className={cl("twin-buttons")}>
                     <Button
                         variant="dangerPrimary"
@@ -198,8 +214,9 @@ export default function Settings({ templateData }: SettingsProps) {
                                 },
                                 confirmColor: "danger",
                                 confirmText: "Delete",
-                                cancelText: "Nevermind",
-                            })}
+                                cancelText: "Nevermind"
+                            })
+                        }
                         disabled={!self?.data[0] || pending}
                     >
                         Delete songs
@@ -210,7 +227,7 @@ export default function Settings({ templateData }: SettingsProps) {
     );
 }
 
-export function SettingsModal({ modalProps, ...props }: SettingsProps & { modalProps: RenderModalProps; }) {
+export function SettingsModal({ modalProps, ...props }: SettingsProps & { modalProps: RenderModalProps }) {
     return (
         <ErrorBoundary>
             <Modal {...modalProps} size="lg" title="Song Spotlight">

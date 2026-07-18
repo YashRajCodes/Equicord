@@ -23,7 +23,11 @@ export function comboFromEvent(e: KeyboardEvent): string[] | null {
 
 export function comboEquals(a: string[], b: string[]): boolean {
     if (a.length !== b.length) return false;
-    const normalize = (combo: string[]) => [...combo].map(k => k.toLowerCase()).sort().join("+");
+    const normalize = (combo: string[]) =>
+        [...combo]
+            .map(k => k.toLowerCase())
+            .sort()
+            .join("+");
     return normalize(a) === normalize(b);
 }
 
@@ -60,7 +64,22 @@ export function formatCombo(combo: string[]): string {
     return formatComboKeys(combo).join(IS_MAC ? "" : "+");
 }
 
-const EDITING_KEYS = new Set(["a", "c", "v", "x", "z", "y", "arrowleft", "arrowright", "arrowup", "arrowdown", "backspace", "delete", "home", "end"]);
+const EDITING_KEYS = new Set([
+    "a",
+    "c",
+    "v",
+    "x",
+    "z",
+    "y",
+    "arrowleft",
+    "arrowright",
+    "arrowup",
+    "arrowdown",
+    "backspace",
+    "delete",
+    "home",
+    "end"
+]);
 
 function isEditingCombo(e: KeyboardEvent): boolean {
     return EDITING_KEYS.has(e.key.toLowerCase());

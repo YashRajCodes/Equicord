@@ -140,8 +140,8 @@ export enum GameState {
     Charts
 }
 
-export type ApiAnswer = TosuApi | { error?: string; };
-export type ApiAnswerPrecise = TosuPreciseAnswer | { error?: string; };
+export type ApiAnswer = TosuApi | { error?: string };
+export type ApiAnswerPrecise = TosuPreciseAnswer | { error?: string };
 
 export interface TosuApi {
     state: NumberName;

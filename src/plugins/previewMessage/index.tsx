@@ -14,57 +14,60 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { CloudUpload, MessageAttachment } from "@vencord/discord-types";
 
 import { ChatBarButton, ChatBarButtonFactory } from "@api/ChatButtons";
 import { generateId, sendBotMessage } from "@api/Commands";
 import { Devs } from "@utils/constants";
 import definePlugin, { IconComponent, StartAt } from "@utils/types";
-import { CloudUpload, MessageAttachment } from "@vencord/discord-types";
 import { DraftStore, DraftType, UploadAttachmentStore, UserStore, useStateFromStores } from "@webpack/common";
 
 const getDraft = (channelId: string) => DraftStore.getDraft(channelId, DraftType.ChannelMessage);
 
-const getImageBox = (url: string): Promise<{ width: number, height: number; } | null> =>
+const getImageBox = (url: string): Promise<{ width: number; height: number } | null> =>
     new Promise(res => {
         const img = new Image();
-        img.onload = () =>
-            res({ width: img.width, height: img.height });
+        img.onload = () => res({ width: img.width, height: img.height });
 
-        img.onerror = () =>
-            res(null);
+        img.onerror = () => res(null);
 
         img.src = url;
     });
 
 const getAttachments = async (channelId: string) =>
     await Promise.all(
-        UploadAttachmentStore.getUploads(channelId, DraftType.ChannelMessage)
-            .map(async (upload: CloudUpload) => {
-                const { isImage, filename, spoiler, item: { file } } = upload;
-                const url = URL.createObjectURL(file);
-                const attachment: MessageAttachment = {
-                    id: generateId(),
-                    filename: spoiler ? "SPOILER_" + filename : filename,
-                    // weird eh? if i give it the normal content type the preview doenst work
-                    content_type: undefined,
-                    size: upload.getSize(),
-                    spoiler,
-                    // discord adds query params to the url, so we need to add a hash to prevent that
-                    url: url + "#",
-                    proxy_url: url + "#",
-                };
+        UploadAttachmentStore.getUploads(channelId, DraftType.ChannelMessage).map(async (upload: CloudUpload) => {
+            const {
+                isImage,
+                filename,
+                spoiler,
+                item: { file }
+            } = upload;
+            const url = URL.createObjectURL(file);
+            const attachment: MessageAttachment = {
+                id: generateId(),
+                filename: spoiler ? "SPOILER_" + filename : filename,
+                // weird eh? if i give it the normal content type the preview doenst work
+                content_type: undefined,
+                size: upload.getSize(),
+                spoiler,
+                // discord adds query params to the url, so we need to add a hash to prevent that
+                url: url + "#",
+                proxy_url: url + "#"
+            };
 
-                if (isImage) {
-                    const box = await getImageBox(url);
-                    if (!box) return attachment;
+            if (isImage) {
+                const box = await getImageBox(url);
+                if (!box) return attachment;
 
-                    attachment.width = box.width;
-                    attachment.height = box.height;
-                }
+                attachment.width = box.width;
+                attachment.height = box.height;
+            }
 
-                return attachment;
-            })
+            return attachment;
+        })
     );
 
 const PreviewIcon: IconComponent = ({ height = 20, width = 20, className }) => {
@@ -83,12 +86,18 @@ const PreviewIcon: IconComponent = ({ height = 20, width = 20, className }) => {
     );
 };
 
-const PreviewButton: ChatBarButtonFactory = ({ isAnyChat, isEmpty, type: { attachments }, channel: { id: channelId } }) => {
+const PreviewButton: ChatBarButtonFactory = ({
+    isAnyChat,
+    isEmpty,
+    type: { attachments },
+    channel: { id: channelId }
+}) => {
     const draft = useStateFromStores([DraftStore], () => getDraft(channelId));
 
     if (!isAnyChat) return null;
 
-    const hasAttachments = attachments && UploadAttachmentStore.getUploads(channelId, DraftType.ChannelMessage).length > 0;
+    const hasAttachments =
+        attachments && UploadAttachmentStore.getUploads(channelId, DraftType.ChannelMessage).length > 0;
     const hasContent = !isEmpty && draft?.length > 0;
 
     if (!hasContent && !hasAttachments) return null;
@@ -97,14 +106,12 @@ const PreviewButton: ChatBarButtonFactory = ({ isAnyChat, isEmpty, type: { attac
         <ChatBarButton
             tooltip="Preview Message"
             onClick={async () =>
-                sendBotMessage(
-                    channelId,
-                    {
-                        content: getDraft(channelId),
-                        author: UserStore.getCurrentUser(),
-                        attachments: hasAttachments ? await getAttachments(channelId) : undefined,
-                    }
-                )}
+                sendBotMessage(channelId, {
+                    content: getDraft(channelId),
+                    author: UserStore.getCurrentUser(),
+                    attachments: hasAttachments ? await getAttachments(channelId) : undefined
+                })
+            }
             buttonProps={{
                 style: {
                     translate: "0 2px"
@@ -114,7 +121,6 @@ const PreviewButton: ChatBarButtonFactory = ({ isAnyChat, isEmpty, type: { attac
             <PreviewIcon />
         </ChatBarButton>
     );
-
 };
 
 export default definePlugin({

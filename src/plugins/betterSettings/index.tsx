@@ -4,19 +4,30 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Icon } from "@vencord/discord-types";
+import { findCssClassesLazy } from "@webpack";
+import type { HTMLAttributes, ReactNode } from "react";
+
 import { definePluginSettings } from "@api/Settings";
 import { disableStyle, enableStyle } from "@api/Styles";
-import { AchievementsIcon, AppsIcon, CreditCardIcon, EquicordIcon, GameControllerIcon, HammerAndChiselIcon, MainSettingsIcon, PencilSparkleIcon, UserIcon } from "@components/Icons";
+import {
+    AchievementsIcon,
+    AppsIcon,
+    CreditCardIcon,
+    EquicordIcon,
+    GameControllerIcon,
+    HammerAndChiselIcon,
+    MainSettingsIcon,
+    PencilSparkleIcon,
+    UserIcon
+} from "@components/Icons";
 import { buildPluginMenuEntries, buildThemeMenuEntries } from "@equicordplugins/equicordToolbox/menu";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { getIntlMessage } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import { Icon } from "@vencord/discord-types";
-import { findCssClassesLazy } from "@webpack";
 import { ComponentDispatch, FocusLock, Menu, useEffect, useRef } from "@webpack/common";
-import type { HTMLAttributes, ReactNode } from "react";
 
 import fullHeightStyle from "./fullHeightContext.css?managed";
 
@@ -32,7 +43,7 @@ const SECTION_ICONS: Record<string, Icon> = {
     activity_section: GameControllerIcon,
     developer_section: HammerAndChiselIcon,
     utility_section: MainSettingsIcon,
-    playgrounds: AchievementsIcon,
+    playgrounds: AchievementsIcon
 };
 
 const settings = definePluginSettings({
@@ -65,10 +76,13 @@ function Layer({ mode, baseLayer = false, ...props }: LayerProps) {
     const hidden = mode === "HIDDEN";
     const containerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => () => {
-        ComponentDispatch.dispatch("LAYER_POP_START");
-        ComponentDispatch.dispatch("LAYER_POP_COMPLETE");
-    }, []);
+    useEffect(
+        () => () => {
+            ComponentDispatch.dispatch("LAYER_POP_START");
+            ComponentDispatch.dispatch("LAYER_POP_COMPLETE");
+        },
+        []
+    );
 
     const node = (
         <div
@@ -84,9 +98,7 @@ function Layer({ mode, baseLayer = false, ...props }: LayerProps) {
         />
     );
 
-    return baseLayer
-        ? node
-        : <FocusLock containerRef={containerRef}>{node}</FocusLock>;
+    return baseLayer ? node : <FocusLock containerRef={containerRef}>{node}</FocusLock>;
 }
 
 export default definePlugin({
@@ -97,8 +109,7 @@ export default definePlugin({
     settings,
 
     start() {
-        if (settings.store.organizeMenu)
-            enableStyle(fullHeightStyle);
+        if (settings.store.organizeMenu) enableStyle(fullHeightStyle);
     },
 
     stop() {
@@ -114,14 +125,16 @@ export default definePlugin({
                     replace: "var $1=$self.Layer;class VencordPatchedOldFadeLayer$2",
                     predicate: () => settings.store.disableFade
                 },
-                { // Lazy-load contents
+                {
+                    // Lazy-load contents
                     match: /createPromise:\(\)=>([^:}]*?),webpackId:"?\d+"?,name:(?!="CollectiblesShop")"[^"]+"/g,
                     replace: "$&,_:$1",
                     predicate: () => settings.store.eagerLoad
                 }
             ]
         },
-        { // For some reason standardSidebarView also has a small fade-in
+        {
+            // For some reason standardSidebarView also has a small fade-in
             find: 'minimal:"contentColumnMinimal"',
             replacement: [
                 {
@@ -135,7 +148,8 @@ export default definePlugin({
             ],
             predicate: () => settings.store.disableFade
         },
-        { // Disable fade animations for settings menu
+        {
+            // Disable fade animations for settings menu
             find: '"data-mana-component":"layer-modal"',
             replacement: [
                 {
@@ -149,7 +163,8 @@ export default definePlugin({
             ],
             predicate: () => settings.store.disableFade
         },
-        { // Disable initial and exit delay for settings menu
+        {
+            // Disable initial and exit delay for settings menu
             find: "headerId:void 0,headerIdIsManaged:!1",
             replacement: {
                 match: /let (\i)=300/,
@@ -157,7 +172,8 @@ export default definePlugin({
             },
             predicate: () => settings.store.disableFade
         },
-        { // Load menu TOC eagerly
+        {
+            // Load menu TOC eagerly
             find: "handleOpenSettingsContextMenu=",
             replacement: {
                 match: /(?=handleOpenSettingsContextMenu=.{0,100}?null!=\i&&.{0,100}?(await [^};]*?\)\)))/,
@@ -165,16 +181,17 @@ export default definePlugin({
             },
             predicate: () => settings.store.eagerLoad
         },
-        { // Settings cog context menu
+        {
+            // Settings cog context menu
             find: "#{intl::USER_SETTINGS_ACTIONS_MENU_LABEL}",
             predicate: () => settings.store.organizeMenu,
             replacement: [
                 {
                     match: /children:\[(\i),null!=(\i).{0,30}\}\),(\i)\](?<=\1=(?:function|.{0,30}\.openUserSettings).+?)/, // TODO .{0,30}\.openUserSettings is stable compat
-                    replace: "children:$self.transformSettingsEntries([$1,$2,$3])",
+                    replace: "children:$self.transformSettingsEntries([$1,$2,$3])"
                 }
             ]
-        },
+        }
     ],
 
     // This is the very outer layer of the entire ui, so we can't wrap this in an ErrorBoundary
@@ -207,9 +224,7 @@ export default definePlugin({
             const { key, props } = item;
 
             if (key === "equicord_plugins" || key === "equicord_themes") {
-                const children = key === "equicord_plugins"
-                    ? buildPluginMenuEntries()
-                    : buildThemeMenuEntries();
+                const children = key === "equicord_plugins" ? buildPluginMenuEntries() : buildThemeMenuEntries();
 
                 items.push(
                     <Menu.MenuItem key={key} label={props.label} id={props.label} {...props}>

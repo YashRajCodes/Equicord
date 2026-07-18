@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { sleep } from "@utils/misc";
-import type { PluginNative } from "@utils/types";
 import { applyPalette, GIFEncoder, quantize } from "gifenc";
 import { decompressFrames, parseGIF } from "gifuct-js";
+
+import { sleep } from "@utils/misc";
+import type { PluginNative } from "@utils/types";
 
 import { CAPTIONS } from "../captions";
 import { measureTextLines } from "../captions/caption";
@@ -30,7 +31,7 @@ const ALLOWED_MEDIA_HOSTS = new Set([
     "media1.giphy.com",
     "media2.giphy.com",
     "media3.giphy.com",
-    "media4.giphy.com",
+    "media4.giphy.com"
 ]);
 
 const MediaNative = VencordNative?.pluginHelpers?.gifMaker as PluginNative<typeof import("../native")> | undefined;
@@ -66,7 +67,8 @@ async function getMediaBlobUrl(url: string): Promise<string> {
     return URL.createObjectURL(blob);
 }
 
-const mediaProxyParser = /^https:\/\/(?:images-ext-\d+|cdn)\.discord(?:app|cdn)\.net\/external\/[^/]+\/(?<protocol>https?)\/(?<rest>.+)$/i;
+const mediaProxyParser =
+    /^https:\/\/(?:images-ext-\d+|cdn)\.discord(?:app|cdn)\.net\/external\/[^/]+\/(?<protocol>https?)\/(?<rest>.+)$/i;
 
 function resolveMediaUrl(url: string): string {
     const normalized = url.startsWith("//") ? `https:${url}` : url;
@@ -95,10 +97,12 @@ export function loadImage(url: string): Promise<HTMLImageElement> {
 
         const resolved = resolveMediaUrl(url);
         if (isDiscordCdnUrl(resolved)) {
-            getMediaBlobUrl(resolved).then(blobUrl => {
-                blobUrlMap.set(img, blobUrl);
-                img.src = blobUrl;
-            }).catch(reject);
+            getMediaBlobUrl(resolved)
+                .then(blobUrl => {
+                    blobUrlMap.set(img, blobUrl);
+                    img.src = blobUrl;
+                })
+                .catch(reject);
         } else {
             img.src = resolved;
         }
@@ -112,18 +116,26 @@ function createVideoElement(src: string): Promise<HTMLVideoElement> {
         v.muted = true;
         v.crossOrigin = "anonymous";
 
-        v.addEventListener("loadedmetadata", () => {
-            const { duration, videoWidth, videoHeight } = v;
-            if (!isFinite(duration) || duration <= 0 || !videoWidth || !videoHeight) {
-                reject(new Error(`Invalid video: duration=${duration} w=${videoWidth} h=${videoHeight}`));
-                return;
-            }
-            resolve(v);
-        }, { once: true });
+        v.addEventListener(
+            "loadedmetadata",
+            () => {
+                const { duration, videoWidth, videoHeight } = v;
+                if (!isFinite(duration) || duration <= 0 || !videoWidth || !videoHeight) {
+                    reject(new Error(`Invalid video: duration=${duration} w=${videoWidth} h=${videoHeight}`));
+                    return;
+                }
+                resolve(v);
+            },
+            { once: true }
+        );
 
-        v.addEventListener("error", () => {
-            reject(new Error(`Video load failed: ${src} (code=${v.error?.code})`));
-        }, { once: true });
+        v.addEventListener(
+            "error",
+            () => {
+                reject(new Error(`Video load failed: ${src} (code=${v.error?.code})`));
+            },
+            { once: true }
+        );
 
         v.src = src;
         v.load();
@@ -155,7 +167,13 @@ function waitForSeek(video: HTMLVideoElement): Promise<void> {
 
 export function getCaptionHeight(ctx: CanvasRenderingContext2D, width: number, options: GifMakerOptions): number {
     if (options.captionMode === "caption" && options.captionText) {
-        const { lines, lineHeight } = measureTextLines(ctx, options.captionText, options.captionSize, options.fontFamily, width - 20);
+        const { lines, lineHeight } = measureTextLines(
+            ctx,
+            options.captionText,
+            options.captionSize,
+            options.fontFamily,
+            width - 20
+        );
         return Math.ceil(lines.length * lineHeight + 20);
     }
     return 0;
@@ -167,7 +185,7 @@ async function encodeFrames(
     options: GifMakerOptions,
     frameCount: number,
     drawFrame: (ctx: CanvasRenderingContext2D, i: number) => void | Promise<void>,
-    delays?: number[],
+    delays?: number[]
 ): Promise<Blob> {
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -213,13 +231,15 @@ async function encodeFrames(
         const index = applyPalette(frameData[i], palette);
         gif.writeFrame(index, width, gifHeight, {
             delay: delays ? delays[i] : defaultDelay,
-            palette: i === 0 ? palette : undefined,
+            palette: i === 0 ? palette : undefined
         });
     }
 
     gif.finish();
     const bytes = gif.bytesView();
-    return new Blob([new Uint8Array(bytes.buffer as ArrayBuffer, bytes.byteOffset, bytes.byteLength)], { type: "image/gif" });
+    return new Blob([new Uint8Array(bytes.buffer as ArrayBuffer, bytes.byteOffset, bytes.byteLength)], {
+        type: "image/gif"
+    });
 }
 
 async function createGifFromImage(url: string, options: GifMakerOptions): Promise<Blob> {
@@ -237,20 +257,24 @@ async function createGifFromVideo(url: string, options: GifMakerOptions): Promis
     const video = await loadVideo(url);
     try {
         const { duration } = video;
-        const frameCount = Math.min(
-            Math.floor(duration * INTERNAL_FPS),
-            MAX_FRAMES
-        );
+        const frameCount = Math.min(Math.floor(duration * INTERNAL_FPS), MAX_FRAMES);
 
         const interval = duration / frameCount;
         const delay = Math.round(interval * 1000);
         const delays = new Array(frameCount).fill(delay);
 
-        return await encodeFrames(options.width, options.height, options, frameCount, async (ctx, i) => {
-            video.currentTime = i * interval;
-            await waitForSeek(video);
-            ctx.drawImage(video, 0, 0, options.width, options.height);
-        }, delays);
+        return await encodeFrames(
+            options.width,
+            options.height,
+            options,
+            frameCount,
+            async (ctx, i) => {
+                video.currentTime = i * interval;
+                await waitForSeek(video);
+                ctx.drawImage(video, 0, 0, options.width, options.height);
+            },
+            delays
+        );
     } finally {
         cleanupBlobUrl(video);
     }
@@ -309,11 +333,11 @@ export function parseGifBytes(bytes: Uint8Array): SourceFrameInfo | null {
 
     const scanLimit = Math.min(bytes.length, MAX_GIF_SCAN_BYTES);
     for (let i = 0; i < scanLimit - 8; i++) {
-        if (bytes[i] === 0x2C) {
+        if (bytes[i] === 0x2c) {
             frameCount++;
             if (frameCount > MAX_FRAMES) break;
         }
-        if (bytes[i] === 0x21 && bytes[i + 1] === 0xF9 && bytes[i + 2] === 0x04) {
+        if (bytes[i] === 0x21 && bytes[i + 1] === 0xf9 && bytes[i + 2] === 0x04) {
             const delay = bytes[i + 4] | (bytes[i + 5] << 8);
             if (delay > 0) {
                 totalDelay += delay;
@@ -385,8 +409,16 @@ async function getWebpInfo(url: string): Promise<SourceFrameInfo | null> {
         const { data } = await MediaNative.fetchMedia(resolved);
         const bytes = new Uint8Array(data);
 
-        if (bytes[0] !== 0x52 || bytes[1] !== 0x49 || bytes[2] !== 0x46 || bytes[3] !== 0x46 ||
-            bytes[8] !== 0x57 || bytes[9] !== 0x45 || bytes[10] !== 0x42 || bytes[11] !== 0x50) {
+        if (
+            bytes[0] !== 0x52 ||
+            bytes[1] !== 0x49 ||
+            bytes[2] !== 0x46 ||
+            bytes[3] !== 0x46 ||
+            bytes[8] !== 0x57 ||
+            bytes[9] !== 0x45 ||
+            bytes[10] !== 0x42 ||
+            bytes[11] !== 0x50
+        ) {
             return null;
         }
 
@@ -399,13 +431,16 @@ async function getWebpInfo(url: string): Promise<SourceFrameInfo | null> {
 
         let offset = 12;
         while (offset + 8 <= bytes.length) {
-            const chunkSize = bytes[offset + 4] | (bytes[offset + 5] << 8) | (bytes[offset + 6] << 16) | (bytes[offset + 7] << 24);
+            const chunkSize =
+                bytes[offset + 4] | (bytes[offset + 5] << 8) | (bytes[offset + 6] << 16) | (bytes[offset + 7] << 24);
             const fourCC = String.fromCharCode(bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]);
 
             if (fourCC === "VP8X" && offset + 18 <= bytes.length) {
                 hasAnimation = !!(bytes[offset + 8] & 0x02);
-                canvasWidth = ((bytes[offset + 12] | (bytes[offset + 13] << 8) | (bytes[offset + 14] << 16)) & 0xFFFFFF) + 1;
-                canvasHeight = ((bytes[offset + 15] | (bytes[offset + 16] << 8) | (bytes[offset + 17] << 16)) & 0xFFFFFF) + 1;
+                canvasWidth =
+                    ((bytes[offset + 12] | (bytes[offset + 13] << 8) | (bytes[offset + 14] << 16)) & 0xffffff) + 1;
+                canvasHeight =
+                    ((bytes[offset + 15] | (bytes[offset + 16] << 8) | (bytes[offset + 17] << 16)) & 0xffffff) + 1;
             } else if (fourCC === "ANMF" && offset + 23 <= bytes.length) {
                 frameCount++;
                 const delayMs = bytes[offset + 20] | (bytes[offset + 21] << 8) | (bytes[offset + 22] << 16);
@@ -421,7 +456,12 @@ async function getWebpInfo(url: string): Promise<SourceFrameInfo | null> {
 
         if (hasAnimation && frameCount > 1 && delayCount > 0) {
             const avgFps = Math.round(1000 / (totalDelay / delayCount));
-            return { fps: Math.max(1, Math.min(60, avgFps)), frameCount, frameWidth: canvasWidth, frameHeight: canvasHeight };
+            return {
+                fps: Math.max(1, Math.min(60, avgFps)),
+                frameCount,
+                frameWidth: canvasWidth,
+                frameHeight: canvasHeight
+            };
         }
         return null;
     } catch {
@@ -448,18 +488,26 @@ async function getVideoSourceInfo(url: string): Promise<SourceFrameInfo | null> 
             v.muted = true;
             v.crossOrigin = "anonymous";
 
-            v.addEventListener("loadedmetadata", () => {
-                const info: SourceFrameInfo = { frameWidth: v.videoWidth, frameHeight: v.videoHeight };
-                if (needsCleanup) URL.revokeObjectURL(src);
-                v.remove();
-                resolve(info);
-            }, { once: true });
+            v.addEventListener(
+                "loadedmetadata",
+                () => {
+                    const info: SourceFrameInfo = { frameWidth: v.videoWidth, frameHeight: v.videoHeight };
+                    if (needsCleanup) URL.revokeObjectURL(src);
+                    v.remove();
+                    resolve(info);
+                },
+                { once: true }
+            );
 
-            v.addEventListener("error", () => {
-                if (needsCleanup) URL.revokeObjectURL(src);
-                v.remove();
-                resolve(null);
-            }, { once: true });
+            v.addEventListener(
+                "error",
+                () => {
+                    if (needsCleanup) URL.revokeObjectURL(src);
+                    v.remove();
+                    resolve(null);
+                },
+                { once: true }
+            );
 
             v.src = src;
             v.load();
@@ -508,11 +556,7 @@ async function createGifFromAnimatedImage(url: string, options: GifMakerOptions)
             }
         }
 
-        const patchData = new ImageData(
-            new Uint8ClampedArray(frame.patch),
-            frame.dims.width,
-            frame.dims.height
-        );
+        const patchData = new ImageData(new Uint8ClampedArray(frame.patch), frame.dims.width, frame.dims.height);
         patchCanvas.width = frame.dims.width;
         patchCanvas.height = frame.dims.height;
         const patchCtx = patchCanvas.getContext("2d");
@@ -534,7 +578,10 @@ async function createGifFromAnimatedImage(url: string, options: GifMakerOptions)
     }
 
     return await encodeFrames(
-        options.width, options.height, options, totalFrames,
+        options.width,
+        options.height,
+        options,
+        totalFrames,
         (encodeCtx, i) => {
             encodeCtx.drawImage(rendered[i], 0, 0, options.width, options.height);
         },

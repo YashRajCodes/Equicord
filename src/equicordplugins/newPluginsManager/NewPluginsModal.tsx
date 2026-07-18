@@ -5,6 +5,9 @@
  */
 
 import "./styles.css";
+import { RenderModalProps } from "@vencord/discord-types";
+import { ReactNode } from "react";
+import Plugins from "~plugins";
 
 import { Settings, useSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
@@ -16,11 +19,7 @@ import { PluginCard } from "@components/settings/tabs/plugins/PluginCard";
 import { ChangeList } from "@utils/ChangeList";
 import { classNameFactory } from "@utils/css";
 import { useForceUpdater } from "@utils/react";
-import { RenderModalProps } from "@vencord/discord-types";
 import { closeModal, Modal, openModal, Tooltip, useMemo } from "@webpack/common";
-import { ReactNode } from "react";
-
-import Plugins from "~plugins";
 
 import { getNewPlugins, getNewSettings, KnownPluginSettingsMap, writeKnownSettings } from "./knownSettings";
 
@@ -54,11 +53,9 @@ function NewPluginsModal({ modalProps, newPlugins, newSettings }: ModalComponent
     }, []);
 
     const sortedPlugins = useMemo(() => {
-        const mapPlugins = (array: string[]) => array.map(pn => Plugins[pn]).sort((a, b) => a.name.localeCompare(b.name));
-        return [
-            ...mapPlugins([...newPlugins]),
-            ...mapPlugins([...newSettings.keys()].filter(p => !newPlugins.has(p)))
-        ];
+        const mapPlugins = (array: string[]) =>
+            array.map(pn => Plugins[pn]).sort((a, b) => a.name.localeCompare(b.name));
+        return [...mapPlugins([...newPlugins]), ...mapPlugins([...newSettings.keys()].filter(p => !newPlugins.has(p)))];
     }, []);
 
     const onRestartNeeded = (name: string) => {
@@ -75,9 +72,11 @@ function NewPluginsModal({ modalProps, newPlugins, newSettings }: ModalComponent
         const isRequired = p.required || depMap[p.name]?.some(d => settings.plugins[d].enabled);
 
         if (isRequired) {
-            const tooltipText = p.required
-                ? "This plugin is required for Equicord to function."
-                : <PluginDependencyList deps={depMap[p.name]?.filter(d => settings.plugins[d].enabled)} />;
+            const tooltipText = p.required ? (
+                "This plugin is required for Equicord to function."
+            ) : (
+                <PluginDependencyList deps={depMap[p.name]?.filter(d => settings.plugins[d].enabled)} />
+            );
 
             requiredPluginCards.push(
                 <Tooltip text={tooltipText} key={p.name}>
@@ -135,7 +134,11 @@ function NewPluginsModal({ modalProps, newPlugins, newSettings }: ModalComponent
                     </BaseText>
                     <br />
                     <Notice.Info className={cl("notice")}>
-                        Equicord is Open Source Software. If you enjoy using it, consider supporting us <Link href="https://github.com/sponsors/thororen1234" target="_blank" rel="noopener noreferrer">here</Link>.
+                        Equicord is Open Source Software. If you enjoy using it, consider supporting us{" "}
+                        <Link href="https://github.com/sponsors/thororen1234" target="_blank" rel="noopener noreferrer">
+                            here
+                        </Link>
+                        .
                     </Notice.Info>
                 </>
             }
@@ -158,7 +161,7 @@ function NewPluginsModal({ modalProps, newPlugins, newSettings }: ModalComponent
                 {pluginCards}
                 {requiredPluginCards}
             </div>
-        </Modal >
+        </Modal>
     );
 }
 
@@ -169,11 +172,7 @@ export async function openNewPluginsModal() {
         hasSeen = true;
         const modalKey = openModal(modalProps => (
             <ErrorBoundary noop onError={() => closeModal(modalKey)}>
-                <NewPluginsModal
-                    modalProps={modalProps}
-                    newPlugins={newPlugins}
-                    newSettings={newSettings}
-                />
+                <NewPluginsModal modalProps={modalProps} newPlugins={newPlugins} newSettings={newSettings} />
             </ErrorBoundary>
         ));
     }

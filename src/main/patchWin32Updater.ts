@@ -9,8 +9,9 @@
  * `app-VERSION` directory on quit and re-applies the patch there.
  */
 
-import { app } from "electron";
 import { dirname, join } from "path";
+
+import { app } from "electron";
 
 import { findStaleSibling, patchResourcesDir } from "./applyHostPatch";
 

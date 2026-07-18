@@ -15,10 +15,13 @@ import { Modal, openModal } from "@webpack/common";
 
 export function VencordDonorModal() {
     openModal(props => (
-        <ErrorBoundary noop onError={() => {
-            props.onClose();
-            VencordNative.native.openExternal("https://github.com/sponsors/Vendicated");
-        }}>
+        <ErrorBoundary
+            noop
+            onError={() => {
+                props.onClose();
+                VencordNative.native.openExternal("https://github.com/sponsors/Vendicated");
+            }}
+        >
             <Modal
                 {...props}
                 title={
@@ -53,11 +56,10 @@ export function VencordDonorModal() {
                         />
                     </Flex>
                     <div style={{ padding: "1em" }}>
-                        <Paragraph>
-                            This Badge is a special perk for Vencord Donors
-                        </Paragraph>
+                        <Paragraph>This Badge is a special perk for Vencord Donors</Paragraph>
                         <Paragraph className={Margins.top20}>
-                            Please consider supporting the development of Vencord by becoming a donor. It would mean a lot!!
+                            Please consider supporting the development of Vencord by becoming a donor. It would mean a
+                            lot!!
                         </Paragraph>
                     </div>
                 </div>
@@ -73,10 +75,13 @@ export function VencordDonorModal() {
 
 export function EquicordDonorModal() {
     openModal(props => (
-        <ErrorBoundary noop onError={() => {
-            props.onClose();
-            VencordNative.native.openExternal("https://github.com/sponsors/thororen1234");
-        }}>
+        <ErrorBoundary
+            noop
+            onError={() => {
+                props.onClose();
+                VencordNative.native.openExternal("https://github.com/sponsors/thororen1234");
+            }}
+        >
             <Modal
                 {...props}
                 title={
@@ -111,11 +116,10 @@ export function EquicordDonorModal() {
                         />
                     </Flex>
                     <div style={{ padding: "1em" }}>
-                        <Paragraph>
-                            This Badge is a special perk for Equicord (Not Vencord) Donors
-                        </Paragraph>
+                        <Paragraph>This Badge is a special perk for Equicord (Not Vencord) Donors</Paragraph>
                         <Paragraph className={Margins.top20}>
-                            Please consider supporting the development of Equicord by becoming a donor. It would mean a lot! :3
+                            Please consider supporting the development of Equicord by becoming a donor. It would mean a
+                            lot! :3
                         </Paragraph>
                     </div>
                 </div>
@@ -125,15 +129,18 @@ export function EquicordDonorModal() {
                     </Flex>
                 </div>
             </Modal>
-        </ErrorBoundary >
+        </ErrorBoundary>
     ));
 }
 
 export function EquicordTranslatorModal() {
     openModal(props => (
-        <ErrorBoundary noop onError={() => {
-            props.onClose();
-        }}>
+        <ErrorBoundary
+            noop
+            onError={() => {
+                props.onClose();
+            }}
+        >
             <Modal
                 {...props}
                 title={
@@ -162,7 +169,8 @@ export function EquicordTranslatorModal() {
                     </Flex>
                     <div className="vc-translate-modal-paragraph">
                         <Paragraph>
-                            Awarded to contributors who expand Equicord’s language support by translating content for the community.
+                            Awarded to contributors who expand Equicord’s language support by translating content for
+                            the community.
                         </Paragraph>
                     </div>
                 </div>

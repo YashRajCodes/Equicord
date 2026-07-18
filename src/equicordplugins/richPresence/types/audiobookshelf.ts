@@ -11,8 +11,8 @@ export interface AbsSession {
         title?: string;
         author?: string;
         publisher?: string;
-        authors?: { name?: string; }[];
-        series?: { name?: string; }[];
+        authors?: { name?: string }[];
+        series?: { name?: string }[];
     };
     mediaType?: string;
     duration?: number;

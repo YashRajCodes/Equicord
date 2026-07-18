@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { Root } from "react-dom/client";
+
 import { definePluginSettings } from "@api/Settings";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { createRoot, React } from "@webpack/common";
-import type { Root } from "react-dom/client";
 
 const SnowfallCSS = `
 #snowfield {
@@ -41,14 +42,16 @@ const SnowfallCSS = `
 // SVG snowflake images as data URIs
 const SNOWFLAKE_SVGS = [
     // 6-pointed snowflake
-    "data:image/svg+xml," + encodeURIComponent(`
+    "data:image/svg+xml," +
+        encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
             <path fill="white" d="M50,10 L55,45 L50,50 L45,45 Z M50,90 L55,55 L50,50 L45,55 Z M10,50 L45,55 L50,50 L45,45 Z M90,50 L55,55 L50,50 L55,45 Z M25,25 L45,45 L50,40 L40,30 Z M75,75 L55,55 L50,60 L60,70 Z M75,25 L55,45 L60,50 L70,40 Z M25,75 L45,55 L40,50 L30,60 Z"/>
             <circle cx="50" cy="50" r="8" fill="white"/>
         </svg>
     `),
     // 8-pointed star snowflake
-    "data:image/svg+xml," + encodeURIComponent(`
+    "data:image/svg+xml," +
+        encodeURIComponent(`
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
             <g fill="white">
                 <rect x="47" y="5" width="6" height="90" rx="2"/>
@@ -60,7 +63,8 @@ const SNOWFLAKE_SVGS = [
         </svg>
     `),
     // Discord snowflake
-    "data:image/svg+xml," + encodeURIComponent(`
+    "data:image/svg+xml," +
+        encodeURIComponent(`
         <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
             <defs>
                 <symbol id="discord" viewBox="0 0 24 24">
@@ -93,7 +97,7 @@ const SNOWFLAKE_SVGS = [
             <use href="#discord" fill="#FFF" x="60" y="41.7" width="30" height="30" transform="rotate(330, 75, 56.7)"/>
             <use href="#discord" fill="#FFF" x="110" y="41.7" width="30" height="30" transform="rotate(30, 125, 56.7)"/>
         </svg>
-    `),
+    `)
 ];
 
 const settings = definePluginSettings({
@@ -104,7 +108,7 @@ const settings = definePluginSettings({
             { label: "Solid (Highest Performance)", value: "solid" },
             { label: "Text (Medium Performance)", value: "text", default: true },
             { label: "Image (Lowest Performance)", value: "image" }
-        ],
+        ]
     },
     maxSize: {
         description: "Maximum snowflake size",
@@ -124,7 +128,7 @@ const settings = definePluginSettings({
         default: 5,
         markers: [1, 5, 10, 20, 40, 60],
         min: 1,
-        max: 60,
+        max: 60
     }
 });
 
@@ -162,9 +166,12 @@ class CopleSnow {
     };
 
     private static readonly transitionEndEvent =
-        { WebkitTransition: "webkitTransitionEnd", OTransition: "oTransitionEnd", Moztransition: "transitionend", transition: "transitionend" }[
-        this.cssPrefixedNames.transition ?? "transition"
-        ] ?? "transitionend";
+        {
+            WebkitTransition: "webkitTransitionEnd",
+            OTransition: "oTransitionEnd",
+            Moztransition: "transitionend",
+            transition: "transitionend"
+        }[this.cssPrefixedNames.transition ?? "transition"] ?? "transitionend";
 
     private static random(min: number, max: number, deviation?: number): number {
         if (deviation !== undefined) {
@@ -223,24 +230,21 @@ class CopleSnow {
     }
 
     private createSnowflake(): HTMLElement {
-        const { type, content } = this.options as { type: "text" | "image" | "solid"; content: string | string[]; };
+        const { type, content } = this.options as { type: "text" | "image" | "solid"; content: string | string[] };
         const cntLength = Array.isArray(content) ? content.length : 1;
 
         let snowflake: HTMLElement;
 
         if (type === "image") {
             snowflake = document.createElement("img");
-            const src = typeof content === "string"
-                ? content
-                : content[Math.floor(Math.random() * cntLength)];
+            const src = typeof content === "string" ? content : content[Math.floor(Math.random() * cntLength)];
             (snowflake as HTMLImageElement).src = src;
             snowflake.setAttribute("draggable", "false");
         } else {
             snowflake = document.createElement("div");
             if (type === "text") {
-                const textContent = typeof content === "string"
-                    ? content
-                    : content[Math.floor(Math.random() * cntLength)];
+                const textContent =
+                    typeof content === "string" ? content : content[Math.floor(Math.random() * cntLength)];
                 snowflake.textContent = textContent;
             }
             // if type is solid we don't need to set content
@@ -407,7 +411,11 @@ const SnowfallManager: React.FC = () => {
                 flakesPerSecond: settings.store.flakesPerSecond
             };
 
-            if (Object.keys(newSettings).some(k => newSettings[k as keyof typeof newSettings] !== lastSettings[k as keyof typeof lastSettings])) {
+            if (
+                Object.keys(newSettings).some(
+                    k => newSettings[k as keyof typeof newSettings] !== lastSettings[k as keyof typeof lastSettings]
+                )
+            ) {
                 lastSettings = newSettings;
 
                 const updateOptions: Partial<typeof CopleSnow.defaultOptions> = {
@@ -458,11 +466,12 @@ export default definePlugin({
         <>
             <Heading>Information</Heading>
             <Paragraph>
-                This plugin adds a christmas-y snowfall effect on top of Discord's interface.
-                You can change the type of snow in the settings below.
-                <br /><br />
-                NOTE: While on most computers this plugin will not impact performance any more than your average Equicord extension,
-                it may cause some lag on lower end systems.
+                This plugin adds a christmas-y snowfall effect on top of Discord's interface. You can change the type of
+                snow in the settings below.
+                <br />
+                <br />
+                NOTE: While on most computers this plugin will not impact performance any more than your average
+                Equicord extension, it may cause some lag on lower end systems.
             </Paragraph>
         </>
     ),

@@ -4,22 +4,23 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Guild, RenderModalProps } from "@vencord/discord-types";
+import { findCssClassesLazy } from "@webpack";
+
 import { BaseText } from "@components/BaseText";
 import { Heading } from "@components/Heading";
 import { HiddenServersStore } from "@equicordplugins/hideServers/HiddenServersStore";
 import { classNameFactory } from "@utils/css";
 import { getGuildAcronym } from "@utils/discord";
 import { classes } from "@utils/misc";
-import { Guild, RenderModalProps } from "@vencord/discord-types";
-import { findCssClassesLazy } from "@webpack";
-import { Button, closeModal, IconUtils, Modal,openModal, useStateFromStores } from "@webpack/common";
+import { Button, closeModal, IconUtils, Modal, openModal, useStateFromStores } from "@webpack/common";
 
 import { SortedGuildStore } from "..";
 
 const cl = classNameFactory("vc-hideservers-");
 const IconClasses = findCssClassesLazy("icon", "acronym", "childWrapper");
 
-function HiddenServersModal({ modalProps, close }: { modalProps: RenderModalProps; close(): void; }) {
+function HiddenServersModal({ modalProps, close }: { modalProps: RenderModalProps; close(): void }) {
     const guilds = useStateFromStores([HiddenServersStore], () => HiddenServersStore.hiddenGuildsDetail());
     return (
         <Modal {...modalProps} size="lg" title="Hidden Servers">
@@ -62,21 +63,16 @@ function GuildRow({ guild }) {
                             id: guild.id,
                             icon: guild.icon,
                             canAnimate: true,
-                            size: 240,
+                            size: 240
                         })}
                     />
                 ) : (
-                    <div
-                        aria-hidden
-                        className={classes(IconClasses.childWrapper, IconClasses.acronym)}
-                    >
+                    <div aria-hidden className={classes(IconClasses.childWrapper, IconClasses.acronym)}>
                         {getGuildAcronym(guild)}
                     </div>
                 )}
             </div>
-            <Heading className={cl("name")}>
-                {guild.name}
-            </Heading>
+            <Heading className={cl("name")}>{guild.name}</Heading>
             <Button
                 className="row-button"
                 color={Button.Colors.PRIMARY}
@@ -88,7 +84,7 @@ function GuildRow({ guild }) {
     );
 }
 
-export function HiddenServersMenu({ guilds }: { guilds: Guild[]; }) {
+export function HiddenServersMenu({ guilds }: { guilds: Guild[] }) {
     const hiddenGuilds = guilds.filter(g => isGuildHidden(g, SortedGuildStore));
     const folders: Record<string, Guild[]> = {};
     const guildsWithoutFolder: Guild[] = [];
@@ -103,55 +99,54 @@ export function HiddenServersMenu({ guilds }: { guilds: Guild[]; }) {
         }
     });
 
-    return <div className={cl("list")}>
-        {Object.entries(folders).map(([folderId, folderGuilds]) => {
-            const folder = SortedGuildStore.getGuildFolders().find(f => f.folderId === Number(folderId));
-            if (!folder) return null;
+    return (
+        <div className={cl("list")}>
+            {Object.entries(folders).map(([folderId, folderGuilds]) => {
+                const folder = SortedGuildStore.getGuildFolders().find(f => f.folderId === Number(folderId));
+                if (!folder) return null;
 
-            return (
-                <div key={folderId} className={cl("folder")}>
-                    <div className={cl("folder-header")}>
-                        <BaseText size="sm" weight="medium">{folder.folderName || "Folder"}</BaseText>
-                        <Button
-                            color={Button.Colors.PRIMARY}
-                            onClick={() => {
-                                folderGuilds.forEach(g => restoreGuild(g, SortedGuildStore));
-                            }}
-                            size={Button.Sizes.SMALL}
-                            className={cl("restore-all")}
-                        >
-                            Remove All
-                        </Button>
+                return (
+                    <div key={folderId} className={cl("folder")}>
+                        <div className={cl("folder-header")}>
+                            <BaseText size="sm" weight="medium">
+                                {folder.folderName || "Folder"}
+                            </BaseText>
+                            <Button
+                                color={Button.Colors.PRIMARY}
+                                onClick={() => {
+                                    folderGuilds.forEach(g => restoreGuild(g, SortedGuildStore));
+                                }}
+                                size={Button.Sizes.SMALL}
+                                className={cl("restore-all")}
+                            >
+                                Remove All
+                            </Button>
+                        </div>
+                        {folderGuilds.map(guild => (
+                            <GuildRow key={guild.id} guild={guild} />
+                        ))}
                     </div>
-                    {folderGuilds.map(guild => (
-                        <GuildRow
-                            key={guild.id}
-                            guild={guild}
-                        />
-                    ))}
-                </div>
-            );
-        })}
+                );
+            })}
 
-        <BaseText size="sm" weight="medium">Guilds</BaseText>
-        {guildsWithoutFolder.map(guild => (
-            <GuildRow
-                key={guild.id}
-                guild={guild}
-            />
-        ))}
+            <BaseText size="sm" weight="medium">
+                Guilds
+            </BaseText>
+            {guildsWithoutFolder.map(guild => (
+                <GuildRow key={guild.id} guild={guild} />
+            ))}
 
-        {hiddenGuilds.length === 0 && <BaseText size="sm" weight="medium">No hidden servers</BaseText>}
-    </div>;
+            {hiddenGuilds.length === 0 && (
+                <BaseText size="sm" weight="medium">
+                    No hidden servers
+                </BaseText>
+            )}
+        </div>
+    );
 }
 
 export function openHiddenServersModal() {
     const key = openModal(modalProps => {
-        return (
-            <HiddenServersModal
-                modalProps={modalProps}
-                close={() => closeModal(key)}
-            />
-        );
+        return <HiddenServersModal modalProps={modalProps} close={() => closeModal(key)} />;
     });
 }

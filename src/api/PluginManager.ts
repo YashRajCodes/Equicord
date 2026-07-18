@@ -14,16 +14,31 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { FluxEvents } from "@vencord/discord-types";
+import Plugins from "~plugins";
 
 import { addProfileBadge, removeProfileBadge } from "@api/Badges";
-import { addChatBarButton, addChatBarButtonWrapper, removeChatBarButton, removeChatBarButtonWrapper } from "@api/ChatButtons";
+import {
+    addChatBarButton,
+    addChatBarButtonWrapper,
+    removeChatBarButton,
+    removeChatBarButtonWrapper
+} from "@api/ChatButtons";
 import { registerCommand, unregisterCommand } from "@api/Commands";
 import { addContextMenuPatch, removeContextMenuPatch } from "@api/ContextMenu";
 import { addMemberListDecorator, removeMemberListDecorator } from "@api/MemberListDecorators";
 import { addMessageAccessory, removeMessageAccessory } from "@api/MessageAccessories";
 import { addMessageDecoration, removeMessageDecoration } from "@api/MessageDecorations";
-import { addMessageClickListener, addMessagePreEditListener, addMessagePreSendListener, removeMessageClickListener, removeMessagePreEditListener, removeMessagePreSendListener } from "@api/MessageEvents";
+import {
+    addMessageClickListener,
+    addMessagePreEditListener,
+    addMessagePreSendListener,
+    removeMessageClickListener,
+    removeMessagePreEditListener,
+    removeMessagePreSendListener
+} from "@api/MessageEvents";
 import { addMessagePopoverButton, removeMessagePopoverButton } from "@api/MessagePopover";
 import { addNicknameIcon, removeNicknameIcon } from "@api/NicknameIcons";
 import { Settings, SettingsStore } from "@api/Settings";
@@ -33,16 +48,18 @@ import { Logger } from "@utils/Logger";
 import { onlyOnce } from "@utils/onlyOnce";
 import { canonicalizeFind, canonicalizeReplacement } from "@utils/patches";
 import { DefinedSettings, Patch, Plugin, PluginDef, PluginSettingDef, ReporterTestable, StartAt } from "@utils/types";
-import { FluxEvents } from "@vencord/discord-types";
 import { FluxDispatcher } from "@webpack/common";
 import { patches } from "@webpack/patcher";
-
-import Plugins from "~plugins";
 export { Plugins as plugins };
 
 import { addAudioProcessor, removeAudioProcessor } from "./AudioPlayer";
 import { addGifPickerContextMenuPatch, removeGifPickerContextMenuPatch } from "./GifPickerContextMenu";
-import { addChannelToolbarButton, addHeaderBarButton, removeChannelToolbarButton, removeHeaderBarButton } from "./HeaderBar";
+import {
+    addChannelToolbarButton,
+    addHeaderBarButton,
+    removeChannelToolbarButton,
+    removeHeaderBarButton
+} from "./HeaderBar";
 import { addProfileCollection, removeProfileCollection } from "./ProfileCollections";
 import { addProfileSection, removeProfileSection } from "./ProfileSections";
 import { addUserAreaButton, removeUserAreaButton } from "./UserArea";
@@ -56,39 +73,33 @@ let enabledPluginsSubscribedFlux = false;
 const subscribedFluxEventsPlugins = new Set<string>();
 
 export function isPluginEnabled(p: string) {
-    return (
-        Plugins[p]?.required ||
-        Plugins[p]?.isDependency ||
-        Settings.plugins[p]?.enabled
-    ) ?? false;
+    return (Plugins[p]?.required || Plugins[p]?.isDependency || Settings.plugins[p]?.enabled) ?? false;
 }
 export function isPluginRequired(p: string) {
-    return (
-        Plugins[p]?.required
-    ) ?? false;
+    return Plugins[p]?.required ?? false;
 }
 
 export function isSettingHidden(settings: DefinedSettings, setting: PluginSettingDef) {
     if (!("hidden" in setting)) return false;
 
-    return typeof setting.hidden === "function"
-        ? setting.hidden.call(settings)
-        : Boolean(setting.hidden);
+    return typeof setting.hidden === "function" ? setting.hidden.call(settings) : Boolean(setting.hidden);
 }
 
 export function isSettingDisabled(settings: DefinedSettings, setting: PluginSettingDef) {
     if (!("disabled" in setting)) return false;
 
-    return typeof setting.disabled === "function"
-        ? setting.disabled.call(settings)
-        : Boolean(setting.disabled);
+    return typeof setting.disabled === "function" ? setting.disabled.call(settings) : Boolean(setting.disabled);
 }
 
 export function hasAnyVisibleSettings({ settings }: Plugin) {
     return !!settings && Object.values(settings.def).some(s => !isSettingHidden(settings, s));
 }
 
-export function addPatch(newPatch: Omit<Patch, "plugin">, pluginName: string, pluginPath = `Vencord.Plugins.plugins[${JSON.stringify(pluginName)}]`) {
+export function addPatch(
+    newPatch: Omit<Patch, "plugin">,
+    pluginName: string,
+    pluginPath = `Vencord.Plugins.plugins[${JSON.stringify(pluginName)}]`
+) {
     // TODO: this causes crashes
     if (pluginName === "Vesktop" && newPatch.find === ".STREAMING_AUTO_STREAMER_MODE,") return;
     if (pluginName === "Equibop" && newPatch.find === ".STREAMING_AUTO_STREAMER_MODE,") return;
@@ -122,9 +133,7 @@ export function addPatch(newPatch: Omit<Patch, "plugin">, pluginName: string, pl
 }
 
 function isReporterTestable(p: Plugin, part: ReporterTestable) {
-    return p.reporterTestable == null
-        ? true
-        : (p.reporterTestable & part) === part;
+    return p.reporterTestable == null ? true : (p.reporterTestable & part) === part;
 }
 
 export function pluginRequiresRestart(p: Plugin) {
@@ -174,12 +183,16 @@ export function startDependenciesRecursive(p: Plugin) {
 }
 
 export function subscribePluginFluxEvents(p: Plugin, fluxDispatcher: typeof FluxDispatcher) {
-    if (p.flux && !subscribedFluxEventsPlugins.has(p.name) && (!IS_REPORTER || isReporterTestable(p, ReporterTestable.FluxEvents))) {
+    if (
+        p.flux &&
+        !subscribedFluxEventsPlugins.has(p.name) &&
+        (!IS_REPORTER || isReporterTestable(p, ReporterTestable.FluxEvents))
+    ) {
         subscribedFluxEventsPlugins.add(p.name);
 
         logger.debug("Subscribing to flux events of plugin", p.name);
         for (const [event, handler] of Object.entries(p.flux)) {
-            const wrappedHandler = p.flux[event] = function () {
+            const wrappedHandler = (p.flux[event] = function () {
                 if (p.name === "Encryptcord" && event === "MESSAGE_CREATE") return;
                 try {
                     const res = handler!.apply(p, arguments as any);
@@ -189,7 +202,7 @@ export function subscribePluginFluxEvents(p: Plugin, fluxDispatcher: typeof Flux
                 } catch (e) {
                     logger.error(`${p.name}: Error while handling ${event}\n`, e);
                 }
-            };
+            });
 
             fluxDispatcher.subscribe(event as FluxEvents, wrappedHandler);
         }
@@ -216,175 +229,221 @@ export function subscribeAllPluginsFluxEvents(fluxDispatcher: typeof FluxDispatc
     }
 }
 
-export const startPlugin = traceFunction("startPlugin", function startPlugin(p: Plugin) {
-    const {
-        name, commands, contextMenus, managedStyle, userProfileBadges,
-        onBeforeMessageEdit, onBeforeMessageSend, onMessageClick,
-        chatBarButton, renderMemberListDecorator, renderMessageAccessory, renderMessageDecoration, messagePopoverButton,
-        // Custom
-        renderNicknameIcon, headerBarButton, audioProcessor, userAreaButton, renderProfileCollection, chatBarButtonWrapper,
-        renderProfileSection, gifPickerContextMenu
-    } = p;
+export const startPlugin = traceFunction(
+    "startPlugin",
+    function startPlugin(p: Plugin) {
+        const {
+            name,
+            commands,
+            contextMenus,
+            managedStyle,
+            userProfileBadges,
+            onBeforeMessageEdit,
+            onBeforeMessageSend,
+            onMessageClick,
+            chatBarButton,
+            renderMemberListDecorator,
+            renderMessageAccessory,
+            renderMessageDecoration,
+            messagePopoverButton,
+            // Custom
+            renderNicknameIcon,
+            headerBarButton,
+            audioProcessor,
+            userAreaButton,
+            renderProfileCollection,
+            chatBarButtonWrapper,
+            renderProfileSection,
+            gifPickerContextMenu
+        } = p;
 
-    if (p.start) {
-        logger.info("Starting plugin", name);
-        if (p.started) {
-            logger.warn(`${name} already started`);
-            return false;
-        }
-        try {
-            p.start();
-        } catch (e) {
-            logger.error(`Failed to start ${name}\n`, e);
-            return false;
-        }
-    }
-
-    p.started = true;
-
-    if (commands?.length) {
-        logger.debug("Registering commands of plugin", name);
-        for (const cmd of commands) {
+        if (p.start) {
+            logger.info("Starting plugin", name);
+            if (p.started) {
+                logger.warn(`${name} already started`);
+                return false;
+            }
             try {
-                registerCommand(cmd, name);
+                p.start();
             } catch (e) {
-                logger.error(`Failed to register command ${cmd.name}\n`, e);
+                logger.error(`Failed to start ${name}\n`, e);
                 return false;
             }
         }
-    }
 
-    if (enabledPluginsSubscribedFlux) {
-        subscribePluginFluxEvents(p, FluxDispatcher);
-    }
+        p.started = true;
 
-    if (contextMenus) {
-        logger.debug("Adding context menus patches of plugin", name);
-        for (const navId in contextMenus) {
-            addContextMenuPatch(navId, contextMenus[navId]);
+        if (commands?.length) {
+            logger.debug("Registering commands of plugin", name);
+            for (const cmd of commands) {
+                try {
+                    registerCommand(cmd, name);
+                } catch (e) {
+                    logger.error(`Failed to register command ${cmd.name}\n`, e);
+                    return false;
+                }
+            }
         }
-    }
 
-    if (managedStyle) enableStyle(managedStyle);
-
-    if (userProfileBadges) userProfileBadges.forEach(e => addProfileBadge(e));
-
-    if (onBeforeMessageEdit) addMessagePreEditListener(onBeforeMessageEdit);
-    if (onBeforeMessageSend) addMessagePreSendListener(onBeforeMessageSend);
-    if (onMessageClick) addMessageClickListener(onMessageClick);
-
-    if (chatBarButton) addChatBarButton(name, chatBarButton.render, chatBarButton.icon);
-    if (renderMemberListDecorator) addMemberListDecorator(name, renderMemberListDecorator);
-    if (renderMessageDecoration) addMessageDecoration(name, renderMessageDecoration);
-    if (renderMessageAccessory) addMessageAccessory(name, renderMessageAccessory);
-    if (messagePopoverButton) addMessagePopoverButton(name, messagePopoverButton.render, messagePopoverButton.icon);
-
-    // Custom
-    if (renderNicknameIcon) addNicknameIcon(name, renderNicknameIcon);
-    if (headerBarButton) {
-        if (headerBarButton.location === "channeltoolbar") {
-            addChannelToolbarButton(name, headerBarButton.render, headerBarButton.priority);
-        } else {
-            addHeaderBarButton(name, headerBarButton.render, headerBarButton.priority);
+        if (enabledPluginsSubscribedFlux) {
+            subscribePluginFluxEvents(p, FluxDispatcher);
         }
-    }
-    if (audioProcessor) addAudioProcessor(name, audioProcessor);
-    if (userAreaButton) addUserAreaButton(name, userAreaButton.render, userAreaButton.priority);
-    if (renderProfileCollection) addProfileCollection(name, renderProfileCollection.render, renderProfileCollection.priority);
-    if (chatBarButtonWrapper) addChatBarButtonWrapper(name, chatBarButtonWrapper.wrapper, chatBarButtonWrapper.priority);
-    if (renderProfileSection) addProfileSection(name, renderProfileSection.render, renderProfileSection.priority);
-    if (gifPickerContextMenu) addGifPickerContextMenuPatch(name, gifPickerContextMenu);
 
-    return true;
-}, p => `startPlugin ${p.name}`);
+        if (contextMenus) {
+            logger.debug("Adding context menus patches of plugin", name);
+            for (const navId in contextMenus) {
+                addContextMenuPatch(navId, contextMenus[navId]);
+            }
+        }
 
-export const stopPlugin = traceFunction("stopPlugin", function stopPlugin(p: Plugin) {
-    const {
-        name, commands, contextMenus, managedStyle, userProfileBadges,
-        onBeforeMessageEdit, onBeforeMessageSend, onMessageClick,
-        chatBarButton, renderMemberListDecorator, renderMessageAccessory, renderMessageDecoration, messagePopoverButton,
+        if (managedStyle) enableStyle(managedStyle);
+
+        if (userProfileBadges) userProfileBadges.forEach(e => addProfileBadge(e));
+
+        if (onBeforeMessageEdit) addMessagePreEditListener(onBeforeMessageEdit);
+        if (onBeforeMessageSend) addMessagePreSendListener(onBeforeMessageSend);
+        if (onMessageClick) addMessageClickListener(onMessageClick);
+
+        if (chatBarButton) addChatBarButton(name, chatBarButton.render, chatBarButton.icon);
+        if (renderMemberListDecorator) addMemberListDecorator(name, renderMemberListDecorator);
+        if (renderMessageDecoration) addMessageDecoration(name, renderMessageDecoration);
+        if (renderMessageAccessory) addMessageAccessory(name, renderMessageAccessory);
+        if (messagePopoverButton) addMessagePopoverButton(name, messagePopoverButton.render, messagePopoverButton.icon);
+
         // Custom
-        renderNicknameIcon, headerBarButton, audioProcessor, userAreaButton, renderProfileCollection, chatBarButtonWrapper,
-        renderProfileSection, gifPickerContextMenu
-    } = p;
-
-    if (p.stop) {
-        logger.info("Stopping plugin", name);
-        if (!p.started) {
-            logger.warn(`${name} already stopped`);
-            return false;
+        if (renderNicknameIcon) addNicknameIcon(name, renderNicknameIcon);
+        if (headerBarButton) {
+            if (headerBarButton.location === "channeltoolbar") {
+                addChannelToolbarButton(name, headerBarButton.render, headerBarButton.priority);
+            } else {
+                addHeaderBarButton(name, headerBarButton.render, headerBarButton.priority);
+            }
         }
-        try {
-            p.stop();
-        } catch (e) {
-            logger.error(`Failed to stop ${name}\n`, e);
-            return false;
-        }
-    }
+        if (audioProcessor) addAudioProcessor(name, audioProcessor);
+        if (userAreaButton) addUserAreaButton(name, userAreaButton.render, userAreaButton.priority);
+        if (renderProfileCollection)
+            addProfileCollection(name, renderProfileCollection.render, renderProfileCollection.priority);
+        if (chatBarButtonWrapper)
+            addChatBarButtonWrapper(name, chatBarButtonWrapper.wrapper, chatBarButtonWrapper.priority);
+        if (renderProfileSection) addProfileSection(name, renderProfileSection.render, renderProfileSection.priority);
+        if (gifPickerContextMenu) addGifPickerContextMenuPatch(name, gifPickerContextMenu);
 
-    p.started = false;
+        return true;
+    },
+    p => `startPlugin ${p.name}`
+);
 
-    if (commands?.length) {
-        logger.debug("Unregistering commands of plugin", name);
-        for (const cmd of commands) {
+export const stopPlugin = traceFunction(
+    "stopPlugin",
+    function stopPlugin(p: Plugin) {
+        const {
+            name,
+            commands,
+            contextMenus,
+            managedStyle,
+            userProfileBadges,
+            onBeforeMessageEdit,
+            onBeforeMessageSend,
+            onMessageClick,
+            chatBarButton,
+            renderMemberListDecorator,
+            renderMessageAccessory,
+            renderMessageDecoration,
+            messagePopoverButton,
+            // Custom
+            renderNicknameIcon,
+            headerBarButton,
+            audioProcessor,
+            userAreaButton,
+            renderProfileCollection,
+            chatBarButtonWrapper,
+            renderProfileSection,
+            gifPickerContextMenu
+        } = p;
+
+        if (p.stop) {
+            logger.info("Stopping plugin", name);
+            if (!p.started) {
+                logger.warn(`${name} already stopped`);
+                return false;
+            }
             try {
-                unregisterCommand(cmd.name);
+                p.stop();
             } catch (e) {
-                logger.error(`Failed to unregister command ${cmd.name}\n`, e);
+                logger.error(`Failed to stop ${name}\n`, e);
                 return false;
             }
         }
-    }
 
-    unsubscribePluginFluxEvents(p, FluxDispatcher);
+        p.started = false;
 
-    if (contextMenus) {
-        logger.debug("Removing context menus patches of plugin", name);
-        for (const navId in contextMenus) {
-            removeContextMenuPatch(navId, contextMenus[navId]);
+        if (commands?.length) {
+            logger.debug("Unregistering commands of plugin", name);
+            for (const cmd of commands) {
+                try {
+                    unregisterCommand(cmd.name);
+                } catch (e) {
+                    logger.error(`Failed to unregister command ${cmd.name}\n`, e);
+                    return false;
+                }
+            }
         }
-    }
 
-    if (managedStyle) disableStyle(managedStyle);
+        unsubscribePluginFluxEvents(p, FluxDispatcher);
 
-    if (userProfileBadges) userProfileBadges.forEach(e => removeProfileBadge(e));
-
-    if (onBeforeMessageEdit) removeMessagePreEditListener(onBeforeMessageEdit);
-    if (onBeforeMessageSend) removeMessagePreSendListener(onBeforeMessageSend);
-    if (onMessageClick) removeMessageClickListener(onMessageClick);
-
-    if (chatBarButton) removeChatBarButton(name);
-    if (renderMemberListDecorator) removeMemberListDecorator(name);
-    if (renderMessageDecoration) removeMessageDecoration(name);
-    if (renderMessageAccessory) removeMessageAccessory(name);
-    if (messagePopoverButton) removeMessagePopoverButton(name);
-
-    // Custom
-    if (renderNicknameIcon) removeNicknameIcon(name);
-    if (headerBarButton) {
-        if (headerBarButton.location === "channeltoolbar") {
-            removeChannelToolbarButton(name);
-        } else {
-            removeHeaderBarButton(name);
+        if (contextMenus) {
+            logger.debug("Removing context menus patches of plugin", name);
+            for (const navId in contextMenus) {
+                removeContextMenuPatch(navId, contextMenus[navId]);
+            }
         }
-    }
-    if (audioProcessor) removeAudioProcessor(name);
-    if (userAreaButton) removeUserAreaButton(name);
-    if (renderProfileCollection) removeProfileCollection(name);
-    if (chatBarButtonWrapper) removeChatBarButtonWrapper(name);
-    if (renderProfileSection) removeProfileSection(name);
-    if (gifPickerContextMenu) removeGifPickerContextMenuPatch(name);
 
-    return true;
-}, p => `stopPlugin ${p.name}`);
+        if (managedStyle) disableStyle(managedStyle);
+
+        if (userProfileBadges) userProfileBadges.forEach(e => removeProfileBadge(e));
+
+        if (onBeforeMessageEdit) removeMessagePreEditListener(onBeforeMessageEdit);
+        if (onBeforeMessageSend) removeMessagePreSendListener(onBeforeMessageSend);
+        if (onMessageClick) removeMessageClickListener(onMessageClick);
+
+        if (chatBarButton) removeChatBarButton(name);
+        if (renderMemberListDecorator) removeMemberListDecorator(name);
+        if (renderMessageDecoration) removeMessageDecoration(name);
+        if (renderMessageAccessory) removeMessageAccessory(name);
+        if (messagePopoverButton) removeMessagePopoverButton(name);
+
+        // Custom
+        if (renderNicknameIcon) removeNicknameIcon(name);
+        if (headerBarButton) {
+            if (headerBarButton.location === "channeltoolbar") {
+                removeChannelToolbarButton(name);
+            } else {
+                removeHeaderBarButton(name);
+            }
+        }
+        if (audioProcessor) removeAudioProcessor(name);
+        if (userAreaButton) removeUserAreaButton(name);
+        if (renderProfileCollection) removeProfileCollection(name);
+        if (chatBarButtonWrapper) removeChatBarButtonWrapper(name);
+        if (renderProfileSection) removeProfileSection(name);
+        if (gifPickerContextMenu) removeGifPickerContextMenuPatch(name);
+
+        return true;
+    },
+    p => `stopPlugin ${p.name}`
+);
 
 export const initPluginManager = onlyOnce(function init() {
     const pluginsValues = Object.values(Plugins);
     const settings = Settings.plugins;
 
     const pluginKeysToBind: Array<keyof PluginDef & `${"on" | "render"}${string}`> = [
-        "onBeforeMessageEdit", "onBeforeMessageSend", "onMessageClick",
-        "renderMemberListDecorator", "renderMessageAccessory", "renderMessageDecoration",
+        "onBeforeMessageEdit",
+        "onBeforeMessageSend",
+        "onMessageClick",
+        "renderMemberListDecorator",
+        "renderMessageAccessory",
+        "renderMessageDecoration",
         // Custom
         "renderNicknameIcon"
     ];
@@ -395,48 +454,50 @@ export const initPluginManager = onlyOnce(function init() {
     //
     // FIXME: might need to revisit this if there's ever nested (dependencies of dependencies) dependencies since this only
     // goes for the top level and their children, but for now this works okay with the current API plugins
-    for (const p of pluginsValues) if (isPluginEnabled(p.name)) {
-        p.dependencies?.forEach(d => {
-            const dep = Plugins[d];
+    for (const p of pluginsValues)
+        if (isPluginEnabled(p.name)) {
+            p.dependencies?.forEach(d => {
+                const dep = Plugins[d];
 
-            if (!dep) {
-                const error = new Error(`Plugin ${p.name} has unresolved dependency ${d}`);
+                if (!dep) {
+                    const error = new Error(`Plugin ${p.name} has unresolved dependency ${d}`);
 
-                if (IS_DEV) {
-                    throw error;
+                    if (IS_DEV) {
+                        throw error;
+                    }
+
+                    logger.warn(error);
+                    return;
                 }
 
-                logger.warn(error);
-                return;
+                settings[d].enabled = true;
+                dep.isDependency = true;
+            });
+
+            if (p.commands?.length) neededApiPlugins.add("CommandsAPI");
+            if (p.onBeforeMessageEdit || p.onBeforeMessageSend || p.onMessageClick)
+                neededApiPlugins.add("MessageEventsAPI");
+            if (p.chatBarButton) neededApiPlugins.add("ChatInputButtonAPI");
+            if (p.renderMemberListDecorator) neededApiPlugins.add("MemberListDecoratorsAPI");
+            if (p.renderMessageAccessory) neededApiPlugins.add("MessageAccessoriesAPI");
+            if (p.renderMessageDecoration) neededApiPlugins.add("MessageDecorationsAPI");
+            if (p.messagePopoverButton) neededApiPlugins.add("MessagePopoverAPI");
+            if (p.userProfileBadge) neededApiPlugins.add("BadgeAPI");
+
+            // Custom
+            if (p.renderNicknameIcon) neededApiPlugins.add("NicknameIconsAPI");
+            if (p.headerBarButton) neededApiPlugins.add("HeaderBarAPI");
+            if (p.audioProcessor) neededApiPlugins.add("AudioPlayerAPI");
+            if (p.userAreaButton) neededApiPlugins.add("UserAreaAPI");
+            if (p.renderProfileCollection) neededApiPlugins.add("ProfileCollectionsAPI");
+            if (p.chatBarButtonWrapper) neededApiPlugins.add("ChatInputButtonAPI");
+            if (p.renderProfileSection) neededApiPlugins.add("ProfileSectionsAPI");
+            if (p.gifPickerContextMenu) neededApiPlugins.add("ExtraContextMenusAPI");
+
+            for (const key of pluginKeysToBind) {
+                p[key] &&= (p[key] as Function).bind(p) as any;
             }
-
-            settings[d].enabled = true;
-            dep.isDependency = true;
-        });
-
-        if (p.commands?.length) neededApiPlugins.add("CommandsAPI");
-        if (p.onBeforeMessageEdit || p.onBeforeMessageSend || p.onMessageClick) neededApiPlugins.add("MessageEventsAPI");
-        if (p.chatBarButton) neededApiPlugins.add("ChatInputButtonAPI");
-        if (p.renderMemberListDecorator) neededApiPlugins.add("MemberListDecoratorsAPI");
-        if (p.renderMessageAccessory) neededApiPlugins.add("MessageAccessoriesAPI");
-        if (p.renderMessageDecoration) neededApiPlugins.add("MessageDecorationsAPI");
-        if (p.messagePopoverButton) neededApiPlugins.add("MessagePopoverAPI");
-        if (p.userProfileBadge) neededApiPlugins.add("BadgeAPI");
-
-        // Custom
-        if (p.renderNicknameIcon) neededApiPlugins.add("NicknameIconsAPI");
-        if (p.headerBarButton) neededApiPlugins.add("HeaderBarAPI");
-        if (p.audioProcessor) neededApiPlugins.add("AudioPlayerAPI");
-        if (p.userAreaButton) neededApiPlugins.add("UserAreaAPI");
-        if (p.renderProfileCollection) neededApiPlugins.add("ProfileCollectionsAPI");
-        if (p.chatBarButtonWrapper) neededApiPlugins.add("ChatInputButtonAPI");
-        if (p.renderProfileSection) neededApiPlugins.add("ProfileSectionsAPI");
-        if (p.gifPickerContextMenu) neededApiPlugins.add("ExtraContextMenusAPI");
-
-        for (const key of pluginKeysToBind) {
-            p[key] &&= (p[key] as Function).bind(p) as any;
         }
-    }
 
     for (const p of neededApiPlugins) {
         Plugins[p].isDependency = true;
@@ -448,8 +509,7 @@ export const initPluginManager = onlyOnce(function init() {
             p.settings.pluginName = p.name;
 
             for (const [key, def] of Object.entries(p.settings.def)) {
-                if (def.onChange)
-                    SettingsStore.addChangeListener(`plugins.${p.name}.${key}`, def.onChange);
+                if (def.onChange) SettingsStore.addChangeListener(`plugins.${p.name}.${key}`, def.onChange);
             }
         }
 

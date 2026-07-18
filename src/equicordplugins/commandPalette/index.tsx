@@ -5,7 +5,6 @@
  */
 
 import "./style.css";
-
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
@@ -17,14 +16,21 @@ import { loadAliases } from "./state/aliases";
 import { loadFrecency, recordUse } from "./state/frecency";
 import { getAllHotkeys, loadHotkeys } from "./state/hotkeys";
 import { loadPins } from "./state/pins";
-import { comboEquals, comboFromEvent, installKeyboardListeners, isEditableTarget, removeKeyboardListeners, setGlobalKeyHandler } from "./ui/keyboard";
+import {
+    comboEquals,
+    comboFromEvent,
+    installKeyboardListeners,
+    isEditableTarget,
+    removeKeyboardListeners,
+    setGlobalKeyHandler
+} from "./ui/keyboard";
 import { closePalette, openPalette, togglePalette } from "./ui/openPalette";
 
 const headlessCtx: PaletteContext = {
-    close() { },
-    pop() { },
+    close() {},
+    pop() {},
     push: entry => openPalette(entry),
-    setQuery() { }
+    setQuery() {}
 };
 
 const MODIFIER_KEYS = ["meta", "ctrl", "shift", "alt"];
@@ -38,9 +44,10 @@ function handleGlobalKey(e: KeyboardEvent): boolean {
     if (!combo) return false;
     if (!hasModifier(combo) && isEditableTarget(e.target)) return false;
 
-    const openHotkey = Array.isArray(settings.store.hotkey) && settings.store.hotkey.length > 0
-        ? settings.store.hotkey
-        : DEFAULT_HOTKEY;
+    const openHotkey =
+        Array.isArray(settings.store.hotkey) && settings.store.hotkey.length > 0
+            ? settings.store.hotkey
+            : DEFAULT_HOTKEY;
 
     if (comboEquals(combo, openHotkey)) {
         togglePalette();

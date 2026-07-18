@@ -6,6 +6,7 @@
 
 import type { Quest } from "@vencord/discord-types";
 import { QuestTaskType } from "@vencord/discord-types/enums";
+
 import { QuestStore } from "@webpack/common";
 
 import { getQuestifySettings, useQuestifySettings } from "../settings/access";
@@ -16,7 +17,7 @@ import { type QuestIncludedTypes, questMatchesIncludedTypes } from "./filtering"
 export interface QuestTask {
     type: QuestTaskType;
     target: number;
-    applications?: { id: string; }[];
+    applications?: { id: string }[];
 }
 
 export enum QuestStatus {
@@ -40,7 +41,7 @@ const questProgressTaskPriority = [
     QuestTaskType.PLAY_ON_DESKTOP_V2,
     QuestTaskType.STREAM_ON_DESKTOP,
     QuestTaskType.PLAY_ON_PLAYSTATION,
-    QuestTaskType.PLAY_ON_XBOX,
+    QuestTaskType.PLAY_ON_XBOX
 ] as const satisfies readonly QuestTaskType[];
 
 interface QuestPanelPercentCompleteOptions {
@@ -60,7 +61,7 @@ interface QuestEmbedProgressResult {
 
 interface QuestProgressEntry {
     eventName?: QuestTaskType;
-    heartbeat?: { lastBeatAt?: string | null; } | null;
+    heartbeat?: { lastBeatAt?: string | null } | null;
     updatedAt?: string | null;
 }
 
@@ -79,8 +80,10 @@ function getQuestTaskByType(quest: Quest, taskType: QuestTaskType): QuestTask | 
 }
 
 function getVideoQuestTask(quest: Quest): QuestTask | null {
-    return getQuestTaskByType(quest, QuestTaskType.WATCH_VIDEO)
-        ?? getQuestTaskByType(quest, QuestTaskType.WATCH_VIDEO_ON_MOBILE);
+    return (
+        getQuestTaskByType(quest, QuestTaskType.WATCH_VIDEO) ??
+        getQuestTaskByType(quest, QuestTaskType.WATCH_VIDEO_ON_MOBILE)
+    );
 }
 
 function getProgressTimestamp(progress: QuestProgressEntry): number {
@@ -192,7 +195,11 @@ function getAutoCompleteShowcaseQuest(): Quest | null {
         return null;
     }
 
-    if (currentQuest && bestQuest.id !== currentQuest.id && bestTimeRemaining >= currentTimeRemaining - showcaseSwitchLeewaySeconds) {
+    if (
+        currentQuest &&
+        bestQuest.id !== currentQuest.id &&
+        bestTimeRemaining >= currentTimeRemaining - showcaseSwitchLeewaySeconds
+    ) {
         return currentQuest;
     }
 
@@ -202,21 +209,28 @@ function getAutoCompleteShowcaseQuest(): Quest | null {
 }
 
 function getMostRecentlyCompletedUnclaimedQuest(): Quest | null {
-    return Array.from(QuestStore.quests.values())
-        .filter(quest => (
-            Boolean(quest.userStatus?.completedAt)
-            && getQuestStatus(quest, getCurrentIgnoredQuestIds()) === QuestStatus.Unclaimed
-        ))
-        .sort((a, b) => {
-            const aTime = new Date(a.userStatus?.completedAt ?? 0).getTime();
-            const bTime = new Date(b.userStatus?.completedAt ?? 0).getTime();
+    return (
+        Array.from(QuestStore.quests.values())
+            .filter(
+                quest =>
+                    Boolean(quest.userStatus?.completedAt) &&
+                    getQuestStatus(quest, getCurrentIgnoredQuestIds()) === QuestStatus.Unclaimed
+            )
+            .sort((a, b) => {
+                const aTime = new Date(a.userStatus?.completedAt ?? 0).getTime();
+                const bTime = new Date(b.userStatus?.completedAt ?? 0).getTime();
 
-            return bTime - aTime;
-        })[0] ?? null;
+                return bTime - aTime;
+            })[0] ?? null
+    );
 }
 
 export function getQuestPanelOverride(quest: Quest | null): Quest | null {
-    const panelState = useQuestifySettings(["disableQuestsEverything", "disableAccountPanelPromo", "disableAccountPanelQuestProgress"]);
+    const panelState = useQuestifySettings([
+        "disableQuestsEverything",
+        "disableAccountPanelPromo",
+        "disableAccountPanelQuestProgress"
+    ]);
 
     if (panelState.disableQuestsEverything) {
         return null;
@@ -247,7 +261,7 @@ export function shouldForceQuestPanelVisible(quest: Quest | null): boolean {
 
 export function getQuestPanelPercentComplete({
     quest,
-    percentCompleteText,
+    percentCompleteText
 }: QuestPanelPercentCompleteOptions): QuestPanelPercentCompleteResult | null {
     if (!quest) {
         return null;
@@ -261,10 +275,7 @@ export function getQuestPanelPercentComplete({
         return null;
     }
 
-    const questTarget = activeAutoComplete
-        ? getAutoCompleteQuestTarget(task)
-            .adjusted
-        : task.target;
+    const questTarget = activeAutoComplete ? getAutoCompleteQuestTarget(task).adjusted : task.target;
     const questProgress = activeAutoComplete?.progress ?? getQuestStoredProgress(refreshedQuest, task);
 
     if (!questTarget || questProgress === null) {
@@ -279,7 +290,7 @@ export function getQuestPanelPercentComplete({
 
     return {
         percentComplete,
-        percentCompleteText: `${Math.floor(percentComplete * 100)}%`,
+        percentCompleteText: `${Math.floor(percentComplete * 100)}%`
     };
 }
 
@@ -294,7 +305,7 @@ export function getQuestEmbedProgress(quest: Quest | null): QuestEmbedProgressRe
 export function getQuestStatus(
     quest: Quest,
     ignoredQuestIds: ReadonlyArray<string>,
-    checkIgnored: boolean = true,
+    checkIgnored: boolean = true
 ): QuestStatus {
     const completedQuest = quest.userStatus?.completedAt;
     const claimedQuest = quest.userStatus?.claimedAt;
@@ -323,7 +334,7 @@ export function getQuestStatus(
 export function countIncludedUnclaimedQuests(
     quests: Quest[],
     ignoredQuestIds: ReadonlyArray<string>,
-    includedTypes: QuestIncludedTypes,
+    includedTypes: QuestIncludedTypes
 ): number {
     let count = 0;
 

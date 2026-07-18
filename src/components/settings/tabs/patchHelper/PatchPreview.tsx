@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { Change } from "diff";
+
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { Margins } from "@utils/margins";
@@ -11,7 +13,6 @@ import { canonicalizeMatch, canonicalizeReplace } from "@utils/patches";
 import { makeCodeblock } from "@utils/text";
 import { ReplaceFn } from "@utils/types";
 import { Button, Parser, useMemo, useState } from "@webpack/common";
-import type { Change } from "diff";
 
 // Do not include diff in standalone builds (side effects import)
 if (!IS_STANDALONE) {
@@ -42,16 +43,20 @@ function makeDiff(original: string, patched: string, match: RegExpMatchArray | n
     return differ.diffWordsWithSpace(context, patchedContext);
 }
 
-function Match({ matchResult }: { matchResult: RegExpMatchArray | null; }) {
-    if (!matchResult)
-        return null;
+function Match({ matchResult }: { matchResult: RegExpMatchArray | null }) {
+    if (!matchResult) return null;
 
-    const fullMatch = matchResult[0]
-        ? makeCodeblock(matchResult[0], "js")
-        : "";
-    const groups = matchResult.length > 1
-        ? makeCodeblock(matchResult.slice(1).map((g, i) => `Group ${i + 1}: ${g}`).join("\n"), "yml")
-        : "";
+    const fullMatch = matchResult[0] ? makeCodeblock(matchResult[0], "js") : "";
+    const groups =
+        matchResult.length > 1
+            ? makeCodeblock(
+                  matchResult
+                      .slice(1)
+                      .map((g, i) => `Group ${i + 1}: ${g}`)
+                      .join("\n"),
+                  "yml"
+              )
+            : "";
 
     return (
         <>
@@ -62,22 +67,14 @@ function Match({ matchResult }: { matchResult: RegExpMatchArray | null; }) {
     );
 }
 
-function Diff({ diff }: { diff: Change[] | null; }) {
-    if (!diff?.length)
-        return null;
+function Diff({ diff }: { diff: Change[] | null }) {
+    if (!diff?.length) return null;
 
     const diffLines = diff.map((p, idx) => {
-        const color = p.added
-            ? "lime"
-            : p.removed
-                ? "red"
-                : "grey";
+        const color = p.added ? "lime" : p.removed ? "red" : "grey";
 
         return (
-            <div
-                key={idx}
-                style={{ color, userSelect: "text", wordBreak: "break-all", lineBreak: "anywhere" }}
-            >
+            <div key={idx} style={{ color, userSelect: "text", wordBreak: "break-all", lineBreak: "anywhere" }}>
                 {p.value}
             </div>
         );
@@ -131,7 +128,10 @@ export function PatchPreview({ module, match, replacement, setReplacementError }
                     onClick={() => {
                         try {
                             const isArrowFunction = patchedCode.startsWith("(");
-                            const wrappedCode = "0," + (!isArrowFunction ? "function" : "") + patchedCode.slice(patchedCode.indexOf("("));
+                            const wrappedCode =
+                                "0," +
+                                (!isArrowFunction ? "function" : "") +
+                                patchedCode.slice(patchedCode.indexOf("("));
                             Function(wrappedCode);
 
                             setCompileResult([true, "Compiled successfully"]);
@@ -145,7 +145,9 @@ export function PatchPreview({ module, match, replacement, setReplacementError }
             )}
 
             {compileResult && (
-                <Paragraph style={{ color: compileResult[0] ? "var(--status-positive)" : "var(--text-feedback-critical)" }}>
+                <Paragraph
+                    style={{ color: compileResult[0] ? "var(--status-positive)" : "var(--text-feedback-critical)" }}
+                >
                     {compileResult[1]}
                 </Paragraph>
             )}

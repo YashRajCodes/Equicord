@@ -8,7 +8,17 @@ import type { Quest, QuestTaskWatchVideo, QuestTaskWatchVideoOnMobile } from "@v
 import { QuestTaskType } from "@vencord/discord-types/enums";
 
 import { getQuestifySettings, useQuestifySettings } from "../settings/access";
-import { defaultClaimedSubsort, defaultExpiredSubsort, defaultIgnoredSubsort, defaultQuestOrder, defaultUnclaimedSubsort, type QuestOrderStatus, type QuestSubsort, type QuestTileColorSetting, type QuestTileGradient } from "../settings/def";
+import {
+    defaultClaimedSubsort,
+    defaultExpiredSubsort,
+    defaultIgnoredSubsort,
+    defaultQuestOrder,
+    defaultUnclaimedSubsort,
+    type QuestOrderStatus,
+    type QuestSubsort,
+    type QuestTileColorSetting,
+    type QuestTileGradient
+} from "../settings/def";
 import { getIgnoredQuestIDs } from "../settings/ignoredQuests";
 import { getQuestStatus, QuestStatus } from "./questState";
 import { adjustRGB, decimalToRGB, isDarkish, q, type RGB } from "./ui";
@@ -30,14 +40,14 @@ const customQuestTileClasses = [
     q("quest-item-default-gradient"),
     q("quest-item-black-gradient"),
     q("quest-item-hide-gradient"),
-    q("quest-item-contrast-logo"),
+    q("quest-item-contrast-logo")
 ];
 
 const sortFallbacks = {
     unclaimed: defaultUnclaimedSubsort,
     claimed: defaultClaimedSubsort,
     ignored: defaultIgnoredSubsort,
-    expired: defaultExpiredSubsort,
+    expired: defaultExpiredSubsort
 } as const satisfies Record<string, QuestSubsort>;
 
 const validSubsorts = new Set<QuestSubsort>([
@@ -46,7 +56,7 @@ const validSubsorts = new Set<QuestSubsort>([
     "Expiring ASC",
     "Expiring DESC",
     "Claimed ASC",
-    "Claimed DESC",
+    "Claimed DESC"
 ]);
 
 function getTileColorSetting(status: QuestStatus, colors: QuestTileColorSettings): QuestTileColorSetting | null {
@@ -64,7 +74,10 @@ function getTileColorSetting(status: QuestStatus, colors: QuestTileColorSettings
     }
 }
 
-function getQuestTileColor(quest: Quest & { dummyColor?: QuestTileColorSetting; }, colors: QuestTileColorSettings): number | null {
+function getQuestTileColor(
+    quest: Quest & { dummyColor?: QuestTileColorSetting },
+    colors: QuestTileColorSettings
+): number | null {
     const questStatus = getQuestStatus(quest, getIgnoredQuestIDs());
     const setting = quest.dummyColor ?? getTileColorSetting(questStatus, colors);
 
@@ -83,7 +96,11 @@ function getGradientClass(gradient: QuestTileGradient): string | null {
     return q("quest-item-intense-gradient");
 }
 
-export function getQuestTileClasses(originalClasses: string, quest: Quest & { dummyColor?: QuestTileColorSetting; }, gradientOverride?: QuestTileGradient): string {
+export function getQuestTileClasses(
+    originalClasses: string,
+    quest: Quest & { dummyColor?: QuestTileColorSetting },
+    gradientOverride?: QuestTileGradient
+): string {
     const questTiles = useQuestifySettings([
         "disableQuestsEverything",
         "ignoredQuestIDs",
@@ -91,28 +108,24 @@ export function getQuestTileClasses(originalClasses: string, quest: Quest & { du
         "questTileClaimedColor",
         "questTileIgnoredColor",
         "questTileExpiredColor",
-        "questTileGradient",
+        "questTileGradient"
     ]);
 
-    const baseClasses = originalClasses
-        .split(" ")
-        .filter(cls => cls && !customQuestTileClasses.includes(cls));
+    const baseClasses = originalClasses.split(" ").filter(cls => cls && !customQuestTileClasses.includes(cls));
     const colors: QuestTileColorSettings = {
         questTileUnclaimedColor: questTiles.questTileUnclaimedColor as QuestTileColorSetting,
         questTileClaimedColor: questTiles.questTileClaimedColor as QuestTileColorSetting,
         questTileIgnoredColor: questTiles.questTileIgnoredColor as QuestTileColorSetting,
-        questTileExpiredColor: questTiles.questTileExpiredColor as QuestTileColorSetting,
+        questTileExpiredColor: questTiles.questTileExpiredColor as QuestTileColorSetting
     };
-    const color = !questTiles.disableQuestsEverything
-        ? getQuestTileColor(quest, colors)
-        : null;
+    const color = !questTiles.disableQuestsEverything ? getQuestTileColor(quest, colors) : null;
 
     if (color == null) {
         return baseClasses.join(" ");
     }
 
     const returnClasses = [...baseClasses, q("quest-item-restyle")];
-    const gradient = gradientOverride ?? questTiles.questTileGradient as QuestTileGradient;
+    const gradient = gradientOverride ?? (questTiles.questTileGradient as QuestTileGradient);
     const gradientClass = getGradientClass(gradient);
 
     if (gradientClass != null) {
@@ -126,14 +139,16 @@ export function getQuestTileClasses(originalClasses: string, quest: Quest & { du
     return returnClasses.join(" ");
 }
 
-export function getQuestTileStyle(quest: (Quest & { dummyColor?: QuestTileColorSetting; }) | null): Record<string, string> {
+export function getQuestTileStyle(
+    quest: (Quest & { dummyColor?: QuestTileColorSetting }) | null
+): Record<string, string> {
     const questTiles = useQuestifySettings([
         "disableQuestsEverything",
         "ignoredQuestIDs",
         "questTileUnclaimedColor",
         "questTileClaimedColor",
         "questTileIgnoredColor",
-        "questTileExpiredColor",
+        "questTileExpiredColor"
     ]);
 
     const style: Record<string, string> = {};
@@ -141,11 +156,9 @@ export function getQuestTileStyle(quest: (Quest & { dummyColor?: QuestTileColorS
         questTileUnclaimedColor: questTiles.questTileUnclaimedColor as QuestTileColorSetting,
         questTileClaimedColor: questTiles.questTileClaimedColor as QuestTileColorSetting,
         questTileIgnoredColor: questTiles.questTileIgnoredColor as QuestTileColorSetting,
-        questTileExpiredColor: questTiles.questTileExpiredColor as QuestTileColorSetting,
+        questTileExpiredColor: questTiles.questTileExpiredColor as QuestTileColorSetting
     };
-    const themeColor = quest && !questTiles.disableQuestsEverything
-        ? getQuestTileColor(quest, colors)
-        : null;
+    const themeColor = quest && !questTiles.disableQuestsEverything ? getQuestTileColor(quest, colors) : null;
 
     if (themeColor == null) return style;
 
@@ -183,22 +196,24 @@ function createSortFunction(subsort: QuestSubsort): (a: Quest, b: Quest) => numb
         case "Expiring DESC":
             return (a, b) => new Date(b.config.expiresAt).getTime() - new Date(a.config.expiresAt).getTime();
         case "Claimed ASC":
-            return (a, b) => new Date(a.userStatus?.claimedAt || 0).getTime() - new Date(b.userStatus?.claimedAt || 0).getTime();
+            return (a, b) =>
+                new Date(a.userStatus?.claimedAt || 0).getTime() - new Date(b.userStatus?.claimedAt || 0).getTime();
         case "Claimed DESC":
-            return (a, b) => new Date(b.userStatus?.claimedAt || 0).getTime() - new Date(a.userStatus?.claimedAt || 0).getTime();
+            return (a, b) =>
+                new Date(b.userStatus?.claimedAt || 0).getTime() - new Date(a.userStatus?.claimedAt || 0).getTime();
     }
 }
 
 function getValidSubsort(value: unknown, fallback: QuestSubsort): QuestSubsort {
-    return validSubsorts.has(value as QuestSubsort) ? value as QuestSubsort : fallback;
+    return validSubsorts.has(value as QuestSubsort) ? (value as QuestSubsort) : fallback;
 }
 
 function getValidQuestOrder(value: unknown): QuestOrderStatus[] {
     const validStatuses = new Set<QuestOrderStatus>(defaultQuestOrder);
-    const configuredOrder = Array.isArray(value)
-        ? value
-        : defaultQuestOrder;
-    const order = configuredOrder.filter((status): status is QuestOrderStatus => validStatuses.has(status as QuestOrderStatus));
+    const configuredOrder = Array.isArray(value) ? value : defaultQuestOrder;
+    const order = configuredOrder.filter((status): status is QuestOrderStatus =>
+        validStatuses.has(status as QuestOrderStatus)
+    );
 
     for (const status of defaultQuestOrder) {
         if (!order.includes(status)) {
@@ -220,12 +235,12 @@ function injectDesktopVideoQuestTasks(quests: Quest[]): void {
 
         const desktopVideoTask: QuestTaskWatchVideo = {
             ...mobileVideoTask,
-            type: QuestTaskType.WATCH_VIDEO,
+            type: QuestTaskType.WATCH_VIDEO
         };
 
         const reorderedTasks: typeof tasks = {};
 
-        for (const [taskType, task] of Object.entries(tasks) as [QuestTaskType, typeof tasks[QuestTaskType]][]) {
+        for (const [taskType, task] of Object.entries(tasks) as [QuestTaskType, (typeof tasks)[QuestTaskType]][]) {
             if (taskType === QuestTaskType.WATCH_VIDEO_ON_MOBILE) {
                 reorderedTasks[QuestTaskType.WATCH_VIDEO] = desktopVideoTask;
             }
@@ -253,14 +268,17 @@ export function sortQuests(quests: Quest[], skip?: boolean): Quest[] {
         "claimedSubsort",
         "ignoredSubsort",
         "expiredSubsort",
-        "autoCompleteQuestTypes",
+        "autoCompleteQuestTypes"
     ]);
 
     if (questSorting.disableQuestsEverything) {
         return quests;
     }
 
-    if (questSorting.makeMobileVideoQuestsDesktopCompatible || !!questSorting.autoCompleteQuestTypes.WATCH_VIDEO_ON_MOBILE) {
+    if (
+        questSorting.makeMobileVideoQuestsDesktopCompatible ||
+        !!questSorting.autoCompleteQuestTypes.WATCH_VIDEO_ON_MOBILE
+    ) {
         injectDesktopVideoQuestTasks(quests);
     }
 
@@ -274,7 +292,7 @@ export function sortQuests(quests: Quest[], skip?: boolean): Quest[] {
         expired: [],
         ignored: [],
         unclaimed: [],
-        unknown: [],
+        unknown: []
     };
 
     for (const quest of quests) {
@@ -297,7 +315,9 @@ export function sortQuests(quests: Quest[], skip?: boolean): Quest[] {
         }
     }
 
-    const unclaimedSortFunction = createSortFunction(getValidSubsort(questSorting.unclaimedSubsort, sortFallbacks.unclaimed));
+    const unclaimedSortFunction = createSortFunction(
+        getValidSubsort(questSorting.unclaimedSubsort, sortFallbacks.unclaimed)
+    );
 
     questGroups.unclaimed.sort((a, b) => {
         const aCompleted = !!a.userStatus?.completedAt;
@@ -315,8 +335,10 @@ export function sortQuests(quests: Quest[], skip?: boolean): Quest[] {
     questGroups.expired.sort(createSortFunction(getValidSubsort(questSorting.expiredSubsort, sortFallbacks.expired)));
 
     return [
-        ...getValidQuestOrder(questSorting.questOrder).flatMap(status => questGroups[status.toLowerCase() as QuestGroupKey]),
-        ...questGroups.unknown,
+        ...getValidQuestOrder(questSorting.questOrder).flatMap(
+            status => questGroups[status.toLowerCase() as QuestGroupKey]
+        ),
+        ...questGroups.unknown
     ];
 }
 
@@ -336,11 +358,11 @@ export function setLastSortChoice(sort: string): void {
     getQuestifySettings().lastQuestPageSort = sort || "questify";
 }
 
-function getFilterChoiceKey({ group, filter }: { group: string; filter: string; }): string {
+function getFilterChoiceKey({ group, filter }: { group: string; filter: string }): string {
     return JSON.stringify([group, filter]);
 }
 
-export function getLastFilterChoices(): { group: string, filter: string; }[] | null {
+export function getLastFilterChoices(): { group: string; filter: string }[] | null {
     const { rememberQuestPageFilters, lastQuestPageFilters } = getQuestifySettings();
 
     return rememberQuestPageFilters
@@ -348,7 +370,7 @@ export function getLastFilterChoices(): { group: string, filter: string; }[] | n
         : null;
 }
 
-export function setLastFilterChoices(filters: { group: string, filter: string; }[] | null): void {
+export function setLastFilterChoices(filters: { group: string; filter: string }[] | null): void {
     if (!filters?.length) {
         getQuestifySettings().lastQuestPageFilters = {};
 
@@ -359,9 +381,12 @@ export function setLastFilterChoices(filters: { group: string, filter: string; }
         return;
     }
 
-    getQuestifySettings().lastQuestPageFilters = JSON.parse(JSON.stringify(filters)).reduce((acc, item) => {
-        acc[getFilterChoiceKey(item)] = item;
+    getQuestifySettings().lastQuestPageFilters = JSON.parse(JSON.stringify(filters)).reduce(
+        (acc, item) => {
+            acc[getFilterChoiceKey(item)] = item;
 
-        return acc;
-    }, {} as Record<string, { group: string, filter: string; }>);
+            return acc;
+        },
+        {} as Record<string, { group: string; filter: string }>
+    );
 }

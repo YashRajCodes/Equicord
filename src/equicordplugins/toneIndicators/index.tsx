@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { type ReactNode } from "react";
+
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { React } from "@webpack/common";
-import { type ReactNode } from "react";
 
 import indicatorsDefault from "./indicators";
 import ToneIndicator from "./ToneIndicator";
@@ -17,13 +18,13 @@ const settings = definePluginSettings({
     prefix: {
         type: OptionType.STRING,
         description: "Prefix character(s) for tone indicators.",
-        default: "/",
+        default: "/"
     },
     customIndicators: {
         type: OptionType.STRING,
         description: "Custom tone indicators (format: jk=Joking; srs=Serious)",
-        default: "",
-    },
+        default: ""
+    }
 });
 
 function getCustomIndicators(): Record<string, string> {
@@ -106,14 +107,7 @@ function splitTextWithIndicators(text: string): ReactNode[] {
 
         if (desc) {
             if (leadingWhitespace) nodes.push(leadingWhitespace);
-            nodes.push(
-                <ToneIndicator
-                    key={`ti-${matchStart}`}
-                    prefix={prefix}
-                    indicator={indicator}
-                    desc={desc}
-                />,
-            );
+            nodes.push(<ToneIndicator key={`ti-${matchStart}`} prefix={prefix} indicator={indicator} desc={desc} />);
         }
 
         lastIndex = matchEnd;
@@ -173,10 +167,10 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(?=return\{hasSpoilerEmbeds:\i,.{0,15}content:(\i))/,
-                    replace: "$1=$self.patchToneIndicators($1);",
-                },
-            ],
-        },
+                    replace: "$1=$self.patchToneIndicators($1);"
+                }
+            ]
+        }
     ],
 
     patchToneIndicators(content: any): any {
@@ -185,5 +179,5 @@ export default definePlugin({
         } catch {
             return content;
         }
-    },
+    }
 });

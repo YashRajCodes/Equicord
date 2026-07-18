@@ -61,7 +61,7 @@ function buildS3Path(...parts: string[]): string {
     return normalized ? `/${normalized}` : "/";
 }
 
-function getTimestampParts(date: Date): { amzDate: string; dateStamp: string; } {
+function getTimestampParts(date: Date): { amzDate: string; dateStamp: string } {
     const year = date.getUTCFullYear();
     const month = String(date.getUTCMonth() + 1).padStart(2, "0");
     const day = String(date.getUTCDate()).padStart(2, "0");
@@ -80,7 +80,13 @@ async function sha256Hex(data: ArrayBuffer | Uint8Array | string): Promise<strin
 }
 
 async function hmacSha256(key: ArrayBuffer | Uint8Array | string, value: string): Promise<ArrayBuffer> {
-    const cryptoKey = await crypto.subtle.importKey("raw", toArrayBuffer(key), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    const cryptoKey = await crypto.subtle.importKey(
+        "raw",
+        toArrayBuffer(key),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+    );
     return await crypto.subtle.sign("HMAC", cryptoKey, toArrayBuffer(value));
 }
 
@@ -144,7 +150,7 @@ export async function uploadToS3(
 
     const canonicalHeadersMap: Record<string, string> = {
         "content-type": fileBlob.type || "application/octet-stream",
-        "host": host,
+        host: host,
         "x-amz-content-sha256": payloadHash,
         "x-amz-date": amzDate
     };
@@ -157,22 +163,10 @@ export async function uploadToS3(
     const signedHeaders = signedHeaderEntries.map(([key]) => key).join(";");
     const canonicalHeaders = signedHeaderEntries.map(([key, value]) => `${key}:${value.trim()}\n`).join("");
 
-    const canonicalRequest = [
-        "PUT",
-        canonicalUri,
-        "",
-        canonicalHeaders,
-        signedHeaders,
-        payloadHash
-    ].join("\n");
+    const canonicalRequest = ["PUT", canonicalUri, "", canonicalHeaders, signedHeaders, payloadHash].join("\n");
 
     const scope = `${dateStamp}/${s3Region}/s3/aws4_request`;
-    const stringToSign = [
-        "AWS4-HMAC-SHA256",
-        amzDate,
-        scope,
-        await sha256Hex(canonicalRequest)
-    ].join("\n");
+    const stringToSign = ["AWS4-HMAC-SHA256", amzDate, scope, await sha256Hex(canonicalRequest)].join("\n");
 
     const kDate = await hmacSha256(`AWS4${s3SecretAccessKey}`, dateStamp);
     const kRegion = await hmacSha256(kDate, s3Region);
@@ -181,7 +175,7 @@ export async function uploadToS3(
     const signature = toHex(await hmacSha256(kSigning, stringToSign));
 
     const requestHeaders: Record<string, string> = {
-        "Authorization": `AWS4-HMAC-SHA256 Credential=${s3AccessKeyId}/${scope}, SignedHeaders=${signedHeaders}, Signature=${signature}`,
+        Authorization: `AWS4-HMAC-SHA256 Credential=${s3AccessKeyId}/${scope}, SignedHeaders=${signedHeaders}, Signature=${signature}`,
         "Content-Type": canonicalHeadersMap["content-type"],
         "x-amz-content-sha256": payloadHash,
         "x-amz-date": amzDate

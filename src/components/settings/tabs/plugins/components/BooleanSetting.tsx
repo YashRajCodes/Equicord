@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { isSettingDisabled } from "@api/PluginManager";
 import { Switch } from "@components/Switch";
@@ -23,7 +23,13 @@ import { React, useState } from "@webpack/common";
 
 import { resolveError, SettingProps, SettingsSection } from "./Common";
 
-export function BooleanSetting({ setting, pluginSettings, definedSettings, id, onChange }: SettingProps<PluginSettingBooleanDef>) {
+export function BooleanSetting({
+    setting,
+    pluginSettings,
+    definedSettings,
+    id,
+    onChange
+}: SettingProps<PluginSettingBooleanDef>) {
     const def = pluginSettings[id] ?? setting.default;
 
     const [state, setState] = useState(def ?? false);
@@ -41,12 +47,15 @@ export function BooleanSetting({ setting, pluginSettings, definedSettings, id, o
     }
 
     return (
-        <SettingsSection tag="label" name={setting.displayName} id={id} description={setting.description} error={error} inlineSetting>
-            <Switch
-                checked={state}
-                onChange={handleChange}
-                disabled={isSettingDisabled(definedSettings, setting)}
-            />
+        <SettingsSection
+            tag="label"
+            name={setting.displayName}
+            id={id}
+            description={setting.description}
+            error={error}
+            inlineSetting
+        >
+            <Switch checked={state} onChange={handleChange} disabled={isSettingDisabled(definedSettings, setting)} />
         </SettingsSection>
     );
 }

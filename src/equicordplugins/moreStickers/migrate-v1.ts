@@ -44,7 +44,7 @@ function migrateStickerId(oldStickerId: string): string {
 function migrateSticker(oldSticker: Sticker): Sticker {
     return {
         ...oldSticker,
-        id: migrateStickerId(oldSticker.id),
+        id: migrateStickerId(oldSticker.id)
     };
 }
 
@@ -53,7 +53,7 @@ function migrateStickerPack(oldStickerPack: StickerPack): StickerPack {
         ...oldStickerPack,
         id: migrateStickerPackId(oldStickerPack.id),
         logo: migrateSticker(oldStickerPack.logo),
-        stickers: oldStickerPack.stickers.map(migrateSticker),
+        stickers: oldStickerPack.stickers.map(migrateSticker)
     };
 }
 

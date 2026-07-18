@@ -14,31 +14,27 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
-import type {
-    ILanguageRegistration,
-    IShikiTheme,
-    IThemedToken,
-    IThemeRegistration,
-} from "@vap/shiki";
+import type { ILanguageRegistration, IShikiTheme, IThemedToken, IThemeRegistration } from "@vap/shiki";
 
 /** This must be atleast a subset of the `@vap/shiki-worker` spec */
 export type ShikiSpec = {
-    setOnigasm: ({ wasm }: { wasm: string; }) => Promise<void>;
-    setHighlighter: ({ theme, langs }: {
+    setOnigasm: ({ wasm }: { wasm: string }) => Promise<void>;
+    setHighlighter: ({
+        theme,
+        langs
+    }: {
         theme: IThemeRegistration | void;
         langs: ILanguageRegistration[];
     }) => Promise<void>;
-    loadTheme: ({ theme }: {
-        theme: string | IShikiTheme;
-    }) => Promise<void>;
-    getTheme: ({ theme }: { theme: string; }) => Promise<{ themeData: string; }>;
-    loadLanguage: ({ lang }: { lang: ILanguageRegistration; }) => Promise<void>;
+    loadTheme: ({ theme }: { theme: string | IShikiTheme }) => Promise<void>;
+    getTheme: ({ theme }: { theme: string }) => Promise<{ themeData: string }>;
+    loadLanguage: ({ lang }: { lang: ILanguageRegistration }) => Promise<void>;
     codeToThemedTokens: ({
         code,
         lang,
-        theme,
+        theme
     }: {
         code: string;
         lang?: string;
@@ -48,14 +44,14 @@ export type ShikiSpec = {
 
 export const enum StyleSheets {
     Main = "MAIN",
-    DevIcons = "DEVICONS",
+    DevIcons = "DEVICONS"
 }
 
 export const enum HljsSetting {
     Never = "NEVER",
     Secondary = "SECONDARY",
     Primary = "PRIMARY",
-    Always = "ALWAYS",
+    Always = "ALWAYS"
 }
 export const enum DeviconSetting {
     Disabled = "DISABLED",

@@ -20,6 +20,6 @@ export default definePlugin({
                 replace: "$&return $1();"
             },
             all: true
-        },
-    ],
+        }
+    ]
 });

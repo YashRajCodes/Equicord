@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -35,9 +35,9 @@ export default definePlugin({
 
                     // textCommands = builtInCommands.filter(...)
                     match: /(?<=\w=)(\w)(\.filter\(.{0,60}"gif")/,
-                    replace: "Vencord.Api.Commands._init($1)$2",
+                    replace: "Vencord.Api.Commands._init($1)$2"
                 }
-            ],
+            ]
         },
         // command error handling
         {
@@ -58,5 +58,5 @@ export default definePlugin({
                 }
             ]
         }
-    ],
+    ]
 });

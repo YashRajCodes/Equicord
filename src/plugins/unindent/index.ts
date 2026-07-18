@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { MessageObject } from "@api/MessageEvents";
 import { Devs } from "@utils/constants";
@@ -40,8 +40,7 @@ export default definePlugin({
     unindent(str: string) {
         // Users cannot send tabs, they get converted to spaces. However, a bot may send tabs, so convert them to 4 spaces first
         str = str.replace(/\t/g, "    ");
-        const minIndent = str.match(/^ *(?=\S)/gm)
-            ?.reduce((prev, curr) => Math.min(prev, curr.length), Infinity) ?? 0;
+        const minIndent = str.match(/^ *(?=\S)/gm)?.reduce((prev, curr) => Math.min(prev, curr.length), Infinity) ?? 0;
 
         if (!minIndent) return str;
         return str.replace(new RegExp(`^ {${minIndent}}`, "gm"), "");

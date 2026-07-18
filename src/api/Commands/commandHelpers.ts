@@ -14,13 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
-import { mergeDefaults } from "@utils/mergeDefaults";
 import { CommandArgument, Message } from "@vencord/discord-types";
 import { findByCodeLazy } from "@webpack";
-import { MessageActions, SnowflakeUtils } from "@webpack/common";
 import type { PartialDeep } from "type-fest";
+
+import { mergeDefaults } from "@utils/mergeDefaults";
+import { MessageActions, SnowflakeUtils } from "@webpack/common";
 
 const createBotMessage = findByCodeLazy('username:"Clyde"');
 
@@ -49,7 +50,7 @@ export function sendBotMessage(channelId: string, message: PartialDeep<Message>)
  * @param fallbackValue Fallback value in case this option wasn't passed
  * @returns Value
  */
-export function findOption<T>(args: CommandArgument[], name: string): T & {} | undefined;
+export function findOption<T>(args: CommandArgument[], name: string): (T & {}) | undefined;
 export function findOption<T>(args: CommandArgument[], name: string, fallbackValue: T): T & {};
 export function findOption(args: CommandArgument[], name: string, fallbackValue?: any) {
     return (args.find(a => a.name === name)?.value ?? fallbackValue) as any;

@@ -12,8 +12,98 @@ export default function fathorse(cfg) {
     document.getElementById("fathorse")?.remove();
 
     // generated
-    const spritesheet = { right: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0]], downright: [[0, 1], [1, 1], [2, 1], [3, 1], [4, 1], [5, 1], [6, 1], [7, 1], [8, 1]], down: [[0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2], [8, 2]], downleft: [[0, 3], [1, 3], [2, 3], [3, 3], [4, 3], [5, 3], [6, 3], [7, 3], [8, 3]], left: [[0, 4], [1, 4], [2, 4], [3, 4], [4, 4], [5, 4], [6, 4], [7, 4], [8, 4]], upleft: [[0, 5], [1, 5], [2, 5], [3, 5], [4, 5], [5, 5], [6, 5], [7, 5], [8, 5]], up: [[0, 6], [1, 6], [2, 6], [3, 6], [4, 6], [5, 6], [6, 6], [7, 6], [8, 6]], upright: [[0, 7], [1, 7], [2, 7], [3, 7], [4, 7], [5, 7], [6, 7], [7, 7], [8, 7]] };
-    const gridX = 9, gridY = 8;
+    const spritesheet = {
+        right: [
+            [0, 0],
+            [1, 0],
+            [2, 0],
+            [3, 0],
+            [4, 0],
+            [5, 0],
+            [6, 0],
+            [7, 0],
+            [8, 0]
+        ],
+        downright: [
+            [0, 1],
+            [1, 1],
+            [2, 1],
+            [3, 1],
+            [4, 1],
+            [5, 1],
+            [6, 1],
+            [7, 1],
+            [8, 1]
+        ],
+        down: [
+            [0, 2],
+            [1, 2],
+            [2, 2],
+            [3, 2],
+            [4, 2],
+            [5, 2],
+            [6, 2],
+            [7, 2],
+            [8, 2]
+        ],
+        downleft: [
+            [0, 3],
+            [1, 3],
+            [2, 3],
+            [3, 3],
+            [4, 3],
+            [5, 3],
+            [6, 3],
+            [7, 3],
+            [8, 3]
+        ],
+        left: [
+            [0, 4],
+            [1, 4],
+            [2, 4],
+            [3, 4],
+            [4, 4],
+            [5, 4],
+            [6, 4],
+            [7, 4],
+            [8, 4]
+        ],
+        upleft: [
+            [0, 5],
+            [1, 5],
+            [2, 5],
+            [3, 5],
+            [4, 5],
+            [5, 5],
+            [6, 5],
+            [7, 5],
+            [8, 5]
+        ],
+        up: [
+            [0, 6],
+            [1, 6],
+            [2, 6],
+            [3, 6],
+            [4, 6],
+            [5, 6],
+            [6, 6],
+            [7, 6],
+            [8, 6]
+        ],
+        upright: [
+            [0, 7],
+            [1, 7],
+            [2, 7],
+            [3, 7],
+            [4, 7],
+            [5, 7],
+            [6, 7],
+            [7, 7],
+            [8, 7]
+        ]
+    };
+    const gridX = 9,
+        gridY = 8;
 
     const config = {
         speed: cfg.speed ?? 30,
@@ -40,12 +130,13 @@ export default function fathorse(cfg) {
 
     const fathorse = document.createElement("div");
 
-    let lastFrame, shakeUntil = 0;
+    let lastFrame,
+        shakeUntil = 0;
     function lifecycle() {
         if (!fathorse.parentElement) return;
 
         if (!lastFrame) lastFrame = Date.now();
-        if ((Date.now() - lastFrame) >= hz) {
+        if (Date.now() - lastFrame >= hz) {
             frame();
         }
 
@@ -78,12 +169,13 @@ export default function fathorse(cfg) {
         fathorse.style.top = `${horsePos.y - config.size / 2}px`;
     }
 
-    let nextMove = Infinity, isRoaming = false;
+    let nextMove = Infinity,
+        isRoaming = false;
     function frame() {
         lastFrame = Date.now();
         if (config.freeroam && nextMove < Date.now()) {
             const angle = Math.random() * Math.PI * 2;
-            const distance = Math.min(window.innerWidth, window.innerHeight) / config.size * 50;
+            const distance = (Math.min(window.innerWidth, window.innerHeight) / config.size) * 50;
 
             mousePos.x = Math.abs((mousePos.x + Math.sin(angle) * distance) % window.innerWidth);
             mousePos.y = Math.abs((mousePos.y + Math.cos(angle) * distance) % window.innerHeight);
@@ -94,12 +186,13 @@ export default function fathorse(cfg) {
         const diffY = mousePos.y - horsePos.y;
         const dist = Math.sqrt(diffX ** 2 + diffY ** 2);
 
-        const direction = [
-            diffY / dist < -0.5 ? "up" : "",
-            diffY / dist > 0.5 ? "down" : "",
-            diffX / dist < -0.5 ? "left" : "",
-            diffX / dist > 0.5 ? "right" : "",
-        ].join("") || "down";
+        const direction =
+            [
+                diffY / dist < -0.5 ? "up" : "",
+                diffY / dist > 0.5 ? "down" : "",
+                diffX / dist < -0.5 ? "left" : "",
+                diffX / dist > 0.5 ? "right" : ""
+            ].join("") || "down";
 
         const speed = isRoaming ? Math.min(config.speed, freeroamSpeed) : config.speed;
 
@@ -166,4 +259,4 @@ export default function fathorse(cfg) {
     requestAnimationFrame(lifecycle);
 
     return mousePos;
-};
+}

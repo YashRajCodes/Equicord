@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findByCodeLazy, findByPropsLazy } from "@webpack";
+
 import { definePluginSettings } from "@api/Settings";
 import { Heading } from "@components/Heading";
 import { Margins } from "@components/margins";
@@ -11,7 +13,6 @@ import { Paragraph } from "@components/Paragraph";
 import { IS_WINDOWS } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import { OptionType } from "@utils/types";
-import { findByCodeLazy, findByPropsLazy } from "@webpack";
 import { MediaEngineStore, SearchableSelect, useEffect, useState } from "@webpack/common";
 
 interface PickerProps {
@@ -26,50 +27,50 @@ const log = new Logger("InstantScreenShare");
 export const settings = definePluginSettings({
     streamMedia: {
         type: OptionType.COMPONENT,
-        component: SettingSection,
+        component: SettingSection
     },
     includeVideoDevices: {
         type: OptionType.BOOLEAN,
         description: "Include video input devices (cameras, capture cards) in the source list",
-        default: false,
+        default: false
     },
     autoMute: {
         type: OptionType.BOOLEAN,
         description: "Automatically mute your microphone when joining a voice channel",
-        default: false,
+        default: false
     },
     autoDeafen: {
         type: OptionType.BOOLEAN,
         description: "Automatically deafen when joining a voice channel (also mutes you)",
-        default: false,
+        default: false
     },
     instantScreenshare: {
         type: OptionType.BOOLEAN,
         description: "Enables automatic screenshare feature",
-        default: true,
+        default: true
     },
     keybindScreenshare: {
         type: OptionType.BOOLEAN,
         description: "Screenshare by keybind in discord keybind settings",
         restartNeeded: true,
-        default: false,
+        default: false
     },
     focusDiscord: {
         type: OptionType.BOOLEAN,
         description: "Only start screenshare with keybind when Discord is focused",
-        default: true,
+        default: true
     },
     toolboxManagement: {
         type: OptionType.BOOLEAN,
         description: "Enable/Disable Instant Screenshare",
         default: true,
-        hidden: true,
-    },
+        hidden: true
+    }
 });
 
 export async function getCurrentMedia() {
     const media = MediaEngineStore.getMediaEngine();
-    const sources = await getDesktopSources(media, IS_WINDOWS, ["screen", "window"], null) ?? [];
+    const sources = (await getDesktopSources(media, IS_WINDOWS, ["screen", "window"], null)) ?? [];
 
     if (settings.store.includeVideoDevices) {
         try {
@@ -98,7 +99,7 @@ function StreamSimplePicker({ streamMediaSelection, streamMedia }: PickerProps) 
     const options = streamMediaSelection.map(screen => ({
         label: screen.name,
         value: screen.id,
-        default: streamMediaSelection[0],
+        default: streamMediaSelection[0]
     }));
 
     return (
@@ -107,7 +108,7 @@ function StreamSimplePicker({ streamMediaSelection, streamMedia }: PickerProps) 
             maxVisibleItems={5}
             options={options}
             value={options.find(o => o.value === streamMedia)?.value}
-            onChange={v => settings.store.streamMedia = v}
+            onChange={v => (settings.store.streamMedia = v)}
             closeOnSelect
         />
     );
@@ -123,7 +124,7 @@ function ScreenSetting() {
         let active = true;
         async function fetchMedia() {
             setLoading(true);
-            const sources = await getDesktopSources(media, IS_WINDOWS, ["screen", "window"], null) ?? [];
+            const sources = (await getDesktopSources(media, IS_WINDOWS, ["screen", "window"], null)) ?? [];
 
             if (includeVideoDevices) {
                 try {
@@ -145,7 +146,9 @@ function ScreenSetting() {
             }
         }
         fetchMedia();
-        return () => { active = false; };
+        return () => {
+            active = false;
+        };
     }, [includeVideoDevices]);
 
     if (loading) return <Paragraph>Loading media sources...</Paragraph>;

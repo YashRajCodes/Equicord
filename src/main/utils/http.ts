@@ -14,11 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
-import { createWriteStream } from "original-fs";
 import { Readable } from "stream";
 import { finished } from "stream/promises";
+
+import { createWriteStream } from "original-fs";
 
 type Url = string | URL;
 
@@ -41,7 +42,7 @@ export async function checkedFetch(url: Url, options?: RequestInit) {
     try {
         const reason = await res.text();
         message += `\n${reason}`;
-    } catch { }
+    } catch {}
 
     throw new Error(message);
 }

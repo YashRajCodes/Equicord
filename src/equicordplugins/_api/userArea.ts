@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findCssClassesLazy } from "@webpack";
+
 import { isPluginEnabled } from "@api/PluginManager";
 import declutter from "@equicordplugins/declutter";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { findCssClassesLazy } from "@webpack";
 
 const accountClasses = findCssClassesLazy("iconForeground", "accountPopoutButtonWrapper");
 
@@ -34,7 +35,7 @@ export default definePlugin({
         }
     ],
 
-    renderButtons(props: { nameplate?: any; }) {
+    renderButtons(props: { nameplate?: any }) {
         return Vencord.Api.UserArea._renderButtons({
             nameplate: !this.shouldHideNameplate() ? props.nameplate : null,
             iconForeground: accountClasses.iconForeground,

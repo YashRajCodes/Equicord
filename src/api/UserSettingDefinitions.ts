@@ -14,11 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { findModuleId, proxyLazyWebpack, wreq } from "@webpack";
 
 import { proxyLazy } from "@utils/lazy";
 import { Logger } from "@utils/Logger";
-import { findModuleId, proxyLazyWebpack, wreq } from "@webpack";
 
 import { Settings } from "./Settings";
 
@@ -45,12 +46,15 @@ interface UserSettingDefinition<T> {
     userSettingDefinitionsAPIName: string;
 }
 
-export const UserSettingsDefinitions: Record<PropertyKey, UserSettingDefinition<any>> | undefined = proxyLazyWebpack(() => {
-    const modId = findModuleId('"textAndImages","renderSpoilers"');
-    if (modId == null) return new Logger("UserSettingDefinitionsAPI").error("Didn't find settings definitions module.");
+export const UserSettingsDefinitions: Record<PropertyKey, UserSettingDefinition<any>> | undefined = proxyLazyWebpack(
+    () => {
+        const modId = findModuleId('"textAndImages","renderSpoilers"');
+        if (modId == null)
+            return new Logger("UserSettingDefinitionsAPI").error("Didn't find settings definitions module.");
 
-    return wreq(modId as any);
-});
+        return wreq(modId as any);
+    }
+);
 
 /**
  * Get the definition for a setting.
@@ -59,12 +63,16 @@ export const UserSettingsDefinitions: Record<PropertyKey, UserSettingDefinition<
  * @param name The name of the setting
  */
 export function getUserSettingDefinition<T = any>(group: string, name: string): UserSettingDefinition<T> | undefined {
-    if (!Settings.plugins.UserSettingDefinitionsAPI.enabled) throw new Error("Cannot use UserSettingDefinitionsAPI without setting as dependency.");
+    if (!Settings.plugins.UserSettingDefinitionsAPI.enabled)
+        throw new Error("Cannot use UserSettingDefinitionsAPI without setting as dependency.");
 
     for (const key in UserSettingsDefinitions) {
         const userSettingDefinition = UserSettingsDefinitions[key];
 
-        if (userSettingDefinition.userSettingDefinitionsAPIGroup === group && userSettingDefinition.userSettingDefinitionsAPIName === name) {
+        if (
+            userSettingDefinition.userSettingDefinitionsAPIGroup === group &&
+            userSettingDefinition.userSettingDefinitionsAPIName === name
+        ) {
             return userSettingDefinition;
         }
     }

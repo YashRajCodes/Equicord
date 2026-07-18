@@ -5,6 +5,7 @@
  */
 
 import "./style.css";
+import { findByPropsLazy } from "@webpack";
 
 import { definePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
@@ -13,14 +14,17 @@ import { Link } from "@components/Link";
 import { Devs } from "@utils/constants";
 import { identity } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
-import { findByPropsLazy } from "@webpack";
 import { FluxDispatcher, Select, Slider, useEffect, useState } from "@webpack/common";
 const configModule = findByPropsLazy("getOutputVolume");
 
 const settings = definePluginSettings({
     title1: {
         type: OptionType.COMPONENT,
-        component: () => <BaseText weight="bold" style={{ fontSize: "1.27rem" }}>Appearance</BaseText>,
+        component: () => (
+            <BaseText weight="bold" style={{ fontSize: "1.27rem" }}>
+                Appearance
+            </BaseText>
+        ),
         description: ""
     },
     uncollapseSettingsByDefault: {
@@ -30,7 +34,11 @@ const settings = definePluginSettings({
     },
     title2: {
         type: OptionType.COMPONENT,
-        component: () => <BaseText weight="bold" style={{ fontSize: "1.27rem" }}>Settings to show</BaseText>,
+        component: () => (
+            <BaseText weight="bold" style={{ fontSize: "1.27rem" }}>
+                Settings to show
+            </BaseText>
+        ),
         description: ""
     },
     outputVolume: {
@@ -60,7 +68,11 @@ const settings = definePluginSettings({
     },
     title3: {
         type: OptionType.COMPONENT,
-        component: () => <BaseText weight="bold" style={{ fontSize: "1.27rem" }}>Headers to show</BaseText>,
+        component: () => (
+            <BaseText weight="bold" style={{ fontSize: "1.27rem" }}>
+                Headers to show
+            </BaseText>
+        ),
         description: ""
     },
     showOutputVolumeHeader: {
@@ -87,7 +99,7 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: false,
         description: "Show header above camera selector"
-    },
+    }
 });
 
 function OutputVolumeComponent() {
@@ -101,12 +113,18 @@ function OutputVolumeComponent() {
     return (
         <>
             {settings.store.showOutputVolumeHeader && <Heading>Output volume</Heading>}
-            <Slider maxValue={200} minValue={0} onValueRender={v => `${v.toFixed(0)}%`} initialValue={outputVolume} asValueChanges={volume => {
-                FluxDispatcher.dispatch({
-                    type: "AUDIO_SET_OUTPUT_VOLUME",
-                    volume
-                });
-            }} />
+            <Slider
+                maxValue={200}
+                minValue={0}
+                onValueRender={v => `${v.toFixed(0)}%`}
+                initialValue={outputVolume}
+                asValueChanges={volume => {
+                    FluxDispatcher.dispatch({
+                        type: "AUDIO_SET_OUTPUT_VOLUME",
+                        volume
+                    });
+                }}
+            />
         </>
     );
 }
@@ -122,12 +140,17 @@ function InputVolumeComponent() {
     return (
         <>
             {settings.store.showInputVolumeHeader && <Heading>Input volume</Heading>}
-            <Slider maxValue={100} minValue={0} initialValue={inputVolume} asValueChanges={volume => {
-                FluxDispatcher.dispatch({
-                    type: "AUDIO_SET_INPUT_VOLUME",
-                    volume
-                });
-            }} />
+            <Slider
+                maxValue={100}
+                minValue={0}
+                initialValue={inputVolume}
+                asValueChanges={volume => {
+                    FluxDispatcher.dispatch({
+                        type: "AUDIO_SET_INPUT_VOLUME",
+                        volume
+                    });
+                }}
+            />
         </>
     );
 }
@@ -143,9 +166,13 @@ function OutputDeviceComponent() {
     return (
         <>
             {settings.store.showOutputDeviceHeader && <Heading>Output device</Heading>}
-            <Select options={Object.values(configModule.getOutputDevices()).map((device: any /* i am NOT typing this*/) => {
-                return { value: device.id, label: settings.store.showOutputDeviceHeader ? device.name : `🔊 ${device.name}` };
-            })}
+            <Select
+                options={Object.values(configModule.getOutputDevices()).map((device: any /* i am NOT typing this*/) => {
+                    return {
+                        value: device.id,
+                        label: settings.store.showOutputDeviceHeader ? device.name : `🔊 ${device.name}`
+                    };
+                })}
                 serialize={identity}
                 isSelected={value => value === outputDevice}
                 select={id => {
@@ -153,9 +180,8 @@ function OutputDeviceComponent() {
                         type: "AUDIO_SET_OUTPUT_DEVICE",
                         id
                     });
-                }}>
-
-            </Select>
+                }}
+            ></Select>
         </>
     );
 }
@@ -171,9 +197,13 @@ function InputDeviceComponent() {
     return (
         <div style={{ marginTop: "10px" }}>
             {settings.store.showInputDeviceHeader && <Heading>Input device</Heading>}
-            <Select options={Object.values(configModule.getInputDevices()).map((device: any /* i am NOT typing this*/) => {
-                return { value: device.id, label: settings.store.showInputDeviceHeader ? device.name : `🎤 ${device.name}` };
-            })}
+            <Select
+                options={Object.values(configModule.getInputDevices()).map((device: any /* i am NOT typing this*/) => {
+                    return {
+                        value: device.id,
+                        label: settings.store.showInputDeviceHeader ? device.name : `🎤 ${device.name}`
+                    };
+                })}
                 serialize={identity}
                 isSelected={value => value === inputDevice}
                 select={id => {
@@ -181,9 +211,8 @@ function InputDeviceComponent() {
                         type: "AUDIO_SET_INPUT_DEVICE",
                         id
                     });
-                }}>
-
-            </Select>
+                }}
+            ></Select>
         </div>
     );
 }
@@ -199,9 +228,13 @@ function VideoDeviceComponent() {
     return (
         <div style={{ marginTop: "10px" }}>
             {settings.store.showVideoDeviceHeader && <Heading>Camera</Heading>}
-            <Select options={Object.values(configModule.getVideoDevices()).map((device: any /* i am NOT typing this*/) => {
-                return { value: device.id, label: settings.store.showVideoDeviceHeader ? device.name : `📷 ${device.name}` };
-            })}
+            <Select
+                options={Object.values(configModule.getVideoDevices()).map((device: any /* i am NOT typing this*/) => {
+                    return {
+                        value: device.id,
+                        label: settings.store.showVideoDeviceHeader ? device.name : `📷 ${device.name}`
+                    };
+                })}
                 serialize={identity}
                 isSelected={value => value === videoDevice}
                 select={id => {
@@ -209,30 +242,39 @@ function VideoDeviceComponent() {
                         type: "MEDIA_ENGINE_SET_VIDEO_DEVICE",
                         id
                     });
-                }}>
-
-            </Select>
+                }}
+            ></Select>
         </div>
     );
 }
 
 function VoiceSettings() {
     const [showSettings, setShowSettings] = useState(settings.store.uncollapseSettingsByDefault);
-    return <div style={{ marginTop: "20px" }}>
-        <div style={{ marginBottom: "10px" }}>
-            <Link className="vc-panelsettings-underline-on-hover" style={{ color: "var(--text-default)" }} onClick={() => { setShowSettings(!showSettings); }}>{!showSettings ? "► Settings" : "▼ Hide"}</Link>
-        </div>
+    return (
+        <div style={{ marginTop: "20px" }}>
+            <div style={{ marginBottom: "10px" }}>
+                <Link
+                    className="vc-panelsettings-underline-on-hover"
+                    style={{ color: "var(--text-default)" }}
+                    onClick={() => {
+                        setShowSettings(!showSettings);
+                    }}
+                >
+                    {!showSettings ? "► Settings" : "▼ Hide"}
+                </Link>
+            </div>
 
-        {
-            showSettings && <>
-                {settings.store.outputVolume && <OutputVolumeComponent />}
-                {settings.store.inputVolume && <InputVolumeComponent />}
-                {settings.store.outputDevice && <OutputDeviceComponent />}
-                {settings.store.inputDevice && <InputDeviceComponent />}
-                {settings.store.camera && <VideoDeviceComponent />}
-            </>
-        }
-    </div>;
+            {showSettings && (
+                <>
+                    {settings.store.outputVolume && <OutputVolumeComponent />}
+                    {settings.store.inputVolume && <InputVolumeComponent />}
+                    {settings.store.outputDevice && <OutputDeviceComponent />}
+                    {settings.store.inputDevice && <InputDeviceComponent />}
+                    {settings.store.camera && <VideoDeviceComponent />}
+                </>
+            )}
+        </div>
+    );
 }
 
 export default definePlugin({
@@ -241,7 +283,9 @@ export default definePlugin({
     tags: ["Utility", "Voice"],
     authors: [Devs.nin0dev],
     settings,
-    renderVoiceSettings() { return <VoiceSettings />; },
+    renderVoiceSettings() {
+        return <VoiceSettings />;
+    },
     patches: [
         {
             find: "}getAccessibilityLabel(){",

@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Activity } from "@vencord/discord-types";
+
 import { Logger } from "@utils/Logger";
 import { formatDurationMs } from "@utils/text";
-import { Activity } from "@vencord/discord-types";
 import { ApplicationAssetUtils, FluxDispatcher, showToast } from "@webpack/common";
 
 import { settings } from "../settings";
@@ -45,11 +46,13 @@ async function fetchMediaData(): Promise<JfMediaData | null> {
 
         const contentType = res.headers.get("content-type") ?? "";
         if (!contentType.includes("application/json")) {
-        if (!hasShownError) {
-            logger.error("Jellyfin returned non-JSON response. Check your server URL and API key.");
-            showToast("Jellyfin returned an invalid response. Your API key may be wrong.", "failure", { duration: 15000 });
-            hasShownError = true;
-        }
+            if (!hasShownError) {
+                logger.error("Jellyfin returned non-JSON response. Check your server URL and API key.");
+                showToast("Jellyfin returned an invalid response. Your API key may be wrong.", "failure", {
+                    duration: 15000
+                });
+                hasShownError = true;
+            }
             return null;
         }
 
@@ -63,8 +66,11 @@ async function fetchMediaData(): Promise<JfMediaData | null> {
         if (playState?.IsPaused && !settings.store.jf_showPausedState) return null;
 
         const imageUrl = item.ImageTags?.Primary
-            ? `${baseUrl}/Items/${item.Type === "Episode" && item.SeriesId && settings.store.jf_coverType === "series"
-                ? item.SeriesId : item.Id}/Images/Primary`
+            ? `${baseUrl}/Items/${
+                  item.Type === "Episode" && item.SeriesId && settings.store.jf_coverType === "series"
+                      ? item.SeriesId
+                      : item.Id
+              }/Images/Primary`
             : undefined;
 
         return {
@@ -80,7 +86,7 @@ async function fetchMediaData(): Promise<JfMediaData | null> {
             imageUrl,
             duration: item.RunTimeTicks ? Math.floor(item.RunTimeTicks / 10000000) : undefined,
             position: playState?.PositionTicks ? Math.floor(playState.PositionTicks / 10000000) : undefined,
-            isPaused: !!playState?.IsPaused,
+            isPaused: !!playState?.IsPaused
         };
     } catch (e) {
         logger.error("Failed to query Jellyfin API", e);
@@ -147,17 +153,15 @@ async function getActivity(): Promise<Activity | null> {
     }
 
     const assets = {
-        large_image: !store.jf_privacyMode && mediaData.imageUrl
-            ? await getAsset(mediaData.imageUrl) : undefined,
-        large_text: mediaData.seriesName || mediaData.album || undefined,
+        large_image: !store.jf_privacyMode && mediaData.imageUrl ? await getAsset(mediaData.imageUrl) : undefined,
+        large_text: mediaData.seriesName || mediaData.album || undefined
     };
 
     const getDetails = () => {
         let details: string;
         if (mediaData.type === "Episode" && mediaData.seriesName)
             details = store.jf_privacyMode ? "Watching a TV Show" : mediaData.seriesName;
-        else
-            details = store.jf_privacyMode ? "Watching Something" : mediaData.name;
+        else details = store.jf_privacyMode ? "Watching Something" : mediaData.name;
         if (mediaData.isPaused) details += " - Paused";
         return details;
     };
@@ -186,32 +190,38 @@ async function getActivity(): Promise<Activity | null> {
             } else if (season != null) {
                 episodeFormat = format === "fulltext" ? `Season ${season}` : `S${season.toString().padStart(2, "0")}`;
             } else if (episode != null) {
-                episodeFormat = format === "fulltext" ? `Episode ${episode}` : `E${episode.toString().padStart(2, "0")}`;
+                episodeFormat =
+                    format === "fulltext" ? `Episode ${episode}` : `E${episode.toString().padStart(2, "0")}`;
             }
 
-            state = (store.jf_showEpisodeName && mediaData.name && !store.jf_privacyMode)
-                ? `${episodeFormat} - ${mediaData.name}`
-                : episodeFormat;
+            state =
+                store.jf_showEpisodeName && mediaData.name && !store.jf_privacyMode
+                    ? `${episodeFormat} - ${mediaData.name}`
+                    : episodeFormat;
         } else if (store.jf_privacyMode) {
-            state = mediaData.type === "Audio" ? "Listening to music" : (mediaData.year ? "(????)" : undefined);
+            state = mediaData.type === "Audio" ? "Listening to music" : mediaData.year ? "(????)" : undefined;
         } else {
             state = mediaData.artist || (mediaData.year ? `(${mediaData.year})` : undefined);
         }
 
         if (mediaData.isPaused) {
-            const time = mediaData.position != null && mediaData.duration != null
-                ? `${formatDurationMs(mediaData.position * 1000)} / ${formatDurationMs(mediaData.duration * 1000)}`
-                : undefined;
+            const time =
+                mediaData.position != null && mediaData.duration != null
+                    ? `${formatDurationMs(mediaData.position * 1000)} / ${formatDurationMs(mediaData.duration * 1000)}`
+                    : undefined;
             const parts = [state, time].filter(Boolean);
             return parts.join(" - ") || "Paused";
         }
         return state;
     };
 
-    const timestamps = (!mediaData.isPaused && mediaData.position != null && mediaData.duration != null) ? {
-        start: Date.now() - (mediaData.position * 1000),
-        end: Date.now() + ((mediaData.duration - mediaData.position) * 1000),
-    } : undefined;
+    const timestamps =
+        !mediaData.isPaused && mediaData.position != null && mediaData.duration != null
+            ? {
+                  start: Date.now() - mediaData.position * 1000,
+                  end: Date.now() + (mediaData.duration - mediaData.position) * 1000
+              }
+            : undefined;
 
     return {
         application_id: APPLICATION_ID,
@@ -221,7 +231,7 @@ async function getActivity(): Promise<Activity | null> {
         assets,
         timestamps,
         type: richPresenceType,
-        flags: 1,
+        flags: 1
     };
 }
 

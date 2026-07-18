@@ -48,7 +48,7 @@ const settings = definePluginSettings({
         description: "Extra days to add, separated by a comma (e.g. 1, 2)",
         restartNeeded: true,
         default: "1, 2"
-    },
+    }
 });
 
 export default definePlugin({
@@ -67,7 +67,11 @@ export default definePlugin({
         }
     ],
     buildTimeouts(existing) {
-        const parse = (str: string) => str.split(",").map(s => Number(s.trim())).filter(Boolean);
+        const parse = (str: string) =>
+            str
+                .split(",")
+                .map(s => Number(s.trim()))
+                .filter(Boolean);
 
         const seconds = parse(settings.store.extraSeconds);
         const minutes = parse(settings.store.extraMinutes);
@@ -104,7 +108,7 @@ export default definePlugin({
             ...months.map(m => ({
                 duration: m * Millis.DAYS_30,
                 label: () => `For ${m} ${m === 1 ? "Month" : "Months"}`
-            })),
+            }))
         ];
 
         return [...existing, ...extra].sort((a, b) => {

@@ -14,13 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { Message, ReactionEmoji } from "@vencord/discord-types";
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { sleep } from "@utils/misc";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
-import { Message, ReactionEmoji } from "@vencord/discord-types";
 import { RelationshipStore, SelectedChannelStore, UserStore } from "@webpack/common";
 
 interface IMessageCreate {
@@ -68,7 +69,7 @@ const settings = definePluginSettings({
         options: [
             { label: "Normal", value: "Normal", default: true },
             { label: "HD", value: "HD" }
-        ],
+        ]
     },
     triggerWhenUnfocused: {
         description: "Trigger the 🗿 even when the window is unfocused",
@@ -90,7 +91,8 @@ const settings = definePluginSettings({
 export default definePlugin({
     name: "Moyai",
     authors: [Devs.Megu, Devs.Nuckyz],
-    description: "Plays a 🗿 sound effect whenever a moyai emoji is sent, reacted, or used as a voice effect in your current channel.",
+    description:
+        "Plays a 🗿 sound effect whenever a moyai emoji is sent, reacted, or used as a voice effect in your current channel.",
     tags: ["Fun"],
     settings,
 
@@ -136,19 +138,16 @@ export default definePlugin({
 function countOccurrences(sourceString: string, subString: string) {
     let i = 0;
     let lastIdx = 0;
-    while ((lastIdx = sourceString.indexOf(subString, lastIdx) + 1) !== 0)
-        i++;
+    while ((lastIdx = sourceString.indexOf(subString, lastIdx) + 1) !== 0) i++;
 
     return i;
 }
 
 function countMatches(sourceString: string, pattern: RegExp) {
-    if (!pattern.global)
-        throw new Error("pattern must be global");
+    if (!pattern.global) throw new Error("pattern must be global");
 
     let i = 0;
-    while (pattern.test(sourceString))
-        i++;
+    while (pattern.test(sourceString)) i++;
 
     return i;
 }
@@ -156,8 +155,7 @@ function countMatches(sourceString: string, pattern: RegExp) {
 const customMoyaiRe = /<a?:\w*moy?ai\w*:\d{17,20}>/gi;
 
 function getMoyaiCount(message: string) {
-    const count = countOccurrences(message, MOYAI)
-        + countMatches(message, customMoyaiRe);
+    const count = countOccurrences(message, MOYAI) + countMatches(message, customMoyaiRe);
 
     return Math.min(count, 10);
 }
@@ -166,9 +164,7 @@ function boom() {
     if (!settings.store.triggerWhenUnfocused && !document.hasFocus()) return;
     const audioElement = document.createElement("audio");
 
-    audioElement.src = settings.store.quality === "HD"
-        ? MOYAI_URL_HD
-        : MOYAI_URL;
+    audioElement.src = settings.store.quality === "HD" ? MOYAI_URL_HD : MOYAI_URL;
 
     audioElement.volume = settings.store.volume;
     audioElement.play();

@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { ClockIcon } from "@components/Icons";
 import SettingsPlugin from "@plugins/_core/settings";
@@ -39,5 +39,5 @@ export default definePlugin({
     },
     stop() {
         removeFromArray(SettingsPlugin.customEntries, e => e.key === "vencord_startup_timings");
-    },
+    }
 });

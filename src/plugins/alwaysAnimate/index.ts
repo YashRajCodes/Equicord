@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
@@ -24,27 +24,27 @@ const settings = definePluginSettings({
     icons: {
         type: OptionType.BOOLEAN,
         description: "Always animate server icons, avatars, decor and more",
-        default: true,
+        default: true
     },
     statusEmojis: {
         type: OptionType.BOOLEAN,
         description: "Always animate status emojis",
-        default: true,
+        default: true
     },
     serverBanners: {
         type: OptionType.BOOLEAN,
         description: "Always animate server banners",
-        default: true,
+        default: true
     },
     nameplates: {
         type: OptionType.BOOLEAN,
         description: "Always animate nameplates",
-        default: true,
+        default: true
     },
     roleGradients: {
         type: OptionType.BOOLEAN,
         description: "Always animate role gradients",
-        default: true,
+        default: true
     }
 });
 
@@ -111,7 +111,7 @@ export default definePlugin({
             replacement: {
                 match: /animate:\i,loop:/,
                 replace: "animate:true,loop:true,_loop:"
-            },
+            }
         },
         {
             // Role Gradients
@@ -127,6 +127,6 @@ export default definePlugin({
                     return m;
                 }
             }
-        },
+        }
     ]
 });

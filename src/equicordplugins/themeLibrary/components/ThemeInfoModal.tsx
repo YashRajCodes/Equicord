@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findComponentByCodeLazy } from "@webpack";
+
 import { CodeBlock } from "@components/CodeBlock";
 import { Heading } from "@components/Heading";
 import { Heart } from "@components/Heart";
@@ -14,7 +16,6 @@ import { copyToClipboard } from "@utils/clipboard";
 import { openInviteModal } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import type { PluginNative } from "@utils/types";
-import { findComponentByCodeLazy } from "@webpack";
 import { Button, Modal, openModal, Parser, React, showToast, Toasts } from "@webpack/common";
 
 import { logger } from "./ThemeTab";
@@ -88,11 +89,12 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                 >
                                     <Paragraph style={{ padding: "8px" }}>
                                         <div style={{ display: "flex", flexDirection: "column" }}>
-                                            <p>A theme with the same name <b>already exists</b> in your themes directory! Do you want to overwrite it?</p>
+                                            <p>
+                                                A theme with the same name <b>already exists</b> in your themes
+                                                directory! Do you want to overwrite it?
+                                            </p>
                                             <div className="vce-overwrite-modal">
-                                                <code style={{ wordWrap: "break-word" }}>
-                                                    {fileName}
-                                                </code>
+                                                <code style={{ wordWrap: "break-word" }}>{fileName}</code>
                                             </div>
                                         </div>
                                     </Paragraph>
@@ -120,16 +122,21 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                             showUserPopout
                             className={Margins.right8}
                         />
-                        <Paragraph style={{ maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <Paragraph
+                            style={{
+                                maxWidth: "200px",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap"
+                            }}
+                        >
                             {authors.map(author => author.username).join(", ")}
                         </Paragraph>
                     </div>
                     {version && (
                         <>
                             <Heading style={{ marginTop: "10px" }}>Version</Heading>
-                            <Paragraph>
-                                {version}
-                            </Paragraph>
+                            <Paragraph>{version}</Paragraph>
                         </>
                     )}
                     <Heading style={{ marginTop: "10px" }}>Likes</Heading>
@@ -139,9 +146,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                     {donate && (
                         <>
                             <Heading style={{ marginTop: "10px" }}>Donate</Heading>
-                            <Paragraph>
-                                You can support the author by donating below!
-                            </Paragraph>
+                            <Paragraph>You can support the author by donating below!</Paragraph>
                             <Paragraph style={{ marginTop: "10px" }}>
                                 <Button onClick={() => VencordNative.native.openExternal(donate)}>
                                     <Heart />
@@ -153,11 +158,7 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                     {(guild || invite) && (
                         <>
                             <Heading style={{ marginTop: "10px" }}>Support Server</Heading>
-                            {guild && (
-                                <Paragraph>
-                                    {guild.name}
-                                </Paragraph>
-                            )}
+                            {guild && <Paragraph>{guild.name}</Paragraph>}
                             <Paragraph>
                                 <Button
                                     color={Button.Colors.BRAND}
@@ -166,7 +167,10 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                                     onClick={async e => {
                                         e.preventDefault();
                                         const useInvite = guild ? guild.invite_link?.split("discord.gg/")[1] : invite;
-                                        useInvite != null && openInviteModal(useInvite).catch(() => showToast("Invalid or expired invite!", Toasts.Type.FAILURE));
+                                        useInvite != null &&
+                                            openInviteModal(useInvite).catch(() =>
+                                                showToast("Invalid or expired invite!", Toasts.Type.FAILURE)
+                                            );
                                     }}
                                 >
                                     Join Discord Server
@@ -178,32 +182,34 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                     <Paragraph>
                         <Button
                             disabled={!theme.content || theme.id === "preview"}
-                            onClick={() => openModal(modalProps => (
-                                <Modal
-                                    {...modalProps}
-                                    size="lg"
-                                    title="Theme Source"
-                                    actions={[
-                                        {
-                                            text: "Close",
-                                            variant: "dangerPrimary",
-                                            onClick: () => modalProps.onClose()
-                                        },
-                                        {
-                                            text: "Copy to Clipboard",
-                                            variant: "primary",
-                                            onClick: () => {
-                                                copyToClipboard(themeContent);
-                                                showToast("Copied to Clipboard", Toasts.Type.SUCCESS);
+                            onClick={() =>
+                                openModal(modalProps => (
+                                    <Modal
+                                        {...modalProps}
+                                        size="lg"
+                                        title="Theme Source"
+                                        actions={[
+                                            {
+                                                text: "Close",
+                                                variant: "dangerPrimary",
+                                                onClick: () => modalProps.onClose()
+                                            },
+                                            {
+                                                text: "Copy to Clipboard",
+                                                variant: "primary",
+                                                onClick: () => {
+                                                    copyToClipboard(themeContent);
+                                                    showToast("Copied to Clipboard", Toasts.Type.SUCCESS);
+                                                }
                                             }
-                                        }
-                                    ]}
-                                >
-                                    <Paragraph style={{ padding: "8px" }}>
-                                        <CodeBlock lang="css" content={themeContent} />
-                                    </Paragraph>
-                                </Modal>
-                            ))}
+                                        ]}
+                                    >
+                                        <Paragraph style={{ padding: "8px" }}>
+                                            <CodeBlock lang="css" content={themeContent} />
+                                        </Paragraph>
+                                    </Modal>
+                                ))
+                            }
                         >
                             View Theme Source
                         </Button>
@@ -227,7 +233,8 @@ export const ThemeInfoModal: React.FC<ThemeInfoModalProps> = ({ author, theme, .
                     )}
                     {last_updated && (
                         <Paragraph style={{ marginTop: "10px" }}>
-                            <ClockIcon /> This theme was last updated {Parser.parse("<t:" + lastUpdated + ":F>")} ({Parser.parse("<t:" + lastUpdated + ":R>")})
+                            <ClockIcon /> This theme was last updated {Parser.parse("<t:" + lastUpdated + ":F>")} (
+                            {Parser.parse("<t:" + lastUpdated + ":R>")})
                         </Paragraph>
                     )}
                 </div>

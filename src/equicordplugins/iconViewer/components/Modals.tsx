@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Icon, RenderModalProps } from "@vencord/discord-types";
+import { findComponentByCodeLazy } from "@webpack";
+
 import { BaseText } from "@components/BaseText";
 import { CodeBlock } from "@components/CodeBlock";
 import { Flex } from "@components/Flex";
@@ -13,8 +16,6 @@ import { TooltipContainer } from "@components/TooltipContainer";
 import { copyWithToast, getIntlMessage } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import { saveFile } from "@utils/web";
-import { Icon, RenderModalProps } from "@vencord/discord-types";
-import { findComponentByCodeLazy } from "@webpack";
 import {
     Clickable,
     ContextMenuApi,
@@ -58,7 +59,7 @@ function useColorNavigation(initialColor: number) {
         }
     }, []);
 
-    const onColorChange = useCallback((e: { color: string; }) => {
+    const onColorChange = useCallback((e: { color: string }) => {
         const keys = getCssColorKeys();
         const idx = keys.indexOf(e.color);
         if (idx !== -1) setColor(idx);
@@ -76,11 +77,9 @@ function useColorNavigation(initialColor: number) {
     return [color, setColor] as const;
 }
 
-function ColorContextMenu({ colorKeys }: { colorKeys: string[]; }) {
+function ColorContextMenu({ colorKeys }: { colorKeys: string[] }) {
     const [query, setQuery] = useState("");
-    const filtered = colorKeys.filter(k =>
-        !query || k.toLowerCase().includes(query.toLowerCase())
-    );
+    const filtered = colorKeys.filter(k => !query || k.toLowerCase().includes(query.toLowerCase()));
 
     return (
         <Menu.Menu
@@ -157,14 +156,15 @@ function saveIcon(iconName: string, icon: Element | string, color: number, size:
     img.src = `data:image/svg+xml;base64,${btoa(icon.outerHTML)}`;
 }
 
-function OtherContextMenu({ iconName, Icon, color }: { iconName: string; Icon: Icon; color: number; }) {
+function OtherContextMenu({ iconName, Icon, color }: { iconName: string; Icon: Icon; color: number }) {
     const colorData = cssColors[color];
 
     const handleSave = (type: string) => {
         const size = iconSizesInPx.lg;
-        const iconEl = type === "image/svg+xml"
-            ? convertToHtml(<Icon className="vc-ic-save-icon" color={colorData?.css} />)
-            : document.querySelector(".vc-ic-icon-preview .vc-ic-icon-large") as Element | null;
+        const iconEl =
+            type === "image/svg+xml"
+                ? convertToHtml(<Icon className="vc-ic-save-icon" color={colorData?.css} />)
+                : (document.querySelector(".vc-ic-icon-preview .vc-ic-icon-large") as Element | null);
 
         if (iconEl) saveIcon(iconName, iconEl, color, size, type);
     };
@@ -175,49 +175,20 @@ function OtherContextMenu({ iconName, Icon, color }: { iconName: string; Icon: I
             onClose={() => FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" })}
             aria-label="Icon Options"
         >
-            <Menu.MenuItem
-                id="log-console"
-                label="Log to Console"
-                icon={BugIcon}
-                action={() => logger.info(Icon)}
-            />
+            <Menu.MenuItem id="log-console" label="Log to Console" icon={BugIcon} action={() => logger.info(Icon)} />
             <Menu.MenuItem id="save" label="Save As...">
-                <Menu.MenuItem
-                    id="save-png"
-                    label="PNG"
-                    action={() => handleSave("image/png")}
-                />
-                <Menu.MenuItem
-                    id="save-svg"
-                    label="SVG"
-                    action={() => handleSave("image/svg+xml")}
-                />
-                <Menu.MenuItem
-                    id="save-jpeg"
-                    label="JPEG"
-                    action={() => handleSave("image/jpeg")}
-                />
-                <Menu.MenuItem
-                    id="save-webp"
-                    label="WEBP"
-                    action={() => handleSave("image/webp")}
-                />
-                <Menu.MenuItem
-                    id="save-gif"
-                    label="GIF"
-                    action={() => handleSave("image/gif")}
-                />
-                <Menu.MenuItem
-                    id="save-avif"
-                    label="AVIF"
-                    action={() => handleSave("image/avif")}
-                />
+                <Menu.MenuItem id="save-png" label="PNG" action={() => handleSave("image/png")} />
+                <Menu.MenuItem id="save-svg" label="SVG" action={() => handleSave("image/svg+xml")} />
+                <Menu.MenuItem id="save-jpeg" label="JPEG" action={() => handleSave("image/jpeg")} />
+                <Menu.MenuItem id="save-webp" label="WEBP" action={() => handleSave("image/webp")} />
+                <Menu.MenuItem id="save-gif" label="GIF" action={() => handleSave("image/gif")} />
+                <Menu.MenuItem id="save-avif" label="AVIF" action={() => handleSave("image/avif")} />
             </Menu.MenuItem>
         </Menu.Menu>
     );
 }
 
-function IconModal({ iconName, Icon, onClose, transitionState }: { iconName: string; Icon: Icon; } & RenderModalProps) {
+function IconModal({ iconName, Icon, onClose, transitionState }: { iconName: string; Icon: Icon } & RenderModalProps) {
     const [color, setColor] = useColorNavigation(209);
     const colorData = cssColors[color];
     const colorKeys = useMemo(() => getCssColorKeys(), []);
@@ -229,19 +200,21 @@ function IconModal({ iconName, Icon, onClose, transitionState }: { iconName: str
         ContextMenuApi.openContextMenu(e, () => <ColorContextMenu colorKeys={colorKeys} />);
     };
 
-    const onWheel = useCallback((e: React.WheelEvent) => {
-        e.preventDefault();
-        const max = colorKeys.length;
-        setColor(c => {
-            const next = c + (e.deltaY > 0 ? 1 : -1);
-            return next < 0 ? max - 1 : next >= max ? 0 : next;
-        });
-    }, [colorKeys.length, setColor]);
+    const onWheel = useCallback(
+        (e: React.WheelEvent) => {
+            e.preventDefault();
+            const max = colorKeys.length;
+            setColor(c => {
+                const next = c + (e.deltaY > 0 ? 1 : -1);
+                return next < 0 ? max - 1 : next >= max ? 0 : next;
+            });
+        },
+        [colorKeys.length, setColor]
+    );
 
     const openOtherMenu = (e?: React.MouseEvent) => {
-        if (e) ContextMenuApi.openContextMenu(e, () => (
-            <OtherContextMenu iconName={iconName} Icon={Icon} color={color} />
-        ));
+        if (e)
+            ContextMenuApi.openContextMenu(e, () => <OtherContextMenu iconName={iconName} Icon={Icon} color={color} />);
     };
 
     return (
@@ -283,8 +256,12 @@ function IconModal({ iconName, Icon, onClose, transitionState }: { iconName: str
                 </Flex>
             </Flex>
             <div className="vc-ic-use-as">
-                <BaseText size="md" weight="semibold">Usage</BaseText>
-                <BaseText size="sm" color="text-muted">Click to copy</BaseText>
+                <BaseText size="md" weight="semibold">
+                    Usage
+                </BaseText>
+                <BaseText size="sm" color="text-muted">
+                    Click to copy
+                </BaseText>
             </div>
             {/* for some reason i cant make this shit codeblock full width, FF 15 */}
             <Clickable className="vc-ic-codeblock-wrapper" onClick={() => copyWithToast(findCode, "Copied!")}>

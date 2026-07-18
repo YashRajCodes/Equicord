@@ -26,7 +26,8 @@ export const settings = definePluginSettings({
     systemPrompt: {
         type: OptionType.STRING,
         description: "System Prompt for the AI. Placeholders: {current_user}, {current_time}",
-        default: "You are a helpful assistant who answers questions for the user in a concise and short way while using the least amount of words and punctuation.\nCurrent user: {current_user}\nCurrent time: {current_time}",
+        default:
+            "You are a helpful assistant who answers questions for the user in a concise and short way while using the least amount of words and punctuation.\nCurrent user: {current_user}\nCurrent time: {current_time}",
         placeholder: "Enter system prompt.",
         multiline: true
     },
@@ -48,12 +49,14 @@ export const settings = definePluginSettings({
     },
     passMessageAuthorName: {
         type: OptionType.BOOLEAN,
-        description: "Prepend the author's name to the message content when passing it to the AI. This can help the AI distinguish between different users in a conversation.",
+        description:
+            "Prepend the author's name to the message content when passing it to the AI. This can help the AI distinguish between different users in a conversation.",
         default: true
     },
     treatSelfAsAssistant: {
         type: OptionType.BOOLEAN,
-        description: "When enabled, your own messages will be treated as assistant messages in the context. This causes some models to start generating fanfic.",
+        description:
+            "When enabled, your own messages will be treated as assistant messages in the context. This causes some models to start generating fanfic.",
         default: false
     },
     mode: {

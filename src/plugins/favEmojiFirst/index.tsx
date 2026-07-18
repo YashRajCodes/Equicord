@@ -5,8 +5,16 @@
  */
 
 import "./styles.css";
+import { Emoji, Message } from "@vencord/discord-types";
+import { findByPropsLazy } from "@webpack";
 
-import { addGlobalContextMenuPatch, findGroupChildrenByChildId, GlobalContextMenuPatchCallback, NavContextMenuPatchCallback, removeGlobalContextMenuPatch } from "@api/ContextMenu";
+import {
+    addGlobalContextMenuPatch,
+    findGroupChildrenByChildId,
+    GlobalContextMenuPatchCallback,
+    NavContextMenuPatchCallback,
+    removeGlobalContextMenuPatch
+} from "@api/ContextMenu";
 import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
@@ -17,9 +25,7 @@ import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import { Emoji, Message } from "@vencord/discord-types";
-import { findByPropsLazy } from "@webpack";
-import { EmojiStore, Menu, openModal,TextInput, Toasts, useEffect, useState } from "@webpack/common";
+import { EmojiStore, Menu, openModal, TextInput, Toasts, useEffect, useState } from "@webpack/common";
 
 import { ClearAliasesConfirmModal } from "./components/modals/ClearAliasesConfirmModal";
 import { SetAliasModal } from "./components/modals/SetAliasModal";
@@ -66,7 +72,7 @@ interface EmojiAutocompleteState {
             sentinel?: string;
         };
         results?: {
-            emojis?: (EmojiResult[] & { sliceTo?: number; });
+            emojis?: EmojiResult[] & { sliceTo?: number };
         };
     };
 }
@@ -135,7 +141,10 @@ function notifyAliasesChanged() {
 
 function normalizeAlias(input: string): string {
     if (typeof input !== "string") return "";
-    return input.trim().replace(/^:+|:+$/g, "").toLowerCase();
+    return input
+        .trim()
+        .replace(/^:+|:+$/g, "")
+        .toLowerCase();
 }
 
 function normalizeEmojiName(input: string): string {
@@ -149,7 +158,8 @@ function normalizeEmojiNameForCompare(input: string | undefined): string {
 function getAliasValidationError(input: string): string | null {
     const normalized = normalizeAlias(input);
     if (!normalized.length) return "Alias is required.";
-    if (!/^[a-z0-9_]{2,32}$/.test(normalized)) return "Alias must be 2-32 characters and only use lowercase letters, numbers, or underscores.";
+    if (!/^[a-z0-9_]{2,32}$/.test(normalized))
+        return "Alias must be 2-32 characters and only use lowercase letters, numbers, or underscores.";
     return null;
 }
 
@@ -240,7 +250,7 @@ function isSameEmoji(left: StoredEmojiRef, right: StoredEmojiRef): boolean {
 function getEmojiDisplayName(ref: StoredEmojiRef): string {
     return ref.kind === "custom"
         ? `:${ref.name}:`
-        : getUnicodeSurrogate(ref) ?? resolveUnicodeSurrogateByName(ref.name) ?? `:${normalizeEmojiName(ref.name)}:`;
+        : (getUnicodeSurrogate(ref) ?? resolveUnicodeSurrogateByName(ref.name) ?? `:${normalizeEmojiName(ref.name)}:`);
 }
 
 function isGifUrl(url: string): boolean {
@@ -284,7 +294,9 @@ function resolveUnicodeSurrogateByName(name: string): string | undefined {
             const surrogate = result.surrogates ?? result.emojiObject?.surrogates;
             if (!surrogate) continue;
 
-            const resultName = normalizeEmojiNameForCompare(result.uniqueName ?? result.name ?? result.originalName ?? "");
+            const resultName = normalizeEmojiNameForCompare(
+                result.uniqueName ?? result.name ?? result.originalName ?? ""
+            );
             if (resultName === normalizedName.toLowerCase()) {
                 unicodeSurrogateCache.set(normalizedName, surrogate);
                 return surrogate;
@@ -365,11 +377,7 @@ function toEmojiRefFromExpressionTarget(target: ExpressionPickerTarget | undefin
 }
 
 function toEmojiRefFromElementTarget(target: unknown): StoredEmojiRef | null {
-    const htmlTarget = target instanceof HTMLElement
-        ? target
-        : target instanceof Node
-            ? target.parentElement
-            : null;
+    const htmlTarget = target instanceof HTMLElement ? target : target instanceof Node ? target.parentElement : null;
     if (!htmlTarget) return null;
 
     const emojiElement = htmlTarget.closest("[data-type='emoji']") as HTMLElement | null;
@@ -405,9 +413,7 @@ function toEmojiRefFromElementTarget(target: unknown): StoredEmojiRef | null {
 
     const id = idMatch[1];
     const fromStore = EmojiStore.getCustomEmojiById(id);
-    const resolvedName = fromStore?.name
-        ?? imageElement.alt?.replace(/^:|:$/g, "")
-        ?? "emoji";
+    const resolvedName = fromStore?.name ?? imageElement.alt?.replace(/^:|:$/g, "") ?? "emoji";
 
     return {
         kind: "custom",
@@ -443,10 +449,11 @@ function toEmojiRefFromHrefContext(args: MessageContextMenuArgs): StoredEmojiRef
         };
     }
 
-    const contentName = args.favoriteableName
-        ?? args.itemTextContent?.match(/:([a-zA-Z0-9_]+):/)?.[1]
-        ?? args.message?.content.match(RegExp(`<a?:(\\w+)(?:~\\d+)?:${id}>`))?.[1]
-        ?? "emoji";
+    const contentName =
+        args.favoriteableName ??
+        args.itemTextContent?.match(/:([a-zA-Z0-9_]+):/)?.[1] ??
+        args.message?.content.match(RegExp(`<a?:(\\w+)(?:~\\d+)?:${id}>`))?.[1] ??
+        "emoji";
 
     return {
         kind: "custom",
@@ -459,9 +466,10 @@ function toEmojiRefFromHrefContext(args: MessageContextMenuArgs): StoredEmojiRef
 function toEmojiRefFromFavoriteableContext(args: MessageContextMenuArgs): StoredEmojiRef | null {
     if (args.favoriteableType !== "emoji") return null;
     if (!args.favoriteableId) {
-        const unicode = getUnicodeFromNodeTarget(args.rawTarget)
-            ?? getUnicodeFromNodeTarget(args.target instanceof Node ? args.target : null)
-            ?? extractUnicodeEmoji(args.itemTextContent);
+        const unicode =
+            getUnicodeFromNodeTarget(args.rawTarget) ??
+            getUnicodeFromNodeTarget(args.target instanceof Node ? args.target : null) ??
+            extractUnicodeEmoji(args.itemTextContent);
         if (unicode) {
             return {
                 kind: "unicode",
@@ -488,10 +496,11 @@ function toEmojiRefFromFavoriteableContext(args: MessageContextMenuArgs): Stored
         };
     }
 
-    const contentName = args.favoriteableName
-        ?? args.itemTextContent?.match(/:([a-zA-Z0-9_]+):/)?.[1]
-        ?? args.message?.content.match(RegExp(`<a?:(\\w+)(?:~\\d+)?:${id}>`))?.[1]
-        ?? "emoji";
+    const contentName =
+        args.favoriteableName ??
+        args.itemTextContent?.match(/:([a-zA-Z0-9_]+):/)?.[1] ??
+        args.message?.content.match(RegExp(`<a?:(\\w+)(?:~\\d+)?:${id}>`))?.[1] ??
+        "emoji";
 
     return {
         kind: "custom",
@@ -524,11 +533,12 @@ function hasExplicitEmojiContext(args: MessageContextMenuArgs): boolean {
     const source = args.itemHref ?? args.itemSrc;
     if (source?.includes("/emojis/")) return true;
 
-    const target = args.target instanceof HTMLElement
-        ? args.target
-        : args.target instanceof Node
-            ? args.target.parentElement
-            : null;
+    const target =
+        args.target instanceof HTMLElement
+            ? args.target
+            : args.target instanceof Node
+              ? args.target.parentElement
+              : null;
     if (!target) return false;
 
     if (target.closest("[data-type='emoji']")) return true;
@@ -550,8 +560,16 @@ function normalizeContextKey(value: unknown): string {
     if (typeof value !== "object") return typeof value;
 
     const record = value as Record<string, unknown>;
-    const priorityValues = [record.id, record.channelId, record.guildId, record.type, record.emojiIntention, record.name]
-        .filter((candidate): candidate is string | number => typeof candidate === "string" || typeof candidate === "number");
+    const priorityValues = [
+        record.id,
+        record.channelId,
+        record.guildId,
+        record.type,
+        record.emojiIntention,
+        record.name
+    ].filter(
+        (candidate): candidate is string | number => typeof candidate === "string" || typeof candidate === "number"
+    );
     if (priorityValues.length) return priorityValues.map(String).join(":");
 
     const entries = Object.keys(record)
@@ -573,11 +591,11 @@ function resolveTargetFromArgs(args: unknown[]): HTMLElement | null {
         if (arg instanceof Node) return arg.parentElement;
         if (!arg || typeof arg !== "object") continue;
 
-        const maybeTarget = (arg as { target?: unknown; }).target;
+        const maybeTarget = (arg as { target?: unknown }).target;
         if (maybeTarget instanceof HTMLElement) return maybeTarget;
         if (maybeTarget instanceof Node) return maybeTarget.parentElement;
 
-        const nativeTarget = (arg as { nativeEvent?: { target?: unknown; }; }).nativeEvent?.target;
+        const nativeTarget = (arg as { nativeEvent?: { target?: unknown } }).nativeEvent?.target;
         if (nativeTarget instanceof HTMLElement) return nativeTarget;
         if (nativeTarget instanceof Node) return nativeTarget.parentElement;
     }
@@ -590,10 +608,10 @@ function resolveRawTargetFromArgs(args: unknown[]): Node | null {
         if (arg instanceof Node) return arg;
         if (!arg || typeof arg !== "object") continue;
 
-        const maybeTarget = (arg as { target?: unknown; }).target;
+        const maybeTarget = (arg as { target?: unknown }).target;
         if (maybeTarget instanceof Node) return maybeTarget;
 
-        const nativeTarget = (arg as { nativeEvent?: { target?: unknown; }; }).nativeEvent?.target;
+        const nativeTarget = (arg as { nativeEvent?: { target?: unknown } }).nativeEvent?.target;
         if (nativeTarget instanceof Node) return nativeTarget;
     }
 
@@ -652,7 +670,10 @@ function getExistingAliasForEmoji(ref: StoredEmojiRef): string {
     return "";
 }
 
-async function saveAlias(aliasInput: string, ref: StoredEmojiRef): Promise<{ ok: true; } | { ok: false; error: string; }> {
+async function saveAlias(
+    aliasInput: string,
+    ref: StoredEmojiRef
+): Promise<{ ok: true } | { ok: false; error: string }> {
     const validationError = getAliasValidationError(aliasInput);
     if (validationError) return { ok: false, error: validationError };
 
@@ -663,13 +684,14 @@ async function saveAlias(aliasInput: string, ref: StoredEmojiRef): Promise<{ ok:
         return { ok: false, error: "Duplicate alias" };
     }
 
-    const normalizedRef = ref.kind === "unicode"
-        ? {
-            ...ref,
-            name: normalizeEmojiName(ref.name),
-            surrogates: getUnicodeSurrogate(ref) ?? resolveUnicodeSurrogateByName(ref.name)
-        }
-        : ref;
+    const normalizedRef =
+        ref.kind === "unicode"
+            ? {
+                  ...ref,
+                  name: normalizeEmojiName(ref.name),
+                  surrogates: getUnicodeSurrogate(ref) ?? resolveUnicodeSurrogateByName(ref.name)
+              }
+            : ref;
 
     const nextMap = { ...aliasMap };
     for (const [existingAlias, existingRef] of Object.entries(nextMap)) {
@@ -773,20 +795,22 @@ function queryAliasEmojiResult(aliasEmoji: StoredEmojiRef, channel: unknown, int
     const cached = aliasResultCache.get(cacheKey);
     if (cached !== undefined) return cached;
 
-    const baseQuery = getUnicodeSurrogate(aliasEmoji) ?? resolveUnicodeSurrogateByName(aliasEmoji.name) ?? aliasEmoji.name;
+    const baseQuery =
+        getUnicodeSurrogate(aliasEmoji) ?? resolveUnicodeSurrogateByName(aliasEmoji.name) ?? aliasEmoji.name;
     if (!baseQuery.length) {
         aliasResultCache.set(cacheKey, null);
         return null;
     }
 
-    const queryCandidates = aliasEmoji.kind === "custom"
-        ? [aliasEmoji.name, `:${aliasEmoji.name}:`, baseQuery]
-        : [
-            getUnicodeSurrogate(aliasEmoji),
-            normalizeEmojiName(aliasEmoji.name),
-            `:${normalizeEmojiName(aliasEmoji.name)}:`,
-            baseQuery
-        ].filter((value): value is string => !!value && value.length > 0);
+    const queryCandidates =
+        aliasEmoji.kind === "custom"
+            ? [aliasEmoji.name, `:${aliasEmoji.name}:`, baseQuery]
+            : [
+                  getUnicodeSurrogate(aliasEmoji),
+                  normalizeEmojiName(aliasEmoji.name),
+                  `:${normalizeEmojiName(aliasEmoji.name)}:`,
+                  baseQuery
+              ].filter((value): value is string => !!value && value.length > 0);
 
     for (const query of queryCandidates) {
         const queried = EmojiQueryService.queryEmojiResults({
@@ -799,22 +823,25 @@ function queryAliasEmojiResult(aliasEmoji: StoredEmojiRef, channel: unknown, int
         const unlocked = queried?.emojis?.unlocked as EmojiResult[] | undefined;
         if (!unlocked?.length) continue;
 
-        const resolved = unlocked.find(result => {
-            if (aliasEmoji.kind === "custom") {
-                return emojiIdentityFromResult(result) === emojiIdentityFromRef(aliasEmoji);
-            }
+        const resolved =
+            unlocked.find(result => {
+                if (aliasEmoji.kind === "custom") {
+                    return emojiIdentityFromResult(result) === emojiIdentityFromRef(aliasEmoji);
+                }
 
-            const refSurrogate = getUnicodeSurrogate(aliasEmoji) ?? resolveUnicodeSurrogateByName(aliasEmoji.name);
-            const resultSurrogate = (result.surrogates ?? result.emojiObject?.surrogates)?.trim();
-            if (refSurrogate && resultSurrogate) return refSurrogate === resultSurrogate;
+                const refSurrogate = getUnicodeSurrogate(aliasEmoji) ?? resolveUnicodeSurrogateByName(aliasEmoji.name);
+                const resultSurrogate = (result.surrogates ?? result.emojiObject?.surrogates)?.trim();
+                if (refSurrogate && resultSurrogate) return refSurrogate === resultSurrogate;
 
-            const resultCustomId = result.id ?? result.emojiObject?.id;
-            if (resultCustomId) return false;
+                const resultCustomId = result.id ?? result.emojiObject?.id;
+                if (resultCustomId) return false;
 
-            const refName = normalizeEmojiNameForCompare(aliasEmoji.name);
-            const resultName = normalizeEmojiNameForCompare(result.uniqueName ?? result.name ?? result.originalName ?? "");
-            return !!refName && refName === resultName;
-        }) ?? null;
+                const refName = normalizeEmojiNameForCompare(aliasEmoji.name);
+                const resultName = normalizeEmojiNameForCompare(
+                    result.uniqueName ?? result.name ?? result.originalName ?? ""
+                );
+                return !!refName && refName === resultName;
+            }) ?? null;
         if (resolved) {
             aliasResultCache.set(cacheKey, resolved);
             return resolved;
@@ -832,7 +859,8 @@ function fallbackAliasEmojiResult(aliasEmoji: StoredEmojiRef, template: EmojiRes
 
     if (!aliasEmoji.id) return null;
 
-    const storeEmoji = EmojiStore.getUsableCustomEmojiById(aliasEmoji.id) ?? EmojiStore.getCustomEmojiById(aliasEmoji.id);
+    const storeEmoji =
+        EmojiStore.getUsableCustomEmojiById(aliasEmoji.id) ?? EmojiStore.getCustomEmojiById(aliasEmoji.id);
     if (!storeEmoji) return null;
 
     const hasWrapperShape = !!template?.emojiObject || "emojiObject" in (template ?? {});
@@ -864,7 +892,12 @@ function fallbackAliasEmojiResult(aliasEmoji: StoredEmojiRef, template: EmojiRes
     };
 }
 
-function injectAliasResults(emojis: EmojiResult[], queryText: string, channel: unknown, intention: unknown): EmojiResult[] {
+function injectAliasResults(
+    emojis: EmojiResult[],
+    queryText: string,
+    channel: unknown,
+    intention: unknown
+): EmojiResult[] {
     const query = normalizeAlias(queryText);
     if (!query) return emojis;
 
@@ -880,9 +913,7 @@ function injectAliasResults(emojis: EmojiResult[], queryText: string, channel: u
         if (seen.has(identity)) continue;
 
         const fromQuery = queryAliasEmojiResult(ref, channel, intention);
-        const resolved = ref.kind === "unicode"
-            ? fromQuery
-            : fromQuery ?? fallbackAliasEmojiResult(ref, template);
+        const resolved = ref.kind === "unicode" ? fromQuery : (fromQuery ?? fallbackAliasEmojiResult(ref, template));
         if (!resolved) continue;
 
         if (alias === query) {
@@ -940,9 +971,16 @@ function openClearAliasesConfirmModal() {
     openModal(props => <ClearAliasesConfirmModal modalProps={props} onConfirm={clearAliases} />);
 }
 
-function EmojiPreview({ emojiRef }: { emojiRef: StoredEmojiRef; }) {
+function EmojiPreview({ emojiRef }: { emojiRef: StoredEmojiRef }) {
     if (emojiRef.kind === "custom" && emojiRef.id) {
-        return <img src={`https://${window.GLOBAL_ENV.CDN_HOST}/emojis/${emojiRef.id}.${emojiRef.animated ? "gif" : "png"}?size=32`} width="20" height="20" alt={emojiRef.name} />;
+        return (
+            <img
+                src={`https://${window.GLOBAL_ENV.CDN_HOST}/emojis/${emojiRef.id}.${emojiRef.animated ? "gif" : "png"}?size=32`}
+                width="20"
+                height="20"
+                alt={emojiRef.name}
+            />
+        );
     }
 
     const previewUrl = getUnicodePreviewUrl(emojiRef);
@@ -953,7 +991,7 @@ function EmojiPreview({ emojiRef }: { emojiRef: StoredEmojiRef; }) {
     return <BaseText>{getEmojiDisplayName(emojiRef)}</BaseText>;
 }
 
-function AliasRow({ alias, emojiRef }: { alias: string; emojiRef: StoredEmojiRef; }) {
+function AliasRow({ alias, emojiRef }: { alias: string; emojiRef: StoredEmojiRef }) {
     const [isEditing, setIsEditing] = useState(false);
     const [draftAlias, setDraftAlias] = useState(alias);
     const [error, setError] = useState<string | null>(null);
@@ -1019,7 +1057,9 @@ function AliasRow({ alias, emojiRef }: { alias: string; emojiRef: StoredEmojiRef
                 >
                     <PencilIcon width={14} height={14} />
                 </Button>
-                <Button variant="dangerSecondary" size="small" onClick={() => removeAlias(alias)}>Remove</Button>
+                <Button variant="dangerSecondary" size="small" onClick={() => removeAlias(alias)}>
+                    Remove
+                </Button>
             </div>
         </div>
     );
@@ -1059,7 +1099,10 @@ function ClearAllAliasesSetting() {
     );
 }
 
-const expressionPickerPatch: NavContextMenuPatchCallback = (children, { target }: { target?: ExpressionPickerTarget; }) => {
+const expressionPickerPatch: NavContextMenuPatchCallback = (
+    children,
+    { target }: { target?: ExpressionPickerTarget }
+) => {
     const emojiRef = toEmojiRefFromExpressionTarget(target);
     if (!emojiRef) return;
 
@@ -1083,7 +1126,7 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (children, ...args:
     insertSetAliasMenuItem(children, emojiRef);
 };
 
-const messageSendListener = (_channelId: string, messageObj: { content: string; }) => {
+const messageSendListener = (_channelId: string, messageObj: { content: string }) => {
     if (!messageObj.content || !Object.keys(aliasMap).length) return;
 
     messageObj.content = messageObj.content.replace(/:([a-z0-9_]{2,32}):/gi, (match, aliasName) => {
@@ -1106,7 +1149,7 @@ export default definePlugin({
     settings,
     contextMenus: {
         "expression-picker": expressionPickerPatch,
-        "message": messageContextMenuPatch,
+        message: messageContextMenuPatch,
         "message-actions": messageContextMenuPatch,
         "textarea-context": messageContextMenuPatch
     },
@@ -1120,15 +1163,15 @@ export default definePlugin({
                     // https://regex101.com/r/N7kpLM/1
                     match: /let \i=.{1,100}renderResults\({results:(\i)\.query\.results,/,
                     replace: "$self.sortEmojis($1);$&"
-                },
-            ],
+                }
+            ]
         },
         {
             find: "renderResults({results:",
             replacement: {
                 match: /let \i=.{1,100}renderResults\({results:(\i)\.query\.results,/,
                 replace: "$self.sortEmojis($1);$&"
-            },
+            }
         },
         {
             find: "numEmojiResults:",
@@ -1155,7 +1198,12 @@ export default definePlugin({
         await loadAliases();
 
         globalContextPatch = (_navId, children, ...args) => {
-            if (_navId === "expression-picker" || _navId === "message" || _navId === "message-actions" || _navId === "textarea-context") {
+            if (
+                _navId === "expression-picker" ||
+                _navId === "message" ||
+                _navId === "message-actions" ||
+                _navId === "textarea-context"
+            ) {
                 return;
             }
             const alreadyAdded = children.some(child => child?.props?.id === "vc-emoji-alias-set");
@@ -1188,7 +1236,7 @@ export default definePlugin({
         const query = normalizeAlias(getAutocompleteQuery(state.query));
         if (!query) return;
 
-        const { channel, intention } = state.query as { channel?: unknown; intention?: unknown; };
+        const { channel, intention } = state.query as { channel?: unknown; intention?: unknown };
         const injectedResults = injectAliasResults(state.query.results.emojis, query, channel, intention);
         const emojiContext = EmojiStore.getDisambiguatedEmojiContext();
 
@@ -1250,6 +1298,9 @@ export default definePlugin({
             }
         }
 
-        state.query.results.emojis = [...exact, ...prefix, ...rest].slice(0, state.query.results.emojis.sliceTo ?? Infinity) as EmojiResult[] & { sliceTo?: number; };
+        state.query.results.emojis = [...exact, ...prefix, ...rest].slice(
+            0,
+            state.query.results.emojis.sliceTo ?? Infinity
+        ) as EmojiResult[] & { sliceTo?: number };
     }
 });

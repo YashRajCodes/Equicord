@@ -19,11 +19,16 @@ export const settings = definePluginSettings({
     servicesSettings: {
         type: OptionType.CUSTOM,
         description: "settings for services",
-        default: Object.fromEntries(Object.entries(Providers).map(([name, data]) => [name, {
-            enabled: true,
-            // @ts-ignore
-            openInNative: data.native || false
-        }]))
+        default: Object.fromEntries(
+            Object.entries(Providers).map(([name, data]) => [
+                name,
+                {
+                    enabled: true,
+                    // @ts-ignore
+                    openInNative: data.native || false
+                }
+            ])
+        )
     },
     userCountry: {
         type: OptionType.STRING,
@@ -33,7 +38,7 @@ export const settings = definePluginSettings({
     includeMetadata: {
         type: OptionType.BOOLEAN,
         description: "Include the track title and artist name as a header.",
-        default: true,
+        default: true
     },
     servicesComponent: {
         type: OptionType.COMPONENT,
@@ -84,9 +89,9 @@ function formatMessage(data: SongLinkResult): string | null {
     return parts.join("\n");
 }
 
-function SongLinkerList({ urls }: { urls: string[]; }) {
-    const [resolvedKeys, setResolvedKeys] = useState<Record<string, string | null>>(
-        () => Object.fromEntries(urls.map(u => [u, null]))
+function SongLinkerList({ urls }: { urls: string[] }) {
+    const [resolvedKeys, setResolvedKeys] = useState<Record<string, string | null>>(() =>
+        Object.fromEntries(urls.map(u => [u, null]))
     );
 
     useEffect(() => {
@@ -94,10 +99,8 @@ function SongLinkerList({ urls }: { urls: string[]; }) {
     }, [urls.join("\n")]);
 
     function onResolved(url: string, result: SongLinkResult) {
-        const key = result.info
-            ? `${result.info.title}\0${result.info.artist}`
-            : url;
-        setResolvedKeys(prev => prev[url] === key ? prev : { ...prev, [url]: key });
+        const key = result.info ? `${result.info.title}\0${result.info.artist}` : url;
+        setResolvedKeys(prev => (prev[url] === key ? prev : { ...prev, [url]: key }));
     }
 
     const seenKeys = new Set<string>();
@@ -109,16 +112,20 @@ function SongLinkerList({ urls }: { urls: string[]; }) {
         return true;
     });
 
-    return <div style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        marginTop: "7px"
-    }}>
-        {dedupedUrls.map(url => (
-            <SongLinker key={url} url={url} onResolved={onResolved} />
-        ))}
-    </div>;
+    return (
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "10px",
+                marginTop: "7px"
+            }}
+        >
+            {dedupedUrls.map(url => (
+                <SongLinker key={url} url={url} onResolved={onResolved} />
+            ))}
+        </div>
+    );
 }
 
 export default definePlugin({
@@ -129,12 +136,14 @@ export default definePlugin({
     authors: [Devs.nin0dev, EquicordDevs.NassCT],
     settings,
     Providers,
-    cache: ({} as Record<string, SongLinkResult>),
+    cache: {} as Record<string, SongLinkResult>,
     addToCache(link, data: SongLinkResult) {
         this.cache[link] = data;
     },
     renderMessageAccessory(props: Record<string, any>) {
-        const { content }: {
+        const {
+            content
+        }: {
             content: string;
         } = props.message;
         if (!content) return;
@@ -162,21 +171,21 @@ export default definePlugin({
                     name: "url",
                     description: "Music link (Spotify, Deezer, YouTube, Tidal, Apple Music, SoundCloud)",
                     type: ApplicationCommandOptionType.STRING,
-                    required: true,
-                },
+                    required: true
+                }
             ],
             execute: async (opts, ctx) => {
                 const url = findOption<string>(opts, "url", "");
 
                 if (!url) {
                     sendBotMessage(ctx.channel.id, {
-                        content: "Please provide a music link.",
+                        content: "Please provide a music link."
                     });
                     return;
                 }
 
                 sendBotMessage(ctx.channel.id, {
-                    content: "This will take a moment...",
+                    content: "This will take a moment..."
                 });
 
                 try {
@@ -185,8 +194,7 @@ export default definePlugin({
 
                     if (!formatted) {
                         sendBotMessage(ctx.channel.id, {
-                            content:
-                                "No alternative platforms found for this link.",
+                            content: "No alternative platforms found for this link."
                         });
                         return;
                     }
@@ -194,10 +202,10 @@ export default definePlugin({
                     sendMessage(ctx.channel.id, { content: formatted });
                 } catch (e: any) {
                     sendBotMessage(ctx.channel.id, {
-                        content: "Failed to resolve music link",
+                        content: "Failed to resolve music link"
                     });
                 }
-            },
-        },
-    ],
+            }
+        }
+    ]
 });

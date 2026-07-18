@@ -4,14 +4,27 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { JSX, MouseEvent } from "react";
+
 import { type AudioPlayerInterface, createAudioPlayer, defaultAudioNames } from "@api/AudioPlayer";
 import { useEffect, useMemo, useRef, useState } from "@webpack/common";
-import type { JSX, MouseEvent } from "react";
 
 import { getQuestifySettings, useQuestifySettings } from "../settings/access";
 import { startAutoFetchingQuests } from "../settings/fetching";
 import { q } from "../utils/ui";
-import { ManaSelectFormattedOption, ManaSelectOption, SettingsCard, SettingsDescription, SettingsHeader, SettingsRow, SettingsRowItem, SettingsSelect, SettingsSlider, SettingsSubheader, SettingsSubtleSwitch } from "./shared";
+import {
+    ManaSelectFormattedOption,
+    ManaSelectOption,
+    SettingsCard,
+    SettingsDescription,
+    SettingsHeader,
+    SettingsRow,
+    SettingsRowItem,
+    SettingsSelect,
+    SettingsSlider,
+    SettingsSubheader,
+    SettingsSubtleSwitch
+} from "./shared";
 
 const questFetchIntervalOptions = [
     { id: "30-minutes", label: "30 Minutes", value: String(30 * 60) },
@@ -19,21 +32,20 @@ const questFetchIntervalOptions = [
     { id: "1-hour", label: "1 Hour", value: String(60 * 60) },
     { id: "3-hours", label: "3 Hours", value: String(3 * 60 * 60) },
     { id: "6-hours", label: "6 Hours", value: String(6 * 60 * 60) },
-    { id: "12-hours", label: "12 Hours", value: String(12 * 60 * 60) },
+    { id: "12-hours", label: "12 Hours", value: String(12 * 60 * 60) }
 ] satisfies ManaSelectOption[];
 
-function SoundIcon({ className }: { className?: string; }): JSX.Element {
+function SoundIcon({ className }: { className?: string }): JSX.Element {
     return (
-        <svg
-            viewBox="0 0 24 24"
-            height={18}
-            width={18}
-            fill="none"
-            className={className}
-            aria-hidden={true}
-        >
-            <path fill="currentColor" d="M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2.92l4.28 4.68a1 1 0 0 0 .74.32H11a1 1 0 0 0 1-1V3ZM15.1 20.75c-.58.14-1.1-.33-1.1-.92v-.03c0-.5.37-.92.85-1.05a7 7 0 0 0 0-13.5A1.11 1.11 0 0 1 14 4.2v-.03c0-.6.52-1.06 1.1-.92a9 9 0 0 1 0 17.5Z" />
-            <path fill="currentColor" d="M15.16 16.51c-.57.28-1.16-.2-1.16-.83v-.14c0-.43.28-.8.63-1.02a3 3 0 0 0 0-5.04c-.35-.23-.63-.6-.63-1.02v-.14c0-.63.59-1.1 1.16-.83a5 5 0 0 1 0 9.02Z" />
+        <svg viewBox="0 0 24 24" height={18} width={18} fill="none" className={className} aria-hidden={true}>
+            <path
+                fill="currentColor"
+                d="M12 3a1 1 0 0 0-1-1h-.06a1 1 0 0 0-.74.32L5.92 7H3a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h2.92l4.28 4.68a1 1 0 0 0 .74.32H11a1 1 0 0 0 1-1V3ZM15.1 20.75c-.58.14-1.1-.33-1.1-.92v-.03c0-.5.37-.92.85-1.05a7 7 0 0 0 0-13.5A1.11 1.11 0 0 1 14 4.2v-.03c0-.6.52-1.06 1.1-.92a9 9 0 0 1 0 17.5Z"
+            />
+            <path
+                fill="currentColor"
+                d="M15.16 16.51c-.57.28-1.16-.2-1.16-.83v-.14c0-.43.28-.8.63-1.02a3 3 0 0 0 0-5.04c-.35-.23-.63-.6-.63-1.02v-.14c0-.63.59-1.1 1.16-.83a5 5 0 0 1 0 9.02Z"
+            />
         </svg>
     );
 }
@@ -43,16 +55,13 @@ function getSoundOptions(): ManaSelectOption[] {
         .map(sound => ({
             id: sound,
             label: formatSoundName(sound),
-            value: sound,
+            value: sound
         }))
         .sort((a, b) => a.label.localeCompare(b.label));
 }
 
 function formatSoundName(sound: string): string {
-    return sound
-        .toUpperCase()
-        .replace(/_/g, " ")
-        .replace(/(\d+)/g, " $1");
+    return sound.toUpperCase().replace(/_/g, " ").replace(/(\d+)/g, " $1");
 }
 
 interface QuestNotificationSoundSelectProps {
@@ -62,7 +71,7 @@ interface QuestNotificationSoundSelectProps {
     onPreview: (sound: string) => void;
     options: ManaSelectOption[];
     playingSound: string | null;
-    tooltip?: { position: "top" | "bottom", text: string; };
+    tooltip?: { position: "top" | "bottom"; text: string };
     value: string | null;
 }
 
@@ -74,7 +83,7 @@ function QuestNotificationSoundSelect({
     options,
     playingSound,
     tooltip,
-    value,
+    value
 }: QuestNotificationSoundSelectProps): JSX.Element {
     function formatOption(option: ManaSelectOption): ManaSelectFormattedOption {
         const sound = option.value || null;
@@ -96,20 +105,18 @@ function QuestNotificationSoundSelect({
 
         return {
             ...option,
-            trailing: sound
-                ? (
-                    <button
-                        type="button"
-                        className={q("sound-preview-button", isPlaying ? "playing-audio" : undefined)}
-                        aria-label={`Preview ${option.label}`}
-                        disabled={disabled}
-                        onMouseDown={handlePreviewMouseDown}
-                        onClick={handlePreviewClick}
-                    >
-                        <SoundIcon />
-                    </button>
-                )
-                : undefined,
+            trailing: sound ? (
+                <button
+                    type="button"
+                    className={q("sound-preview-button", isPlaying ? "playing-audio" : undefined)}
+                    aria-label={`Preview ${option.label}`}
+                    disabled={disabled}
+                    onMouseDown={handlePreviewMouseDown}
+                    onClick={handlePreviewClick}
+                >
+                    <SoundIcon />
+                </button>
+            ) : undefined
         };
     }
 
@@ -148,7 +155,7 @@ export function QuestNotificationsSetting(): JSX.Element {
         "notifyOnNewQuests",
         "notifyOnQuestComplete",
         "questCompletedAlertSound",
-        "questCompletedAlertVolume",
+        "questCompletedAlertVolume"
     ]);
 
     const soundOptions = useMemo(getSoundOptions, []);
@@ -171,7 +178,10 @@ export function QuestNotificationsSetting(): JSX.Element {
         }
 
         clearActivePlayer();
-        const player = createAudioPlayer(sound, { volume: Math.max(0, Math.min(100, volume)), onEnded: clearActivePlayer });
+        const player = createAudioPlayer(sound, {
+            volume: Math.max(0, Math.min(100, volume)),
+            onEnded: clearActivePlayer
+        });
         activePlayer.current = player;
         setPlayingSound(sound);
         player?.play();
@@ -195,13 +205,17 @@ export function QuestNotificationsSetting(): JSX.Element {
     return (
         <SettingsCard>
             <SettingsHeader> Quest Notifications </SettingsHeader>
-            <SettingsDescription>Configure Quest completed and new Quest detected notifications and alerts. </SettingsDescription>
+            <SettingsDescription>
+                Configure Quest completed and new Quest detected notifications and alerts.{" "}
+            </SettingsDescription>
             <SettingsSubheader> Quest Completed </SettingsSubheader>
             <SettingsSubtleSwitch
                 checked={questNotifications.notifyOnQuestComplete}
                 disabled={disabled}
                 label="Show a notification when a Quest is completed:"
-                onChange={checked => { getQuestifySettings().notifyOnQuestComplete = checked; }}
+                onChange={checked => {
+                    getQuestifySettings().notifyOnQuestComplete = checked;
+                }}
                 bottomSpacing="5"
             />
             <SettingsRow>
@@ -213,7 +227,9 @@ export function QuestNotificationsSetting(): JSX.Element {
                         value={questNotifications.questCompletedAlertSound}
                         playingSound={playingSound}
                         onPreview={sound => previewSound(sound, questNotifications.questCompletedAlertVolume)}
-                        onChange={value => { getQuestifySettings().questCompletedAlertSound = value; }}
+                        onChange={value => {
+                            getQuestifySettings().questCompletedAlertSound = value;
+                        }}
                     />
                 </SettingsRowItem>
                 <SettingsRowItem className="volume-slider-row-item">
@@ -222,7 +238,9 @@ export function QuestNotificationsSetting(): JSX.Element {
                         className="inline-volume-slider"
                         disabled={disabled}
                         value={questNotifications.questCompletedAlertVolume}
-                        onChange={value => { getQuestifySettings().questCompletedAlertVolume = value; }}
+                        onChange={value => {
+                            getQuestifySettings().questCompletedAlertVolume = value;
+                        }}
                     />
                 </SettingsRowItem>
             </SettingsRow>
@@ -258,7 +276,9 @@ export function QuestNotificationsSetting(): JSX.Element {
                         className="inline-volume-slider"
                         disabled={disabled}
                         value={questNotifications.newQuestAlertVolume}
-                        onChange={value => { getQuestifySettings().newQuestAlertVolume = value; }}
+                        onChange={value => {
+                            getQuestifySettings().newQuestAlertVolume = value;
+                        }}
                     />
                 </SettingsRowItem>
             </SettingsRow>
@@ -274,8 +294,9 @@ export function QuestNotificationsSetting(): JSX.Element {
                 }}
                 tooltip={{
                     position: "top",
-                    text: "Some Quests are excluded from your available Quests list due to region or platform restrictions."
-                        + "\n\nWhen enabled, Questify will fetch their Quest configs, apply your included Quest and reward type filters, print the resolved excluded Quest data to console, and show a separate notification for matching excluded Quests."
+                    text:
+                        "Some Quests are excluded from your available Quests list due to region or platform restrictions." +
+                        "\n\nWhen enabled, Questify will fetch their Quest configs, apply your included Quest and reward type filters, print the resolved excluded Quest data to console, and show a separate notification for matching excluded Quests."
                 }}
             />
             <SettingsRow>
@@ -293,8 +314,9 @@ export function QuestNotificationsSetting(): JSX.Element {
                         }}
                         tooltip={{
                             position: "top",
-                            text: "Some Quests are excluded from your available Quests list due to region or platform restrictions."
-                                + "\n\nWhen a sound is selected, Questify will fetch their Quest configs, apply your included Quest and reward type filters, print the resolved excluded Quest data to console, and play this sound for matching excluded Quests."
+                            text:
+                                "Some Quests are excluded from your available Quests list due to region or platform restrictions." +
+                                "\n\nWhen a sound is selected, Questify will fetch their Quest configs, apply your included Quest and reward type filters, print the resolved excluded Quest data to console, and play this sound for matching excluded Quests."
                         }}
                     />
                 </SettingsRowItem>
@@ -304,7 +326,9 @@ export function QuestNotificationsSetting(): JSX.Element {
                         className="inline-volume-slider"
                         disabled={disabled}
                         value={questNotifications.newExcludedQuestAlertVolume}
-                        onChange={value => { getQuestifySettings().newExcludedQuestAlertVolume = value; }}
+                        onChange={value => {
+                            getQuestifySettings().newExcludedQuestAlertVolume = value;
+                        }}
                     />
                 </SettingsRowItem>
             </SettingsRow>
@@ -314,7 +338,11 @@ export function QuestNotificationsSetting(): JSX.Element {
                         className="margin-top-12"
                         label="Quest Fetch Interval:"
                         options={questFetchIntervalOptions}
-                        value={questNotifications.questFetchInterval > 0 ? String(questNotifications.questFetchInterval) : null}
+                        value={
+                            questNotifications.questFetchInterval > 0
+                                ? String(questNotifications.questFetchInterval)
+                                : null
+                        }
                         selectionMode="single"
                         disabled={disabled}
                         clearable={true}
@@ -324,9 +352,10 @@ export function QuestNotificationsSetting(): JSX.Element {
                         onSelectionChange={updateFetchInterval}
                         tooltip={{
                             position: "top",
-                            text: "Discord only fetches Quests on load and when you visit the Quests page."
-                                + "\n\nThis interval periodically fetches Quests for you while the client stays open, so Quest Button indicators and new Quest alerts can stay up to date throughout the day."
-                                + "\n\nThis only runs if enabled and if the Quest Button or Quest Notifications settings are configured in a way which makes fetching periodically meaningful."
+                            text:
+                                "Discord only fetches Quests on load and when you visit the Quests page." +
+                                "\n\nThis interval periodically fetches Quests for you while the client stays open, so Quest Button indicators and new Quest alerts can stay up to date throughout the day." +
+                                "\n\nThis only runs if enabled and if the Quest Button or Quest Notifications settings are configured in a way which makes fetching periodically meaningful."
                         }}
                     />
                 </SettingsRowItem>

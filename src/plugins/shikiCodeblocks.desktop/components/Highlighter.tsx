@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { resolveLang } from "@plugins/shikiCodeblocks.desktop/api/languages";
@@ -62,16 +62,8 @@ export const HighlighterContainer = (props: HighlighterProps) => {
     );
 };
 
-export const Highlighter = ({
-    lang,
-    content,
-    isPreview,
-}: HighlighterProps) => {
-    const {
-        tryHljs,
-        useDevIcon,
-        bgOpacity,
-    } = useShikiSettings(["tryHljs", "useDevIcon", "bgOpacity"]);
+export const Highlighter = ({ lang, content, isPreview }: HighlighterProps) => {
+    const { tryHljs, useDevIcon, bgOpacity } = useShikiSettings(["tryHljs", "useDevIcon", "bgOpacity"]);
     const { id: currentThemeId, theme: currentTheme } = useTheme();
 
     const shikiLang = lang ? resolveLang(lang) : null;
@@ -79,21 +71,22 @@ export const Highlighter = ({
 
     const [rootRef, isIntersecting] = useIntersection(true);
 
-    const [tokens] = useAwaiter(async () => {
-        if (!shikiLang || useHljs || !isIntersecting) return null;
-        return await shiki.tokenizeCode(content, lang!);
-    }, {
-        fallbackValue: null,
-        deps: [lang, content, currentThemeId, isIntersecting],
-    });
+    const [tokens] = useAwaiter(
+        async () => {
+            if (!shikiLang || useHljs || !isIntersecting) return null;
+            return await shiki.tokenizeCode(content, lang!);
+        },
+        {
+            fallbackValue: null,
+            deps: [lang, content, currentThemeId, isIntersecting]
+        }
+    );
 
     const themeBase: ThemeBase = {
         plainColor: currentTheme?.fg || "var(--text-default)",
-        accentBgColor:
-            currentTheme?.colors?.["statusBar.background"] || (useHljs ? "#7289da" : "#007BC8"),
+        accentBgColor: currentTheme?.colors?.["statusBar.background"] || (useHljs ? "#7289da" : "#007BC8"),
         accentFgColor: currentTheme?.colors?.["statusBar.foreground"] || "#FFF",
-        backgroundColor:
-            currentTheme?.colors?.["editor.background"] || "var(--background-base-lower)",
+        backgroundColor: currentTheme?.colors?.["editor.background"] || "var(--background-base-lower)"
     };
 
     let langName;
@@ -107,28 +100,15 @@ export const Highlighter = ({
                 backgroundColor: useHljs
                     ? themeBase.backgroundColor
                     : `rgba(${hex2Rgb(themeBase.backgroundColor)
-                        .concat(bgOpacity / 100)
-                        .join(", ")})`,
-                color: themeBase.plainColor,
+                          .concat(bgOpacity / 100)
+                          .join(", ")})`,
+                color: themeBase.plainColor
             }}
         >
             <code className={cl("code")}>
-                <Header
-                    langName={langName}
-                    useDevIcon={useDevIcon}
-                    shikiLang={shikiLang}
-                />
-                <Code
-                    theme={themeBase}
-                    useHljs={useHljs}
-                    lang={lang}
-                    content={content}
-                    tokens={tokens}
-                />
-                {!isPreview && <ButtonRow
-                    content={content}
-                    theme={themeBase}
-                />}
+                <Header langName={langName} useDevIcon={useDevIcon} shikiLang={shikiLang} />
+                <Code theme={themeBase} useHljs={useHljs} lang={lang} content={content} tokens={tokens} />
+                {!isPreview && <ButtonRow content={content} theme={themeBase} />}
             </code>
         </div>
     );

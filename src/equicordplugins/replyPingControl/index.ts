@@ -4,45 +4,49 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { MessageJSON } from "@vencord/discord-types";
+
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { MessageJSON } from "@vencord/discord-types";
 import { MessageStore, UserStore } from "@webpack/common";
 
 export const settings = definePluginSettings({
     alwaysPingOnReply: {
         type: OptionType.BOOLEAN,
         description: "Always get pinged when someone replies to your messages",
-        default: false,
+        default: false
     },
     replyPingWhitelist: {
         type: OptionType.STRING,
         description: "Comma-separated list of User IDs to always receive reply pings from",
         default: "",
-        disabled: () => settings.store.alwaysPingOnReply,
+        disabled: () => settings.store.alwaysPingOnReply
     },
     replyPingBlacklist: {
         type: OptionType.STRING,
         description: "Comma-separated list of User IDs to never receive reply pings from",
-        default: "",
+        default: ""
     }
 });
 
 export default definePlugin({
     name: "ReplyPingControl",
-    description: "Control whether to always or never get pinged on message replies, with whitelist and blacklist features",
+    description:
+        "Control whether to always or never get pinged on message replies, with whitelist and blacklist features",
     tags: ["Chat", "Notifications"],
     authors: [Devs.ant0n, EquicordDevs.MrDiamond, EquicordDevs.keircn],
     settings,
 
-    patches: [{
-        find: "_channelMessages",
-        replacement: {
-            match: /receiveMessage\((\i)\)\{/,
-            replace: "$&$self.modifyMentions($1);"
+    patches: [
+        {
+            find: "_channelMessages",
+            replacement: {
+                match: /receiveMessage\((\i)\)\{/,
+                replace: "$&$self.modifyMentions($1);"
+            }
         }
-    }],
+    ],
 
     modifyMentions(message: MessageJSON) {
         const user = UserStore.getCurrentUser();
@@ -73,5 +77,5 @@ export default definePlugin({
     getRepliedMessage(message: MessageJSON) {
         const ref = message.message_reference;
         return ref && MessageStore.getMessage(ref.channel_id, ref.message_id);
-    },
+    }
 });

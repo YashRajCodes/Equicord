@@ -9,5 +9,5 @@ import type { CaptionDefinition } from "../types";
 export const noneCaption: CaptionDefinition = {
     type: "none",
     name: "None",
-    render: () => { },
+    render: () => {}
 };

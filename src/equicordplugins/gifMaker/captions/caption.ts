@@ -7,9 +7,15 @@
 import { getCanvasFont } from "../fonts";
 import type { CaptionDefinition } from "../types";
 
-type MeasureResult = { lines: string[]; lineHeight: number; };
+type MeasureResult = { lines: string[]; lineHeight: number };
 
-export function measureTextLines(ctx: CanvasRenderingContext2D, text: string, fontSize: number, fontFamily: string, maxWidth: number): MeasureResult {
+export function measureTextLines(
+    ctx: CanvasRenderingContext2D,
+    text: string,
+    fontSize: number,
+    fontFamily: string,
+    maxWidth: number
+): MeasureResult {
     ctx.font = getCanvasFont(fontSize, fontFamily);
     const words = text.split(" ");
     const lines: string[] = [];
@@ -54,5 +60,5 @@ export const captionCaption: CaptionDefinition = {
         for (let i = 0; i < lines.length; i++) {
             ctx.fillText(lines[i], width / 2, drawY + padding + i * lineHeight);
         }
-    },
+    }
 };

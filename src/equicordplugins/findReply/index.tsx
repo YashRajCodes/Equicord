@@ -14,37 +14,44 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { Message } from "@vencord/discord-types";
+import { findByPropsLazy } from "@webpack";
+import { Root } from "react-dom/client";
 
 import { definePluginSettings } from "@api/Settings";
 import { disableStyle, enableStyle } from "@api/Styles";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { Message } from "@vencord/discord-types";
-import { findByPropsLazy } from "@webpack";
 import { ChannelStore, createRoot, MessageStore, Toasts } from "@webpack/common";
-import { Root } from "react-dom/client";
 
 import ReplyNavigator from "./ReplyNavigator";
+
 import styles from "./styles.css?managed";
 
 export const jumper: any = findByPropsLazy("jumpToMessage");
 const FindReplyIcon = () => {
-    return <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" width="18" height="18">
-        <path
-            d="M 7 3 L 7 11 C 7 11 7 12 6 12 L 5 12 C 4 12 4 12 4.983 13.115 L 8.164 17.036 C 9 18 9 18 9.844 17.018 L 12.991 13.277 C 14 12 14 12 13.006 11.985 L 12 12 C 12 12 11 12 11 11 L 11 3 C 11 2 11 2 10 2 L 8 2 C 7 2 7 2 7 3" />
-    </svg>;
+    return (
+        <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" width="18" height="18">
+            <path d="M 7 3 L 7 11 C 7 11 7 12 6 12 L 5 12 C 4 12 4 12 4.983 13.115 L 8.164 17.036 C 9 18 9 18 9.844 17.018 L 12.991 13.277 C 14 12 14 12 13.006 11.985 L 12 12 C 12 12 11 12 11 11 L 11 3 C 11 2 11 2 10 2 L 8 2 C 7 2 7 2 7 3" />
+        </svg>
+    );
 };
 let root: Root | null = null;
 let element: HTMLDivElement | null = null;
 let madeComponent = false;
 
 function findReplies(message: Message) {
-    const messages: Array<Message & {
-        deleted?: boolean;
-    }> = [...MessageStore.getMessages(message.channel_id)?._array ?? []].filter(m => !m.deleted).sort((a, b) => {
-        return a.timestamp.toString().localeCompare(b.timestamp.toString());
-    }); // Need to deep copy Message array when sorting
+    const messages: Array<
+        Message & {
+            deleted?: boolean;
+        }
+    > = [...(MessageStore.getMessages(message.channel_id)?._array ?? [])]
+        .filter(m => !m.deleted)
+        .sort((a, b) => {
+            return a.timestamp.toString().localeCompare(b.timestamp.toString());
+        }); // Need to deep copy Message array when sorting
     const found: Message[] = [];
     for (const other of messages) {
         if (other.timestamp.toString().localeCompare(message.timestamp.toString()) <= 0) continue;
@@ -88,7 +95,8 @@ const settings = definePluginSettings({
 
 export default definePlugin({
     name: "FindReply",
-    description: "Jumps to the earliest reply to a message in a channel (lets you follow past conversations more easily).",
+    description:
+        "Jumps to the earliest reply to a message in a channel (lets you follow past conversations more easily).",
     dependencies: ["MessagePopoverAPI"],
     tags: ["Chat", "Shortcuts"],
     authors: [Devs.newwares],
@@ -156,5 +164,5 @@ export default definePlugin({
         root && root.unmount();
         element?.remove();
         disableStyle(styles);
-    },
+    }
 });

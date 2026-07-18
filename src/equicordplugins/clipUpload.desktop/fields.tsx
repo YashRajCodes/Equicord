@@ -4,13 +4,26 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { PointerEvent as ReactPointerEvent } from "react";
+
 import { Flex } from "@components/Flex";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { getTheme, Theme } from "@utils/discord";
 import { Margins } from "@utils/margins";
-import { ApplicationStore, Checkbox, IconUtils, lodash, RelationshipStore, RunningGameStore, SearchableSelect, TextArea, TextInput, UserStore, useStateFromStores } from "@webpack/common";
-import type { PointerEvent as ReactPointerEvent } from "react";
+import {
+    ApplicationStore,
+    Checkbox,
+    IconUtils,
+    lodash,
+    RelationshipStore,
+    RunningGameStore,
+    SearchableSelect,
+    TextArea,
+    TextInput,
+    UserStore,
+    useStateFromStores
+} from "@webpack/common";
 
 import { getString } from "./upload";
 
@@ -46,14 +59,24 @@ export function TextField({ title, value, onChange, placeholder, disabled, multi
     return (
         <section>
             <Heading tag="h5">{title}</Heading>
-            {multiline
-                ? <TextArea value={value} onChange={onChange} placeholder={placeholder} disabled={disabled} autosize />
-                : <TextInput value={value} onChange={onChange} placeholder={placeholder} disabled={disabled} />}
+            {multiline ? (
+                <TextArea value={value} onChange={onChange} placeholder={placeholder} disabled={disabled} autosize />
+            ) : (
+                <TextInput value={value} onChange={onChange} placeholder={placeholder} disabled={disabled} />
+            )}
         </section>
     );
 }
 
-export function DateTimeField({ value, onChange, disabled }: { value: string; onChange(value: string): void; disabled?: boolean; }) {
+export function DateTimeField({
+    value,
+    onChange,
+    disabled
+}: {
+    value: string;
+    onChange(value: string): void;
+    disabled?: boolean;
+}) {
     return (
         <section>
             <Heading tag="h5">Created at</Heading>
@@ -101,34 +124,41 @@ function getUserLabel(user: ReturnType<typeof UserStore.getCurrentUser>) {
 }
 
 export function ParticipantField({ value, onChange, disabled }: ParticipantFieldProps) {
-    const options = useStateFromStores([UserStore, RelationshipStore], () => {
-        const selectedIds = new Set(value);
-        const userOptions = Object.values(UserStore.getUsers())
-            .filter(user => !user.bot && !user.system && RelationshipStore.isFriend(user.id))
-            .sort((a, b) => getUserLabel(a).localeCompare(getUserLabel(b)))
-            .map(user => {
-                selectedIds.delete(user.id);
+    const options = useStateFromStores(
+        [UserStore, RelationshipStore],
+        () => {
+            const selectedIds = new Set(value);
+            const userOptions = Object.values(UserStore.getUsers())
+                .filter(user => !user.bot && !user.system && RelationshipStore.isFriend(user.id))
+                .sort((a, b) => getUserLabel(a).localeCompare(getUserLabel(b)))
+                .map(user => {
+                    selectedIds.delete(user.id);
 
-                return {
-                    label: getUserLabel(user),
-                    value: user.id
-                };
-            });
+                    return {
+                        label: getUserLabel(user),
+                        value: user.id
+                    };
+                });
 
-        return [
-            ...userOptions,
-            ...Array.from(selectedIds, id => ({
-                label: id,
-                value: id
-            }))
-        ];
-    }, [value], lodash.isEqual);
+            return [
+                ...userOptions,
+                ...Array.from(selectedIds, id => ({
+                    label: id,
+                    value: id
+                }))
+            ];
+        },
+        [value],
+        lodash.isEqual
+    );
 
     return (
         <section>
             <Heading tag="h5">Participants</Heading>
             <Flex flexDirection="column" gap={8}>
-                <Paragraph className={Margins.bottom8}>Only tag people who were present and have consented to being in this clip.</Paragraph>
+                <Paragraph className={Margins.bottom8}>
+                    Only tag people who were present and have consented to being in this clip.
+                </Paragraph>
                 <SearchableSelect
                     options={options}
                     value={value}
@@ -179,12 +209,16 @@ function getApplicationOptions(selectedId: string) {
         options.set(selectedId, selectedId);
     }
 
-    return Array.from(options, ([value, label]) => ({ label, value }))
-        .sort((a, b) => a.label.localeCompare(b.label));
+    return Array.from(options, ([value, label]) => ({ label, value })).sort((a, b) => a.label.localeCompare(b.label));
 }
 
 export function ApplicationField({ value, onChange, disabled }: ApplicationFieldProps) {
-    const options = useStateFromStores([RunningGameStore, ApplicationStore], () => getApplicationOptions(value), [value], lodash.isEqual);
+    const options = useStateFromStores(
+        [RunningGameStore, ApplicationStore],
+        () => getApplicationOptions(value),
+        [value],
+        lodash.isEqual
+    );
 
     return (
         <section>
@@ -212,12 +246,7 @@ export function ApplicationField({ value, onChange, disabled }: ApplicationField
                         );
                     }}
                 />
-                <TextInput
-                    value={value}
-                    onChange={onChange}
-                    placeholder="Custom application ID"
-                    disabled={disabled}
-                />
+                <TextInput value={value} onChange={onChange} placeholder="Custom application ID" disabled={disabled} />
             </Flex>
         </section>
     );

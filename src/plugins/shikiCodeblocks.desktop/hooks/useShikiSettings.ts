@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { shiki } from "@plugins/shikiCodeblocks.desktop/api/shiki";
 import { settings as pluginSettings, ShikiSettings } from "@plugins/shikiCodeblocks.desktop/settings";
@@ -28,7 +28,7 @@ export function useShikiSettings<F extends keyof ShikiSettings>(settingKeys: F[]
 
     const willChangeTheme = shiki.currentThemeUrl && themeUrl && themeUrl !== shiki.currentThemeUrl;
 
-    if (isLoading && (!willChangeTheme)) setLoading(false);
+    if (isLoading && !willChangeTheme) setLoading(false);
     if (!isLoading && willChangeTheme) {
         setLoading(true);
         shiki.setTheme(themeUrl);
@@ -36,6 +36,6 @@ export function useShikiSettings<F extends keyof ShikiSettings>(settingKeys: F[]
 
     return {
         ...settings,
-        isThemeLoading: isLoading,
+        isThemeLoading: isLoading
     };
 }

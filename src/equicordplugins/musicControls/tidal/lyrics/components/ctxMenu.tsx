@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { copyWithToast } from "@utils/discord";
 import { findComponentByCodeLazy } from "@webpack";
+
+import { copyWithToast } from "@utils/discord";
 import { FluxDispatcher, Menu } from "@webpack/common";
 
 import { useLyrics } from "./util";

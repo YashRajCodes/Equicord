@@ -4,11 +4,18 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Flux as TFlux } from "@vencord/discord-types";
+
 import { definePluginSettings } from "@api/Settings";
 import { proxyLazy } from "@utils/lazy";
 import { OptionType } from "@utils/types";
-import { Flux as TFlux } from "@vencord/discord-types";
-import { ChannelActionCreators, Flux as FluxWP, FluxDispatcher, PopoutActions, PopoutWindowStore } from "@webpack/common";
+import {
+    ChannelActionCreators,
+    Flux as FluxWP,
+    FluxDispatcher,
+    PopoutActions,
+    PopoutWindowStore
+} from "@webpack/common";
 
 interface IFlux extends TFlux {
     PersistedStore: TFlux["Store"];
@@ -18,7 +25,7 @@ export const settings = definePluginSettings({
     persistSidebar: {
         type: OptionType.BOOLEAN,
         description: "Keep the sidebar chat open across Discord restarts",
-        default: true,
+        default: true
     },
     persistPopoutWindows: {
         type: OptionType.BOOLEAN,
@@ -46,7 +53,7 @@ export const settings = definePluginSettings({
         onChange: value => {
             setAlwaysOnTopForOpenPopouts(value);
         }
-    },
+    }
 });
 
 export const SidebarStore = proxyLazy(() => {
@@ -62,7 +69,7 @@ export const SidebarStore = proxyLazy(() => {
         static persistKey = "SidebarStore";
 
         // @ts-ignore
-        initialize(previousState: { guildId?: string; channelId?: string; width?: number; } | undefined) {
+        initialize(previousState: { guildId?: string; channelId?: string; width?: number } | undefined) {
             if (!settings.store.persistSidebar || !previousState) return;
             const { guildId, channelId, width } = previousState;
             current.guildId = guildId || "";
@@ -77,7 +84,7 @@ export const SidebarStore = proxyLazy(() => {
 
     const store = new SidebarStore(FluxDispatcher, {
         // @ts-ignore
-        async VC_SIDEBAR_CHAT_NEW({ guildId: newGId, id }: { guildId: string | null; id: string; }) {
+        async VC_SIDEBAR_CHAT_NEW({ guildId: newGId, id }: { guildId: string | null; id: string }) {
             previous = { ...current };
 
             current.guildId = newGId || "";
@@ -105,7 +112,7 @@ export const SidebarStore = proxyLazy(() => {
             current.guildId = "";
             current.channelId = "";
             store.emitChange();
-        },
+        }
     });
 
     return store;

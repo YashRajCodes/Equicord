@@ -14,12 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { PluginSettingComponentDef } from "@utils/types";
 
 import { ComponentSettingProps } from "./Common";
 
-export function ComponentSetting({ setting, onChange, closePluginSettings }: ComponentSettingProps<PluginSettingComponentDef>) {
+export function ComponentSetting({
+    setting,
+    onChange,
+    closePluginSettings
+}: ComponentSettingProps<PluginSettingComponentDef>) {
     return setting.component({ setValue: onChange, option: setting, closePluginSettings });
 }

@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { JSX } from "react";
+
 import * as DataStore from "@api/DataStore";
 import { BaseText } from "@components/BaseText";
 import { CheckedTextInput } from "@components/CheckedTextInput";
@@ -11,14 +13,30 @@ import { Divider } from "@components/Divider";
 import { Flex } from "@components/Flex";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
-import { convert as convertLineEP, getIdFromUrl as getLineEmojiPackIdFromUrl, getStickerPackById as getLineEmojiPackById, isLineEmojiPackHtml, parseHtml as getLineEPFromHtml } from "@equicordplugins/moreStickers/lineEmojis";
-import { convert as convertLineSP, getIdFromUrl as getLineStickerPackIdFromUrl, getStickerPackById as getLineStickerPackById, isLineStickerPackHtml, parseHtml as getLineSPFromHtml } from "@equicordplugins/moreStickers/lineStickers";
+import {
+    convert as convertLineEP,
+    getIdFromUrl as getLineEmojiPackIdFromUrl,
+    getStickerPackById as getLineEmojiPackById,
+    isLineEmojiPackHtml,
+    parseHtml as getLineEPFromHtml
+} from "@equicordplugins/moreStickers/lineEmojis";
+import {
+    convert as convertLineSP,
+    getIdFromUrl as getLineStickerPackIdFromUrl,
+    getStickerPackById as getLineStickerPackById,
+    isLineStickerPackHtml,
+    parseHtml as getLineSPFromHtml
+} from "@equicordplugins/moreStickers/lineStickers";
 import { isV1, migrate } from "@equicordplugins/moreStickers/migrate-v1";
-import { deleteStickerPack, getStickerPack, getStickerPackMetas, saveStickerPack } from "@equicordplugins/moreStickers/stickers";
+import {
+    deleteStickerPack,
+    getStickerPack,
+    getStickerPackMetas,
+    saveStickerPack
+} from "@equicordplugins/moreStickers/stickers";
 import { SettingsTabsKey, Sticker, StickerPack, StickerPackMeta } from "@equicordplugins/moreStickers/types";
 import { cl, clPicker, Mutex } from "@equicordplugins/moreStickers/utils";
 import { Button, React, TabBar, TextArea, Toasts } from "@webpack/common";
-import { JSX } from "react";
 
 const mutex = new Mutex();
 
@@ -29,29 +47,43 @@ export const RECENT_STICKERS_TITLE = "Recently Used";
 const KEY = "MoreStickers:RecentStickers";
 
 const noDrag = {
-    onMouseDown: e => { e.preventDefault(); return false; },
-    onDragStart: e => { e.preventDefault(); return false; }
+    onMouseDown: e => {
+        e.preventDefault();
+        return false;
+    },
+    onDragStart: e => {
+        e.preventDefault();
+        return false;
+    }
 };
 
-const StickerPackMetadata = ({ meta, hoveredStickerPackId, setHoveredStickerPackId, refreshStickerPackMetas }:
-    { meta: StickerPackMeta, [key: string]: any; }
-) => {
+const StickerPackMetadata = ({
+    meta,
+    hoveredStickerPackId,
+    setHoveredStickerPackId,
+    refreshStickerPackMetas
+}: {
+    meta: StickerPackMeta;
+    [key: string]: any;
+}) => {
     return (
-        <div className="sticker-pack"
+        <div
+            className="sticker-pack"
             onMouseEnter={() => setHoveredStickerPackId(meta.id)}
             onMouseLeave={() => setHoveredStickerPackId(null)}
         >
-            <div className={
-                [
+            <div
+                className={[
                     clPicker("content-row-grid-inspected-indicator"),
                     hoveredStickerPackId === meta.id ? "inspected" : ""
-                ].join(" ")
-            } style={{
-                top: "unset",
-                left: "unset",
-                height: "96px",
-                width: "96px",
-            }}></div>
+                ].join(" ")}
+                style={{
+                    top: "unset",
+                    left: "unset",
+                    height: "96px",
+                    width: "96px"
+                }}
+            ></div>
             {meta.logo?.image ? <img src={meta.logo.image} width="96" {...noDrag} /> : null}
             <button
                 className={hoveredStickerPackId === meta.id ? "show" : ""}
@@ -85,7 +117,9 @@ const StickerPackMetadata = ({ meta, hoveredStickerPackId, setHoveredStickerPack
                     <path d="M5 6.99902V18.999C5 20.101 5.897 20.999 7 20.999H17C18.103 20.999 19 20.101 19 18.999V6.99902H5ZM11 17H9V11H11V17ZM15 17H13V11H15V17Z" />
                 </svg>
             </button>
-            <BaseText className={cl("pack-title")} tag="span">{meta.title}</BaseText>
+            <BaseText className={cl("pack-title")} tag="span">
+                {meta.title}
+            </BaseText>
         </div>
     );
 };
@@ -110,39 +144,47 @@ export const Packs = () => {
 
     return (
         <div className={cl("settings")}>
-            <TabBar
-                type="top"
-                look="brand"
-                selectedItem={tab}
-                onItemSelect={setTab}
-                className="tab-bar"
-            >
-                {
-                    Object.values(SettingsTabsKey).map(k => (
-                        <TabBar.Item key={k} id={k} className="tab-bar-item">
-                            {k}
-                        </TabBar.Item>
-                    ))
-                }
+            <TabBar type="top" look="brand" selectedItem={tab} onItemSelect={setTab} className="tab-bar">
+                {Object.values(SettingsTabsKey).map(k => (
+                    <TabBar.Item key={k} id={k} className="tab-bar-item">
+                        {k}
+                    </TabBar.Item>
+                ))}
             </TabBar>
 
-            {tab === SettingsTabsKey.ADD_STICKER_PACK_URL &&
+            {tab === SettingsTabsKey.ADD_STICKER_PACK_URL && (
                 <div className="section">
                     <Heading>Add Sticker Pack from URL</Heading>
                     <Paragraph>
                         <p>
                             Currently LINE stickers/emojis supported only. <br />
-
-                            Get Telegram stickers with <a href="#" onClick={() => VencordNative.native.openExternal("https://github.com/lekoOwO/MoreStickersConverter")}> MoreStickersConverter</a>.
+                            Get Telegram stickers with{" "}
+                            <a
+                                href="#"
+                                onClick={() =>
+                                    VencordNative.native.openExternal(
+                                        "https://github.com/lekoOwO/MoreStickersConverter"
+                                    )
+                                }
+                            >
+                                {" "}
+                                MoreStickersConverter
+                            </a>
+                            .
                         </p>
                     </Paragraph>
-                    <Flex flexDirection="row" style={{
-                        alignItems: "center",
-                        justifyContent: "center"
-                    }} >
-                        <span style={{
-                            flexGrow: 1
-                        }}>
+                    <Flex
+                        flexDirection="row"
+                        style={{
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
+                        <span
+                            style={{
+                                flexGrow: 1
+                            }}
+                        >
                             <CheckedTextInput
                                 initialValue={addStickerUrl}
                                 onChange={setAddStickerUrl}
@@ -150,11 +192,11 @@ export const Packs = () => {
                                     try {
                                         getLineStickerPackIdFromUrl(v);
                                         return true;
-                                    } catch (e: any) { }
+                                    } catch (e: any) {}
                                     try {
                                         getLineEmojiPackIdFromUrl(v);
                                         return true;
-                                    } catch (e: any) { }
+                                    } catch (e: any) {}
 
                                     return "Invalid URL";
                                 }}
@@ -170,12 +212,12 @@ export const Packs = () => {
                                 try {
                                     getLineStickerPackIdFromUrl(addStickerUrl);
                                     type = "LineStickerPack";
-                                } catch (e: any) { }
+                                } catch (e: any) {}
 
                                 try {
                                     getLineEmojiPackIdFromUrl(addStickerUrl);
                                     type = "LineEmojiPack";
-                                } catch (e: any) { }
+                                } catch (e: any) {}
 
                                 let errorMessage = "";
                                 switch (type) {
@@ -197,7 +239,6 @@ export const Packs = () => {
                                             const lineEP = await getLineEmojiPackById(id);
                                             const stickerPack = convertLineEP(lineEP);
                                             await saveStickerPack(stickerPack);
-
                                         } catch (e: any) {
                                             console.error(e);
                                             errorMessage = e.message;
@@ -228,29 +269,39 @@ export const Packs = () => {
                                         }
                                     });
                                 }
-
                             }}
-                        >Insert</Button>
+                        >
+                            Insert
+                        </Button>
                     </Flex>
                 </div>
-            }
-            {tab === SettingsTabsKey.ADD_STICKER_PACK_HTML &&
+            )}
+            {tab === SettingsTabsKey.ADD_STICKER_PACK_HTML && (
                 <div className="section">
                     <Heading>Add Sticker Pack from HTML</Heading>
                     <Paragraph>
                         <p>
-                            When encountering errors while adding a sticker pack, you can try to add it using the HTML source code of the sticker pack page.<br />
-                            This applies to stickers which are region locked / OS locked / etc.<br />
-                            The region LINE recognized may vary from the region you are in due to the CORS proxy we're using.
+                            When encountering errors while adding a sticker pack, you can try to add it using the HTML
+                            source code of the sticker pack page.
+                            <br />
+                            This applies to stickers which are region locked / OS locked / etc.
+                            <br />
+                            The region LINE recognized may vary from the region you are in due to the CORS proxy we're
+                            using.
                         </p>
                     </Paragraph>
-                    <Flex flexDirection="row" style={{
-                        alignItems: "center",
-                        justifyContent: "center"
-                    }} >
-                        <span style={{
-                            flexGrow: 1
-                        }}>
+                    <Flex
+                        flexDirection="row"
+                        style={{
+                            alignItems: "center",
+                            justifyContent: "center"
+                        }}
+                    >
+                        <span
+                            style={{
+                                flexGrow: 1
+                            }}
+                        >
                             <TextArea
                                 value={addStickerHtml}
                                 onChange={setAddStickerHtml}
@@ -307,12 +358,13 @@ export const Packs = () => {
                                     });
                                 }
                             }}
-                        >Insert from HTML</Button>
+                        >
+                            Insert from HTML
+                        </Button>
                     </Flex>
                 </div>
-            }
-            {
-                tab === SettingsTabsKey.ADD_STICKER_PACK_FILE &&
+            )}
+            {tab === SettingsTabsKey.ADD_STICKER_PACK_FILE && (
                 <div className="section">
                     <Heading>Add Sticker Pack from File</Heading>
 
@@ -366,16 +418,18 @@ export const Packs = () => {
                         Open Sticker Pack File
                     </Button>
                 </div>
-            }
-            {
-                tab === SettingsTabsKey.MISC &&
+            )}
+            {tab === SettingsTabsKey.MISC && (
                 <div className="section">
                     <Heading>Misc tools</Heading>
 
-                    <Flex flexDirection="row" style={{
-                        alignItems: "center",
-                        justifyContent: "start"
-                    }} >
+                    <Flex
+                        flexDirection="row"
+                        style={{
+                            alignItems: "center",
+                            justifyContent: "start"
+                        }}
+                    >
                         <Button
                             size={Button.Sizes.SMALL}
                             onClick={async e => {
@@ -389,7 +443,9 @@ export const Packs = () => {
                                 }
 
                                 const a = document.createElement("a");
-                                a.href = URL.createObjectURL(new Blob([JSON.stringify(result)], { type: "application/json" }));
+                                a.href = URL.createObjectURL(
+                                    new Blob([JSON.stringify(result)], { type: "application/json" })
+                                );
                                 a.download = "MoreStickers.stickerpacks";
                                 a.click();
 
@@ -402,7 +458,9 @@ export const Packs = () => {
                                     }
                                 });
                             }}
-                        >Export Sticker Packs</Button>
+                        >
+                            Export Sticker Packs
+                        </Button>
                         <Button
                             size={Button.Sizes.SMALL}
                             onClick={async e => {
@@ -411,56 +469,57 @@ export const Packs = () => {
                             style={{
                                 display: _isV1 ? "unset" : "none"
                             }}
-                        >Migrate from v1</Button>
+                        >
+                            Migrate from v1
+                        </Button>
                     </Flex>
                 </div>
-            }
-            <Divider style={{
-                marginTop: "8px",
-                marginBottom: "8px"
-            }} />
+            )}
+            <Divider
+                style={{
+                    marginTop: "8px",
+                    marginBottom: "8px"
+                }}
+            />
             <Heading>Stickers Management</Heading>
 
             <div className="section">
-                <div style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))",
-                    gap: "8px"
-                }}>
-                    {
-                        stickerPackMetas.map(meta => (
-                            <StickerPackMetadata
-                                key={meta.id}
-                                meta={meta}
-                                hoveredStickerPackId={hoveredStickerPackId}
-                                setHoveredStickerPackId={setHoveredStickerPackId}
-                                refreshStickerPackMetas={refreshStickerPackMetas}
-                            />
-                        ))
-                    }
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))",
+                        gap: "8px"
+                    }}
+                >
+                    {stickerPackMetas.map(meta => (
+                        <StickerPackMetadata
+                            key={meta.id}
+                            meta={meta}
+                            hoveredStickerPackId={hoveredStickerPackId}
+                            setHoveredStickerPackId={setHoveredStickerPackId}
+                            refreshStickerPackMetas={refreshStickerPackMetas}
+                        />
+                    ))}
                 </div>
             </div>
-
         </div>
     );
 };
 
-export function Header(props: { children: JSX.Element | JSX.Element[]; }) {
-    return (
-        <div className={cl("header")}>
-            {props.children}
-        </div>
-    );
+export function Header(props: { children: JSX.Element | JSX.Element[] }) {
+    return <div className={cl("header")}>{props.children}</div>;
 }
 
-export function Wrapper(props: { children: JSX.Element | JSX.Element[]; }) {
+export function Wrapper(props: { children: JSX.Element | JSX.Element[] }) {
     return (
-        <div style={{
-            position: "relative",
-            display: "grid",
-            gridTemplateColumns: "48px auto",
-            gridTemplateRows: "auto 1fr auto",
-        }}>
+        <div
+            style={{
+                position: "relative",
+                display: "grid",
+                gridTemplateColumns: "48px auto",
+                gridTemplateRows: "auto 1fr auto"
+            }}
+        >
             {props.children}
         </div>
     );

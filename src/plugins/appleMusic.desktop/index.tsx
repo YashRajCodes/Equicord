@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Activity, ActivityAssets, ActivityButton } from "@vencord/discord-types";
+import { ActivityFlags, ActivityStatusDisplayType, ActivityType } from "@vencord/discord-types/enums";
+
 import { definePluginSettings } from "@api/Settings";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, IS_MAC } from "@utils/constants";
 import definePlugin, { OptionType, PluginNative, ReporterTestable } from "@utils/types";
-import { Activity, ActivityAssets, ActivityButton } from "@vencord/discord-types";
-import { ActivityFlags, ActivityStatusDisplayType, ActivityType } from "@vencord/discord-types/enums";
 import { ApplicationAssetUtils, FluxDispatcher } from "@webpack/common";
 
 const Native = VencordNative.pluginHelpers.AppleMusicRichPresence as PluginNative<typeof import("./native")>;
@@ -50,7 +51,7 @@ function setActivity(activity: Activity | null) {
     FluxDispatcher.dispatch({
         type: "LOCAL_ACTIVITY_UPDATE",
         activity,
-        socketId: "AppleMusic",
+        socketId: "AppleMusic"
     });
 }
 
@@ -61,7 +62,7 @@ const settings = definePluginSettings({
         options: [
             { label: "Playing", value: ActivityType.PLAYING, default: true },
             { label: "Listening", value: ActivityType.LISTENING }
-        ],
+        ]
     },
     statusDisplayType: {
         description: "Show the track / artist name in the member list",
@@ -87,17 +88,17 @@ const settings = definePluginSettings({
         description: "The interval between activity refreshes (seconds)",
         markers: [1, 2, 2.5, 3, 5, 10, 15],
         default: 5,
-        restartNeeded: true,
+        restartNeeded: true
     },
     enableTimestamps: {
         type: OptionType.BOOLEAN,
         description: "Whether or not to enable timestamps",
-        default: true,
+        default: true
     },
     enableButtons: {
         type: OptionType.BOOLEAN,
         description: "Whether or not to enable buttons",
-        default: true,
+        default: true
     },
     nameString: {
         type: OptionType.STRING,
@@ -121,7 +122,7 @@ const settings = definePluginSettings({
             { label: "Album", value: LinkType.Album, default: true },
             { label: "Artist", value: LinkType.Artist },
             { label: "Disabled", value: LinkType.Disabled }
-        ],
+        ]
     },
     stateLink: {
         type: OptionType.SELECT,
@@ -130,7 +131,7 @@ const settings = definePluginSettings({
             { label: "Album", value: LinkType.Album },
             { label: "Artist", value: LinkType.Artist, default: true },
             { label: "Disabled", value: LinkType.Disabled }
-        ],
+        ]
     },
     largeImageType: {
         type: OptionType.SELECT,
@@ -139,7 +140,7 @@ const settings = definePluginSettings({
             { label: "Album artwork", value: AssetImageType.Album, default: true },
             { label: "Artist artwork", value: AssetImageType.Artist },
             { label: "Disabled", value: AssetImageType.Disabled }
-        ],
+        ]
     },
     largeTextString: {
         type: OptionType.STRING,
@@ -153,7 +154,7 @@ const settings = definePluginSettings({
             { label: "Album", value: LinkType.Album, default: true },
             { label: "Artist", value: LinkType.Artist },
             { label: "Disabled", value: LinkType.Disabled }
-        ],
+        ]
     },
     smallImageType: {
         type: OptionType.SELECT,
@@ -162,7 +163,7 @@ const settings = definePluginSettings({
             { label: "Album artwork", value: AssetImageType.Album },
             { label: "Artist artwork", value: AssetImageType.Artist, default: true },
             { label: "Disabled", value: AssetImageType.Disabled }
-        ],
+        ]
     },
     smallTextString: {
         type: OptionType.STRING,
@@ -176,8 +177,8 @@ const settings = definePluginSettings({
             { label: "Album", value: LinkType.Album },
             { label: "Artist", value: LinkType.Artist, default: true },
             { label: "Disabled", value: LinkType.Disabled }
-        ],
-    },
+        ]
+    }
 });
 
 function customFormat(formatStr: string, data: TrackData) {
@@ -191,14 +192,12 @@ function getLink(type: LinkType, data: TrackData) {
     return type === LinkType.Album
         ? data.appleMusicLink
         : type === LinkType.Artist
-            ? data.appleMusicArtistLink
-            : undefined;
+          ? data.appleMusicArtistLink
+          : undefined;
 }
 
 function getImageAsset(type: AssetImageType, data: TrackData) {
-    const source = type === AssetImageType.Album
-        ? data.albumArtwork
-        : data.artistArtwork;
+    const source = type === AssetImageType.Album ? data.albumArtwork : data.artistArtwork;
 
     if (!source) return undefined;
 
@@ -214,19 +213,25 @@ export default definePlugin({
     reporterTestable: ReporterTestable.None,
 
     settingsAboutComponent() {
-        return <>
-            <Paragraph>
-                For the customizable activity format strings, you can use several special strings to include track data in activities!{" "}
-                <code>{"{name}"}</code> is replaced with the track name; <code>{"{artist}"}</code> is replaced with the artist(s)' name(s); and <code>{"{album}"}</code> is replaced with the album name.
-            </Paragraph>
-        </>;
+        return (
+            <>
+                <Paragraph>
+                    For the customizable activity format strings, you can use several special strings to include track
+                    data in activities! <code>{"{name}"}</code> is replaced with the track name;{" "}
+                    <code>{"{artist}"}</code> is replaced with the artist(s)' name(s); and <code>{"{album}"}</code> is
+                    replaced with the album name.
+                </Paragraph>
+            </>
+        );
     },
 
     settings,
 
     start() {
         this.updatePresence();
-        updateInterval = setInterval(() => { this.updatePresence(); }, settings.store.refreshInterval * 1000);
+        updateInterval = setInterval(() => {
+            this.updatePresence();
+        }, settings.store.refreshInterval * 1000);
     },
 
     stop() {
@@ -236,7 +241,9 @@ export default definePlugin({
     },
 
     updatePresence() {
-        this.getActivity().then(activity => { setActivity(activity); });
+        this.getActivity().then(activity => {
+            setActivity(activity);
+        });
     },
 
     async getActivity(): Promise<Activity | null> {
@@ -250,7 +257,7 @@ export default definePlugin({
 
         const assets: ActivityAssets = {};
 
-        const isRadio = Number.isNaN(trackData.duration) && (trackData.playerPosition === 0);
+        const isRadio = Number.isNaN(trackData.duration) && trackData.playerPosition === 0;
 
         if (settings.store.largeImageType !== AssetImageType.Disabled) {
             assets.large_image = largeImageAsset;
@@ -270,13 +277,13 @@ export default definePlugin({
             if (trackData.appleMusicLink)
                 buttons.push({
                     label: "Listen on Apple Music",
-                    url: trackData.appleMusicLink,
+                    url: trackData.appleMusicLink
                 });
 
             if (trackData.songLink)
                 buttons.push({
                     label: "View on SongLink",
-                    url: trackData.songLink,
+                    url: trackData.songLink
                 });
         }
 
@@ -289,10 +296,13 @@ export default definePlugin({
             details_url: getLink(settings.store.detailsLink, trackData),
             state_url: getLink(settings.store.stateLink, trackData),
 
-            timestamps: (trackData.playerPosition && trackData.duration && settings.store.enableTimestamps) ? {
-                start: Date.now() - (trackData.playerPosition * 1000),
-                end: Date.now() - (trackData.playerPosition * 1000) + (trackData.duration * 1000),
-            } : undefined,
+            timestamps:
+                trackData.playerPosition && trackData.duration && settings.store.enableTimestamps
+                    ? {
+                          start: Date.now() - trackData.playerPosition * 1000,
+                          end: Date.now() - trackData.playerPosition * 1000 + trackData.duration * 1000
+                      }
+                    : undefined,
 
             assets,
 
@@ -301,11 +311,11 @@ export default definePlugin({
 
             type: settings.store.activityType,
             status_display_type: {
-                "off": ActivityStatusDisplayType.NAME,
-                "artist": ActivityStatusDisplayType.STATE,
-                "track": ActivityStatusDisplayType.DETAILS
+                off: ActivityStatusDisplayType.NAME,
+                artist: ActivityStatusDisplayType.STATE,
+                track: ActivityStatusDisplayType.DETAILS
             }[settings.store.statusDisplayType],
-            flags: ActivityFlags.INSTANCE,
+            flags: ActivityFlags.INSTANCE
         };
     }
 });

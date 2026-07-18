@@ -14,20 +14,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 export function relaunch() {
-    if (IS_DISCORD_DESKTOP)
-        window.DiscordNative.app.relaunch();
-    else if (IS_VESKTOP || IS_EQUIBOP)
-        window.VesktopNative.app.relaunch();
-    else
-        location.reload();
+    if (IS_DISCORD_DESKTOP) window.DiscordNative.app.relaunch();
+    else if (IS_VESKTOP || IS_EQUIBOP) window.VesktopNative.app.relaunch();
+    else location.reload();
 }
 
 export function showItemInFolder(path: string) {
-    if (IS_DISCORD_DESKTOP)
-        window.DiscordNative.fileManager.showItemInFolder(path);
-    else
-        window.VesktopNative.fileManager.showItemInFolder(path);
+    if (IS_DISCORD_DESKTOP) window.DiscordNative.fileManager.showItemInFolder(path);
+    else window.VesktopNative.fileManager.showItemInFolder(path);
 }

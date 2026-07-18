@@ -28,8 +28,14 @@ function moveAway(point: Point, from: Point, distance: number): Point {
     return [point[0] + dx * scale, point[1] + dy * scale];
 }
 
-export function renderSpeechbubble(ctx: CanvasRenderingContext2D, width: number, height: number,
-    tipX: number, tipY: number, tipBase: number) {
+export function renderSpeechbubble(
+    ctx: CanvasRenderingContext2D,
+    width: number,
+    height: number,
+    tipX: number,
+    tipY: number,
+    tipBase: number
+) {
     const start: Point = [0, height * 0.1];
     const control: Point = [width * 0.5, height * 0.2];
     const end: Point = [width, height * 0.1];
@@ -81,5 +87,5 @@ export const speechbubbleCaption: CaptionDefinition = {
     name: "Bubble",
     render: (ctx, width, height, options) => {
         renderSpeechbubble(ctx, width, height, options.bubbleTipX, options.bubbleTipY, options.bubbleTipBase);
-    },
+    }
 };

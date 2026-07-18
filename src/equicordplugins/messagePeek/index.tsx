@@ -5,6 +5,9 @@
  */
 
 import "./style.css";
+import { Activity, ApplicationStream, Channel, Message, OnlineStatus, User } from "@vencord/discord-types";
+import { MessageFlags } from "@vencord/discord-types/enums";
+import { findByCodeLazy, findByPropsLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 
 import { DecoratorProps } from "@api/MemberListDecorators";
 import { isPluginEnabled } from "@api/PluginManager";
@@ -16,10 +19,17 @@ import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
-import { Activity, ApplicationStream, Channel, Message, OnlineStatus, User } from "@vencord/discord-types";
-import { MessageFlags } from "@vencord/discord-types/enums";
-import { findByCodeLazy, findByPropsLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { ChannelStore, ExperimentStore, MessageStore, Parser, RelationshipStore, SnowflakeUtils, UserGuildSettingsStore, UserStore, useStateFromStores } from "@webpack/common";
+import {
+    ChannelStore,
+    ExperimentStore,
+    MessageStore,
+    Parser,
+    RelationshipStore,
+    SnowflakeUtils,
+    UserGuildSettingsStore,
+    UserStore,
+    useStateFromStores
+} from "@webpack/common";
 
 const cl = classNameFactory("vc-message-peek-");
 
@@ -43,13 +53,13 @@ const settings = definePluginSettings({
 type AttachmentType = "image" | "gif" | "video" | "file";
 type IconType = AttachmentType | "voice" | "sticker";
 
-const Icons: Record<IconType, React.ComponentType<{ size: string; className: string; }>> = {
+const Icons: Record<IconType, React.ComponentType<{ size: string; className: string }>> = {
     image: ImageIcon,
     file: AttachmentIcon,
     voice: Microphone,
     sticker: StickerIcon,
     gif: GifIcon,
-    video: VideoIcon,
+    video: VideoIcon
 };
 
 const ATTACHMENT_LABELS: Record<AttachmentType, string> = {
@@ -150,7 +160,7 @@ function getMessageContent(message: Message): MessageContent | null {
     return null;
 }
 
-function MessagePreviewContent({ channel, user }: { channel: Channel; user: User | null | undefined; }) {
+function MessagePreviewContent({ channel, user }: { channel: Channel; user: User | null | undefined }) {
     const lastMessage = useStateFromStores(
         [MessageStore],
         () => MessageStore.getLastMessage(channel.id) as Message | undefined
@@ -160,7 +170,12 @@ function MessagePreviewContent({ channel, user }: { channel: Channel; user: User
         return <>Official Discord Message</>;
     }
 
-    const smynName = isPluginEnabled(showMeYourName.name) ? showMeYourName.getTypingMemberListProfilesReactionsVoiceNameText({ user: user ?? lastMessage?.author, type: "membersList" }) : null;
+    const smynName = isPluginEnabled(showMeYourName.name)
+        ? showMeYourName.getTypingMemberListProfilesReactionsVoiceNameText({
+              user: user ?? lastMessage?.author,
+              type: "membersList"
+          })
+        : null;
 
     if (!lastMessage) {
         if (channel.isMultiUserDM()) return <>{channel.recipients.length + 1} Members</>;
@@ -172,12 +187,19 @@ function MessagePreviewContent({ channel, user }: { channel: Channel; user: User
 
     const currentUserId = UserStore.getCurrentUser()?.id;
     const isOwnMessage = lastMessage.author.id === currentUserId;
-    const authorName = isOwnMessage ? "You" : (smynName || RelationshipStore.getNickname(lastMessage.author.id) || lastMessage.author.globalName || lastMessage.author.username);
+    const authorName = isOwnMessage
+        ? "You"
+        : smynName ||
+          RelationshipStore.getNickname(lastMessage.author.id) ||
+          lastMessage.author.globalName ||
+          lastMessage.author.username;
     const Icon = content.icon ? Icons[content.icon] : null;
 
     return (
         <div className={classes(ActivityClasses.container, ActivityClasses.textXs, cl("preview"))}>
-            <span className={ActivityClasses.truncated}>{authorName}: {content.text}</span>
+            <span className={ActivityClasses.truncated}>
+                {authorName}: {content.text}
+            </span>
             {Icon && (
                 <span className={cl("icon")}>
                     <Icon size="xxs" className={ActivityClasses.icon} />
@@ -187,7 +209,14 @@ function MessagePreviewContent({ channel, user }: { channel: Channel; user: User
     );
 }
 
-function SubText({ channel, user, activities, applicationStream, voiceChannel, showActivity }: PrivateChannelProps & { showActivity: boolean; }) {
+function SubText({
+    channel,
+    user,
+    activities,
+    applicationStream,
+    voiceChannel,
+    showActivity
+}: PrivateChannelProps & { showActivity: boolean }) {
     if (showActivity) {
         return (
             <ActivityText
@@ -219,8 +248,11 @@ function SubText({ channel, user, activities, applicationStream, voiceChannel, s
     );
 }
 
-function Timestamp({ channel }: { channel: Channel; }) {
-    const lastMessage = useStateFromStores([MessageStore], () => MessageStore.getLastMessage(channel.id) as Message | undefined);
+function Timestamp({ channel }: { channel: Channel }) {
+    const lastMessage = useStateFromStores(
+        [MessageStore],
+        () => MessageStore.getLastMessage(channel.id) as Message | undefined
+    );
 
     if (!lastMessage) return null;
 

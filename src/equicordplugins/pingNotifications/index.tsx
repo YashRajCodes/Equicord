@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findStoreLazy } from "@webpack";
+
 import { showNotification } from "@api/Notifications";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { findStoreLazy } from "@webpack";
 import {
     ChannelStore,
     GuildStore,
@@ -133,9 +134,10 @@ export default definePlugin({
                         title: `${author.username} in ${channelName}`,
                         body,
                         icon: author.getAvatarURL?.(undefined, 128),
-                        onClick: () => NavigationRouter.transitionTo(
-                            `/channels/${channel.guild_id || "@me"}/${channel.id}/${message.id}`
-                        )
+                        onClick: () =>
+                            NavigationRouter.transitionTo(
+                                `/channels/${channel.guild_id || "@me"}/${channel.id}/${message.id}`
+                            )
                     });
                 }
             } catch (err) {

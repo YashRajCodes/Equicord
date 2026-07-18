@@ -16,13 +16,12 @@ const ALLOWED_MEDIA_HOSTS = new Set([
     "media1.giphy.com",
     "media2.giphy.com",
     "media3.giphy.com",
-    "media4.giphy.com",
+    "media4.giphy.com"
 ]);
 
 export async function fetchMedia(_: unknown, url: string) {
     const parsed = URL.parse(url);
-    if (!parsed || !ALLOWED_MEDIA_HOSTS.has(parsed.hostname))
-        throw new Error("Invalid URL");
+    if (!parsed || !ALLOWED_MEDIA_HOSTS.has(parsed.hostname)) throw new Error("Invalid URL");
 
     const res = await fetch(parsed, { headers: { Accept: "*/*" } });
     if (!res.ok) throw new Error(`Server error ${res.status}`);

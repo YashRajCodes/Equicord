@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 // DO NOT REMOVE UNLESS YOU WISH TO FACE THE WRATH OF THE CIRCULAR DEPENDENCY DEMON!!!!!!!
 import "~plugins";
@@ -42,7 +42,14 @@ import { popNotice, showNotice } from "./api/Notices";
 import { NotificationData, showNotification } from "./api/Notifications";
 import { initPluginManager, PMLogger, startAllPlugins } from "./api/PluginManager";
 import { PlainSettings, Settings, SettingsStore } from "./api/Settings";
-import { areLocalSettingsDirty, getCloudSettings, getCloudSyncDirection, markLocalSettingsDirty, putCloudSettings, shouldCloudSync } from "./api/SettingsSync/cloudSync";
+import {
+    areLocalSettingsDirty,
+    getCloudSettings,
+    getCloudSyncDirection,
+    markLocalSettingsDirty,
+    putCloudSettings,
+    shouldCloudSync
+} from "./api/SettingsSync/cloudSync";
 import { relaunch } from "./utils/native";
 import { checkForUpdates, isOutdated as getIsOutdated, update, UpdateLogger } from "./utils/updater";
 import { onceReady } from "./webpack";
@@ -77,7 +84,8 @@ async function syncSettings() {
         // show a notification letting them know and tell them how to fix it
         showNotification({
             title: "Cloud Integrations",
-            body: "We've noticed you have cloud integrations enabled in another client! Due to limitations, you will " +
+            body:
+                "We've noticed you have cloud integrations enabled in another client! Due to limitations, you will " +
                 "need to re-authenticate to continue using them. Click here to go to the settings page to do so!",
             color: "var(--yellow-360)",
             onClick: () => SettingsRouter.openUserSettings("equicord_cloud_panel")
@@ -92,7 +100,8 @@ async function syncSettings() {
     ) {
         if (areLocalSettingsDirty() && shouldCloudSync("push")) {
             await putCloudSettings();
-        } else if (shouldCloudSync("pull") && await getCloudSettings(false)) { // if we synchronized something (false means no sync)
+        } else if (shouldCloudSync("pull") && (await getCloudSettings(false))) {
+            // if we synchronized something (false means no sync)
             // we show a notification here instead of allowing getCloudSettings() to show one to declutter the amount of
             // potential notifications that might occur. getCloudSettings() will always send a notification regardless if
             // there was an error to notify the user, but besides that we only want to show one notification instead of all
@@ -127,11 +136,15 @@ async function runUpdateCheck() {
         if (notifiedForUpdatesThisSession) return;
         notifiedForUpdatesThisSession = true;
 
-        setTimeout(() => showNotification({
-            permanent: true,
-            noPersist: true,
-            ...data
-        }), 10_000);
+        setTimeout(
+            () =>
+                showNotification({
+                    permanent: true,
+                    noPersist: true,
+                    ...data
+                }),
+            10_000
+        );
     };
 
     try {
@@ -145,11 +158,7 @@ async function runUpdateCheck() {
                 if (notifiedForUpdatesThisSession) return;
                 notifiedForUpdatesThisSession = true;
 
-                showNotice(
-                    "Equicord has been updated!",
-                    "Restart",
-                    relaunch
-                );
+                showNotice("Equicord has been updated!", "Restart", relaunch);
             }
             return;
         }
@@ -157,11 +166,7 @@ async function runUpdateCheck() {
         if (notifiedForUpdatesThisSession) return;
         notifiedForUpdatesThisSession = true;
 
-        showNotice(
-            "A new version of Equicord is available!",
-            "View Update",
-            () => openSettingsTabModal(UpdaterTab!)
-        );
+        showNotice("A new version of Equicord is available!", "View Update", () => openSettingsTabModal(UpdaterTab!));
     } catch (err) {
         UpdateLogger.error("Failed to check for updates", err);
     }
@@ -233,11 +238,16 @@ initStyles();
 startAllPlugins(StartAt.Init);
 init();
 
-document.addEventListener("DOMContentLoaded", () => {
-    startAllPlugins(StartAt.DOMContentLoaded);
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        startAllPlugins(StartAt.DOMContentLoaded);
 
-    // FIXME
-    if (IS_DISCORD_DESKTOP && Settings.winNativeTitleBar && IS_WINDOWS) {
-        createAndAppendStyle("vencord-native-titlebar-style", coreStyleRootNode).textContent = "[class*=titleBar]{display: none!important}";
-    }
-}, { once: true });
+        // FIXME
+        if (IS_DISCORD_DESKTOP && Settings.winNativeTitleBar && IS_WINDOWS) {
+            createAndAppendStyle("vencord-native-titlebar-style", coreStyleRootNode).textContent =
+                "[class*=titleBar]{display: none!important}";
+        }
+    },
+    { once: true }
+);

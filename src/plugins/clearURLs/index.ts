@@ -14,11 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
-import {
-    MessageObject
-} from "@api/MessageEvents";
+import { MessageObject } from "@api/MessageEvents";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
@@ -73,8 +71,7 @@ export default definePlugin({
     },
 
     async createRules() {
-        const res = await fetch(CLEAR_URLS_JSON_URL)
-            .then(res => res.json()) as ClearUrlsData;
+        const res = (await fetch(CLEAR_URLS_JSON_URL).then(res => res.json())) as ClearUrlsData;
 
         this.rules = [];
 
@@ -90,7 +87,7 @@ export default definePlugin({
                 urlPattern,
                 rules,
                 rawRules,
-                exceptions,
+                exceptions
             });
         }
     },
@@ -139,10 +136,7 @@ export default definePlugin({
     cleanMessage(msg: MessageObject) {
         // Only run on messages that contain URLs
         if (/http(s)?:\/\//.test(msg.content)) {
-            msg.content = msg.content.replace(
-                /(https?:\/\/[^\s<]+[^<.,:;"'>)|\]\s])/g,
-                match => this.replacer(match)
-            );
+            msg.content = msg.content.replace(/(https?:\/\/[^\s<]+[^<.,:;"'>)|\]\s])/g, match => this.replacer(match));
         }
-    },
+    }
 });

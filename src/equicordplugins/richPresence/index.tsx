@@ -22,13 +22,13 @@ type SettingsKey = keyof SettingsStore;
 
 const logger = new Logger("RichPresence");
 
-const services: Record<string, { start(): void; stop(): void; forceUpdate?(): void; }> = {
+const services: Record<string, { start(): void; stop(): void; forceUpdate?(): void }> = {
     [ServiceTab.AudioBookShelf]: abs,
     [ServiceTab.Tosu]: tosu,
     [ServiceTab.StatsFm]: statsfm,
     [ServiceTab.Jellyfin]: jellyfin,
     [ServiceTab.GensokyoRadio]: gensokyoRadio,
-    [ServiceTab.Navidrome]: navidrome,
+    [ServiceTab.Navidrome]: navidrome
 };
 
 const enableKeys: Record<string, SettingsKey> = {
@@ -37,7 +37,7 @@ const enableKeys: Record<string, SettingsKey> = {
     [ServiceTab.StatsFm]: "sfm_enabled",
     [ServiceTab.Jellyfin]: "jf_enabled",
     [ServiceTab.GensokyoRadio]: "gr_enabled",
-    [ServiceTab.Navidrome]: "nd_enabled",
+    [ServiceTab.Navidrome]: "nd_enabled"
 };
 
 const activeServices = new Set<string>();
@@ -46,8 +46,7 @@ function syncServices() {
     const globalEnabled = settings.store.enabled;
 
     for (const [id, service] of Object.entries(services)) {
-        const shouldRun =
-            globalEnabled && !!settings.store[enableKeys[id]];
+        const shouldRun = globalEnabled && !!settings.store[enableKeys[id]];
         const isRunning = activeServices.has(id);
 
         if (shouldRun && !isRunning) {
@@ -74,7 +73,8 @@ function stopAllServices() {
 
 export default definePlugin({
     name: "RichPresence",
-    description: "Unified rich presence hub for AudioBookShelf, osu!, stats.fm, Jellyfin, Navidrome, and Gensokyo Radio.",
+    description:
+        "Unified rich presence hub for AudioBookShelf, osu!, stats.fm, Jellyfin, Navidrome, and Gensokyo Radio.",
     tags: ["Activity"],
     authors: [
         EquicordDevs.vmohammad,
@@ -86,7 +86,7 @@ export default definePlugin({
         Devs.RyanCaoDev,
         EquicordDevs.Prince527,
         EquicordDevs.creations,
-        EquicordDevs.Star123451,
+        EquicordDevs.Star123451
     ],
     reporterTestable: ReporterTestable.None,
 
@@ -101,5 +101,5 @@ export default definePlugin({
     stop() {
         stopAllServices();
         setOnServiceChange(null);
-    },
+    }
 });

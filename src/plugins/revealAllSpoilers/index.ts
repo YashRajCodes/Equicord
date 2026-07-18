@@ -14,11 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { findCssClassesLazy } from "@webpack";
 
 import { Devs, IS_MAC } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { findCssClassesLazy } from "@webpack";
 
 const SpoilerClasses = findCssClassesLazy("spoilerContent", "hidden");
 const MessagesClasses = findCssClassesLazy("messagesWrapper", "navigationDescription");
@@ -41,7 +42,9 @@ export default definePlugin({
     reveal(event: MouseEvent) {
         const { ctrlKey, metaKey, shiftKey, target } = event;
 
-        if (!(IS_MAC ? metaKey : ctrlKey)) { return; }
+        if (!(IS_MAC ? metaKey : ctrlKey)) {
+            return;
+        }
 
         const { spoilerContent, hidden } = SpoilerClasses;
         const { messagesWrapper } = MessagesClasses;
@@ -54,5 +57,4 @@ export default definePlugin({
             (spoiler as HTMLSpanElement).click();
         }
     }
-
 });

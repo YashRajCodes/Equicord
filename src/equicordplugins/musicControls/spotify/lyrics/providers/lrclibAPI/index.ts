@@ -44,7 +44,7 @@ export async function getLyricsLrclib(track: Track): Promise<LyricsData | null> 
 
     if (!response.ok) return null;
 
-    const data = await response.json() as LrcLibResponse;
+    const data = (await response.json()) as LrcLibResponse;
     if (!data.syncedLyrics) return null;
 
     const lyrics = data.syncedLyrics;
@@ -58,7 +58,7 @@ export async function getLyricsLrclib(track: Track): Promise<LyricsData | null> 
                 const trimmedText = text.trim();
                 return {
                     time: lyricTimeToSeconds(lrcTime),
-                    text: (trimmedText === "" || trimmedText === "♪") ? null : trimmedText
+                    text: trimmedText === "" || trimmedText === "♪" ? null : trimmedText
                 };
             })
         }

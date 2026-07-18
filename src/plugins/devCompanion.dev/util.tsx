@@ -4,16 +4,17 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Module } from "@vencord/discord-types/webpack";
+import { CodeFilter, FilterFn, stringMatches, wreq } from "@webpack";
+
 import { showNotice } from "@api/Notices";
 import { plugins, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { Settings } from "@api/Settings";
 import { canonicalizeMatch } from "@utils/patches";
-import { Module } from "@vencord/discord-types/webpack";
-import { CodeFilter, FilterFn, stringMatches, wreq } from "@webpack";
 import { Toasts } from "@webpack/common";
 
-import { WebpackPatcher } from "../../Vencord";
 import { logger, settings as companionSettings } from ".";
+import { WebpackPatcher } from "../../Vencord";
 import { FindNode } from "./types/recieve";
 
 const { getFactoryPatchedBy, getFactoryPatchedSource } = WebpackPatcher;
@@ -24,8 +25,7 @@ const { getFactoryPatchedBy, getFactoryPatchedSource } = WebpackPatcher;
  */
 export function extractOrThrow(id: PropertyKey): string {
     const patchedSource = getFactoryPatchedSource(id);
-    if (!patchedSource)
-        throw new Error(`No patched module found for module id ${String(id)}`);
+    if (!patchedSource) throw new Error(`No patched module found for module id ${String(id)}`);
     return patchedSource;
 }
 /**
@@ -69,7 +69,7 @@ function extractUnpatchedModule(id: PropertyKey): string {
  * @param usePatched if false, always returns `[]`, otherwise uses the same setting as {@link extractModule}
  */
 export function getModulePatchedBy(id: PropertyKey, usePatched = companionSettings.store.usePatchedModule): string[] {
-    return [...usePatched && getFactoryPatchedBy(id) || []];
+    return [...((usePatched && getFactoryPatchedBy(id)) || [])];
 }
 export function parseNode(node: FindNode): any {
     switch (node.type) {
@@ -195,7 +195,10 @@ export function toggleEnabled(name: string, beforeReload: (error?: string) => vo
     beforeReturn();
 }
 
-export function findAllModuleIds(filter: FilterFn, { topLevelOnly = false }: { topLevelOnly?: boolean; } = {}): string[] {
+export function findAllModuleIds(
+    filter: FilterFn,
+    { topLevelOnly = false }: { topLevelOnly?: boolean } = {}
+): string[] {
     const { c } = wreq;
     const ret: string[] = [];
 

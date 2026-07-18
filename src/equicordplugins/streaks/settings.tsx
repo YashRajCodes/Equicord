@@ -23,10 +23,7 @@ export const settings = definePluginSettings({
             if (isAuthorized()) {
                 return (
                     <Flex>
-                        <Button
-                            onClick={() => remove(UserStore.getCurrentUser()?.id)}
-                            variant="dangerPrimary"
-                        >
+                        <Button onClick={() => remove(UserStore.getCurrentUser()?.id)} variant="dangerPrimary">
                             Log Out of Streaks API
                         </Button>
                     </Flex>
@@ -34,11 +31,13 @@ export const settings = definePluginSettings({
             } else {
                 return (
                     <Flex>
-                        <Button onClick={async () => {
-                            await authorize();
-                            await useStreaksStore.getState().migrate();
-                            await useStreaksStore.getState().fetch();
-                        }}>
+                        <Button
+                            onClick={async () => {
+                                await authorize();
+                                await useStreaksStore.getState().migrate();
+                                await useStreaksStore.getState().fetch();
+                            }}
+                        >
                             Log In to Streaks API
                         </Button>
                     </Flex>

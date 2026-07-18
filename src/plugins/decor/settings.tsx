@@ -19,22 +19,27 @@ export const settings = definePluginSettings({
     changeDecoration: {
         type: OptionType.COMPONENT,
         component({ closePluginSettings }) {
-            if (!DecorPlugin.started) return <Paragraph>
-                Enable Decor and restart your client to change your avatar decoration.
-            </Paragraph>;
+            if (!DecorPlugin.started)
+                return <Paragraph>Enable Decor and restart your client to change your avatar decoration.</Paragraph>;
 
-            return <div>
-                <DecorSection hideTitle hideDivider noMargin />
-                <Paragraph className={classes(Margins.top8, Margins.bottom8)}>
-                    You can also access Decor decorations from the <TextButton
-                        variant="link"
-                        onClick={async () => {
-                            closePluginSettings();
-                            SettingsRouter.openUserSettings("profile_panel");
-                        }}
-                    >Profiles</TextButton> page.
-                </Paragraph>
-            </div>;
+            return (
+                <div>
+                    <DecorSection hideTitle hideDivider noMargin />
+                    <Paragraph className={classes(Margins.top8, Margins.bottom8)}>
+                        You can also access Decor decorations from the{" "}
+                        <TextButton
+                            variant="link"
+                            onClick={async () => {
+                                closePluginSettings();
+                                SettingsRouter.openUserSettings("profile_panel");
+                            }}
+                        >
+                            Profiles
+                        </TextButton>{" "}
+                        page.
+                    </Paragraph>
+                </div>
+            );
         }
     },
     baseUrl: {

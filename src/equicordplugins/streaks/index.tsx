@@ -5,13 +5,13 @@
  */
 
 import "./style.css";
+import { Message } from "@vencord/discord-types";
 
 import { DecoratorProps } from "@api/MemberListDecorators";
 import { iconsModule } from "@equicordplugins/_core/concatenatedModules";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin from "@utils/types";
-import { Message } from "@vencord/discord-types";
 import { ChannelStore, moment, Tooltip, UserStore } from "@webpack/common";
 
 import { settings } from "./settings";
@@ -39,7 +39,7 @@ const colorFor = (streak: number) => {
     return settings.store.defaultColor;
 };
 
-const StreakBadge = ({ userId }: { userId: string; }) => {
+const StreakBadge = ({ userId }: { userId: string }) => {
     const streaks = useStreaksStore(state => state.streaks);
     const streak = streaks[userId];
 
@@ -79,7 +79,17 @@ export default definePlugin({
                 await useStreaksStore.getState().fetch();
             }
         },
-        async MESSAGE_CREATE({ optimistic, type, message, channelId }: { optimistic: boolean; type: string; message: Message; channelId: string; }) {
+        async MESSAGE_CREATE({
+            optimistic,
+            type,
+            message,
+            channelId
+        }: {
+            optimistic: boolean;
+            type: string;
+            message: Message;
+            channelId: string;
+        }) {
             if (optimistic || type !== "MESSAGE_CREATE" || message.state === "SENDING") return;
             if (message.author?.bot) return;
 
@@ -94,8 +104,16 @@ export default definePlugin({
 
             const today = moment().format("YYYY-MM-DD");
             const cached = useStreaksStore.getState().streaks[recipientId];
-            const myFlag = cached && cached.today_date != null && cached.today_date === today && (cached.user_a_id === me ? cached.user_a_today : cached.user_b_today);
-            const theirFlag = cached && cached.today_date != null && cached.today_date === today && (cached.user_a_id === me ? cached.user_b_today : cached.user_a_today);
+            const myFlag =
+                cached &&
+                cached.today_date != null &&
+                cached.today_date === today &&
+                (cached.user_a_id === me ? cached.user_a_today : cached.user_b_today);
+            const theirFlag =
+                cached &&
+                cached.today_date != null &&
+                cached.today_date === today &&
+                (cached.user_a_id === me ? cached.user_b_today : cached.user_a_today);
 
             if (message.author.id === me) {
                 if (!myFlag) {
@@ -114,7 +132,7 @@ export default definePlugin({
                     }, 1000);
                 }
             }
-        },
+        }
     },
 
     renderMessageDecoration({ message }) {
@@ -126,5 +144,5 @@ export default definePlugin({
     renderMemberListDecorator({ user, type }: DecoratorProps) {
         if (type !== "dm" || !user || user.id === UserStore.getCurrentUser()?.id) return null;
         return <StreakBadge userId={user.id} />;
-    },
+    }
 });

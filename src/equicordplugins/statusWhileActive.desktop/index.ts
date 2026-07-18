@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { VoiceState } from "@vencord/discord-types";
+
 import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { VoiceState } from "@vencord/discord-types";
 import { UserStore, VoiceStateStore } from "@webpack/common";
 
 let savedStatus: string | null;
@@ -22,11 +23,11 @@ const settings = definePluginSettings({
         options: [
             {
                 label: "Online",
-                value: "online",
+                value: "online"
             },
             {
                 label: "Idle",
-                value: "idle",
+                value: "idle"
             },
             {
                 label: "Do Not Disturb",
@@ -35,7 +36,7 @@ const settings = definePluginSettings({
             },
             {
                 label: "Invisible",
-                value: "invisible",
+                value: "invisible"
             }
         ]
     }
@@ -60,7 +61,7 @@ export default definePlugin({
     authors: [EquicordDevs.smuki],
     settings,
     flux: {
-        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
+        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[] }) {
             const userId = UserStore.getCurrentUser().id;
             const myState = voiceStates.find(state => state.userId === userId);
             if (!myState) return;
@@ -77,5 +78,5 @@ export default definePlugin({
 
             setStatus(inVoiceChannel, status);
         }
-    },
+    }
 });

@@ -14,10 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./style.css";
-
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
@@ -54,14 +53,11 @@ export default definePlugin({
     settings,
     renderNicknameIcon({ userId }) {
         if (!settings.store.showInUserProfileModal) return null;
-        return (
-            <VoiceChannelIndicator userId={userId} isProfile />
-        );
+        return <VoiceChannelIndicator userId={userId} isProfile />;
     },
     renderMemberListDecorator({ user }) {
         if (!settings.store.showInMemberList) return null;
         return user == null ? null : <VoiceChannelIndicator userId={user.id} />;
-
     },
     renderMessageDecoration({ message }) {
         if (!settings.store.showInMessages) return null;
@@ -73,7 +69,8 @@ export default definePlugin({
             find: "null!=this.peopleListItemRef.current",
             replacement: {
                 match: /\.isProvisional.{0,50}?className:\i\.\i,children:\[(?<=isFocused:(\i).+?)/,
-                replace: "$&$self.VoiceChannelIndicator({userId:this?.props?.user?.id,isActionButton:true,shouldHighlight:$1}),"
+                replace:
+                    "$&$self.VoiceChannelIndicator({userId:this?.props?.user?.id,isActionButton:true,shouldHighlight:$1}),"
             },
             predicate: () => settings.store.showInMemberList
         }

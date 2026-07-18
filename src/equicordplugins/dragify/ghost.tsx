@@ -28,7 +28,7 @@ const cl = classNameFactory("vc-dragify-");
 let ghostRoot: ReturnType<typeof createRoot> | null = null;
 let ghostMountNode: HTMLDivElement | null = null;
 let ghostRaf: number | null = null;
-let ghostPendingPos: { x: number; y: number; } | null = null;
+let ghostPendingPos: { x: number; y: number } | null = null;
 let ghostHideTimer: number | null = null;
 
 let ghostState: GhostState = {
@@ -79,7 +79,7 @@ export function hideGhost() {
     }, 200);
 }
 
-export function showGhost(next: Omit<GhostState, "visible" | "x" | "y">, position?: { x: number; y: number; }) {
+export function showGhost(next: Omit<GhostState, "visible" | "x" | "y">, position?: { x: number; y: number }) {
     if (ghostHideTimer !== null) {
         clearTimeout(ghostHideTimer);
         ghostHideTimer = null;
@@ -141,11 +141,8 @@ const DragGhost = () => {
         };
     }, []);
 
-    const voiceState = useStateFromStores(
-        [VoiceStateStore],
-        () => (state.kind === "user" && state.entityId
-            ? VoiceStateStore.getVoiceStateForUser(state.entityId)
-            : null)
+    const voiceState = useStateFromStores([VoiceStateStore], () =>
+        state.kind === "user" && state.entityId ? VoiceStateStore.getVoiceStateForUser(state.entityId) : null
     );
     const inVoice = voiceState?.channelId;
     const isMuted = voiceState && (voiceState.selfMute || voiceState.mute || voiceState.selfDeaf || voiceState.deaf);
@@ -160,22 +157,25 @@ const DragGhost = () => {
         >
             <div className={cl("card")}>
                 <div className={cl("icon")}>
-                    {state.iconUrl
-                        ? <img className={cl("icon-image")} src={state.iconUrl} alt="" />
-                        : <span className={cl("icon-text")}>{state.symbol ?? "#"}</span>
-                    }
+                    {state.iconUrl ? (
+                        <img className={cl("icon-image")} src={state.iconUrl} alt="" />
+                    ) : (
+                        <span className={cl("icon-text")}>{state.symbol ?? "#"}</span>
+                    )}
                 </div>
                 <div className={cl("body")}>
                     <div className={cl("title-row")}>
                         <div className={cl("title")}>{state.title}</div>
-                        {state.kind === "user" && inVoice
-                            ? (isMuted
-                                ? <VoiceMutedIcon className={classes(cl("voice-icon"), cl("voice-icon-muted"))} />
-                                : <VoiceStateIcon className={cl("voice-icon")} />)
-                            : null}
-                        {state.kind === "user" && inVoice && isStreaming
-                            ? <StreamIcon className={classes(cl("voice-icon"), cl("voice-icon-stream"))} />
-                            : null}
+                        {state.kind === "user" && inVoice ? (
+                            isMuted ? (
+                                <VoiceMutedIcon className={classes(cl("voice-icon"), cl("voice-icon-muted"))} />
+                            ) : (
+                                <VoiceStateIcon className={cl("voice-icon")} />
+                            )
+                        ) : null}
+                        {state.kind === "user" && inVoice && isStreaming ? (
+                            <StreamIcon className={classes(cl("voice-icon"), cl("voice-icon-stream"))} />
+                        ) : null}
                     </div>
                     {state.subtitle && <div className={cl("subtitle")}>{state.subtitle}</div>}
                 </div>
@@ -185,7 +185,7 @@ const DragGhost = () => {
     );
 };
 
-function VoiceStateIcon({ className, size = 14 }: { className?: string; size?: number; }) {
+function VoiceStateIcon({ className, size = 14 }: { className?: string; size?: number }) {
     return (
         <svg
             className={className}
@@ -203,7 +203,7 @@ function VoiceStateIcon({ className, size = 14 }: { className?: string; size?: n
     );
 }
 
-function StreamIcon({ className, size = 14 }: { className?: string; size?: number; }) {
+function StreamIcon({ className, size = 14 }: { className?: string; size?: number }) {
     return (
         <svg
             className={className}
@@ -221,7 +221,7 @@ function StreamIcon({ className, size = 14 }: { className?: string; size?: numbe
     );
 }
 
-function VoiceMutedIcon({ className, size = 14 }: { className?: string; size?: number; }) {
+function VoiceMutedIcon({ className, size = 14 }: { className?: string; size?: number }) {
     return (
         <svg
             className={className}

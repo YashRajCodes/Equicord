@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Logger } from "@utils/Logger";
 import { Activity, ActivityButton } from "@vencord/discord-types";
 import { ActivityFlags, ActivityType } from "@vencord/discord-types/enums";
 import { findByPropsLazy } from "@webpack";
+
+import { Logger } from "@utils/Logger";
 import { ApplicationAssetUtils, FluxDispatcher } from "@webpack/common";
 
 import { settings } from "../settings";
@@ -37,7 +38,7 @@ async function fetchTrackData(): Promise<SfmTrackData | null> {
         const res = await fetch(`https://api.stats.fm/api/v1/users/${settings.store.sfm_username}/streams/current`);
         if (!res.ok) throw `${res.status} ${res.statusText}`;
 
-        const json = await res.json() as SfmResponse;
+        const json = (await res.json()) as SfmResponse;
         if (!json.item) {
             logger.error("Error from Stats.fm API", json);
             return null;
@@ -51,7 +52,7 @@ async function fetchTrackData(): Promise<SfmTrackData | null> {
             albums: trackData.albums.map(a => a.name).join(", ") || "Unknown",
             artists: trackData.artists[0]?.name ?? "Unknown",
             url: `https://stats.fm/track/${trackData.id}`,
-            imageUrl: trackData.albums[0]?.image,
+            imageUrl: trackData.albums[0]?.image
         };
     } catch (e) {
         logger.error("Failed to query Stats.fm API", e);
@@ -71,7 +72,11 @@ async function getActivity(): Promise<Activity | null> {
     }
 
     if (settings.store.sfm_hideWithSpotify) {
-        if (PresenceStore.getActivities().some(a => a.type === ActivityType.LISTENING && a.application_id !== APPLICATION_ID))
+        if (
+            PresenceStore.getActivities().some(
+                a => a.type === ActivityType.LISTENING && a.application_id !== APPLICATION_ID
+            )
+        )
             return null;
     }
 
@@ -81,31 +86,37 @@ async function getActivity(): Promise<Activity | null> {
     const largeImage = getLargeImage(trackData);
     const assets = largeImage
         ? {
-            large_image: await getAsset(largeImage),
-            large_text: trackData.albums || undefined,
-            ...(settings.store.sfm_showLogo && {
-                small_image: await getAsset("statsfm-large"),
-                small_text: "Stats.fm",
-            }),
-        } : {
-            large_image: await getAsset("statsfm-large"),
-            large_text: trackData.albums || undefined,
-        };
+              large_image: await getAsset(largeImage),
+              large_text: trackData.albums || undefined,
+              ...(settings.store.sfm_showLogo && {
+                  small_image: await getAsset("statsfm-large"),
+                  small_text: "Stats.fm"
+              })
+          }
+        : {
+              large_image: await getAsset("statsfm-large"),
+              large_text: trackData.albums || undefined
+          };
 
     const buttons: ActivityButton[] = [];
     if (settings.store.sfm_shareUsername)
         buttons.push({ label: "Stats.fm Profile", url: `https://stats.fm/${settings.store.sfm_username}` });
-    if (settings.store.sfm_shareSong)
-        buttons.push({ label: "View Song", url: trackData.url });
+    if (settings.store.sfm_shareSong) buttons.push({ label: "View Song", url: trackData.url });
 
     const statusName = (() => {
         switch (settings.store.sfm_nameFormat) {
-            case NameFormat.ArtistFirst: return trackData.artists + " - " + trackData.name;
-            case NameFormat.SongFirst: return trackData.name + " - " + trackData.artists;
-            case NameFormat.ArtistOnly: return trackData.artists;
-            case NameFormat.SongOnly: return trackData.name;
-            case NameFormat.AlbumName: return trackData.albums || settings.store.sfm_statusName;
-            default: return settings.store.sfm_statusName;
+            case NameFormat.ArtistFirst:
+                return trackData.artists + " - " + trackData.name;
+            case NameFormat.SongFirst:
+                return trackData.name + " - " + trackData.artists;
+            case NameFormat.ArtistOnly:
+                return trackData.artists;
+            case NameFormat.SongOnly:
+                return trackData.name;
+            case NameFormat.AlbumName:
+                return trackData.albums || settings.store.sfm_statusName;
+            default:
+                return settings.store.sfm_statusName;
         }
     })();
 
@@ -118,7 +129,7 @@ async function getActivity(): Promise<Activity | null> {
         buttons: buttons.length ? buttons.map(v => v.label) : undefined,
         metadata: buttons.length ? { button_urls: buttons.map(v => v.url) } : undefined,
         type: settings.store.sfm_useListeningStatus ? ActivityType.LISTENING : ActivityType.PLAYING,
-        flags: ActivityFlags.INSTANCE,
+        flags: ActivityFlags.INSTANCE
     };
 }
 

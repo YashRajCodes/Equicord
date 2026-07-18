@@ -4,25 +4,50 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { MessageAttachment } from "@vencord/discord-types";
+import { ChannelType } from "@vencord/discord-types/enums";
+import { findByCodeLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
+import { PropsWithChildren } from "react";
+
 import { BaseText } from "@components/BaseText";
 import { Flex, FlexProps } from "@components/Flex";
 import { RightArrow } from "@components/Icons";
 import { iconsModule } from "@equicordplugins/_core/concatenatedModules";
-import { MessageAttachment } from "@vencord/discord-types";
-import { ChannelType } from "@vencord/discord-types/enums";
-import { findByCodeLazy, findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { ChannelStore, DateUtils, GuildStore, IconUtils, match, NavigationRouter, Popout, React, SelectedGuildStore, SnowflakeUtils, useMemo, useRef, UserStore, useStateFromStores } from "@webpack/common";
-import { PropsWithChildren } from "react";
+import {
+    ChannelStore,
+    DateUtils,
+    GuildStore,
+    IconUtils,
+    match,
+    NavigationRouter,
+    Popout,
+    React,
+    SelectedGuildStore,
+    SnowflakeUtils,
+    useMemo,
+    useRef,
+    UserStore,
+    useStateFromStores
+} from "@webpack/common";
 
 import { cl, ForwardOptionsContext, ForwardOptionsState } from ".";
 
-type AttachmentType = "IMAGE" | "VIDEO" | "CLIP" | "AUDIO" | "VISUAL_PLACEHOLDER" | "PLAINTEXT_PREVIEW" | "OTHER" | "INVALID";
+type AttachmentType =
+    | "IMAGE"
+    | "VIDEO"
+    | "CLIP"
+    | "AUDIO"
+    | "VISUAL_PLACEHOLDER"
+    | "PLAINTEXT_PREVIEW"
+    | "OTHER"
+    | "INVALID";
 
 const tagClasses = findCssClassesLazy("tagList", "tagGroup", "tag");
 const ServerProfileComponent = findComponentByCodeLazy("{guildProfile:", "GUILD_PROFILE");
-const getAttachmentType: (attachment: MessageAttachment, inlineAttachmentMedia?: boolean) => AttachmentType = findByCodeLazy('"PLAINTEXT_PREVIEW":"OTHER"');
+const getAttachmentType: (attachment: MessageAttachment, inlineAttachmentMedia?: boolean) => AttachmentType =
+    findByCodeLazy('"PLAINTEXT_PREVIEW":"OTHER"');
 
-export function GuildName({ guildId }: { guildId: string; }) {
+export function GuildName({ guildId }: { guildId: string }) {
     const guild = useStateFromStores(
         [GuildStore, SelectedGuildStore],
         () => {
@@ -58,7 +83,15 @@ export function GuildName({ guildId }: { guildId: string; }) {
     );
 }
 
-export function ChannelName({ guildId, channelId, messageId }: { guildId?: string; channelId: string; messageId: string; }) {
+export function ChannelName({
+    guildId,
+    channelId,
+    messageId
+}: {
+    guildId?: string;
+    channelId: string;
+    messageId: string;
+}) {
     const name = useStateFromStores(
         [ChannelStore, UserStore],
         () => {
@@ -101,7 +134,7 @@ export function ChannelName({ guildId, channelId, messageId }: { guildId?: strin
     );
 }
 
-export function Timestamp({ snowflake }: { snowflake: string; }) {
+export function Timestamp({ snowflake }: { snowflake: string }) {
     const formatted = useMemo(
         () => DateUtils.calendarFormat(new Date(SnowflakeUtils.extractTimestamp(snowflake))),
         [snowflake]
@@ -135,7 +168,7 @@ export function EmbedPicker({ message, opts, setOpts, hasOpts, defaultOpts }: Fo
         return message.embeds.map(({ rawTitle, rawDescription, image, images = image ? [image] : [], video }, i) => {
             const current = {
                 title: rawTitle?.trim() || rawDescription?.trim() || `Embed ${i + 1}`,
-                subEmbeds: [] as { id: number; name: string; isMainEmbed: boolean; }[]
+                subEmbeds: [] as { id: number; name: string; isMainEmbed: boolean }[]
             };
 
             if (images.length > 0) {
@@ -196,7 +229,7 @@ export function AttachmentPicker({ message, opts, setOpts, hasOpts, defaultOpts 
                 <Tag
                     key={attachment.id}
                     id={attachment.id}
-                    source={hasOpts ? opts.onlyAttachmentIds ?? [] : defaultOpts.onlyAttachmentIds}
+                    source={hasOpts ? (opts.onlyAttachmentIds ?? []) : defaultOpts.onlyAttachmentIds}
                     onChange={data => setOpts(prev => ({ ...prev, onlyAttachmentIds: data }))}
                     disabled={!hasOpts}
                 >
@@ -212,16 +245,22 @@ function TagContainer(props: FlexProps) {
     return <Flex gap={8} flexWrap="wrap" className={tagClasses.tagGroup} data-layout="inline" {...props} />;
 }
 
-function Tag<T>({ id, children, source, onChange, disabled }: { id: T; source: T[]; onChange: (data: T[]) => void; disabled?: boolean; } & PropsWithChildren) {
+function Tag<T>({
+    id,
+    children,
+    source,
+    onChange,
+    disabled
+}: { id: T; source: T[]; onChange: (data: T[]) => void; disabled?: boolean } & PropsWithChildren) {
     const selected = useMemo(() => source.includes(id), [source, id]);
 
     return (
         <div
             className={tagClasses.tag}
             data-selection-mode="multiple"
-            data-selected={!disabled &&selected ? "true" : undefined}
+            data-selected={!disabled && selected ? "true" : undefined}
             onClick={() => onChange(selected ? source.filter(x => x !== id) : [...source, id])}
-            style={{ textWrap: "wrap", opacity: disabled ? .5 : undefined }}
+            style={{ textWrap: "wrap", opacity: disabled ? 0.5 : undefined }}
             inert={disabled}
         >
             {children}
@@ -237,7 +276,7 @@ const icons: Partial<Record<AttachmentType, string>> = {
     PLAINTEXT_PREVIEW: "A"
 };
 
-function AttachmentIcon({ attachment }: { attachment: MessageAttachment; }) {
+function AttachmentIcon({ attachment }: { attachment: MessageAttachment }) {
     const Icon = useMemo(() => {
         const type = getAttachmentType(attachment, true);
         return iconsModule[(icons[type] ?? "ImageFile") + "Icon"];

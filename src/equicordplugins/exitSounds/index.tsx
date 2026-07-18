@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+import { findComponentByCodeLazy } from "@webpack";
 
 import { playAudio } from "@api/AudioPlayer";
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
@@ -13,8 +14,18 @@ import { Button } from "@components/Button";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
-import { findComponentByCodeLazy } from "@webpack";
-import { Constants, GuildStore, IconUtils, MediaEngineStore, Menu, RestAPI, SearchableSelect, SelectedChannelStore, TextInput, Toasts } from "@webpack/common";
+import {
+    Constants,
+    GuildStore,
+    IconUtils,
+    MediaEngineStore,
+    Menu,
+    RestAPI,
+    SearchableSelect,
+    SelectedChannelStore,
+    TextInput,
+    Toasts
+} from "@webpack/common";
 
 const cl = classNameFactory("vc-exitsounds-");
 
@@ -34,7 +45,7 @@ function GuildSelector() {
             placeholder="Select a server..."
             maxVisibleItems={6}
             closeOnSelect={true}
-            onChange={v => settings.store.soundGuildId = v}
+            onChange={v => (settings.store.soundGuildId = v)}
             renderOptionPrefix={o => {
                 const guild = GuildStore.getGuild(o?.value);
                 if (!guild?.icon) return null;
@@ -57,12 +68,14 @@ function SoundIdInput() {
             <div className={cl("input-wrapper")}>
                 <TextInput
                     value={soundId}
-                    onChange={v => settings.store.soundId = v}
+                    onChange={v => (settings.store.soundId = v)}
                     placeholder="Enter sound ID..."
                 />
             </div>
             <Button
-                onClick={() => playAudio(`https://${window.GLOBAL_ENV.CDN_HOST}/soundboard-sounds/${soundId}`, { volume: 50 })}
+                onClick={() =>
+                    playAudio(`https://${window.GLOBAL_ENV.CDN_HOST}/soundboard-sounds/${soundId}`, { volume: 50 })
+                }
                 disabled={!soundId}
             >
                 <PlayIcon color="currentColor" />
@@ -84,8 +97,13 @@ const settings = definePluginSettings({
     }
 });
 
-const SoundButtonContext: NavContextMenuPatchCallback = (children, { sound }: { sound: { soundId: string; guildId: string; }; }) => {
-    children.splice(1, 0,
+const SoundButtonContext: NavContextMenuPatchCallback = (
+    children,
+    { sound }: { sound: { soundId: string; guildId: string } }
+) => {
+    children.splice(
+        1,
+        0,
         <Menu.MenuGroup>
             <Menu.MenuItem
                 id="set-global-exit-sound"

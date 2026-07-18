@@ -4,11 +4,25 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { getMimeFromExtension } from "@equicordplugins/fileUpload/utils/getMediaUrl";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { insertTextIntoChatInputBox, MessageOptions } from "@utils/discord";
 import { CloudUploadPlatform } from "@vencord/discord-types/enums";
-import { ChannelStore, CloudUploader, Constants, DraftStore, FluxDispatcher, MessageActions, PendingReplyStore, RestAPI, showToast, SnowflakeUtils, Toasts, UploadHandler } from "@webpack/common";
+
+import { getMimeFromExtension } from "@equicordplugins/fileUpload/utils/getMediaUrl";
+import { insertTextIntoChatInputBox, MessageOptions } from "@utils/discord";
+import {
+    ChannelStore,
+    CloudUploader,
+    Constants,
+    DraftStore,
+    FluxDispatcher,
+    MessageActions,
+    PendingReplyStore,
+    RestAPI,
+    showToast,
+    SnowflakeUtils,
+    Toasts,
+    UploadHandler
+} from "@webpack/common";
 
 import { settings } from ".";
 import { FFmpegState, Sticker } from "./types";
@@ -74,22 +88,26 @@ async function resizeImage(url: string) {
 }
 
 async function toGIF(url: string, ffmpeg: FFmpeg): Promise<File> {
-    const filename = (new URL(url)).pathname.split("/").pop() ?? "image.png";
+    const filename = new URL(url).pathname.split("/").pop() ?? "image.png";
     const res = await corsFetch(url);
     if (!res.ok) throw new Error("Failed to fetch image for GIF conversion");
     const arr = new Uint8Array(await res.arrayBuffer());
     await ffmpeg.writeFile(filename, arr);
 
     const outputFilename = "output.gif";
-    await ffmpeg.exec(["-i", filename,
-        "-filter_complex", `split[s0][s1];
+    await ffmpeg.exec([
+        "-i",
+        filename,
+        "-filter_complex",
+        `split[s0][s1];
         [s0]palettegen=
           stats_mode=single:
           transparency_color=000000[p];
         [s1][p]paletteuse=
           new=1:
           alpha_threshold=10`,
-        outputFilename]);
+        outputFilename
+    ]);
 
     const data = await ffmpeg.readFile(outputFilename);
     await ffmpeg.deleteFile(filename);
@@ -102,7 +120,7 @@ async function toGIF(url: string, ffmpeg: FFmpeg): Promise<File> {
     uint8.set(data);
 
     return new File([uint8], outputFilename, {
-        type: "image/gif",
+        type: "image/gif"
     });
 }
 
@@ -140,7 +158,8 @@ export async function sendSticker({ channelId, sticker, ctrlKey, shiftKey, ffmpe
         file = new File([processed], filename, { type: mimeType });
     }
 
-    if (settings.store.promptToUpload || content) return UploadHandler.promptToUpload([file], ChannelStore.getChannel(channelId), 0);
+    if (settings.store.promptToUpload || content)
+        return UploadHandler.promptToUpload([file], ChannelStore.getChannel(channelId), 0);
 
     const upload = new CloudUploader({ file, platform: CloudUploadPlatform.WEB }, channelId);
 
@@ -154,12 +173,14 @@ export async function sendSticker({ channelId, sticker, ctrlKey, shiftKey, ffmpe
                 nonce: SnowflakeUtils.fromTimestamp(Date.now()),
                 sticker_ids: [],
                 type: 0,
-                attachments: [{
-                    id: "0",
-                    filename: upload.filename,
-                    uploaded_filename: upload.uploadedFilename,
-                }],
-                message_reference: reply ? options?.messageReference : null,
+                attachments: [
+                    {
+                        id: "0",
+                        filename: upload.filename,
+                        uploaded_filename: upload.uploadedFilename
+                    }
+                ],
+                message_reference: reply ? options?.messageReference : null
             }
         });
     });

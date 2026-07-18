@@ -14,12 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { Channel, Message } from "@vencord/discord-types";
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { Channel, Message } from "@vencord/discord-types";
 import { ContextMenuApi, FluxDispatcher, Menu, MessageActions } from "@webpack/common";
 
 enum GreetMode {
@@ -66,7 +67,7 @@ function greet(channel: Channel, message: Message, stickers: string[]) {
     }
 }
 
-function GreetMenu({ channel, message }: { message: Message, channel: Channel; }) {
+function GreetMenu({ channel, message }: { message: Message; channel: Channel }) {
     const s = settings.use(["greetMode", "multiGreetChoices"]);
     const { greetMode, multiGreetChoices = [] } = s;
 
@@ -76,9 +77,7 @@ function GreetMenu({ channel, message }: { message: Message, channel: Channel; }
             onClose={() => FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" })}
             aria-label="Greet Sticker Picker"
         >
-            <Menu.MenuGroup
-                label="Greet Mode"
-            >
+            <Menu.MenuGroup label="Greet Mode">
                 {Object.values(GreetMode).map(mode => (
                     <Menu.MenuRadioItem
                         key={mode}
@@ -86,16 +85,14 @@ function GreetMenu({ channel, message }: { message: Message, channel: Channel; }
                         id={"greet-mode-" + mode}
                         label={mode}
                         checked={mode === greetMode}
-                        action={() => s.greetMode = mode}
+                        action={() => (s.greetMode = mode)}
                     />
                 ))}
             </Menu.MenuGroup>
 
             <Menu.MenuSeparator />
 
-            <Menu.MenuGroup
-                label="Greet Stickers"
-            >
+            <Menu.MenuGroup label="Greet Stickers">
                 {WELCOME_STICKERS.map(sticker => (
                     <Menu.MenuItem
                         key={sticker.id}
@@ -110,10 +107,7 @@ function GreetMenu({ channel, message }: { message: Message, channel: Channel; }
                 <>
                     <Menu.MenuSeparator />
 
-                    <Menu.MenuItem
-                        label="Unholy Multi-Greet"
-                        id="unholy-multi-greet"
-                    >
+                    <Menu.MenuItem label="Unholy Multi-Greet" id="unholy-multi-greet">
                         {WELCOME_STICKERS.map(sticker => {
                             const checked = multiGreetChoices.some(s => s === sticker.id);
 
@@ -140,7 +134,6 @@ function GreetMenu({ channel, message }: { message: Message, channel: Channel; }
                             action={() => greet(channel, message, multiGreetChoices!)}
                             disabled={multiGreetChoices.length === 0}
                         />
-
                     </Menu.MenuItem>
                 </>
             )}
@@ -150,7 +143,8 @@ function GreetMenu({ channel, message }: { message: Message, channel: Channel; }
 
 export default definePlugin({
     name: "GreetStickerPicker",
-    description: "Allows you to use any greet sticker instead of only the random one by right-clicking the 'Wave to say hi!' button",
+    description:
+        "Allows you to use any greet sticker instead of only the random one by right-clicking the 'Wave to say hi!' button",
     tags: ["Emotes", "Customisation"],
     authors: [Devs.Ven],
 
@@ -180,11 +174,10 @@ export default definePlugin({
     pickSticker(
         event: React.UIEvent,
         props: {
-            channel: Channel,
+            channel: Channel;
             message: Message;
         }
     ) {
-        if (!(props.message as any).deleted)
-            ContextMenuApi.openContextMenu(event, () => <GreetMenu {...props} />);
+        if (!(props.message as any).deleted) ContextMenuApi.openContextMenu(event, () => <GreetMenu {...props} />);
     }
 });

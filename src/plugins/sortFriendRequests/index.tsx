@@ -14,9 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./styles.css";
+import { User } from "@vencord/discord-types";
+import { PropsWithChildren } from "react";
 
 import { definePluginSettings, migratePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
@@ -26,14 +28,12 @@ import { TooltipContainer } from "@components/TooltipContainer";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
-import { User } from "@vencord/discord-types";
 import { DateUtils, RelationshipStore } from "@webpack/common";
-import { PropsWithChildren } from "react";
 
 const formatter = new Intl.DateTimeFormat(undefined, {
     month: "numeric",
     day: "numeric",
-    year: "numeric",
+    year: "numeric"
 });
 
 const cl = classNameFactory("vc-sortFriends-");
@@ -87,9 +87,7 @@ export default definePlugin({
     ],
 
     wrapSort(comparator: Function, row: any) {
-        return row.type === 3 || row.type === 4
-            ? -getSince(row.user)
-            : comparator(row);
+        return row.type === 3 || row.type === 4 ? -getSince(row.user) : comparator(row);
     },
 
     makeSubtext(user: User, origSubtext: any) {
@@ -99,10 +97,7 @@ export default definePlugin({
         }
 
         return (
-            <Flex
-                flexDirection="column"
-                style={{ gap: "0px", flexWrap: "wrap", lineHeight: "0.9rem" }}
-            >
+            <Flex flexDirection="column" style={{ gap: "0px", flexWrap: "wrap", lineHeight: "0.9rem" }}>
                 <span>{origSubtext}</span>
                 <span>
                     <div className="" style={{ display: "flex", alignItems: "center" }}>
@@ -130,16 +125,23 @@ export default definePlugin({
         );
     },
 
-    WrapperDateComponent: ErrorBoundary.wrap(({ user, children }: PropsWithChildren<{ user: User; }>) => {
-        const since = getSince(user);
+    WrapperDateComponent: ErrorBoundary.wrap(
+        ({ user, children }: PropsWithChildren<{ user: User }>) => {
+            const since = getSince(user);
 
-        return <div className={cl("wrapper")}>
-            {children}
-            {!isNaN(since.getTime()) && (
-                <TooltipContainer text={DateUtils.dateFormat(since, "LLLL")} tooltipClassName={cl("tooltip")}>
-                    <BaseText size="xs" className={cl("date")}>{formatter.format(since)}</BaseText>
-                </TooltipContainer>
-            )}
-        </div>;
-    }, { noop: true })
+            return (
+                <div className={cl("wrapper")}>
+                    {children}
+                    {!isNaN(since.getTime()) && (
+                        <TooltipContainer text={DateUtils.dateFormat(since, "LLLL")} tooltipClassName={cl("tooltip")}>
+                            <BaseText size="xs" className={cl("date")}>
+                                {formatter.format(since)}
+                            </BaseText>
+                        </TooltipContainer>
+                    )}
+                </div>
+            );
+        },
+        { noop: true }
+    )
 });

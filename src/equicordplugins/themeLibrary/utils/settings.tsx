@@ -23,7 +23,7 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: false,
         description: "Hide the warning card displayed at the top of the theme library tab",
-        restartNeeded: false,
+        restartNeeded: false
     },
     buttons: {
         type: OptionType.COMPONENT,
@@ -32,15 +32,16 @@ export const settings = definePluginSettings({
             const handleClick = async () => {
                 const token = await DataStore.get("ThemeLibrary_uniqueToken");
 
-                if (!token) return Toasts.show({
-                    message: "No token to copy, try authorizing first!",
-                    id: Toasts.genId(),
-                    type: Toasts.Type.FAILURE,
-                    options: {
-                        duration: 2.5e3,
-                        position: Toasts.Position.BOTTOM
-                    }
-                });
+                if (!token)
+                    return Toasts.show({
+                        message: "No token to copy, try authorizing first!",
+                        id: Toasts.genId(),
+                        type: Toasts.Type.FAILURE,
+                        options: {
+                            duration: 2.5e3,
+                            position: Toasts.Position.BOTTOM
+                        }
+                    });
 
                 copyToClipboard(token);
 
@@ -59,20 +60,26 @@ export const settings = definePluginSettings({
                 <section>
                     <HeadingSecondary style={{ marginTop: 0, marginBottom: 8 }}>ThemeLibrary Auth</HeadingSecondary>
                     <div className={cl("button-grid")}>
-                        <Button onClick={() => authorizeUser()}>
-                            Authorize with ThemeLibrary
-                        </Button>
-                        <Button onClick={handleClick}>
-                            Copy ThemeLibrary Token
-                        </Button>
+                        <Button onClick={() => authorizeUser()}>Authorize with ThemeLibrary</Button>
+                        <Button onClick={handleClick}>Copy ThemeLibrary Token</Button>
                         <Button color={Button.Colors.RED} onClick={() => deauthorizeUser()}>
                             Deauthorize ThemeLibrary
                         </Button>
                     </div>
                     <HeadingSecondary style={{ marginTop: 8, marginBottom: 8 }}>Theme Removal</HeadingSecondary>
-                    <Paragraph style={{ marginTop: 0, marginBottom: 8 }}> All Theme Authors are given credit in the theme info, no source has been modified, if you wish your theme to be removed anyway, open an Issue by clicking below.</Paragraph>
+                    <Paragraph style={{ marginTop: 0, marginBottom: 8 }}>
+                        {" "}
+                        All Theme Authors are given credit in the theme info, no source has been modified, if you wish
+                        your theme to be removed anyway, open an Issue by clicking below.
+                    </Paragraph>
                     <div className={cl("button-grid")}>
-                        <Button onClick={() => VencordNative.native.openExternal("https://github.com/Faf4a/plugins/issues/new?labels=removal&projects=&template=request_removal.yml&title=Theme+Removal")}>
+                        <Button
+                            onClick={() =>
+                                VencordNative.native.openExternal(
+                                    "https://github.com/Faf4a/plugins/issues/new?labels=removal&projects=&template=request_removal.yml&title=Theme+Removal"
+                                )
+                            }
+                        >
                             Request Theme Removal <OpenExternalIcon height={16} width={16} />
                         </Button>
                     </div>

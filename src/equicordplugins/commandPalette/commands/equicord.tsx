@@ -17,11 +17,13 @@ export const equicordCommands: PaletteCommand[] = [
         section: SECTION,
         keywords: ["equicord", "vencord", "settings"],
         icon: GearIcon,
-        actions: [{
-            id: "run",
-            label: "Open Equicord Settings",
-            run: () => void openSettingsPage("equicord_main")
-        }]
+        actions: [
+            {
+                id: "run",
+                label: "Open Equicord Settings",
+                run: () => void openSettingsPage("equicord_main")
+            }
+        ]
     },
     {
         id: "equicord.quickCss",
@@ -29,11 +31,13 @@ export const equicordCommands: PaletteCommand[] = [
         section: SECTION,
         keywords: ["css", "quickcss", "editor", "style"],
         icon: PaintIcon,
-        actions: [{
-            id: "run",
-            label: "Open QuickCSS",
-            run: () => VencordNative.quickCss.openEditor()
-        }]
+        actions: [
+            {
+                id: "run",
+                label: "Open QuickCSS",
+                run: () => VencordNative.quickCss.openEditor()
+            }
+        ]
     },
     {
         id: "equicord.updater",
@@ -42,11 +46,13 @@ export const equicordCommands: PaletteCommand[] = [
         keywords: ["update", "updater", "version"],
         icon: BoltIcon,
         predicate: () => !IS_UPDATER_DISABLED,
-        actions: [{
-            id: "run",
-            label: "Open Updater",
-            run: () => void openSettingsPage("equicord_updater")
-        }]
+        actions: [
+            {
+                id: "run",
+                label: "Open Updater",
+                run: () => void openSettingsPage("equicord_updater")
+            }
+        ]
     },
     {
         id: "equicord.changelog",
@@ -54,11 +60,13 @@ export const equicordCommands: PaletteCommand[] = [
         section: SECTION,
         keywords: ["changelog", "news", "whats new"],
         icon: BoltIcon,
-        actions: [{
-            id: "run",
-            label: "Open Changelog",
-            run: () => void openSettingsPage("equicord_changelog")
-        }]
+        actions: [
+            {
+                id: "run",
+                label: "Open Changelog",
+                run: () => void openSettingsPage("equicord_changelog")
+            }
+        ]
     },
     {
         id: "equicord.restart",
@@ -66,10 +74,12 @@ export const equicordCommands: PaletteCommand[] = [
         section: SECTION,
         keywords: ["restart", "reload", "refresh"],
         icon: RestartIcon,
-        actions: [{
-            id: "run",
-            label: "Restart Discord",
-            run: () => window.location.reload()
-        }]
+        actions: [
+            {
+                id: "run",
+                label: "Restart Discord",
+                run: () => window.location.reload()
+            }
+        ]
     }
 ];

@@ -4,13 +4,24 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Channel, Message } from "@vencord/discord-types";
+import { findByPropsLazy, findStore } from "@webpack";
+
 import { definePluginSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
-import { Channel, Message } from "@vencord/discord-types";
-import { findByPropsLazy, findStore } from "@webpack";
-import { ChannelStore, IconUtils, MessageStore, NavigationRouter, PresenceStore, RelationshipStore, SelectedChannelStore, StreamerModeStore, UserStore } from "@webpack/common";
+import {
+    ChannelStore,
+    IconUtils,
+    MessageStore,
+    NavigationRouter,
+    PresenceStore,
+    RelationshipStore,
+    SelectedChannelStore,
+    StreamerModeStore,
+    UserStore
+} from "@webpack/common";
 
 import { setContainerPosition, showNotification, teardownNotifications } from "./components/Notifications";
 
@@ -50,9 +61,9 @@ export const settings = definePluginSettings({
             {
                 label: "Bottom Right",
                 value: "bottom-right"
-            },
+            }
         ],
-        onChange: value => setContainerPosition(value),
+        onChange: value => setContainerPosition(value)
     },
     timeout: {
         type: OptionType.SLIDER,
@@ -100,14 +111,18 @@ export const settings = definePluginSettings({
     ignoreUsers: {
         type: OptionType.STRING,
         description: "A list of user IDs (separate by commas) to ignore displaying notifications for.",
-        onChange: () => { ignoredUsers = parseIdList(settings.store.ignoreUsers); },
+        onChange: () => {
+            ignoredUsers = parseIdList(settings.store.ignoreUsers);
+        },
         default: "",
         placeholder: "000000000000000000,111111111111111111,222222222222222222"
     },
     notifyFor: {
         type: OptionType.STRING,
         description: "A list of channel IDs (separate by commas) to always receive notifications from.",
-        onChange: () => { notifyFor = parseIdList(settings.store.notifyFor); },
+        onChange: () => {
+            notifyFor = parseIdList(settings.store.notifyFor);
+        },
         default: "",
         placeholder: "000000000000000000,111111111111111111,222222222222222222"
     },
@@ -125,7 +140,7 @@ export default definePlugin({
     authors: [EquicordDevs.Skully, EquicordDevs.Ethan, EquicordDevs.Buzzy],
     settings,
     flux: {
-        MESSAGE_CREATE({ message }: { message: Message; }) {
+        MESSAGE_CREATE({ message }: { message: Message }) {
             const channel: Channel = ChannelStore.getChannel(message.channel_id);
             if (!channel) return;
 
@@ -133,35 +148,43 @@ export default definePlugin({
 
             // Check global conditions for all message types.
             if (
-                (message.author.id === currentUser.id) // If message is from the user.
-                || (channel.id === SelectedChannelStore.getChannelId()) // If the user is currently in the channel.
-                || (ignoredUsers.includes(message.author.id)) // If the user is ignored.
-                || (settings.store.respectDoNotDisturb && PresenceStore.getStatus(currentUser.id) === "dnd") // If notifications are disabled while in DND.
-                || (settings.store.disableInStreamerMode && StreamerModeStore.enabled) // If notifications are disabled in streamer mode.
-            ) return;
+                message.author.id === currentUser.id || // If message is from the user.
+                channel.id === SelectedChannelStore.getChannelId() || // If the user is currently in the channel.
+                ignoredUsers.includes(message.author.id) || // If the user is ignored.
+                (settings.store.respectDoNotDisturb && PresenceStore.getStatus(currentUser.id) === "dnd") || // If notifications are disabled while in DND.
+                (settings.store.disableInStreamerMode && StreamerModeStore.enabled) // If notifications are disabled in streamer mode.
+            )
+                return;
 
             // Channel type checks.
             if (channel.guild_id) {
                 if (!shouldNotifyForGuildMessage(message, channel)) return;
             } else {
                 if (
-                    (!settings.store.directMessages && channel.isDM()) // If DM notifications are disabled.
-                    || (!settings.store.groupMessages && channel.isGroupDM()) // If group DM notifications are disabled.
-                    || MuteStore.isChannelMuted(null, channel.id) // If the user has muted the DM/group channel.
-                ) return;
+                    (!settings.store.directMessages && channel.isDM()) || // If DM notifications are disabled.
+                    (!settings.store.groupMessages && channel.isGroupDM()) || // If group DM notifications are disabled.
+                    MuteStore.isChannelMuted(null, channel.id) // If the user has muted the DM/group channel.
+                )
+                    return;
             }
 
             // Retrieve the message component for the message.
-            const mockedMessage: Message | undefined = MessageStore.getMessages(message.channel_id)?.receiveMessage(message)?.get(message.id);
-            if (!mockedMessage) return console.error(`[ToastNotifications] Failed to retrieve mocked message from MessageStore for message ID ${message.id}!`);
+            const mockedMessage: Message | undefined = MessageStore.getMessages(message.channel_id)
+                ?.receiveMessage(message)
+                ?.get(message.id);
+            if (!mockedMessage)
+                return console.error(
+                    `[ToastNotifications] Failed to retrieve mocked message from MessageStore for message ID ${message.id}!`
+                );
 
             showNotification({
                 message,
                 mockedMessage,
                 channel,
-                onClick: () => channel.guild_id
-                    ? navigateToChannel(channel)
-                    : SelectedChannelActionCreators.selectPrivateChannel(channel.id)
+                onClick: () =>
+                    channel.guild_id
+                        ? navigateToChannel(channel)
+                        : SelectedChannelActionCreators.selectPrivateChannel(channel.id)
             });
         }
     },
@@ -183,7 +206,10 @@ export default definePlugin({
  */
 function parseIdList(str: string): string[] {
     if (!str) return [];
-    return str.replace(/\s/g, "").split(",").filter(id => ID_REGEX.test(id));
+    return str
+        .replace(/\s/g, "")
+        .split(",")
+        .filter(id => ID_REGEX.test(id));
 }
 
 /**
@@ -215,9 +241,12 @@ function shouldNotifyForGuildMessage(message: Message, channel: Channel): boolea
     if (!userGuildSettings) return false;
 
     const channelOverride = userGuildSettings.channel_overrides?.[channel.id];
-    const level: NotificationLevel = (channelOverride && typeof channelOverride === "object" && "message_notifications" in channelOverride)
-        ? channelOverride.message_notifications
-        : (typeof userGuildSettings.message_notifications === "number" ? userGuildSettings.message_notifications : NotificationLevel.NO_MESSAGES);
+    const level: NotificationLevel =
+        channelOverride && typeof channelOverride === "object" && "message_notifications" in channelOverride
+            ? channelOverride.message_notifications
+            : typeof userGuildSettings.message_notifications === "number"
+              ? userGuildSettings.message_notifications
+              : NotificationLevel.NO_MESSAGES;
 
     if (level === NotificationLevel.NO_MESSAGES) return false;
     if (level === NotificationLevel.ALL_MESSAGES) return true;

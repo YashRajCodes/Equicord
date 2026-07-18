@@ -14,14 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./styles.css";
+import { Message } from "@vencord/discord-types";
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { Message } from "@vencord/discord-types";
 import { ChannelStore, Menu } from "@webpack/common";
 
 import { settings } from "./settings";
@@ -29,14 +29,16 @@ import { setShouldShowTranslateEnabledTooltip, TranslateChatBarIcon, TranslateIc
 import { handleTranslate, TranslationAccessory } from "./TranslationAccessory";
 import { translate } from "./utils";
 
-const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { message: Message; }) => {
+const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { message: Message }) => {
     const content = getMessageContent(message);
     if (!content) return;
 
     const group = findGroupChildrenByChildId("copy-text", children);
     if (!group) return;
 
-    group.splice(group.findIndex(c => c?.props?.id === "copy-text") + 1, 0, (
+    group.splice(
+        group.findIndex(c => c?.props?.id === "copy-text") + 1,
+        0,
         <Menu.MenuItem
             id="vc-trans"
             label="Translate"
@@ -46,16 +48,19 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }: { m
                 handleTranslate(message.id, trans);
             }}
         />
-    ));
+    );
 };
 
 function getMessageContent(message: Message) {
     // Message snapshots is an array, which allows for nested snapshots, which Discord does not do yet.
     // no point collecting content or rewriting this to render in a certain way that makes sense
     // for something currently impossible.
-    return message.content
-        || message.messageSnapshots?.[0]?.message.content
-        || message.embeds?.find(embed => embed.type === "auto_moderation_message")?.rawDescription || "";
+    return (
+        message.content ||
+        message.messageSnapshots?.[0]?.message.content ||
+        message.embeds?.find(embed => embed.type === "auto_moderation_message")?.rawDescription ||
+        ""
+    );
 }
 
 let tooltipTimeout: any;
@@ -68,7 +73,7 @@ export default definePlugin({
     authors: [Devs.Ven, Devs.AshtonMemer, Devs.koish1],
     settings,
     contextMenus: {
-        "message": messageCtxPatch
+        message: messageCtxPatch
     },
     // not used, just here in case some other plugin wants it or w/e
     translate,

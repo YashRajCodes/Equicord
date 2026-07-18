@@ -27,5 +27,5 @@ export default definePlugin({
     openContextMenu(e: React.MouseEvent, instance) {
         if (!instance) return;
         _openGifPickerContextMenu(e, instance);
-    },
+    }
 });

@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findComponentByCodeLazy } from "@webpack";
+
 import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
-import { findComponentByCodeLazy } from "@webpack";
 
 import { loadBadges } from "./utils";
 
@@ -67,7 +68,7 @@ export const settings = definePluginSettings({
         options: [
             { label: "Don't Show Mod", value: "none" },
             { label: "Show Mod as Prefix", value: "prefix" },
-            { label: "Show Mod as Suffix", value: "suffix" },
+            { label: "Show Mod as Suffix", value: "suffix" }
         ]
     },
     apiUrl: {
@@ -75,14 +76,14 @@ export const settings = definePluginSettings({
         description: "API to use",
         default: "https://badges.equicord.org/",
         restartNeeded: false,
-        isValid: (value => {
+        isValid: value => {
             if (!value) return false;
             return true;
-        })
+        }
     },
     showClientMods: {
         type: OptionType.COMPONENT,
-        component: ShowXSettings,
+        component: ShowXSettings
     },
     showCustom: {
         type: OptionType.BOOLEAN,

@@ -5,6 +5,9 @@
  */
 
 import "./styles.css";
+import { Message } from "@vencord/discord-types";
+import { findComponentLazy } from "@webpack";
+import { ReactNode } from "react";
 
 import { definePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
@@ -13,10 +16,7 @@ import { Devs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
 import { canonicalizeMatch } from "@utils/patches";
 import definePlugin, { OptionType } from "@utils/types";
-import { Message } from "@vencord/discord-types";
-import { findComponentLazy } from "@webpack";
 import { ChannelStore, GuildMemberStore, Tooltip } from "@webpack/common";
-import { ReactNode } from "react";
 
 const countDownFilter = canonicalizeMatch(/#{intl::MAX_AGE_NEVER}/);
 const CountDown = findComponentLazy(m => m.prototype?.render && countDownFilter.test(m.prototype.render.toString()));
@@ -32,8 +32,8 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             { label: "In the Tooltip", value: DisplayStyle.Tooltip },
-            { label: "Next to the timeout icon", value: DisplayStyle.Inline, default: true },
-        ],
+            { label: "Next to the timeout icon", value: DisplayStyle.Inline, default: true }
+        ]
     }
 });
 
@@ -45,11 +45,7 @@ function renderTimeout(message: Message, inline: boolean) {
     if (!member?.communicationDisabledUntil) return null;
 
     const countdown = () => (
-        <CountDown
-            deadline={new Date(member.communicationDisabledUntil!)}
-            showUnits
-            stopAtOneSec
-        />
+        <CountDown deadline={new Date(member.communicationDisabledUntil!)} showUnits stopAtOneSec />
     );
 
     getIntlMessage("GUILD_ENABLE_COMMUNICATION_TIME_REMAINING", {
@@ -60,9 +56,9 @@ function renderTimeout(message: Message, inline: boolean) {
     return inline
         ? countdown()
         : getIntlMessage("GUILD_ENABLE_COMMUNICATION_TIME_REMAINING", {
-            username: message.author.username,
-            countdown
-        });
+              username: message.author.username,
+              countdown
+          });
 }
 
 export default definePlugin({
@@ -85,25 +81,28 @@ export default definePlugin({
         }
     ],
 
-    TooltipWrapper: ErrorBoundary.wrap(({ message, children, text }: { message: Message; children: ReactNode; text: ReactNode; }) => {
-        if (settings.store.displayStyle === DisplayStyle.Tooltip)
+    TooltipWrapper: ErrorBoundary.wrap(
+        ({ message, children, text }: { message: Message; children: ReactNode; text: ReactNode }) => {
+            if (settings.store.displayStyle === DisplayStyle.Tooltip)
+                return (
+                    <Tooltip text={renderTimeout(message, false)}>
+                        {tooltipProps => <span {...tooltipProps}>{children}</span>}
+                    </Tooltip>
+                );
+
             return (
                 <Tooltip text={renderTimeout(message, false)}>
-                    {tooltipProps => <span {...tooltipProps}>{children}</span>}
+                    {tooltipProps => (
+                        <div {...tooltipProps} className="vc-std-wrapper">
+                            {children}
+                            <BaseText tag="span" size="md" color="text-danger">
+                                {renderTimeout(message, true)} timeout remaining
+                            </BaseText>
+                        </div>
+                    )}
                 </Tooltip>
             );
-
-        return (
-            <Tooltip text={renderTimeout(message, false)}>
-                {tooltipProps => (
-                    <div {...tooltipProps} className="vc-std-wrapper">
-                        {children}
-                        <BaseText tag="span" size="md" color="text-danger">
-                            {renderTimeout(message, true)} timeout remaining
-                        </BaseText>
-                    </div>
-                )}
-            </Tooltip>
-        );
-    }, { noop: true })
+        },
+        { noop: true }
+    )
 });

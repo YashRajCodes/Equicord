@@ -112,7 +112,7 @@ export const settings = definePluginSettings({
     encryptingHostDomains: {
         type: OptionType.STRING,
         description: "Encrypting.host domains JSON list",
-        default: "[\"offensive\"]",
+        default: '["offensive"]',
         hidden: true
     },
     encryptingHostTitle: {
@@ -362,7 +362,8 @@ export const settings = definePluginSettings({
     },
     uploadAllowedFileTypes: {
         type: OptionType.STRING,
-        description: "Comma-separated list of allowed file extensions (e.g. png,jpg,gif,mp4). Leave empty to allow all files.",
+        description:
+            "Comma-separated list of allowed file extensions (e.g. png,jpg,gif,mp4). Leave empty to allow all files.",
         default: "",
         hidden: true
     },
@@ -384,27 +385,17 @@ function SettingTextInput(props: {
 
     return (
         <SettingsSection id={name} name={name} description={description ?? ""}>
-            <TextInput
-                value={value}
-                onChange={onChange}
-                placeholder={placeholder}
-            />
+            <TextInput value={value} onChange={onChange} placeholder={placeholder} />
         </SettingsSection>
     );
 }
 
-function SettingGroup(props: {
-    children: React.ReactNode;
-    description?: string;
-    name: string;
-}) {
+function SettingGroup(props: { children: React.ReactNode; description?: string; name: string }) {
     const { children, description, name } = props;
 
     return (
         <SettingsSection id={name} name={name} description={description ?? ""}>
-            <div className={cl("group")}>
-                {children}
-            </div>
+            <div className={cl("group")}>{children}</div>
         </SettingsSection>
     );
 }
@@ -424,10 +415,7 @@ function SettingSwitch(props: {
     );
 }
 
-function ServicePicker(props: {
-    onChange: (service: ServiceType) => void;
-    value: ServiceType;
-}) {
+function ServicePicker(props: { onChange: (service: ServiceType) => void; value: ServiceType }) {
     const { onChange, value } = props;
 
     return (
@@ -457,7 +445,8 @@ function FallbackOrderSettings() {
             .map(entry => entry.trim())
             .filter((entry): entry is ServiceType => Object.values(ServiceType).includes(entry as ServiceType));
 
-        return configured.length === fallbackServiceOrder.length && new Set(configured).size === fallbackServiceOrder.length
+        return configured.length === fallbackServiceOrder.length &&
+            new Set(configured).size === fallbackServiceOrder.length
             ? configured
             : fallbackServiceOrder;
     });
@@ -469,7 +458,11 @@ function FallbackOrderSettings() {
     };
 
     return (
-        <SettingsSection id="fallback-order" name="Fallback Order" description="Drag hosts to reorder fallback attempts. The selected host is tried first, then this order is used.">
+        <SettingsSection
+            id="fallback-order"
+            name="Fallback Order"
+            description="Drag hosts to reorder fallback attempts. The selected host is tried first, then this order is used."
+        >
             <div className={cl("fallback-order-list")}>
                 {order.map((service, index) => (
                     <div
@@ -485,7 +478,12 @@ function FallbackOrderSettings() {
                         onDrop={event => {
                             event.preventDefault();
                             const sourceIndex = dragIndex ?? Number(event.dataTransfer.getData("text/plain"));
-                            if (!Number.isInteger(sourceIndex) || sourceIndex === index || sourceIndex < 0 || sourceIndex >= order.length) {
+                            if (
+                                !Number.isInteger(sourceIndex) ||
+                                sourceIndex === index ||
+                                sourceIndex < 0 ||
+                                sourceIndex >= order.length
+                            ) {
                                 setDragIndex(null);
                                 return;
                             }
@@ -567,7 +565,11 @@ export function SettingsComponent() {
 
     return (
         <>
-            <SettingsSection id="upload-service" name="Upload Service" description="Choose where FileUpload sends new files.">
+            <SettingsSection
+                id="upload-service"
+                name="Upload Service"
+                description="Choose where FileUpload sends new files."
+            >
                 <ServicePicker
                     value={store.serviceType as ServiceType}
                     onChange={service => {
@@ -583,21 +585,21 @@ export function SettingsComponent() {
                         name="Service URL"
                         description="The URL of your Zipline instance"
                         value={store.serviceUrl}
-                        onChange={v => store.serviceUrl = v}
+                        onChange={v => (store.serviceUrl = v)}
                         placeholder="https://your-zipline-instance.com"
                     />
                     <SettingTextInput
                         name="Zipline Token"
                         description="Your Zipline API authorization token"
                         value={store.ziplineToken}
-                        onChange={v => store.ziplineToken = v}
+                        onChange={v => (store.ziplineToken = v)}
                         placeholder="Your Zipline API token"
                     />
                     <SettingTextInput
                         name="Folder ID"
                         description="Folder ID for uploads (leave empty for no folder)"
                         value={store.folderId}
-                        onChange={v => store.folderId = v}
+                        onChange={v => (store.folderId = v)}
                         placeholder="Leave empty for no folder"
                     />
                 </SettingGroup>
@@ -609,7 +611,7 @@ export function SettingsComponent() {
                         name="E-Z Host API Key"
                         description="Your E-Z Host API key"
                         value={store.ezHostKey}
-                        onChange={v => store.ezHostKey = v}
+                        onChange={v => (store.ezHostKey = v)}
                         placeholder="Your E-Z Host API key"
                     />
                 </SettingGroup>
@@ -621,7 +623,7 @@ export function SettingsComponent() {
                         name="Nest Token"
                         description="Your Nest API authorization token"
                         value={store.nestToken}
-                        onChange={v => store.nestToken = v}
+                        onChange={v => (store.nestToken = v)}
                         placeholder="Your Nest API token"
                     />
                 </SettingGroup>
@@ -632,117 +634,130 @@ export function SettingsComponent() {
                     <SettingTextInput
                         name="Encrypting.host API Key"
                         description="Your Encrypting.host API key"
-                        value={(store as { encryptingHostKey?: string; }).encryptingHostKey || ""}
-                        onChange={v => (store as { encryptingHostKey?: string; }).encryptingHostKey = v}
+                        value={(store as { encryptingHostKey?: string }).encryptingHostKey || ""}
+                        onChange={v => ((store as { encryptingHostKey?: string }).encryptingHostKey = v)}
                         placeholder="Your Encrypting.host API key"
                     />
-                    <SettingsSection id="url-style" name="URL Style" description="How Encrypting.host should format returned links.">
+                    <SettingsSection
+                        id="url-style"
+                        name="URL Style"
+                        description="How Encrypting.host should format returned links."
+                    >
                         <Select
                             options={encryptingHostUrlStyleOptions}
-                            isSelected={v => v === (store as { encryptingHostUrlStyle?: string; }).encryptingHostUrlStyle}
+                            isSelected={v =>
+                                v === (store as { encryptingHostUrlStyle?: string }).encryptingHostUrlStyle
+                            }
                             select={v => {
-                                (store as { encryptingHostUrlStyle?: string; }).encryptingHostUrlStyle = v;
+                                (store as { encryptingHostUrlStyle?: string }).encryptingHostUrlStyle = v;
                                 update();
                             }}
                             serialize={v => v}
                             placeholder="Select URL style"
                         />
                     </SettingsSection>
-                    <SettingsSection id="domains-json" name="Domains JSON" description={"JSON array of domains to use, for example [\"offensive\"]."}>
+                    <SettingsSection
+                        id="domains-json"
+                        name="Domains JSON"
+                        description={'JSON array of domains to use, for example ["offensive"].'}
+                    >
                         <TextArea
-                            value={(store as { encryptingHostDomains?: string; }).encryptingHostDomains || ""}
+                            value={(store as { encryptingHostDomains?: string }).encryptingHostDomains || ""}
                             rows={3}
                             placeholder='["offensive"]'
-                            onChange={v => (store as { encryptingHostDomains?: string; }).encryptingHostDomains = v}
+                            onChange={v => ((store as { encryptingHostDomains?: string }).encryptingHostDomains = v)}
                         />
                     </SettingsSection>
                     <SettingTextInput
                         name="Embed Title"
                         description="Optional title for embed style responses."
-                        value={(store as { encryptingHostTitle?: string; }).encryptingHostTitle || ""}
-                        onChange={v => (store as { encryptingHostTitle?: string; }).encryptingHostTitle = v}
+                        value={(store as { encryptingHostTitle?: string }).encryptingHostTitle || ""}
+                        onChange={v => ((store as { encryptingHostTitle?: string }).encryptingHostTitle = v)}
                         placeholder="Optional title"
                     />
                     <SettingTextInput
                         name="Embed Color"
                         description="Optional color for embed style responses."
-                        value={(store as { encryptingHostColor?: string; }).encryptingHostColor || ""}
-                        onChange={v => (store as { encryptingHostColor?: string; }).encryptingHostColor = v}
+                        value={(store as { encryptingHostColor?: string }).encryptingHostColor || ""}
+                        onChange={v => ((store as { encryptingHostColor?: string }).encryptingHostColor = v)}
                         placeholder="Optional color"
                     />
                     <SettingTextInput
                         name="Fake Link"
                         description="Optional fake link value for fakelink style responses."
-                        value={(store as { encryptingHostFakelink?: string; }).encryptingHostFakelink || ""}
-                        onChange={v => (store as { encryptingHostFakelink?: string; }).encryptingHostFakelink = v}
+                        value={(store as { encryptingHostFakelink?: string }).encryptingHostFakelink || ""}
+                        onChange={v => ((store as { encryptingHostFakelink?: string }).encryptingHostFakelink = v)}
                         placeholder="Optional fake link"
                     />
                 </SettingGroup>
             )}
 
             {isS3 && (
-                <SettingGroup name="S3-Compatible Storage" description="Connection details and object naming for your bucket.">
+                <SettingGroup
+                    name="S3-Compatible Storage"
+                    description="Connection details and object naming for your bucket."
+                >
                     <SettingTextInput
                         name="S3 Endpoint URL"
                         description="S3-compatible endpoint (e.g. https://<accountid>.r2.cloudflarestorage.com)"
                         value={store.s3Endpoint}
-                        onChange={v => store.s3Endpoint = v}
+                        onChange={v => (store.s3Endpoint = v)}
                         placeholder="https://your-endpoint.example.com"
                     />
                     <SettingTextInput
                         name="Bucket Name"
                         description="Bucket to upload into"
                         value={store.s3Bucket}
-                        onChange={v => store.s3Bucket = v}
+                        onChange={v => (store.s3Bucket = v)}
                         placeholder="my-bucket"
                     />
                     <SettingTextInput
                         name="Region"
                         description="AWS region or auto for Cloudflare R2"
                         value={store.s3Region}
-                        onChange={v => store.s3Region = v}
+                        onChange={v => (store.s3Region = v)}
                         placeholder="auto"
                     />
                     <SettingTextInput
                         name="Access Key ID"
                         description="S3-compatible access key"
                         value={store.s3AccessKeyId}
-                        onChange={v => store.s3AccessKeyId = v}
+                        onChange={v => (store.s3AccessKeyId = v)}
                         placeholder="Your access key ID"
                     />
                     <SettingTextInput
                         name="Secret Access Key"
                         description="S3-compatible secret key"
                         value={store.s3SecretAccessKey}
-                        onChange={v => store.s3SecretAccessKey = v}
+                        onChange={v => (store.s3SecretAccessKey = v)}
                         placeholder="Your secret access key"
                     />
                     <SettingTextInput
                         name="Session Token"
                         description="Optional temporary credential token"
                         value={store.s3SessionToken}
-                        onChange={v => store.s3SessionToken = v}
+                        onChange={v => (store.s3SessionToken = v)}
                         placeholder="Optional session token"
                     />
                     <SettingTextInput
                         name="Public Base URL"
                         description="Optional public URL base to use for returned links"
                         value={store.s3PublicUrl}
-                        onChange={v => store.s3PublicUrl = v}
+                        onChange={v => (store.s3PublicUrl = v)}
                         placeholder="https://cdn.example.com"
                     />
                     <SettingTextInput
                         name="Object Key Prefix"
                         description="Optional folder/prefix inside the bucket"
                         value={store.s3Prefix}
-                        onChange={v => store.s3Prefix = v}
+                        onChange={v => (store.s3Prefix = v)}
                         placeholder="uploads/discord"
                     />
                     <SettingSwitch
                         name="Use Path-Style Endpoint"
                         description="Use endpoint/bucket/key format, recommended for R2."
                         checked={store.s3ForcePathStyle}
-                        onChange={v => store.s3ForcePathStyle = v}
+                        onChange={v => (store.s3ForcePathStyle = v)}
                     />
                 </SettingGroup>
             )}
@@ -753,14 +768,18 @@ export function SettingsComponent() {
                         name="Catbox Userhash"
                         description="Your Catbox userhash for account binding, leave empty for anonymous uploads."
                         value={store.catboxUserhash}
-                        onChange={v => store.catboxUserhash = v}
+                        onChange={v => (store.catboxUserhash = v)}
                         placeholder="Your Catbox userhash"
                     />
                 </SettingGroup>
             )}
 
             {isLitterbox && (
-                <SettingsSection id="litterbox-expiry" name="Litterbox Expiry" description="How long uploads are retained">
+                <SettingsSection
+                    id="litterbox-expiry"
+                    name="Litterbox Expiry"
+                    description="How long uploads are retained"
+                >
                     <Select
                         options={litterboxOptions}
                         isSelected={v => v === store.litterboxExpiry}
@@ -780,7 +799,7 @@ export function SettingsComponent() {
                         name="GoFile Token"
                         description="Optional GoFile token to upload into your account."
                         value={store.gofileToken}
-                        onChange={v => store.gofileToken = v}
+                        onChange={v => (store.gofileToken = v)}
                         placeholder="Optional GoFile token"
                     />
                 </SettingGroup>
@@ -792,7 +811,7 @@ export function SettingsComponent() {
                         name="PixelVault Upload Key"
                         description="Your PixelVault authorization key."
                         value={store.pixelVaultKey}
-                        onChange={v => store.pixelVaultKey = v}
+                        onChange={v => (store.pixelVaultKey = v)}
                         placeholder="Your PixelVault upload key"
                     />
                 </SettingGroup>
@@ -804,14 +823,17 @@ export function SettingsComponent() {
                         name="PixelDrain API Key"
                         description="Optional PixelDrain API key for authenticated uploads. Leave empty for anonymous uploads."
                         value={store.pixelDrainKey}
-                        onChange={v => store.pixelDrainKey = v}
+                        onChange={v => (store.pixelDrainKey = v)}
                         placeholder="Your PixelDrain API key"
                     />
                 </SettingGroup>
             )}
 
             {isShareX && (
-                <SettingGroup name="ShareX Custom Uploader" description="Paste, import, or validate a ShareX custom uploader config.">
+                <SettingGroup
+                    name="ShareX Custom Uploader"
+                    description="Paste, import, or validate a ShareX custom uploader config."
+                >
                     <SettingsSection
                         id="sharex-custom-uploader-config"
                         name="ShareX Custom Uploader Config"
@@ -821,13 +843,21 @@ export function SettingsComponent() {
                             value={store.sharexConfig}
                             rows={10}
                             placeholder='{"RequestMethod":"POST","RequestURL":"https://example.com/api/upload","Body":"MultipartFormData"}'
-                            onChange={v => store.sharexConfig = v}
+                            onChange={v => (store.sharexConfig = v)}
                         />
                     </SettingsSection>
-                    <SettingsSection id="sharex-config-actions" name="ShareX Config Actions" description="Import from file or validate pasted config">
+                    <SettingsSection
+                        id="sharex-config-actions"
+                        name="ShareX Config Actions"
+                        description="Import from file or validate pasted config"
+                    >
                         <div className={cl("actions")}>
-                            <Button size="small" onClick={triggerShareXFileUpload}>Import .sxcu/.json</Button>
-                            <Button size="small" onClick={validateShareXConfig}>Validate</Button>
+                            <Button size="small" onClick={triggerShareXFileUpload}>
+                                Import .sxcu/.json
+                            </Button>
+                            <Button size="small" onClick={validateShareXConfig}>
+                                Validate
+                            </Button>
                         </div>
                         <input
                             ref={sharexFileInputRef}
@@ -841,36 +871,43 @@ export function SettingsComponent() {
             )}
 
             {isWebdav && (
-                <SettingGroup name="WebDAV" description="Connection details for WebDAV servers (Nextcloud, Owncloud, etc.).">
+                <SettingGroup
+                    name="WebDAV"
+                    description="Connection details for WebDAV servers (Nextcloud, Owncloud, etc.)."
+                >
                     <SettingTextInput
                         name="Server URL"
                         description="Base WebDAV URL (e.g. https://nextcloud.example.com/remote.php/dav/files/username)"
                         value={store.webdavUrl}
-                        onChange={v => store.webdavUrl = v}
+                        onChange={v => (store.webdavUrl = v)}
                         placeholder="https://nextcloud.example.com/remote.php/dav/files/username"
                     />
                     <SettingTextInput
                         name="Username"
                         description="WebDAV username"
                         value={store.webdavUsername}
-                        onChange={v => store.webdavUsername = v}
+                        onChange={v => (store.webdavUsername = v)}
                         placeholder="username"
                     />
                     <SettingTextInput
                         name="Password or App Token"
                         description="WebDAV password or app token"
                         value={store.webdavPassword}
-                        onChange={v => store.webdavPassword = v}
+                        onChange={v => (store.webdavPassword = v)}
                         placeholder="password or app token"
                     />
                     <SettingTextInput
                         name="Upload Directory"
                         description="Optional subdirectory on the server to upload into (e.g. uploads)"
                         value={store.webdavDirectory}
-                        onChange={v => store.webdavDirectory = v}
+                        onChange={v => (store.webdavDirectory = v)}
                         placeholder="Leave empty for root directory"
                     />
-                    <SettingsSection id="server-type" name="Server Type" description="Select your WebDAV server type. Nextcloud and ownCloud will create a public share link. Generic returns the raw file URL.">
+                    <SettingsSection
+                        id="server-type"
+                        name="Server Type"
+                        description="Select your WebDAV server type. Nextcloud and ownCloud will create a public share link. Generic returns the raw file URL."
+                    >
                         <Select
                             options={[
                                 { label: "Nextcloud", value: "nextcloud", default: true },
@@ -887,7 +924,11 @@ export function SettingsComponent() {
                         />
                     </SettingsSection>
                     {store.webdavServerType !== "generic" && (
-                        <SettingsSection id="share-link-format" name="Share Link Format" description="How to return the public share link. Share Page links to a web page; Direct Download links straight to the file; Markdown Link wraps the share page in a clickable filename.">
+                        <SettingsSection
+                            id="share-link-format"
+                            name="Share Link Format"
+                            description="How to return the public share link. Share Page links to a web page; Direct Download links straight to the file; Markdown Link wraps the share page in a clickable filename."
+                        >
                             <Select
                                 options={[
                                     { label: "Share Page", value: "share-page", default: true },
@@ -912,7 +953,7 @@ export function SettingsComponent() {
                     name="Strip Query Parameters"
                     description="Strip query parameters from the uploaded file URL."
                     checked={store.stripQueryParams}
-                    onChange={v => store.stripQueryParams = v}
+                    onChange={v => (store.stripQueryParams = v)}
                 />
 
                 <SettingSwitch
@@ -926,7 +967,11 @@ export function SettingsComponent() {
                 />
 
                 {store.embedProxyEnabled && (
-                    <SettingsSection id="embed-proxy-service" name="Embed Proxy Service" description="Choose which embed proxy service to use for uploaded video links">
+                    <SettingsSection
+                        id="embed-proxy-service"
+                        name="Embed Proxy Service"
+                        description="Choose which embed proxy service to use for uploaded video links"
+                    >
                         <Select
                             options={embedProxyOptions}
                             isSelected={v => v === store.embedProxyService}
@@ -944,72 +989,75 @@ export function SettingsComponent() {
                     name="Convert APNG to GIF"
                     description="Convert APNG files to GIF format."
                     checked={store.apngToGif}
-                    onChange={v => store.apngToGif = v}
+                    onChange={v => (store.apngToGif = v)}
                 />
 
                 <SettingSwitch
                     name="Preserve Original Filename"
                     description="Use the original filename instead of naming uploads as upload.ext."
-                    checked={Boolean((store as { preserveOriginalFilename?: boolean; }).preserveOriginalFilename)}
-                    onChange={v => (store as { preserveOriginalFilename?: boolean; }).preserveOriginalFilename = v}
+                    checked={Boolean((store as { preserveOriginalFilename?: boolean }).preserveOriginalFilename)}
+                    onChange={v => ((store as { preserveOriginalFilename?: boolean }).preserveOriginalFilename = v)}
                 />
 
                 <SettingSwitch
                     name="Auto Copy URL"
                     description="Automatically copy the uploaded file URL to clipboard."
                     checked={store.autoCopy}
-                    onChange={v => store.autoCopy = v}
+                    onChange={v => (store.autoCopy = v)}
                 />
 
                 <SettingSwitch
                     name="Disable Fallback Uploaders"
                     description="Only use the selected uploader without trying fallback hosts."
                     checked={store.disableFallbacks}
-                    onChange={v => store.disableFallbacks = v}
+                    onChange={v => (store.disableFallbacks = v)}
                 />
 
                 <SettingSwitch
                     name="Insert URL into Chat Input"
                     description="After upload, insert the resulting URL into the current chat input."
                     checked={store.autoSend}
-                    onChange={v => store.autoSend = v}
+                    onChange={v => (store.autoSend = v)}
                 />
 
                 <SettingSwitch
                     name="Format Inserted URL"
                     description="Wrap inserted URLs in angle brackets to avoid Discord preview embedding."
                     checked={store.autoFormat}
-                    onChange={v => store.autoFormat = v}
+                    onChange={v => (store.autoFormat = v)}
                 />
             </SettingGroup>
 
-            <SettingGroup name="Discord Integration" description="Choose when FileUpload takes over Discord file handling.">
+            <SettingGroup
+                name="Discord Integration"
+                description="Choose when FileUpload takes over Discord file handling."
+            >
                 <SettingSwitch
                     name="Bypass Discord Upload Button"
                     description="Use FileUpload when uploading through Discord's file picker."
-                    checked={Boolean((store as { bypassDiscordUpload?: boolean; }).bypassDiscordUpload)}
-                    onChange={v => (store as { bypassDiscordUpload?: boolean; }).bypassDiscordUpload = v}
+                    checked={Boolean((store as { bypassDiscordUpload?: boolean }).bypassDiscordUpload)}
+                    onChange={v => ((store as { bypassDiscordUpload?: boolean }).bypassDiscordUpload = v)}
                 />
 
                 <SettingSwitch
                     name="Auto Upload Pasted Files"
                     description="Automatically upload files from clipboard to image host when pasting in chat input."
                     checked={store.autoUploadPastedFiles}
-                    onChange={v => store.autoUploadPastedFiles = v}
+                    onChange={v => (store.autoUploadPastedFiles = v)}
                 />
 
                 <SettingSwitch
                     name="Respect Discord File Size Limit"
                     description="Use FileUpload only for files larger than your current Discord upload limit."
                     checked={store.bypassDiscordUploadOnlyOverLimit}
-                    onChange={v => store.bypassDiscordUploadOnlyOverLimit = v}
+                    onChange={v => (store.bypassDiscordUploadOnlyOverLimit = v)}
                 />
 
                 <SettingTextInput
                     name="Allowed File Types"
                     description="Comma-separated list of extensions (e.g. png,jpg,gif). Leave empty to allow all."
                     value={store.uploadAllowedFileTypes}
-                    onChange={v => store.uploadAllowedFileTypes = v}
+                    onChange={v => (store.uploadAllowedFileTypes = v)}
                     placeholder="png,jpg,gif,mp4,webp"
                 />
             </SettingGroup>
@@ -1019,15 +1067,25 @@ export function SettingsComponent() {
                     name="CORS Proxy URL"
                     description="CORS proxy used for web uploads. Leave empty to use the default proxy."
                     value={store.corsProxyUrl || ""}
-                    onChange={v => store.corsProxyUrl = v}
+                    onChange={v => (store.corsProxyUrl = v)}
                     placeholder="https://your-cors-proxy.example.com"
                 />
 
-                <SettingsSection id="default-cors-proxy-source" name="Default CORS Proxy Source" description="Source code for the default CORS proxy">
-                    <a href="https://codeberg.org/key/corsproxy" target="_blank" rel="noreferrer">codeberg.org/key/corsproxy</a>
+                <SettingsSection
+                    id="default-cors-proxy-source"
+                    name="Default CORS Proxy Source"
+                    description="Source code for the default CORS proxy"
+                >
+                    <a href="https://codeberg.org/key/corsproxy" target="_blank" rel="noreferrer">
+                        codeberg.org/key/corsproxy
+                    </a>
                 </SettingsSection>
 
-                <SettingsSection id="upload-timeout" name="Upload Timeout" description="Maximum time to wait per upload attempt before switching to fallback">
+                <SettingsSection
+                    id="upload-timeout"
+                    name="Upload Timeout"
+                    description="Maximum time to wait per upload attempt before switching to fallback"
+                >
                     <Select
                         options={[
                             { label: "30 seconds", value: 30000 },

@@ -14,9 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./styles.css";
+import { RenderModalProps } from "@vencord/discord-types";
+import { CloudUploadPlatform } from "@vencord/discord-types/enums";
+import { ComponentType } from "react";
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
@@ -31,10 +34,28 @@ import { Margins } from "@utils/margins";
 import { useAwaiter } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
 import { chooseFile } from "@utils/web";
-import { RenderModalProps } from "@vencord/discord-types";
-import { CloudUploadPlatform } from "@vencord/discord-types/enums";
-import { Button, CloudUploader, Constants, FluxDispatcher, Forms, lodash, Menu, MessageActions, Modal, openModal, PendingReplyStore, PermissionsBits, PermissionStore, RestAPI, SelectedChannelStore, showToast, SnowflakeUtils, Toasts, useEffect, useState } from "@webpack/common";
-import { ComponentType } from "react";
+import {
+    Button,
+    CloudUploader,
+    Constants,
+    FluxDispatcher,
+    Forms,
+    lodash,
+    Menu,
+    MessageActions,
+    Modal,
+    openModal,
+    PendingReplyStore,
+    PermissionsBits,
+    PermissionStore,
+    RestAPI,
+    SelectedChannelStore,
+    showToast,
+    SnowflakeUtils,
+    Toasts,
+    useEffect,
+    useState
+} from "@webpack/common";
 
 import { VoiceRecorderDesktop } from "./components/DesktopRecorder";
 import { VoiceMessageProps, VoicePreview } from "./components/VoicePreview";
@@ -47,11 +68,11 @@ const DEFAULT_DURATION = 1;
 const WAVEFORM_MIN_BINS = 32;
 const WAVEFORM_MAX_BINS = 256;
 const WAVEFORM_BINS_PER_SECOND = 10;
-const WAVEFORM_MAX_VALUE = 0xFF;
+const WAVEFORM_MAX_VALUE = 0xff;
 
 const EMPTY_META: AudioMetadata = {
     waveform: DEFAULT_WAVEFORM,
-    duration: DEFAULT_DURATION,
+    duration: DEFAULT_DURATION
 };
 
 export const cl = classNameFactory("vc-vmsg-");
@@ -69,17 +90,24 @@ export const settings = definePluginSettings({
     noiseSuppression: {
         type: OptionType.BOOLEAN,
         description: "Noise Suppression",
-        default: true,
+        default: true
     },
     echoCancellation: {
         type: OptionType.BOOLEAN,
         description: "Echo Cancellation",
-        default: true,
-    },
+        default: true
+    }
 });
 
 const ctxMenuPatch: NavContextMenuPatchCallback = (children, props) => {
-    if (props.channel.guild_id && !(PermissionStore.can(PermissionsBits.SEND_VOICE_MESSAGES, props.channel) && PermissionStore.can(PermissionsBits.SEND_MESSAGES, props.channel))) return;
+    if (
+        props.channel.guild_id &&
+        !(
+            PermissionStore.can(PermissionsBits.SEND_VOICE_MESSAGES, props.channel) &&
+            PermissionStore.can(PermissionsBits.SEND_MESSAGES, props.channel)
+        )
+    )
+        return;
 
     children.push(
         <Menu.MenuItem
@@ -97,7 +125,8 @@ const ctxMenuPatch: NavContextMenuPatchCallback = (children, props) => {
 
 export default definePlugin({
     name: "VoiceMessages",
-    description: "Allows you to send voice messages like on mobile. To do so, right click the upload button and click Send Voice Message",
+    description:
+        "Allows you to send voice messages like on mobile. To do so, right click the upload button and click Send Voice Message",
     tags: ["Voice"],
     authors: [Devs.Ven, Devs.Vap, Devs.Nickyux],
     settings,
@@ -107,7 +136,7 @@ export default definePlugin({
             find: "#{intl::PAUSE_VOICE_MESSAGE_A11Y_LABEL}",
             replacement: {
                 match: /(?<=\i=)(?=\i\.memo\(.{0,50}?=1,onVolumeChange:[^}]+?waveform:[^}]+?playbackCacheKey:)/,
-                replace: "$self.VoiceMessage=",
+                replace: "$self.VoiceMessage="
             }
         }
     ],
@@ -122,8 +151,8 @@ export default definePlugin({
 });
 
 type AudioMetadata = {
-    waveform: string,
-    duration: number,
+    waveform: string;
+    duration: number;
 };
 
 function generateWaveform(audioBuffer: AudioBuffer): string {
@@ -163,11 +192,14 @@ function sendAudio(blob: Blob, meta: AudioMetadata) {
     const reply = PendingReplyStore.getPendingReply(channelId);
     if (reply) FluxDispatcher.dispatch({ type: "DELETE_PENDING_REPLY", channelId });
 
-    const upload = new CloudUploader({
-        file: new File([blob], "voice-message.ogg", { type: "audio/ogg; codecs=opus" }),
-        isThumbnail: false,
-        platform: CloudUploadPlatform.WEB,
-    }, channelId);
+    const upload = new CloudUploader(
+        {
+            file: new File([blob], "voice-message.ogg", { type: "audio/ogg; codecs=opus" }),
+            isThumbnail: false,
+            platform: CloudUploadPlatform.WEB
+        },
+        channelId
+    );
 
     upload.on("complete", () => {
         RestAPI.post({
@@ -179,14 +211,16 @@ function sendAudio(blob: Blob, meta: AudioMetadata) {
                 nonce: SnowflakeUtils.fromTimestamp(Date.now()),
                 sticker_ids: [],
                 type: 0,
-                attachments: [{
-                    id: "0",
-                    filename: upload.filename,
-                    uploaded_filename: upload.uploadedFilename,
-                    waveform: meta.waveform,
-                    duration_secs: meta.duration,
-                }],
-                message_reference: reply ? MessageActions.getSendMessageOptionsForReply(reply)?.messageReference : null,
+                attachments: [
+                    {
+                        id: "0",
+                        filename: upload.filename,
+                        uploaded_filename: upload.uploadedFilename,
+                        waveform: meta.waveform,
+                        duration_secs: meta.duration
+                    }
+                ],
+                message_reference: reply ? MessageActions.getSendMessageOptionsForReply(reply)?.messageReference : null
             }
         });
     });
@@ -205,49 +239,57 @@ function useObjectUrl() {
     return [url, setWithFree] as const;
 }
 
-function VoiceMessageModal({ modalProps }: { modalProps: RenderModalProps; }) {
+function VoiceMessageModal({ modalProps }: { modalProps: RenderModalProps }) {
     const [isRecording, setRecording] = useState(false);
     const [blob, setBlob] = useState<Blob>();
     const [blobUrl, setBlobUrl] = useObjectUrl();
 
     const VoiceRecorder = IS_DISCORD_DESKTOP ? VoiceRecorderDesktop : VoiceRecorderWeb;
 
-    useEffect(() => () => {
-        if (blobUrl)
-            URL.revokeObjectURL(blobUrl);
-    }, [blobUrl]);
+    useEffect(
+        () => () => {
+            if (blobUrl) URL.revokeObjectURL(blobUrl);
+        },
+        [blobUrl]
+    );
 
-    const [meta, metaError] = useAwaiter(async () => {
-        if (!blob) return EMPTY_META;
+    const [meta, metaError] = useAwaiter(
+        async () => {
+            if (!blob) return EMPTY_META;
 
-        const audioContext = new AudioContext();
-        const audioBuffer = await audioContext.decodeAudioData(await blob.arrayBuffer());
+            const audioContext = new AudioContext();
+            const audioBuffer = await audioContext.decodeAudioData(await blob.arrayBuffer());
 
-        return {
-            waveform: generateWaveform(audioBuffer),
-            duration: audioBuffer.duration,
-        };
-    }, {
-        deps: [blob],
-        fallbackValue: EMPTY_META,
-    });
+            return {
+                waveform: generateWaveform(audioBuffer),
+                duration: audioBuffer.duration
+            };
+        },
+        {
+            deps: [blob],
+            fallbackValue: EMPTY_META
+        }
+    );
 
-    const isUnsupportedFormat = blob && (!blob.type.startsWith("audio/ogg") || blob.type.includes("codecs") && !blob.type.includes("opus"));
+    const isUnsupportedFormat =
+        blob && (!blob.type.startsWith("audio/ogg") || (blob.type.includes("codecs") && !blob.type.includes("opus")));
 
     return (
         <Modal
             {...modalProps}
             title="Record Voice Message"
-            actions={[{
-                text: "Send",
-                variant: "primary",
-                onClick: () => {
-                    sendAudio(blob!, meta ?? EMPTY_META);
-                    modalProps.onClose();
-                    showToast("Now sending voice message... Please be patient", Toasts.Type.MESSAGE);
-                },
-                disabled: !blob
-            }]}
+            actions={[
+                {
+                    text: "Send",
+                    variant: "primary",
+                    onClick: () => {
+                        sendAudio(blob!, meta ?? EMPTY_META);
+                        modalProps.onClose();
+                        showToast("Now sending voice message... Please be patient", Toasts.Type.MESSAGE);
+                    },
+                    disabled: !blob
+                }
+            ]}
         >
             <div className={cl("buttons")}>
                 <VoiceRecorder
@@ -272,22 +314,22 @@ function VoiceMessageModal({ modalProps }: { modalProps: RenderModalProps; }) {
             </div>
 
             <Forms.FormTitle>Preview</Forms.FormTitle>
-            {metaError
-                ? <Paragraph className={cl("error")}>Failed to parse selected audio file: {metaError.message}</Paragraph>
-                : (
-                    <VoicePreview
-                        src={blobUrl}
-                        waveform={meta.waveform}
-                        recording={isRecording}
-                    />
-                )}
+            {metaError ? (
+                <Paragraph className={cl("error")}>Failed to parse selected audio file: {metaError.message}</Paragraph>
+            ) : (
+                <VoicePreview src={blobUrl} waveform={meta.waveform} recording={isRecording} />
+            )}
 
             {isUnsupportedFormat && (
                 <Card variant="warning" className={Margins.top16} defaultPadding>
-                    <Forms.FormText>Voice Messages have to be OggOpus to be playable on iOS. This file is <code>{blob.type}</code> so it will not be playable on iOS.</Forms.FormText>
+                    <Forms.FormText>
+                        Voice Messages have to be OggOpus to be playable on iOS. This file is <code>{blob.type}</code>{" "}
+                        so it will not be playable on iOS.
+                    </Forms.FormText>
 
                     <Forms.FormText className={Margins.top8}>
-                        To fix it, first convert it to OggOpus, for example using the <Link href="https://convertio.co/mp3-opus/">convertio web converter</Link>
+                        To fix it, first convert it to OggOpus, for example using the{" "}
+                        <Link href="https://convertio.co/mp3-opus/">convertio web converter</Link>
                     </Forms.FormText>
                 </Card>
             )}

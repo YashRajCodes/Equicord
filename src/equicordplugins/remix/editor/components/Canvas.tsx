@@ -41,7 +41,7 @@ export function exportImg(): Promise<Blob> {
     });
 }
 
-export const Canvas = ({ file }: { file: File; }) => {
+export const Canvas = ({ file }: { file: File }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -68,7 +68,7 @@ export const Canvas = ({ file }: { file: File; }) => {
         };
     });
 
-    return (<canvas ref={canvasRef} className="vc-remix-canvas"></canvas>);
+    return <canvas ref={canvasRef} className="vc-remix-canvas"></canvas>;
 };
 
 export function render() {

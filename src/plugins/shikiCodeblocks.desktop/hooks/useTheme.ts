@@ -14,19 +14,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { React } from "@webpack/common";
 
 type Shiki = typeof import("../api/shiki").shiki;
 interface ThemeState {
-    id: Shiki["currentThemeUrl"],
-    theme: Shiki["currentTheme"],
+    id: Shiki["currentThemeUrl"];
+    theme: Shiki["currentTheme"];
 }
 
 const currentTheme: ThemeState = {
     id: null,
-    theme: null,
+    theme: null
 };
 
 const themeSetters = new Set<React.Dispatch<React.SetStateAction<ThemeState>>>();

@@ -66,7 +66,7 @@ export function rankCommands(query: string, commands: PaletteCommand[]): RankedC
     return ranked.sort((a, b) => b.score - a.score);
 }
 
-export function filterOptions(query: string, options: { label: string; value: string; }[], limit = 6) {
+export function filterOptions(query: string, options: { label: string; value: string }[], limit = 6) {
     const trimmed = query.trim();
     if (!trimmed) return options.slice(0, limit);
 

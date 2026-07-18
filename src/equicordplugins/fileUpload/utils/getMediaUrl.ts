@@ -34,25 +34,25 @@ export function getExtensionFromMime(mimeType: string): string | undefined {
 }
 
 const extensionToMime: Record<string, string> = {
-    "png": "image/png",
-    "apng": "image/apng",
-    "jpg": "image/jpeg",
-    "jpeg": "image/jpeg",
-    "gif": "image/gif",
-    "webp": "image/webp",
-    "bmp": "image/bmp",
-    "ico": "image/x-icon",
-    "tiff": "image/tiff",
-    "avif": "image/avif",
-    "svg": "image/svg+xml",
-    "mp4": "video/mp4",
-    "webm": "video/webm",
-    "ogg": "video/ogg",
-    "avi": "video/x-msvideo",
-    "wmv": "video/x-ms-wmv",
-    "flv": "video/x-flv",
-    "mov": "video/quicktime",
-    "mkv": "video/x-matroska"
+    png: "image/png",
+    apng: "image/apng",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    gif: "image/gif",
+    webp: "image/webp",
+    bmp: "image/bmp",
+    ico: "image/x-icon",
+    tiff: "image/tiff",
+    avif: "image/avif",
+    svg: "image/svg+xml",
+    mp4: "video/mp4",
+    webm: "video/webm",
+    ogg: "video/ogg",
+    avi: "video/x-msvideo",
+    wmv: "video/x-ms-wmv",
+    flv: "video/x-flv",
+    mov: "video/quicktime",
+    mkv: "video/x-matroska"
 };
 
 export function getMimeFromExtension(ext?: string): string {
@@ -67,24 +67,36 @@ export async function getExtensionFromBytes(blob: Blob): Promise<string | undefi
         return "gif";
     }
 
-    if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4E && bytes[3] === 0x47) {
+    if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
         const fullBuffer = await blob.slice(0, 4096).arrayBuffer();
         const fullBytes = new Uint8Array(fullBuffer);
         for (let i = 0; i < fullBytes.length - 4; i++) {
-            if (fullBytes[i] === 0x61 && fullBytes[i + 1] === 0x63 &&
-                fullBytes[i + 2] === 0x54 && fullBytes[i + 3] === 0x4C) {
+            if (
+                fullBytes[i] === 0x61 &&
+                fullBytes[i + 1] === 0x63 &&
+                fullBytes[i + 2] === 0x54 &&
+                fullBytes[i + 3] === 0x4c
+            ) {
                 return "apng";
             }
         }
         return "png";
     }
 
-    if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
-        bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) {
+    if (
+        bytes[0] === 0x52 &&
+        bytes[1] === 0x49 &&
+        bytes[2] === 0x46 &&
+        bytes[3] === 0x46 &&
+        bytes[8] === 0x57 &&
+        bytes[9] === 0x45 &&
+        bytes[10] === 0x42 &&
+        bytes[11] === 0x50
+    ) {
         return "webp";
     }
 
-    if (bytes[0] === 0xFF && bytes[1] === 0xD8 && bytes[2] === 0xFF) {
+    if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
         return "jpg";
     }
 
@@ -113,7 +125,13 @@ export function isSupported(url: string): boolean {
     return ext ? supportedExtensions.includes(ext) : false;
 }
 
-export function getMediaUrl(props: { src?: string; href?: string; itemSrc?: string; itemHref?: string; target?: any; }): string | null {
+export function getMediaUrl(props: {
+    src?: string;
+    href?: string;
+    itemSrc?: string;
+    itemHref?: string;
+    target?: any;
+}): string | null {
     const url = props.src || props.href || props.itemSrc || props.itemHref;
     if (url && isSupported(url)) return url;
 

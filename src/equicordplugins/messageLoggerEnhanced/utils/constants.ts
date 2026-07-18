@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 export const DEFAULT_IMAGE_CACHE_DIR = "savedImages";
 export const DEFAULT_ATTACHMENT_FILE_EXTENSIONS = "png,jpg,jpeg,gif,webp,mp4,webm,mp3,ogg,wav";

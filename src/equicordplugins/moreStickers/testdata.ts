@@ -5,15 +5,8 @@
  */
 
 import { setRecentStickers } from "./components";
-import {
-    convert,
-    getStickerPackById
-} from "./lineStickers";
-import {
-    deleteStickerPack,
-    getStickerPackMetas,
-    saveStickerPack
-} from "./stickers";
+import { convert, getStickerPackById } from "./lineStickers";
+import { deleteStickerPack, getStickerPackMetas, saveStickerPack } from "./stickers";
 import { StickerPack } from "./types";
 
 export async function initTest() {
@@ -36,21 +29,23 @@ export async function initTest() {
         "22567773", // LV.46
         "22256215", // LV.45
         "21936635", // LV.44
-        "21836565", // LV.43
+        "21836565" // LV.43
     ];
     const ps: Promise<StickerPack | null>[] = [];
     for (const id of lineStickerPackIds) {
-        ps.push((async () => {
-            try {
-                const lsp = await getStickerPackById(id);
-                const sp = convert(lsp);
-                return sp;
-            } catch (e) {
-                console.error("Failed to fetch sticker pack: " + id);
-                console.error(e);
-                return null;
-            }
-        })());
+        ps.push(
+            (async () => {
+                try {
+                    const lsp = await getStickerPackById(id);
+                    const sp = convert(lsp);
+                    return sp;
+                } catch (e) {
+                    console.error("Failed to fetch sticker pack: " + id);
+                    console.error(e);
+                    return null;
+                }
+            })()
+        );
     }
     const stickerPacks = (await Promise.all(ps)).filter(sp => sp !== null) as StickerPack[];
 

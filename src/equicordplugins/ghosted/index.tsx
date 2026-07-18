@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+import { Channel } from "@vencord/discord-types";
 
 import { findGroupChildrenByChildId } from "@api/ContextMenu";
 import { addServerListElement, removeServerListElement, ServerListRenderPosition } from "@api/ServerList";
@@ -13,7 +14,6 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
-import { Channel } from "@vencord/discord-types";
 import { Menu, openModal, Tooltip, useEffect, useState } from "@webpack/common";
 
 import { Boo, clearChannelFromGhost, getBooCount, getGhostedChannels, onBooCountChange } from "./Boo";
@@ -42,7 +42,8 @@ export const settings = definePluginSettings({
     },
     exemptedChannels: {
         type: OptionType.STRING,
-        description: "Comma-separated list of channel IDs to exempt from ghosting (right-click a DM channel to copy its ID)",
+        description:
+            "Comma-separated list of channel IDs to exempt from ghosting (right-click a DM channel to copy its ID)",
         default: "",
         restartNeeded: false
     },
@@ -60,7 +61,7 @@ export const settings = definePluginSettings({
             { label: "1 hour", value: 60 * 60 * 1000 },
             { label: "1 day", value: 24 * 60 * 60 * 1000 },
             { label: "1 week", value: 7 * 24 * 60 * 60 * 1000 },
-            { label: "1 month", value: 30 * 24 * 60 * 60 * 1000 },
+            { label: "1 month", value: 30 * 24 * 60 * 60 * 1000 }
         ],
         restartNeeded: false
     }
@@ -100,9 +101,7 @@ function BooIndicator() {
             return "No Ghosted Users";
         }
         if (ghostedChannels.length <= 5) {
-            return ghostedChannels
-                .map(id => getChannelDisplayName(id))
-                .join(", ");
+            return ghostedChannels.map(id => getChannelDisplayName(id)).join(", ");
         }
         return `${ghostedChannels.length} Ghosted Users`;
     };
@@ -131,14 +130,16 @@ function BooIndicator() {
 }
 
 function makeContextItem(props) {
-    return <Menu.MenuItem
-        id="ec-ghosted-clear"
-        key="ec-ghosted-clear"
-        label="unghost"
-        action={() => {
-            clearChannelFromGhost(props.channel.id);
-        }}
-    />;
+    return (
+        <Menu.MenuItem
+            id="ec-ghosted-clear"
+            key="ec-ghosted-clear"
+            label="unghost"
+            action={() => {
+                clearChannelFromGhost(props.channel.id);
+            }}
+        />
+    );
 }
 
 export default definePlugin({
@@ -166,10 +167,10 @@ export default definePlugin({
                 match: /\]:\i\|\|\i.{0,50}children:\[/,
                 replace: "$&$self.renderBoo(arguments[0]),"
             }
-        },
+        }
     ],
 
-    renderBoo(props: { channel: Channel; }) {
+    renderBoo(props: { channel: Channel }) {
         return (
             <ErrorBoundary noop>
                 <Boo {...props} />
@@ -191,5 +192,5 @@ export default definePlugin({
 
     stop() {
         removeServerListElement(ServerListRenderPosition.Above, this.renderIndicator);
-    },
+    }
 });

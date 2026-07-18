@@ -5,11 +5,11 @@
  */
 
 import "./BaseText.css";
+import type { Text as DiscordText } from "@vencord/discord-types";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 import { classNameFactory } from "@utils/css";
 import { classes } from "@utils/misc";
-import type { Text as DiscordText } from "@vencord/discord-types";
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
 
 const textCls = classNameFactory("vc-text-");
 
@@ -20,7 +20,7 @@ export const TextSizes = {
     md: { fontSize: "16px", lineHeight: "1.25" },
     lg: { fontSize: "20px", lineHeight: "1.2" },
     xl: { fontSize: "24px", lineHeight: "1.25" },
-    xxl: { fontSize: "32px", lineHeight: "1.25" },
+    xxl: { fontSize: "32px", lineHeight: "1.25" }
 } as const;
 
 export const TextWeights = {
@@ -31,7 +31,7 @@ export const TextWeights = {
     medium: "500",
     semibold: "600",
     bold: "700",
-    extrabold: "800",
+    extrabold: "800"
 } as const;
 
 export const TextColors = {
@@ -52,7 +52,7 @@ export const TextColors = {
     "text-status-offline": "var(--text-status-offline)",
     "text-status-online": "var(--text-status-online)",
     "control-text-critical": "var(--control-text-critical-secondary-default)",
-    "control-text-primary": "var(--control-text-primary-default)",
+    "control-text-primary": "var(--control-text-primary-default)"
 } as const;
 
 export function generateTextCss() {

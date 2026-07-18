@@ -29,11 +29,11 @@ export function dist(x1: number, y1: number, x2: number, y2: number) {
     return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
 }
 
-export function widthFromBounds(bounds: { left: number, right: number, top: number, bottom: number; }) {
+export function widthFromBounds(bounds: { left: number; right: number; top: number; bottom: number }) {
     return bounds.right - bounds.left;
 }
 
-export function heightFromBounds(bounds: { left: number, right: number, top: number, bottom: number; }) {
+export function heightFromBounds(bounds: { left: number; right: number; top: number; bottom: number }) {
     return bounds.bottom - bounds.top;
 }
 

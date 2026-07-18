@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { PluginNative } from "@utils/types";
 import { Button, MediaEngineStore, showToast, Toasts, useState } from "@webpack/common";
@@ -40,32 +40,24 @@ export const VoiceRecorderDesktop: VoiceRecorder = ({ setAudioBlob, onRecordingC
                 {
                     echoCancellation: settings.store.echoCancellation,
                     noiseCancellation: settings.store.noiseSuppression,
-                    deviceId: MediaEngineStore.getInputDeviceId(),
+                    deviceId: MediaEngineStore.getInputDeviceId()
                 },
                 (success: boolean) => {
-                    if (success)
-                        changeRecording(true);
-                    else
-                        showToast("Failed to start recording", Toasts.Type.FAILURE);
+                    if (success) changeRecording(true);
+                    else showToast("Failed to start recording", Toasts.Type.FAILURE);
                 }
             );
         } else {
             discordVoice.stopLocalAudioRecording(async (filePath: string) => {
                 if (filePath) {
                     const buf = await Native.readRecording(filePath);
-                    if (buf)
-                        setAudioBlob(new Blob([new Uint8Array(buf)], { type: "audio/ogg; codecs=opus" }));
-                    else
-                        showToast("Failed to finish recording", Toasts.Type.FAILURE);
+                    if (buf) setAudioBlob(new Blob([new Uint8Array(buf)], { type: "audio/ogg; codecs=opus" }));
+                    else showToast("Failed to finish recording", Toasts.Type.FAILURE);
                 }
                 changeRecording(false);
             });
         }
     }
 
-    return (
-        <Button onClick={toggleRecording}>
-            {recording ? "Stop" : "Start"} recording
-        </Button>
-    );
+    return <Button onClick={toggleRecording}>{recording ? "Stop" : "Start"} recording</Button>;
 };

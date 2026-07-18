@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { RenderModalProps } from "@vencord/discord-types";
+
 import { AudioPlayerInterface, createAudioPlayer } from "@api/AudioPlayer";
 import { HeaderBarButton } from "@api/HeaderBar";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { RenderModalProps } from "@vencord/discord-types";
-import { Modal,openModal, React } from "@webpack/common";
+import { Modal, openModal, React } from "@webpack/common";
 let boopSound: AudioPlayerInterface;
 let song: AudioPlayerInterface;
 
@@ -55,11 +56,7 @@ function SoggyModal(props: RenderModalProps) {
 
     return (
         <Modal {...props} size="dynamic" title="Soggy Cat">
-            <img
-                src={settings.store.imageLink}
-                onClick={boop}
-                style={{ display: "block" }}
-            />
+            <img src={settings.store.imageLink} onClick={boop} style={{ display: "block" }} />
         </Modal>
     );
 }
@@ -95,25 +92,24 @@ const settings = definePluginSettings({
         type: OptionType.SLIDER,
         default: 0.25,
         markers: [0, 0.25, 0.5, 0.75, 1],
-        stickToMarkers: false,
-
+        stickToMarkers: false
     },
     boopVolume: {
         description: "Volume of the boop sound",
         type: OptionType.SLIDER,
         default: 0.2,
         markers: [0, 0.25, 0.5, 0.75, 1],
-        stickToMarkers: false,
+        stickToMarkers: false
     },
     tooltipText: {
         description: "The text shown when hovering over the button",
         type: OptionType.STRING,
-        default: "the soggy",
+        default: "the soggy"
     },
     imageLink: {
         description: "URL for the image (button and modal)",
         type: OptionType.STRING,
-        default: "https://equicord.org/assets/plugins/soggy/cat.png",
+        default: "https://equicord.org/assets/plugins/soggy/cat.png"
     },
     songLink: {
         description: "URL for the song to play",
@@ -121,7 +117,7 @@ const settings = definePluginSettings({
         default: "https://github.com/Equicord/Equibored/raw/main/sounds/soggy/song.mp3?raw=true",
         onChange(newValue) {
             assignSong(newValue, settings.store.songVolume * 100);
-        },
+        }
     },
     boopLink: {
         description: "URL for the boop sound",
@@ -163,5 +159,5 @@ export default definePlugin({
     stop() {
         boopSound?.delete();
         song?.delete();
-    },
+    }
 });

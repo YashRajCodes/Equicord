@@ -107,7 +107,7 @@ export const LANGUAGES = {
     ha: "hausa",
     ba: "bashkir",
     jw: "javanese",
-    su: "sundanese",
+    su: "sundanese"
 };
 
 export const cl = classNameFactory("vc-transcription-");

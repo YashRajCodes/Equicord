@@ -4,11 +4,21 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { JSX } from "react";
+
 import { DataStore } from "@api/index";
 import { isPluginEnabled } from "@api/PluginManager";
 import { classNameFactory } from "@utils/css";
-import { NavigationRouter, SelectedChannelStore, SelectedGuildStore, showToast, Toasts, useEffect, useRef, useState } from "@webpack/common";
-import { JSX } from "react";
+import {
+    NavigationRouter,
+    SelectedChannelStore,
+    SelectedGuildStore,
+    showToast,
+    Toasts,
+    useEffect,
+    useRef,
+    useState
+} from "@webpack/common";
 
 import { logger, settings } from "./constants";
 import { BasicChannelTabsProps, ChannelTabsProps, PersistedTabs } from "./types";
@@ -55,7 +65,11 @@ export function setNavigationSource(guildId: string, channelId: string, source: 
     };
 }
 
-export function isNavigationFromSource(guildId: string | null | undefined, channelId: string, source: "bookmark"): boolean {
+export function isNavigationFromSource(
+    guildId: string | null | undefined,
+    channelId: string,
+    source: "bookmark"
+): boolean {
     if (!lastNavigationContext) return false;
 
     // Normalize both sides for comparison (handles null/undefined/"" for DMs)
@@ -128,7 +142,13 @@ let clearGhostTabs = () => {
     logger.warn("Clear ghost tab function not set");
 };
 
-export function createTab(props: BasicChannelTabsProps | ChannelTabsProps, switchToTab?: boolean, messageId?: string, save = true, bypassOneTabPerServer = false) {
+export function createTab(
+    props: BasicChannelTabsProps | ChannelTabsProps,
+    switchToTab?: boolean,
+    messageId?: string,
+    save = true,
+    bypassOneTabPerServer = false
+) {
     // Important for the "One tab per server" feature, has to be before the maxOpenTabs check!
     if (!bypassOneTabPerServer && settings.store.oneTabPerServer && props.guildId && props.guildId !== "@me") {
         const existingTab = openTabs.find(tab => tab.guildId === props.guildId);
@@ -166,7 +186,12 @@ export function createTab(props: BasicChannelTabsProps | ChannelTabsProps, switc
     }
 
     const id = genId();
-    openTabs.push({ ...props, id, messageId, compact: "compact" in props ? props.compact : settings.store.openNewTabsInCompactMode });
+    openTabs.push({
+        ...props,
+        id,
+        messageId,
+        compact: "compact" in props ? props.compact : settings.store.openNewTabsInCompactMode
+    });
     if (switchToTab) moveToTab(id);
     clearGhostTabs();
     update(save);
@@ -353,8 +378,7 @@ function evictStaleCache() {
     }
 
     if (tabStateCache.size > MAX_CACHE_SIZE) {
-        const entries = Array.from(tabStateCache.entries())
-            .sort((a, b) => a[1].timestamp - b[1].timestamp);
+        const entries = Array.from(tabStateCache.entries()).sort((a, b) => a[1].timestamp - b[1].timestamp);
 
         const entriesToRemove = entries.slice(0, tabStateCache.size - MAX_CACHE_SIZE);
         for (const [tabId] of entriesToRemove) {
@@ -413,15 +437,15 @@ export function moveToTab(id: number) {
     // handle special pages with synthetic channelIds
     if (tab.channelId && tab.channelId.startsWith("__")) {
         const routeMap: Record<string, string> = {
-            "__quests__": "/quest-home",
+            __quests__: "/quest-home",
             "__message-requests__": "/message-requests",
-            "__friends__": "/channels/@me",
-            "__shop__": "/shop",
-            "__library__": "/library",
-            "__discovery__": "/discovery",
-            "__nitro__": "/store",
-            "__icymi__": "/icymi",
-            "__activity__": "/channels/@me/activity",
+            __friends__: "/channels/@me",
+            __shop__: "/shop",
+            __library__: "/library",
+            __discovery__: "/discovery",
+            __nitro__: "/store",
+            __icymi__: "/icymi",
+            __activity__: "/channels/@me/activity"
         };
 
         const route = routeMap[tab.channelId];
@@ -441,14 +465,15 @@ export function moveToTab(id: number) {
         setNavigationSource(tab.guildId, tab.channelId, "tab");
         NavigationRouter.transitionTo(`/channels/${tab.guildId}/${tab.channelId}/${tab.messageId}`);
         delete openTabs[openTabs.indexOf(tab)].messageId;
-    }
-    else if (tab.channelId !== SelectedChannelStore.getChannelId() || tab.guildId !== SelectedGuildStore.getGuildId()) {
+    } else if (
+        tab.channelId !== SelectedChannelStore.getChannelId() ||
+        tab.guildId !== SelectedGuildStore.getGuildId()
+    ) {
         setNavigationSource(tab.guildId, tab.channelId, "tab");
         NavigationRouter.transitionToGuild(tab.guildId, tab.channelId);
         // restore cached state for the new tab
         restoreTabState(id);
-    }
-    else update();
+    } else update();
 
     // Clear flag after navigation with safety timeout
     navigationTimeoutId = setTimeout(() => {
@@ -456,7 +481,10 @@ export function moveToTab(id: number) {
     }, NAVIGATION_TIMEOUT_MS);
 }
 
-export async function openStartupTabs(props: BasicChannelTabsProps & { userId: string; }, setUserId: (id: string) => void): Promise<void> {
+export async function openStartupTabs(
+    props: BasicChannelTabsProps & { userId: string },
+    setUserId: (id: string) => void
+): Promise<void> {
     const { userId } = props;
 
     if (hydratedUserId === userId && openTabs.length) {
@@ -515,8 +543,7 @@ export async function openStartupTabs(props: BasicChannelTabsProps & { userId: s
         }
     }
 
-    if (!openTabs.length)
-        createTab({ channelId: props.channelId, guildId: props.guildId }, false, undefined, false);
+    if (!openTabs.length) createTab({ channelId: props.channelId, guildId: props.guildId }, false, undefined, false);
 
     currentlyOpenTab = openTabs.find(tab => tab.id === currentlyOpenTab)?.id ?? openTabs[0].id;
     hydratedUserId = userId;
@@ -539,10 +566,12 @@ export function saveTabs(userId: string): Promise<void> {
     };
 
     saveQueue = saveQueue
-        .then(() => DataStore.update<PersistedTabs>("ChannelTabs_openChannels_v2", old => ({
-            ...(old ?? {}),
-            [userId]: snapshot
-        })))
+        .then(() =>
+            DataStore.update<PersistedTabs>("ChannelTabs_openChannels_v2", old => ({
+                ...(old ?? {}),
+                [userId]: snapshot
+            }))
+        )
         .catch(error => {
             logger.error("Failed to save tabs to DataStore", error);
         });
@@ -582,15 +611,15 @@ export function navigateToBookmark(ch: BasicChannelTabsProps) {
         // Handle special pages with synthetic channelIds
         if (ch.channelId && ch.channelId.startsWith("__")) {
             const routeMap: Record<string, string> = {
-                "__quests__": "/quest-home",
+                __quests__: "/quest-home",
                 "__message-requests__": "/message-requests",
-                "__friends__": "/channels/@me",
-                "__shop__": "/shop",
-                "__library__": "/library",
-                "__discovery__": "/discovery",
-                "__nitro__": "/store",
-                "__icymi__": "/icymi",
-                "__activity__": "/channels/@me/activity",
+                __friends__: "/channels/@me",
+                __shop__: "/shop",
+                __library__: "/library",
+                __discovery__: "/discovery",
+                __nitro__: "/store",
+                __icymi__: "/icymi",
+                __activity__: "/channels/@me/activity"
             };
 
             const route = routeMap[ch.channelId];

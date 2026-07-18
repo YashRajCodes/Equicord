@@ -14,9 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./fixDiscordBadgePadding.css";
+import Plugins, { PluginMeta } from "~plugins";
 
 import { _getBadges, BadgePosition, BadgeUserArgs, ProfileBadge } from "@api/Badges";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -27,8 +28,6 @@ import { Logger } from "@utils/Logger";
 import { shouldShowContributorBadge, shouldShowEquicordContributorBadge } from "@utils/misc";
 import definePlugin from "@utils/types";
 import { ContextMenuApi, Menu, Toasts, UserStore } from "@webpack/common";
-
-import Plugins, { PluginMeta } from "~plugins";
 
 import { EquicordDonorModal, EquicordTranslatorModal, VencordDonorModal } from "./modals";
 
@@ -57,7 +56,7 @@ const EquicordContributorBadge: ProfileBadge = {
             borderRadius: "50%",
             transform: "scale(0.9)"
         }
-    },
+    }
 };
 
 const UserPluginContributorBadge: ProfileBadge = {
@@ -79,7 +78,7 @@ const UserPluginContributorBadge: ProfileBadge = {
             borderRadius: "50%",
             transform: "scale(0.9)"
         }
-    },
+    }
 };
 
 let DonorBadges = {} as Record<string, Array<Record<"tooltip" | "badge", string>>>;
@@ -102,13 +101,9 @@ async function loadAllBadges(noCache = false) {
 
 let intervalId: any;
 
-export function BadgeContextMenu({ badge }: { badge: Omit<ProfileBadge, "id"> & BadgeUserArgs; }) {
+export function BadgeContextMenu({ badge }: { badge: Omit<ProfileBadge, "id"> & BadgeUserArgs }) {
     return (
-        <Menu.Menu
-            navId="vc-badge-context"
-            onClose={ContextMenuApi.closeContextMenu}
-            aria-label="Badge Options"
-        >
+        <Menu.Menu navId="vc-badge-context" onClose={ContextMenuApi.closeContextMenu} aria-label="Badge Options">
             {badge.description && (
                 <Menu.MenuItem
                     id="vc-badge-copy-name"
@@ -198,7 +193,7 @@ export default definePlugin({
         clearInterval(intervalId);
     },
 
-    getBadges(profile: { userId: string; guildId: string; }) {
+    getBadges(profile: { userId: string; guildId: string }) {
         if (!profile) return [];
 
         try {
@@ -209,10 +204,13 @@ export default definePlugin({
         }
     },
 
-    renderBadgeComponent: ErrorBoundary.wrap((badge: ProfileBadge & BadgeUserArgs) => {
-        const Component = badge.component!;
-        return <Component {...badge} />;
-    }, { noop: true }),
+    renderBadgeComponent: ErrorBoundary.wrap(
+        (badge: ProfileBadge & BadgeUserArgs) => {
+            const Component = badge.component!;
+            return <Component {...badge} />;
+        },
+        { noop: true }
+    ),
 
     getBadgeMouseEventHandlers(badge: ProfileBadge & BadgeUserArgs) {
         const handlers = {} as Record<string, (e: React.MouseEvent) => void>;
@@ -228,44 +226,52 @@ export default definePlugin({
     },
 
     getDonorBadges(userId: string) {
-        return DonorBadges[userId]?.map((badge, idx) => ({
-            id: `vencord_donor_badge_${idx}`,
-            iconSrc: badge.badge,
-            description: badge.tooltip,
-            position: BadgePosition.START,
-            props: {
-                style: {
-                    borderRadius: "50%",
-                    transform: "scale(0.9)" // The image is a bit too big compared to default badges
-                }
-            },
-            onContextMenu(event, badge) {
-                ContextMenuApi.openContextMenu(event, () => <BadgeContextMenu badge={badge} />);
-            },
-            onClick() {
-                return VencordDonorModal();
-            },
-        } satisfies ProfileBadge));
+        return DonorBadges[userId]?.map(
+            (badge, idx) =>
+                ({
+                    id: `vencord_donor_badge_${idx}`,
+                    iconSrc: badge.badge,
+                    description: badge.tooltip,
+                    position: BadgePosition.START,
+                    props: {
+                        style: {
+                            borderRadius: "50%",
+                            transform: "scale(0.9)" // The image is a bit too big compared to default badges
+                        }
+                    },
+                    onContextMenu(event, badge) {
+                        ContextMenuApi.openContextMenu(event, () => <BadgeContextMenu badge={badge} />);
+                    },
+                    onClick() {
+                        return VencordDonorModal();
+                    }
+                }) satisfies ProfileBadge
+        );
     },
 
     getEquicordDonorBadges(userId: string) {
-        return EquicordDonorBadges[userId]?.map((badge, idx) => ({
-            id: `equicord_donor_badge_${idx}`,
-            iconSrc: badge.badge,
-            description: badge.tooltip,
-            position: BadgePosition.START,
-            props: {
-                style: {
-                    borderRadius: "50%",
-                    transform: "scale(0.9)" // The image is a bit too big compared to default badges
-                }
-            },
-            onContextMenu(event, badge) {
-                ContextMenuApi.openContextMenu(event, () => <BadgeContextMenu badge={badge} />);
-            },
-            onClick() {
-                return badge.tooltip === "Equicord Translator" ? EquicordTranslatorModal() : EquicordDonorModal();
-            },
-        } satisfies ProfileBadge));
+        return EquicordDonorBadges[userId]?.map(
+            (badge, idx) =>
+                ({
+                    id: `equicord_donor_badge_${idx}`,
+                    iconSrc: badge.badge,
+                    description: badge.tooltip,
+                    position: BadgePosition.START,
+                    props: {
+                        style: {
+                            borderRadius: "50%",
+                            transform: "scale(0.9)" // The image is a bit too big compared to default badges
+                        }
+                    },
+                    onContextMenu(event, badge) {
+                        ContextMenuApi.openContextMenu(event, () => <BadgeContextMenu badge={badge} />);
+                    },
+                    onClick() {
+                        return badge.tooltip === "Equicord Translator"
+                            ? EquicordTranslatorModal()
+                            : EquicordDonorModal();
+                    }
+                }) satisfies ProfileBadge
+        );
     }
 });

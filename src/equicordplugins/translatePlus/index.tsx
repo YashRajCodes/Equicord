@@ -14,10 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./style.css";
-
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -33,14 +32,11 @@ const messageCtxPatch: NavContextMenuPatchCallback = (children, { message }) => 
     const group = findGroupChildrenByChildId("copy-text", children);
     if (!group) return;
 
-    group.splice(group.findIndex(c => c?.props?.id === "copy-text") + 1, 0, (
-        <Menu.MenuItem
-            id="ec-trans"
-            label="Translate"
-            icon={Icon}
-            action={() => handleTranslate(message)}
-        />
-    ));
+    group.splice(
+        group.findIndex(c => c?.props?.id === "copy-text") + 1,
+        0,
+        <Menu.MenuItem id="ec-trans" label="Translate" icon={Icon} action={() => handleTranslate(message)} />
+    );
 };
 
 export default definePlugin({
@@ -51,7 +47,7 @@ export default definePlugin({
     authors: [Devs.Ven, EquicordDevs.Prince527],
     settings,
     contextMenus: {
-        "message": messageCtxPatch
+        message: messageCtxPatch
     },
     renderMessageAccessory: props => <Accessory message={props.message} />,
     messagePopoverButton: {
@@ -63,7 +59,7 @@ export default definePlugin({
                 icon: Icon,
                 message: message,
                 channel: ChannelStore.getChannel(message.channel_id),
-                onClick: () => handleTranslate(message),
+                onClick: () => handleTranslate(message)
             };
         }
     }

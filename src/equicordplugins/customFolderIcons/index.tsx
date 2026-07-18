@@ -24,7 +24,7 @@ export default definePlugin({
                 match: /(\(0,\i\.jsx\)\(\i,\{folderNode:(\i),hovered:\i,sorting:\i\}\))/,
                 replace: "($self.shouldReplace({folderNode:$2})?$self.replace({folderNode:$2}):$1)"
             }
-        },
+        }
     ],
     contextMenus: {
         "guild-context": (menuItems, props: folderProp) => {
@@ -33,16 +33,16 @@ export default definePlugin({
         }
     },
     shouldReplace(props: any): boolean {
-        return !!((settings.store.folderIcons as folderIconsData)?.[props.folderNode.id]?.url);
+        return !!(settings.store.folderIcons as folderIconsData)?.[props.folderNode.id]?.url;
     },
     replace(props: any) {
-        const folderSettings = (settings.store.folderIcons as folderIconsData);
+        const folderSettings = settings.store.folderIcons as folderIconsData;
         if (folderSettings && folderSettings[props.folderNode.id]) {
             const data = folderSettings[props.folderNode.id];
             return (
                 <div
                     style={{
-                        backgroundColor: int2rgba(props.folderNode.color, +settings.store.solidIcon || .4),
+                        backgroundColor: int2rgba(props.folderNode.color, +settings.store.solidIcon || 0.4),
                         display: "flex",
                         justifyContent: "center",
                         alignItems: "center",
@@ -50,8 +50,7 @@ export default definePlugin({
                         height: "100%"
                     }}
                 >
-                    <img alt="" src={data!.url} width={`${data!.size ?? 100}%`} height={`${data!.size ?? 100}%`}
-                    />
+                    <img alt="" src={data!.url} width={`${data!.size ?? 100}%`} height={`${data!.size ?? 100}%`} />
                 </div>
             );
         }

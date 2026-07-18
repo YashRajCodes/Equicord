@@ -68,12 +68,7 @@ export function FullPatchInput({ setFind, setParsedFind, setMatch, setReplacemen
 
     return (
         <>
-            <TextArea
-                inputRef={textAreaRef}
-                value={patch}
-                onChange={setPatch}
-                onBlur={update}
-            />
+            <TextArea inputRef={textAreaRef} value={patch} onChange={setPatch} onBlur={update} />
             {error !== "" && <Paragraph style={{ color: "var(--text-feedback-critical)" }}>{error}</Paragraph>}
         </>
     );

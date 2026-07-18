@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { User } from "@vencord/discord-types";
+
 import { Flex } from "@components/Flex";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { User } from "@vencord/discord-types";
 import { React } from "@webpack/common";
 
 import { settings } from "./settings";
@@ -32,9 +33,8 @@ export default definePlugin({
     ],
     renderButtons(user: User) {
         if (!user) return null;
-        const positionClass = settings.store.buttonPosition === "right"
-            ? "voice-user-buttons-right"
-            : "voice-user-buttons-left";
+        const positionClass =
+            settings.store.buttonPosition === "right" ? "voice-user-buttons-right" : "voice-user-buttons-left";
 
         return (
             <Flex flexDirection="row" className={`voice-user-buttons ${positionClass}`}>

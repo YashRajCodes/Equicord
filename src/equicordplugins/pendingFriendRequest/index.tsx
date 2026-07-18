@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { RelationshipType } from "@vencord/discord-types/enums";
+import { findByPropsLazy } from "@webpack";
+
 import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { RelationshipType } from "@vencord/discord-types/enums";
-import { findByPropsLazy } from "@webpack";
 import { Menu, RelationshipStore } from "@webpack/common";
 
 const RelationshipActions = findByPropsLazy("cancelFriendRequest", "addRelationship");
@@ -86,7 +87,9 @@ export default definePlugin({
         return {
             "aria-label": "Cancel Outgoing Friend Request",
             disabled: false,
-            icon: Icon ? (iconProps: Record<string, unknown>) => <Icon {...iconProps} color="var(--status-danger)" /> : undefined,
+            icon: Icon
+                ? (iconProps: Record<string, unknown>) => <Icon {...iconProps} color="var(--status-danger)" />
+                : undefined,
             tooltipText: "Cancel Outgoing Friend Request",
             variant: "critical-secondary",
             onClick: () => cancelOutgoingFriendRequest(context?.user?.id)

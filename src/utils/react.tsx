@@ -14,10 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import type { ActionDispatch, ReactNode } from "react";
 
 import { React, useEffect, useMemo, useReducer, useState } from "@webpack/common";
-import type { ActionDispatch, ReactNode } from "react";
 
 import { checkIntersecting } from "./misc";
 
@@ -38,10 +39,9 @@ export function isPrimitiveReactNode(node: ReactNode): boolean {
  * @param intersectOnly If `true`, will only update the state when the element comes into view
  * @returns [refCallback, isIntersecting]
  */
-export const useIntersection = (intersectOnly = false): [
-    refCallback: React.RefCallback<Element>,
-    isIntersecting: boolean,
-] => {
+export const useIntersection = (
+    intersectOnly = false
+): [refCallback: React.RefCallback<Element>, isIntersecting: boolean] => {
     const observerRef = React.useRef<IntersectionObserver | null>(null);
     const [isIntersecting, setIntersecting] = useState(false);
 
@@ -90,11 +90,14 @@ interface AwaiterOpts<T> {
 export function useAwaiter<T>(factory: () => Promise<T>): AwaiterRes<T | null>;
 export function useAwaiter<T>(factory: () => Promise<T>, providedOpts: AwaiterOpts<T>): AwaiterRes<T>;
 export function useAwaiter<T>(factory: () => Promise<T>, providedOpts?: AwaiterOpts<T | null>): AwaiterRes<T | null> {
-    const opts: Required<AwaiterOpts<T | null>> = Object.assign({
-        fallbackValue: null,
-        deps: [],
-        onError: null,
-    }, providedOpts);
+    const opts: Required<AwaiterOpts<T | null>> = Object.assign(
+        {
+            fallbackValue: null,
+            deps: [],
+            onError: null
+        },
+        providedOpts
+    );
     const [state, setState] = useState({
         value: opts.fallbackValue,
         error: null,
@@ -172,9 +175,6 @@ export function useFixedTimer({ interval = 1000, initialTime = Date.now() }: Fix
     return time;
 }
 
-export function useCleanupEffect(
-    effect: () => void,
-    deps?: React.DependencyList
-): void {
+export function useCleanupEffect(effect: () => void, deps?: React.DependencyList): void {
     useEffect(() => effect, deps);
 }

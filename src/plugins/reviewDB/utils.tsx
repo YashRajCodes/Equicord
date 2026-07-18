@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { classNameFactory } from "@utils/css";
 import { Toasts, UserStore } from "@webpack/common";
@@ -26,11 +26,7 @@ export const cl = classNameFactory("vc-rdb-");
 
 export function canDeleteReview(profileId: string, review: Review) {
     const myId = UserStore.getCurrentUser().id;
-    return (
-        myId === profileId
-        || review.sender.discordID === myId
-        || Auth.user?.type === UserType.Admin
-    );
+    return myId === profileId || review.sender.discordID === myId || Auth.user?.type === UserType.Admin;
 }
 
 export function canBlockReviewAuthor(profileId: string, review: Review) {
@@ -48,7 +44,7 @@ export function showToast(message: string, type = Toasts.Type.MESSAGE) {
         message,
         type,
         options: {
-            position: Toasts.Position.BOTTOM, // NOBODY LIKES TOASTS AT THE TOP
-        },
+            position: Toasts.Position.BOTTOM // NOBODY LIKES TOASTS AT THE TOP
+        }
     });
 }

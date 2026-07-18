@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
@@ -23,7 +22,7 @@ export const settings = definePluginSettings({
         markers: [56, 64, 72, 80, 88, 96],
         default: 56,
         stickToMarkers: true
-    },
+    }
 });
 
 export default definePlugin({
@@ -37,7 +36,7 @@ export default definePlugin({
             find: "DefaultCustomizationSections: user cannot be undefined",
             replacement: {
                 match: /return.{0,50}children:\[(?=.{0,50},\{placeholder:)/,
-                replace: "$&$self.renderPresetSection(\"main\"),"
+                replace: '$&$self.renderPresetSection("main"),'
             }
         },
         {

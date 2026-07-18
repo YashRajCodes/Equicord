@@ -4,6 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { sid } from "@song-spotlight/api/util";
+import { User } from "@vencord/discord-types";
+import { JSX } from "react";
+
 import { BaseText } from "@components/BaseText";
 import { Button } from "@components/Button";
 import { Flex } from "@components/Flex";
@@ -13,11 +17,8 @@ import { useSongStore } from "@equicordplugins/songSpotlight.desktop/lib/stores/
 import { cl } from "@equicordplugins/songSpotlight.desktop/lib/utils";
 import { Spinner, WidgetClasses } from "@equicordplugins/songSpotlight.desktop/ui/common";
 import { openSettingsModal } from "@equicordplugins/songSpotlight.desktop/ui/settings";
-import { sid } from "@song-spotlight/api/util";
 import { classes } from "@utils/misc";
-import { User } from "@vencord/discord-types";
 import { React, ScrollerThin, useEffect, UserStore, useState } from "@webpack/common";
-import { JSX } from "react";
 
 import Song from ".";
 
@@ -49,7 +50,9 @@ export default function WidgetSongs({ user }: WidgetSongsProps) {
     } else if (!data?.[0]) {
         full = (
             <>
-                <BaseText size="lg" weight="semibold">Looks like there's nothing here!</BaseText>
+                <BaseText size="lg" weight="semibold">
+                    Looks like there's nothing here!
+                </BaseText>
                 <BaseText size="md" weight="normal">
                     {owned
                         ? "Well? What are you waiting for? Go add some songs to your Song Spotlight!"
@@ -81,8 +84,7 @@ export default function WidgetSongs({ user }: WidgetSongsProps) {
                 gap={full ? "8px" : "10px"}
                 style={full && { flex: 1, textAlign: "center" }}
             >
-                {full
-                    || data.map((song, i) => <Song owned={owned} song={song} index={i} big key={sid(song)} />)}
+                {full || data.map((song, i) => <Song owned={owned} song={song} index={i} big key={sid(song)} />)}
             </Flex>
         </ScrollerThin>
     );

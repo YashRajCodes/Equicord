@@ -4,17 +4,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { PassiveUpdateState, VoiceState } from "@vencord/discord-types";
+
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { useFixedTimer } from "@utils/react";
 import { formatDurationMs } from "@utils/text";
 import definePlugin, { OptionType } from "@utils/types";
-import { PassiveUpdateState, VoiceState } from "@vencord/discord-types";
 import { FluxDispatcher, GuildStore, React, UserStore } from "@webpack/common";
 
-import alignedChatInputFix from "./alignedChatInputFix.css?managed";
 import { Timer } from "./Timer";
+
+import alignedChatInputFix from "./alignedChatInputFix.css?managed";
 
 export const settings = definePluginSettings({
     format: {
@@ -64,14 +66,15 @@ export const settings = definePluginSettings({
     },
     watchLargeGuilds: {
         type: OptionType.BOOLEAN,
-        description: "Track users in large guilds. This may cause lag if you're in a lot of large guilds with active voice users. Tested with up to 2000 active voice users with no issues.",
+        description:
+            "Track users in large guilds. This may cause lag if you're in a lot of large guilds with active voice users. Tested with up to 2000 active voice users with no issues.",
         restartNeeded: true,
         default: false
     }
 });
 
 // Save the join time of all users in a Map
-type userJoinData = { channelId: string, time: number; guildId: string | null; };
+type userJoinData = { channelId: string; time: number; guildId: string | null };
 const userJoinTimes = new Map<string, userJoinData>();
 
 /**
@@ -126,12 +129,12 @@ export default definePlugin({
                 {
                     match: /user:(\i).*?\.EMBEDDED.{0,25};(?=return 0!==(\i)\.length)/,
                     replace: "$&$2.push($self.renderTimer($1.id));",
-                    predicate: () => !settings.store.showWithoutHover,
+                    predicate: () => !settings.store.showWithoutHover
                 },
                 {
                     match: /#{intl::GUEST_NAME_SUFFIX}\)\]\}\):""(?=.*?userId:(\i\.\i))/,
                     replace: "$&,$self.renderTimer($1)",
-                    predicate: () => settings.store.showWithoutHover,
+                    predicate: () => settings.store.showWithoutHover
                 }
             ]
         },
@@ -141,11 +144,11 @@ export default definePlugin({
                 match: /("RTCConnectionMenu".{0,200}?lineClamp:1,children:)(\i)(?=,|}\))/,
                 replace: "$1[$2,$self.renderConnectionTimer({ channelId: this?.props?.channel?.id })]"
             }
-        },
+        }
     ],
 
     flux: {
-        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
+        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[] }) {
             const myId = UserStore.getCurrentUser().id;
 
             for (const state of voiceStates) {
@@ -224,7 +227,7 @@ export default definePlugin({
                     addUserJoinTime(userId, channelId, guildId);
                 }
             }
-        },
+        }
     },
 
     subscribeToAllGuilds() {
@@ -259,22 +262,27 @@ export default definePlugin({
         );
     },
 
-    renderConnectionTimer({ channelId }: { channelId: string | undefined; }) {
-        return <ErrorBoundary noop>
-            <this.ConnectionTimer channelId={channelId} />
-        </ErrorBoundary>;
+    renderConnectionTimer({ channelId }: { channelId: string | undefined }) {
+        return (
+            <ErrorBoundary noop>
+                <this.ConnectionTimer channelId={channelId} />
+            </ErrorBoundary>
+        );
     },
 
-    ConnectionTimer: ErrorBoundary.wrap((_: { channelId: string | undefined; }) => {
-        const joinTime = userJoinTimes.get(UserStore.getCurrentUser().id)?.time;
-        const time = useFixedTimer({ initialTime: joinTime });
+    ConnectionTimer: ErrorBoundary.wrap(
+        (_: { channelId: string | undefined }) => {
+            const joinTime = userJoinTimes.get(UserStore.getCurrentUser().id)?.time;
+            const time = useFixedTimer({ initialTime: joinTime });
 
-        if (joinTime == null) return null;
+            if (joinTime == null) return null;
 
-        return (
-            <p style={{ margin: 0, fontFamily: "var(--font-code)" }}>
-                {formatDurationMs(time, settings.store.format === "human")}
-            </p>
-        );
-    }, { noop: true }),
+            return (
+                <p style={{ margin: 0, fontFamily: "var(--font-code)" }}>
+                    {formatDurationMs(time, settings.store.format === "human")}
+                </p>
+            );
+        },
+        { noop: true }
+    )
 });

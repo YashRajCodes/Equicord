@@ -14,10 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { ChannelType, RelationshipType } from "@vencord/discord-types/enums";
 
 import { getUniqueUsername, openUserProfile } from "@utils/discord";
-import { ChannelType, RelationshipType } from "@vencord/discord-types/enums";
 import { UserUtils } from "@webpack/common";
 
 import settings from "./settings";
@@ -28,9 +29,9 @@ let manuallyRemovedFriend: string | undefined;
 let manuallyRemovedGuild: string | undefined;
 let manuallyRemovedGroup: string | undefined;
 
-export const removeFriend = (id: string) => manuallyRemovedFriend = id;
-export const removeGuild = (id: string) => manuallyRemovedGuild = id;
-export const removeGroup = (id: string) => manuallyRemovedGroup = id;
+export const removeFriend = (id: string) => (manuallyRemovedFriend = id);
+export const removeGuild = (id: string) => (manuallyRemovedGuild = id);
+export const removeGroup = (id: string) => (manuallyRemovedGroup = id);
 
 export async function onRelationshipRemove({ relationship: { type, id } }: RelationshipRemove) {
     if (manuallyRemovedFriend === id) {
@@ -38,8 +39,7 @@ export async function onRelationshipRemove({ relationship: { type, id } }: Relat
         return;
     }
 
-    const user = await UserUtils.getUser(id)
-        .catch(() => null);
+    const user = await UserUtils.getUser(id).catch(() => null);
     if (!user) return;
 
     switch (type) {

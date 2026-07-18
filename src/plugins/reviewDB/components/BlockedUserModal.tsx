@@ -13,16 +13,11 @@ import { Logger } from "@utils/Logger";
 import { useAwaiter } from "@utils/react";
 import { Modal, openModal, Tooltip, useState } from "@webpack/common";
 
-function UnblockButton(props: { onClick?(): void; }) {
+function UnblockButton(props: { onClick?(): void }) {
     return (
         <Tooltip text="Unblock user">
             {tooltipProps => (
-                <div
-                    {...tooltipProps}
-                    role="button"
-                    onClick={props.onClick}
-                    className={cl("block-modal-unblock")}
-                >
+                <div {...tooltipProps} role="button" onClick={props.onClick} className={cl("block-modal-unblock")}>
                     <svg height="20" viewBox="0 -960 960 960" width="20" fill="var(--status-danger)">
                         <path d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q54 0 104-17.5t92-50.5L228-676q-33 42-50.5 92T160-480q0 134 93 227t227 93Zm252-124q33-42 50.5-92T800-480q0-134-93-227t-227-93q-54 0-104 17.5T284-732l448 448Z" />
                     </svg>
@@ -32,7 +27,15 @@ function UnblockButton(props: { onClick?(): void; }) {
     );
 }
 
-function BlockedUser({ user, isBusy, setIsBusy }: { user: ReviewDBUser; isBusy: boolean; setIsBusy(v: boolean): void; }) {
+function BlockedUser({
+    user,
+    isBusy,
+    setIsBusy
+}: {
+    user: ReviewDBUser;
+    isBusy: boolean;
+    setIsBusy(v: boolean): void;
+}) {
     const [gone, setGone] = useState(false);
     if (gone) return null;
 
@@ -41,15 +44,19 @@ function BlockedUser({ user, isBusy, setIsBusy }: { user: ReviewDBUser; isBusy: 
             <img className={cl("block-modal-avatar")} src={user.profilePhoto} alt="" />
             <Paragraph className={cl("block-modal-username")}>{user.username}</Paragraph>
             <UnblockButton
-                onClick={isBusy ? undefined : async () => {
-                    setIsBusy(true);
-                    try {
-                        await unblockUser(user.discordID);
-                        setGone(true);
-                    } finally {
-                        setIsBusy(false);
-                    }
-                }}
+                onClick={
+                    isBusy
+                        ? undefined
+                        : async () => {
+                              setIsBusy(true);
+                              try {
+                                  await unblockUser(user.discordID);
+                                  setGone(true);
+                              } finally {
+                                  setIsBusy(false);
+                              }
+                          }
+                }
             />
         </div>
     );
@@ -59,25 +66,17 @@ function BlockedUsersList() {
     const [isBusy, setIsBusy] = useState(false);
     const [blocks, error, pending] = useAwaiter(fetchBlocks, {
         onError: e => new Logger("ReviewDB").error("Failed to fetch blocks", e),
-        fallbackValue: [],
+        fallbackValue: []
     });
 
-    if (pending)
-        return null;
-    if (error)
-        return <Paragraph>Failed to fetch blocks: ${String(error)}</Paragraph>;
-    if (!blocks.length)
-        return <Paragraph>No blocked users.</Paragraph>;
+    if (pending) return null;
+    if (error) return <Paragraph>Failed to fetch blocks: ${String(error)}</Paragraph>;
+    if (!blocks.length) return <Paragraph>No blocked users.</Paragraph>;
 
     return (
         <>
             {blocks.map(b => (
-                <BlockedUser
-                    key={b.discordID}
-                    user={b}
-                    isBusy={isBusy}
-                    setIsBusy={setIsBusy}
-                />
+                <BlockedUser key={b.discordID} user={b} isBusy={isBusy} setIsBusy={setIsBusy} />
             ))}
         </>
     );
@@ -85,10 +84,7 @@ function BlockedUsersList() {
 
 export function openBlockModal() {
     openModal(modalProps => (
-        <Modal
-            {...modalProps}
-            title="Blocked Users"
-        >
+        <Modal {...modalProps} title="Blocked Users">
             <div className={cl("block-modal")}>
                 {Auth.token ? <BlockedUsersList /> : <Paragraph>You are not logged into ReviewDB!</Paragraph>}
             </div>

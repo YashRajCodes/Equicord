@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Channel } from "@vencord/discord-types";
+import { findComponentByCodeLazy, findStoreLazy } from "@webpack";
+
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { Channel } from "@vencord/discord-types";
-import { findComponentByCodeLazy, findStoreLazy } from "@webpack";
 import { ReadStateStore, useStateFromStores } from "@webpack/common";
 
 const UserGuildSettingsStore = findStoreLazy("UserGuildSettingsStore");
@@ -20,13 +21,13 @@ const settings = definePluginSettings({
     showOnMutedChannels: {
         description: "Show unread count on muted channels",
         type: OptionType.BOOLEAN,
-        default: false,
+        default: false
     },
     notificationCountLimit: {
         description: "Show +99 instead of true amount",
         type: OptionType.BOOLEAN,
-        default: false,
-    },
+        default: false
+    }
 });
 
 export default definePlugin({
@@ -43,8 +44,8 @@ export default definePlugin({
             replacement: [
                 {
                     match: /\.Children\.count.+?:null(?<=,channel:\i.+?)/,
-                    replace: "$&,$self.CountBadge({channel: arguments[0].channel})",
-                },
+                    replace: "$&,$self.CountBadge({channel: arguments[0].channel})"
+                }
             ]
         },
         // Threads
@@ -54,28 +55,31 @@ export default definePlugin({
             replacement: [
                 {
                     match: /mentionsCount:\i.{0,50}?null/,
-                    replace: "$&,$self.CountBadge({channel: arguments[0].thread})",
-                },
+                    replace: "$&,$self.CountBadge({channel: arguments[0].thread})"
+                }
             ]
-        },
+        }
     ],
 
-    CountBadge: ErrorBoundary.wrap(({ channel }: { channel: Channel; }) => {
-        const unreadCount = useStateFromStores([ReadStateStore], () => ReadStateStore.getUnreadCount(channel.id));
-        if (!unreadCount) return null;
+    CountBadge: ErrorBoundary.wrap(
+        ({ channel }: { channel: Channel }) => {
+            const unreadCount = useStateFromStores([ReadStateStore], () => ReadStateStore.getUnreadCount(channel.id));
+            if (!unreadCount) return null;
 
-        if (!settings.store.showOnMutedChannels && (UserGuildSettingsStore.isChannelMuted(channel.guild_id, channel.id) || JoinedThreadsStore.isMuted(channel.id)))
-            return null;
+            if (
+                !settings.store.showOnMutedChannels &&
+                (UserGuildSettingsStore.isChannelMuted(channel.guild_id, channel.id) ||
+                    JoinedThreadsStore.isMuted(channel.id))
+            )
+                return null;
 
-        return (
-            <NumberBadge
-                color="var(--brand-500)"
-                count={
-                    unreadCount > 99 && settings.store.notificationCountLimit
-                        ? "+99"
-                        : unreadCount
-                }
-            />
-        );
-    }, { noop: true }),
+            return (
+                <NumberBadge
+                    color="var(--brand-500)"
+                    count={unreadCount > 99 && settings.store.notificationCountLimit ? "+99" : unreadCount}
+                />
+            );
+        },
+        { noop: true }
+    )
 });

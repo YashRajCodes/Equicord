@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { classNameFactory } from "@utils/css";
 import { Activity, Application } from "@vencord/discord-types";
 import { findByPropsLazy, findComponentByCodeLazy, findStoreLazy } from "@webpack";
+
+import { classNameFactory } from "@utils/css";
 
 import { settings } from "./settings";
 import { ActivityViewProps, ApplicationIcon } from "./types";
@@ -15,7 +16,9 @@ const ApplicationStore: {
     getApplication: (id: string) => Application | null;
 } = findStoreLazy("ApplicationStore");
 
-const { fetchApplication }: {
+const {
+    fetchApplication
+}: {
     fetchApplication: (id: string) => Promise<Application | null>;
 } = findByPropsLazy("fetchApplication");
 
@@ -40,7 +43,10 @@ export function getActivityApplication(activity: Activity | null) {
 
 export function getApplicationIcons(activities: Activity[], preferSmall = false): ApplicationIcon[] {
     const applicationIcons: ApplicationIcon[] = [];
-    const applications = activities.filter(activity => activity != null && (activity.application_id || activity.platform || activity.id?.startsWith("spotify:")));
+    const applications = activities.filter(
+        activity =>
+            activity != null && (activity.application_id || activity.platform || activity.id?.startsWith("spotify:"))
+    );
 
     for (const activity of applications) {
         const { assets, application_id, platform, id } = activity;
@@ -95,9 +101,11 @@ export function getApplicationIcons(activities: Activity[], preferSmall = false)
                     application = fetchedApplications.get(application_id) as Application | null;
                 } else {
                     fetchedApplications.set(application_id, null);
-                    fetchApplication(application_id).then(app => {
-                        fetchedApplications.set(application_id, app);
-                    }).catch(console.error);
+                    fetchApplication(application_id)
+                        .then(app => {
+                            fetchedApplications.set(application_id, app);
+                        })
+                        .catch(console.error);
                 }
             }
 

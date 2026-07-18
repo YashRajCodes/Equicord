@@ -32,5 +32,5 @@ export const EraseTool: ToolDefinition = {
     },
     unselected() {
         Mouse.event.off("move", this.onMouseMove);
-    },
+    }
 };

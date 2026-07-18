@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RendererSettings } from "@main/settings";
 import { app, WebFrameMain, webFrameMain } from "electron";
+
+import { RendererSettings } from "@main/settings";
 
 // TODO: routingID is deprecated and should be replaced with frameToken, but it's too new
 const ids = [] as Record<"routingId" | "processId", number>[];

@@ -19,8 +19,8 @@ const settings = definePluginSettings({
             { label: "12 hours", value: 43200 },
             { label: "1 day", value: 86400 },
             { label: "7 days", value: 604800 },
-            { label: "Forever", value: 0, default: true },
-        ],
+            { label: "Forever", value: 0, default: true }
+        ]
     },
     maxUses: {
         type: OptionType.SELECT,
@@ -32,14 +32,14 @@ const settings = definePluginSettings({
             { label: "10", value: 10 },
             { label: "25", value: 25 },
             { label: "50", value: 50 },
-            { label: "100", value: 100 },
-        ],
+            { label: "100", value: 100 }
+        ]
     },
     temporaryMembership: {
         type: OptionType.BOOLEAN,
         default: false,
-        description: "Temporary Membership",
-    },
+        description: "Temporary Membership"
+    }
 });
 
 export default definePlugin({

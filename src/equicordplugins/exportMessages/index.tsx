@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+import { Message } from "@vencord/discord-types";
 
 import { showNotification } from "@api/Notifications";
 import { definePluginSettings } from "@api/Settings";
@@ -14,7 +15,6 @@ import { EquicordDevs } from "@utils/constants";
 import { showItemInFolder } from "@utils/native";
 import definePlugin, { OptionType } from "@utils/types";
 import { saveFile } from "@utils/web";
-import { Message } from "@vencord/discord-types";
 import { Menu, Toasts } from "@webpack/common";
 
 import { ContactsList } from "./types";
@@ -27,7 +27,8 @@ const settings = definePluginSettings({
     },
     exportContacts: {
         type: OptionType.BOOLEAN,
-        description: "Export a list of friends to your clipboard. Adds a new button to the menu bar for the friends tab.",
+        description:
+            "Export a list of friends to your clipboard. Adds a new button to the menu bar for the friends tab.",
         default: false
     }
 });
@@ -94,7 +95,7 @@ async function exportMessage(message: Message) {
     }
 }
 
-const messageContextMenuPatch = (children: Array<React.ReactElement<any> | null>, props: { message: Message; }) => {
+const messageContextMenuPatch = (children: Array<React.ReactElement<any> | null>, props: { message: Message }) => {
     const { message } = props;
 
     if (!message) return;
@@ -119,11 +120,13 @@ const messageContextMenuPatch = (children: Array<React.ReactElement<any> | null>
 // 3 is incoming friend requests
 // 4 is outgoing friend requests
 function getUsernames(contacts: ContactsList[], type: number): string[] {
-    return contacts
-        // only select contacts that are the specified type
-        .filter(e => e.type === type)
-        // return the username, and discriminator if necessary
-        .map(e => e.user.discriminator === "0" ? e.user.username : e.user.username + "#" + e.user.discriminator);
+    return (
+        contacts
+            // only select contacts that are the specified type
+            .filter(e => e.type === type)
+            // return the username, and discriminator if necessary
+            .map(e => (e.user.discriminator === "0" ? e.user.username : e.user.username + "#" + e.user.discriminator))
+    );
 }
 
 export default definePlugin({
@@ -133,7 +136,7 @@ export default definePlugin({
     authors: [EquicordDevs.veygax, EquicordDevs.dat_insanity],
     settings,
     contextMenus: {
-        "message": messageContextMenuPatch
+        message: messageContextMenuPatch
     },
     patches: [
         {
@@ -144,7 +147,7 @@ export default definePlugin({
             }
         },
         {
-            find: "[role=\"tab\"][aria-disabled=\"false\"]",
+            find: '[role="tab"][aria-disabled="false"]',
             replacement: {
                 match: /("aria-label":(\i).{0,25})(\i)\.Children\.map\((\i),this\.renderChildren\)/,
                 replace:
@@ -165,9 +168,19 @@ export default definePlugin({
         };
     },
     addExportButton() {
-        return <ErrorBoundary noop key=".2">
-            <button className="export-contacts-button" onClick={() => { this.copyContactToClipboard(); console.log("clicked"); }}>Export</button>
-        </ErrorBoundary>;
+        return (
+            <ErrorBoundary noop key=".2">
+                <button
+                    className="export-contacts-button"
+                    onClick={() => {
+                        this.copyContactToClipboard();
+                        console.log("clicked");
+                    }}
+                >
+                    Export
+                </button>
+            </ErrorBoundary>
+        );
     },
     copyContactToClipboard() {
         if (this.contactList) {
@@ -187,7 +200,7 @@ export default definePlugin({
         // the request itself when you fetch all your friends. this is done to avoid sending a
         // manual request to discord, which may raise suspicion and might even get you terminated.
         Toasts.show({
-            message: "Contact list is undefined. Click on the \"All\" tab before exporting.",
+            message: 'Contact list is undefined. Click on the "All" tab before exporting.',
             type: Toasts.Type.FAILURE,
             id: Toasts.genId(),
             options: {

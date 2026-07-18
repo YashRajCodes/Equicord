@@ -14,10 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./style.css";
-
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
@@ -36,7 +35,6 @@ export default definePlugin({
                     match: /\.slice\(0,4\).+?\]:(\i),\[\i\.\i\]:!\1/,
                     replace: (m, hasFolderButtonContent) => `${m},"vc-plainFolderIcon-plain":!${hasFolderButtonContent}`
                 }
-
             ]
         }
     ]

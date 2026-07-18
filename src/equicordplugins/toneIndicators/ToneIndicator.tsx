@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Tooltip } from "@webpack/common";
 import type { ReactElement } from "react";
+
+import { Tooltip } from "@webpack/common";
 
 export interface ToneIndicatorProps {
     prefix: string;
@@ -13,11 +14,7 @@ export interface ToneIndicatorProps {
     desc: string;
 }
 
-export default function ToneIndicator({
-    prefix,
-    indicator,
-    desc,
-}: ToneIndicatorProps): ReactElement {
+export default function ToneIndicator({ prefix, indicator, desc }: ToneIndicatorProps): ReactElement {
     return (
         <Tooltip text={desc}>
             {tooltipProps => (
@@ -25,10 +22,11 @@ export default function ToneIndicator({
                     {...tooltipProps}
                     style={{
                         color: "var(--text-default)",
-                        userSelect: "text",
+                        userSelect: "text"
                     }}
                 >
-                    {prefix}{indicator}
+                    {prefix}
+                    {indicator}
                 </span>
             )}
         </Tooltip>

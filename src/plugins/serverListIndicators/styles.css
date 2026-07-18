@@ -16,7 +16,9 @@
     height: var(--guildbar-avatar-size);
     width: var(--guildbar-avatar-size);
     background-color: var(--background-mod-subtle);
-    transition: border-radius 0.15s ease-out, background-color 0.15s ease-out;
+    transition:
+        border-radius 0.15s ease-out,
+        background-color 0.15s ease-out;
 }
 
 .custom-theme-background #vc-indicators-indicator-items {
@@ -35,7 +37,9 @@
     border-radius: 0 4px 4px 0;
     left: -4px;
     background-color: var(--text-strong);
-    transition: height 0.15s ease-out, width 0.15s ease-out,
+    transition:
+        height 0.15s ease-out,
+        width 0.15s ease-out,
         opacity 0.15s ease-out;
 }
 

@@ -14,10 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { SVGProps } from "react";
 
 import { classes } from "@utils/misc";
-import { SVGProps } from "react";
 
 export function Heart(props: SVGProps<SVGSVGElement>) {
     return (

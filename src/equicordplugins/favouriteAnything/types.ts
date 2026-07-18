@@ -5,7 +5,16 @@
  */
 
 import { Channel, Embed, EmbedJSON, Message, MessageAttachment, TextInput } from "@vencord/discord-types";
-import { Component, ComponentClass, ComponentProps, ComponentPropsWithRef, Key, PropsWithChildren, ReactNode, RefObject } from "react";
+import {
+    Component,
+    ComponentClass,
+    ComponentProps,
+    ComponentPropsWithRef,
+    Key,
+    PropsWithChildren,
+    ReactNode,
+    RefObject
+} from "react";
 import { JsonValue, PartialDeep } from "type-fest";
 
 export enum ExpressionPickerView {
@@ -41,7 +50,7 @@ interface MessageComponentProps {
 }
 
 export interface MessageComponentClass extends Omit<ComponentClass<MessageComponentProps>, "new"> {
-    new(props: MessageComponentProps): Component<MessageComponentProps> & {
+    new (props: MessageComponentProps): Component<MessageComponentProps> & {
         renderAttachments(message: Partial<Message>): ReactNode;
     };
 }
@@ -56,7 +65,7 @@ export interface ManaSearchBarProps extends Pick<
 }
 
 export interface FilePickerProps {
-    onSelectItem: (item: { url: string; }) => void;
+    onSelectItem: (item: { url: string }) => void;
 }
 
 export interface FilePickerItemProps {
@@ -72,7 +81,7 @@ export interface AttachmentsComponentProps {
     attachment: MessageAttachment;
 }
 
-export interface EmbedComponent extends Component<{ embed: Embed; }> {
+export interface EmbedComponent extends Component<{ embed: Embed }> {
     __render: () => ReactNode;
 }
 
@@ -118,7 +127,7 @@ export enum CustomItemFormat {
 
 export interface CustomItemDef<A = any, B extends JsonValue = any> {
     encode: (data: A) => B | null;
-    decode: (data: PartialDeep<B, { recurseIntoArrays: true; }>) => NoInfer<A> | null;
+    decode: (data: PartialDeep<B, { recurseIntoArrays: true }>) => NoInfer<A> | null;
     stringify: (data: A) => string;
 }
 
@@ -141,12 +150,12 @@ export interface UnfurledEmbedsResponse {
 
 export type ResizeObserverHook = (
     ref: RefObject<Element | null>,
-    callback: (size: { width: number; height: number; }) => void,
+    callback: (size: { width: number; height: number }) => void,
     deps?: unknown[]
 ) => void;
 
 export interface ImageUtils {
-    isAnimated(image: { src: string; original?: string; animated: boolean; srcIsAnimated?: boolean; }): boolean;
+    isAnimated(image: { src: string; original?: string; animated: boolean; srcIsAnimated?: boolean }): boolean;
 }
 
 export type AttachmentTransformer = (attachment: MessageAttachment, inlineAttachmentMedia?: boolean) => AttachmentItem;

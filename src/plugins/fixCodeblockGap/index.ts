@@ -17,8 +17,8 @@ export default definePlugin({
             find: String.raw`/^${"```"}(?:([a-z0-9_+\-.#]+?)\n)?\n*([^\n][^]*?)\n*${"```"}`,
             replacement: {
                 match: String.raw`/^${"```"}(?:([a-z0-9_+\-.#]+?)\n)?\n*([^\n][^]*?)\n*${"```"}`,
-                replace: "$&\\n?",
-            },
-        },
-    ],
+                replace: "$&\\n?"
+            }
+        }
+    ]
 });

@@ -17,7 +17,9 @@ export function getNewQuests(currentQuests: Quest[], nextQuests: Quest[]): Quest
 
 export function questMatchesIncludedTypes(quest: Quest, includedTypes: QuestIncludedTypes): boolean {
     const rewardTypeAllowed = quest.config.rewardsConfig.rewards.some(reward => Boolean(includedTypes[reward.type]));
-    const taskTypeAllowed = Object.values(quest.config.taskConfigV2.tasks).some(task => Boolean(includedTypes[task.type]));
+    const taskTypeAllowed = Object.values(quest.config.taskConfigV2.tasks).some(task =>
+        Boolean(includedTypes[task.type])
+    );
 
     return rewardTypeAllowed && taskTypeAllowed;
 }

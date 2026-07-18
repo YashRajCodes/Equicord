@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-
 import { MessageObject, SendMessageOptions } from "@api/MessageEvents";
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";

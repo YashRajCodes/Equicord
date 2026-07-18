@@ -25,7 +25,7 @@ export default definePlugin({
                 {
                     match: /;usedtx=\$\{(\i)\?"0":"1"\}/,
                     replace: '$&${$1?";stereo=1;sprop-stereo=1":""}'
-                },
+                }
             ]
         }
     ]

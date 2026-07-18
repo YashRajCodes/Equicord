@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./styles.css";
+import { ComponentType } from "react";
 
 import { OptionType } from "@utils/types";
-import { ComponentType } from "react";
 
 import { BooleanSetting } from "./BooleanSetting";
 import { ComponentSettingProps, SettingProps } from "./Common";
@@ -37,5 +37,5 @@ export const OptionComponentMap: Record<OptionType, ComponentType<SettingProps<a
     [OptionType.SELECT]: SelectSetting,
     [OptionType.SLIDER]: SliderSetting,
     [OptionType.COMPONENT]: ComponentSetting,
-    [OptionType.CUSTOM]: () => null,
+    [OptionType.CUSTOM]: () => null
 };

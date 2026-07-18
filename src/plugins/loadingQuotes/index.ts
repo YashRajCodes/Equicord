@@ -14,15 +14,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import presetQuotesText from "file://quotes.txt";
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import presetQuotesText from "file://quotes.txt";
 
-const presetQuotes = presetQuotesText.split("\n").map(quote => /^\s*[^#\s]/.test(quote) && quote.trim()).filter(Boolean) as string[];
+const presetQuotes = presetQuotesText
+    .split("\n")
+    .map(quote => /^\s*[^#\s]/.test(quote) && quote.trim())
+    .filter(Boolean) as string[];
 const noQuotesQuote = "Did you really disable all loading quotes? What a buffoon you are...";
 
 const settings = definePluginSettings({
@@ -50,8 +54,8 @@ const settings = definePluginSettings({
     additionalQuotesDelimiter: {
         description: "Delimiter for additional quotes",
         type: OptionType.STRING,
-        default: "|",
-    },
+        default: "|"
+    }
 });
 
 export default definePlugin({
@@ -76,23 +80,21 @@ export default definePlugin({
                     predicate: () => settings.store.replaceEvents
                 }
             ]
-        },
+        }
     ],
 
     mutateQuotes(quotes: string[]) {
         try {
-            const { enableDiscordPresetQuotes, additionalQuotes, additionalQuotesDelimiter, enablePluginPresetQuotes } = settings.store;
+            const { enableDiscordPresetQuotes, additionalQuotes, additionalQuotesDelimiter, enablePluginPresetQuotes } =
+                settings.store;
 
-            if (!enableDiscordPresetQuotes)
-                quotes.length = 0;
+            if (!enableDiscordPresetQuotes) quotes.length = 0;
 
-            if (enablePluginPresetQuotes)
-                quotes.push(...presetQuotes);
+            if (enablePluginPresetQuotes) quotes.push(...presetQuotes);
 
             quotes.push(...additionalQuotes.split(additionalQuotesDelimiter).filter(Boolean));
 
-            if (!quotes.length)
-                quotes.push(noQuotesQuote);
+            if (!quotes.length) quotes.push(noQuotesQuote);
         } catch (e) {
             new Logger("LoadingQuotes").error("Failed to mutate quotes", e);
         }

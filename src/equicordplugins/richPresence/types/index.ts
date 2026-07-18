@@ -10,7 +10,7 @@ export enum ServiceTab {
     StatsFm = "statsfm",
     Jellyfin = "jellyfin",
     GensokyoRadio = "gensokyoRadio",
-    Navidrome = "navidrome",
+    Navidrome = "navidrome"
 }
 
 export const enum NameFormat {
@@ -19,5 +19,5 @@ export const enum NameFormat {
     SongFirst = "song-first",
     ArtistOnly = "artist",
     SongOnly = "song",
-    AlbumName = "album",
+    AlbumName = "album"
 }

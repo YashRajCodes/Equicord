@@ -7,12 +7,15 @@
 import { findByCodeLazy, findLazy } from "@webpack";
 
 let defaultSounds: null | string[] = null;
-const findDefaultSounds = findLazy(module => module.resolve && module.id && module.keys().some(key => key.endsWith(".mp3")), false);
+const findDefaultSounds = findLazy(
+    module => module.resolve && module.id && module.keys().some(key => key.endsWith(".mp3")),
+    false
+);
 const AudioPlayerConstructor = findByCodeLazy("could not play audio");
 
 export type AudioProcessor = (data: PreprocessAudioData) => void;
-export type AudioCallback = (() => void);
-export type AudioErrorHandler = ((error: Error) => void);
+export type AudioCallback = () => void;
+export type AudioErrorHandler = (error: Error) => void;
 export const audioProcessorFunctions: Record<string, AudioProcessor> = {};
 
 export enum AudioType {
@@ -126,45 +129,107 @@ export interface AudioPlayerOptions {
 // the confusion between the public API accepting 0-100 volume while the internal API uses 0-1 volume.
 class AudioPlayerWrapper implements AudioPlayerInterface {
     private internalPlayer: AudioPlayerInternal;
-    constructor(internalPlayer: AudioPlayerInternal) { this.internalPlayer = internalPlayer; }
+    constructor(internalPlayer: AudioPlayerInternal) {
+        this.internalPlayer = internalPlayer;
+    }
 
-    get audio(): string { return this.internalPlayer.audio; }
-    set audio(value: string) { this.internalPlayer.preprocessDataOriginal.audio = value; this.internalPlayer.processAudio(); }
+    get audio(): string {
+        return this.internalPlayer.audio;
+    }
+    set audio(value: string) {
+        this.internalPlayer.preprocessDataOriginal.audio = value;
+        this.internalPlayer.processAudio();
+    }
 
-    get volume(): number { return this.internalPlayer._volume * 100; }
-    set volume(value: number) { this.internalPlayer.preprocessDataOriginal.volume = Math.max(0, Math.min(1, value / 100)); this.internalPlayer.processAudio(); }
+    get volume(): number {
+        return this.internalPlayer._volume * 100;
+    }
+    set volume(value: number) {
+        this.internalPlayer.preprocessDataOriginal.volume = Math.max(0, Math.min(1, value / 100));
+        this.internalPlayer.processAudio();
+    }
 
-    get speed(): number { return this.internalPlayer._speed; }
-    set speed(value: number) { this.internalPlayer.preprocessDataOriginal.speed = Math.max(0.0625, Math.min(16, value)); this.internalPlayer.processAudio(); }
+    get speed(): number {
+        return this.internalPlayer._speed;
+    }
+    set speed(value: number) {
+        this.internalPlayer.preprocessDataOriginal.speed = Math.max(0.0625, Math.min(16, value));
+        this.internalPlayer.processAudio();
+    }
 
-    get time(): Promise<number> | null { return this.internalPlayer._audio?.then(audio => audio.currentTime) ?? null; }
-    set time(value: number) { this.internalPlayer.ensureAudio().then(audio => audio.currentTime = value); }
+    get time(): Promise<number> | null {
+        return this.internalPlayer._audio?.then(audio => audio.currentTime) ?? null;
+    }
+    set time(value: number) {
+        this.internalPlayer.ensureAudio().then(audio => (audio.currentTime = value));
+    }
 
-    get persistent(): boolean { return this.internalPlayer.persistent; }
-    set persistent(value: boolean) { this.internalPlayer.persistent = value; }
+    get persistent(): boolean {
+        return this.internalPlayer.persistent;
+    }
+    set persistent(value: boolean) {
+        this.internalPlayer.persistent = value;
+    }
 
-    get preload(): boolean { return this.internalPlayer.preload; }
-    set preload(value: boolean) { this.internalPlayer.preload = value; value && this.internalPlayer.ensureAudio(); }
+    get preload(): boolean {
+        return this.internalPlayer.preload;
+    }
+    set preload(value: boolean) {
+        this.internalPlayer.preload = value;
+        value && this.internalPlayer.ensureAudio();
+    }
 
-    get muted(): Promise<boolean> | null { return this.internalPlayer._audio?.then(audio => audio.muted) ?? null; }
-    set muted(value: boolean) { this.internalPlayer.ensureAudio().then(audio => audio.muted = value); }
+    get muted(): Promise<boolean> | null {
+        return this.internalPlayer._audio?.then(audio => audio.muted) ?? null;
+    }
+    set muted(value: boolean) {
+        this.internalPlayer.ensureAudio().then(audio => (audio.muted = value));
+    }
 
-    get paused(): Promise<boolean> | null { return this.internalPlayer._audio?.then(audio => audio.paused) ?? null; }
-    set paused(value: boolean) { value ? this.internalPlayer.pause() : this.internalPlayer.play(); }
+    get paused(): Promise<boolean> | null {
+        return this.internalPlayer._audio?.then(audio => audio.paused) ?? null;
+    }
+    set paused(value: boolean) {
+        value ? this.internalPlayer.pause() : this.internalPlayer.play();
+    }
 
-    get type(): AudioType { return this.internalPlayer.type; }
-    get duration(): Promise<number> | null { return this.internalPlayer._audio?.then(audio => audio.duration) ?? null; }
+    get type(): AudioType {
+        return this.internalPlayer.type;
+    }
+    get duration(): Promise<number> | null {
+        return this.internalPlayer._audio?.then(audio => audio.duration) ?? null;
+    }
 
-    load(): void { this.internalPlayer.ensureAudio(); }
-    loop(): void { this.internalPlayer.loop(); }
-    play(): void { this.internalPlayer.play(); }
-    pause(): void { this.internalPlayer.pause(); }
-    stop(restart?: boolean): void { this.internalPlayer.stop(restart); }
-    restart(): void { this.internalPlayer.stop(true); }
-    seek(time: number): void { this.internalPlayer.ensureAudio().then(audio => audio.currentTime = time); }
-    mute(): void { this.internalPlayer.ensureAudio().then(audio => audio.muted = true); }
-    unmute(): void { this.internalPlayer.ensureAudio().then(audio => audio.muted = false); }
-    delete(): void { this.internalPlayer.destroyAudio(); }
+    load(): void {
+        this.internalPlayer.ensureAudio();
+    }
+    loop(): void {
+        this.internalPlayer.loop();
+    }
+    play(): void {
+        this.internalPlayer.play();
+    }
+    pause(): void {
+        this.internalPlayer.pause();
+    }
+    stop(restart?: boolean): void {
+        this.internalPlayer.stop(restart);
+    }
+    restart(): void {
+        this.internalPlayer.stop(true);
+    }
+    seek(time: number): void {
+        this.internalPlayer.ensureAudio().then(audio => (audio.currentTime = time));
+    }
+    mute(): void {
+        this.internalPlayer.ensureAudio().then(audio => (audio.muted = true));
+    }
+    unmute(): void {
+        this.internalPlayer.ensureAudio().then(audio => (audio.muted = false));
+    }
+    delete(): void {
+        this.internalPlayer.destroyAudio();
+    }
 }
 
 /**
@@ -179,17 +244,8 @@ class AudioPlayerWrapper implements AudioPlayerInterface {
  * @param options.onError An optional error handler that is passed an Error object when an error occurs during audio playback.
  * @return The created audio player.
  */
-export function createAudioPlayer(
-    audio: string,
-    options: AudioPlayerOptions = {}
-): AudioPlayerInterface {
-    const internalPlayer: AudioPlayerInternal = new AudioPlayerConstructor(
-        options,
-        audio,
-        null,
-        null,
-        "default"
-    );
+export function createAudioPlayer(audio: string, options: AudioPlayerOptions = {}): AudioPlayerInterface {
+    const internalPlayer: AudioPlayerInternal = new AudioPlayerConstructor(options, audio, null, null, "default");
 
     return new AudioPlayerWrapper(internalPlayer);
 }
@@ -251,10 +307,12 @@ export function removeAudioProcessor(key: string): void {
 
 /** Returns an array of all internal Discord audio filenames. */
 export function defaultAudioNames(): string[] {
-    defaultSounds ??= (findDefaultSounds.keys() || []).map(key => {
-        const match = key.match(/((?:\w|-)+)\.mp3$/);
-        return match ? match[1] : null;
-    }).filter(Boolean) as string[];
+    defaultSounds ??= (findDefaultSounds.keys() || [])
+        .map(key => {
+            const match = key.match(/((?:\w|-)+)\.mp3$/);
+            return match ? match[1] : null;
+        })
+        .filter(Boolean) as string[];
 
     return defaultSounds;
 }

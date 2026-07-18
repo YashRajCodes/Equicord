@@ -14,14 +14,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { filters, mapMangledModuleLazy } from "@webpack";
 
 import { definePluginSettings } from "@api/Settings";
 import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { saveFile } from "@utils/web";
-import { filters, mapMangledModuleLazy } from "@webpack";
 import { ComponentDispatch } from "@webpack/common";
 
 const ctxMenuCallbacks = mapMangledModuleLazy('closest("[contenteditable=true]")', {
@@ -57,7 +58,7 @@ const settings = definePluginSettings({
         restartNeeded: true,
         // Web slate menu has proper spellcheck suggestions and image context menu is also pretty good,
         // so disable this by default. Vesktop just doesn't, so we force enable it there
-        hidden: hideSetting,
+        hidden: hideSetting
     }
 });
 
@@ -87,7 +88,8 @@ function fixImageUrl(urlString: string) {
 
 export default definePlugin({
     name: "WebContextMenus",
-    description: "Re-adds context menus missing in the web version of Discord: Links & Images (Copy/Open Link/Image), Text Area (Copy, Cut, Paste, SpellCheck)",
+    description:
+        "Re-adds context menus missing in the web version of Discord: Links & Images (Copy/Open Link/Image), Text Area (Copy, Cut, Paste, SpellCheck)",
     tags: ["Utility"],
     authors: [Devs.Ven],
     enabledByDefault: true,
@@ -160,7 +162,7 @@ export default definePlugin({
                 {
                     match: /(#{intl::SAVE_IMAGE_MENU_ITEM}\),.{0,75}?)action:/,
                     replace: "$1action:()=>$self.saveImage(arguments[0]),oldAction:"
-                },
+                }
             ]
         },
 
@@ -253,11 +255,10 @@ export default definePlugin({
         // Automod add filter words
         {
             find: '("interactionUsernameProfile',
-            replacement:
-            {
+            replacement: {
                 match: /\i\.isPlatformEmbedded(?=.{0,50}\.tagName)/,
                 replace: "true"
-            },
+            }
         }
     ],
 
@@ -281,7 +282,7 @@ export default definePlugin({
             });
         }
 
-        if (IS_VESKTOP && VesktopNative.clipboard || IS_EQUIBOP && VesktopNative.clipboard) {
+        if ((IS_VESKTOP && VesktopNative.clipboard) || (IS_EQUIBOP && VesktopNative.clipboard)) {
             VesktopNative.clipboard.copyImage(await imageData.arrayBuffer(), url);
             return;
         } else {

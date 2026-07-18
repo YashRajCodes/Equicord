@@ -14,40 +14,41 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { ApplicationStream, Channel, Stream, User } from "@vencord/discord-types";
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { ScreenshareIcon } from "@components/Icons";
 import { Devs } from "@utils/constants";
 import { openImageModal } from "@utils/discord";
 import definePlugin from "@utils/types";
-import { ApplicationStream, Channel, Stream, User } from "@vencord/discord-types";
 import { ApplicationStreamingStore, ApplicationStreamPreviewStore, Menu } from "@webpack/common";
 
 export interface UserContextProps {
-    channel: Channel,
-    channelSelected: boolean,
-    className: string,
-    config: { context: string; };
-    context: string,
-    onHeightUpdate: Function,
-    position: string,
-    target: HTMLElement,
-    theme: string,
+    channel: Channel;
+    channelSelected: boolean;
+    className: string;
+    config: { context: string };
+    context: string;
+    onHeightUpdate: Function;
+    position: string;
+    target: HTMLElement;
+    theme: string;
     user: User;
 }
 
 export interface StreamContextProps {
-    appContext: string,
-    className: string,
-    config: { context: string; };
-    context: string,
-    exitFullscreen: Function,
-    onHeightUpdate: Function,
-    position: string,
-    target: HTMLElement,
-    stream: Stream,
-    theme: string,
+    appContext: string;
+    className: string;
+    config: { context: string };
+    context: string;
+    exitFullscreen: Function;
+    onHeightUpdate: Function;
+    position: string;
+    target: HTMLElement;
+    stream: Stream;
+    theme: string;
 }
 
 export const handleViewPreview = async ({ guildId, channelId, ownerId }: ApplicationStream | Stream) => {
@@ -61,7 +62,10 @@ export const handleViewPreview = async ({ guildId, channelId, ownerId }: Applica
     });
 };
 
-export const addViewStreamContext: NavContextMenuPatchCallback = (children, { userId }: { userId: string | bigint; }) => {
+export const addViewStreamContext: NavContextMenuPatchCallback = (
+    children,
+    { userId }: { userId: string | bigint }
+) => {
     const stream = ApplicationStreamingStore.getAnyStreamForUser(userId);
     if (!stream) return;
 

@@ -5,13 +5,22 @@
  */
 
 import "./styles.css";
+import type { Channel } from "@vencord/discord-types";
+import { findComponentByCodeLazy } from "@webpack";
 
 import { Heading } from "@components/Heading";
 import { classNameFactory } from "@utils/css";
 import type { PluginSettingComponentProps } from "@utils/types";
-import type { Channel } from "@vencord/discord-types";
-import { findComponentByCodeLazy } from "@webpack";
-import { ChannelStore, IconUtils, Popout, SelectedChannelStore, TextInput, useRef, useState, useStateFromStores } from "@webpack/common";
+import {
+    ChannelStore,
+    IconUtils,
+    Popout,
+    SelectedChannelStore,
+    TextInput,
+    useRef,
+    useState,
+    useStateFromStores
+} from "@webpack/common";
 
 import { settings } from ".";
 
@@ -28,10 +37,7 @@ type EmojiSelectPayload = {
 type ReactionEmojiPickerProps = {
     channel?: Channel | null;
     closePopout(): void;
-    onSelectEmoji(selection: {
-        emoji: EmojiSelectPayload | null;
-        willClose: boolean;
-    }): void;
+    onSelectEmoji(selection: { emoji: EmojiSelectPayload | null; willClose: boolean }): void;
 };
 
 const ReactionEmojiPicker = findComponentByCodeLazy<ReactionEmojiPickerProps>(
@@ -52,8 +58,8 @@ function getEmojiValue(emoji: EmojiSelectPayload | null | undefined) {
 }
 
 type RenderedEmoji =
-    | { kind: "custom"; id: string; name: string; animated: boolean; }
-    | { kind: "unicode"; name: string; animated: boolean; };
+    | { kind: "custom"; id: string; name: string; animated: boolean }
+    | { kind: "unicode"; name: string; animated: boolean };
 
 function toRenderedEmoji(value: string): RenderedEmoji | null {
     const trimmed = value.trim();
@@ -84,15 +90,7 @@ function getCustomEmojiSources(id: string, animated: boolean) {
     return animatedUrl === staticUrl ? [staticUrl] : [animatedUrl, staticUrl];
 }
 
-function CustomEmojiPreview({
-    id,
-    name,
-    animated
-}: {
-    id: string;
-    name: string;
-    animated: boolean;
-}) {
+function CustomEmojiPreview({ id, name, animated }: { id: string; name: string; animated: boolean }) {
     const sources = getCustomEmojiSources(id, animated);
     const [srcIndex, setSrcIndex] = useState(0);
 
@@ -103,18 +101,12 @@ function CustomEmojiPreview({
             width={34}
             height={34}
             className={cl("emoji-preview")}
-            onError={() => setSrcIndex(current => current < sources.length - 1 ? current + 1 : current)}
+            onError={() => setSrcIndex(current => (current < sources.length - 1 ? current + 1 : current))}
         />
     );
 }
 
-function EmojiPickerButton({
-    onSelect,
-    children
-}: {
-    onSelect(value: string): void;
-    children?: React.ReactNode;
-}) {
+function EmojiPickerButton({ onSelect, children }: { onSelect(value: string): void; children?: React.ReactNode }) {
     const triggerRef = useRef<HTMLDivElement>(null);
     const channel = useStateFromStores([SelectedChannelStore, ChannelStore], () => {
         const channelId = SelectedChannelStore.getChannelId();
@@ -139,11 +131,7 @@ function EmojiPickerButton({
             )}
         >
             {popoutProps => (
-                <div
-                    {...popoutProps}
-                    ref={triggerRef}
-                    className={cl("emoji-trigger")}
-                >
+                <div {...popoutProps} ref={triggerRef} className={cl("emoji-trigger")}>
                     {children ?? "Pick Emoji"}
                 </div>
             )}
@@ -152,35 +140,29 @@ function EmojiPickerButton({
 }
 
 function parseEmojiList(value: string) {
-    return Array.from(new Set(
-        value
-            .split(/[\n,]/g)
-            .map(entry => entry.trim())
-            .filter(Boolean)
-    )).slice(0, MAX_ADDITIONAL_REACT_EMOJIS);
+    return Array.from(
+        new Set(
+            value
+                .split(/[\n,]/g)
+                .map(entry => entry.trim())
+                .filter(Boolean)
+        )
+    ).slice(0, MAX_ADDITIONAL_REACT_EMOJIS);
 }
 
 function addEmojiToList(list: string, emoji: string) {
     const parsedList = parseEmojiList(list);
     if (parsedList.includes(emoji)) return parsedList.join(", ");
 
-    return [...parsedList, emoji]
-        .slice(0, MAX_ADDITIONAL_REACT_EMOJIS)
-        .join(", ");
+    return [...parsedList, emoji].slice(0, MAX_ADDITIONAL_REACT_EMOJIS).join(", ");
 }
 
-function EmojiPreview({ value }: { value: string; }) {
+function EmojiPreview({ value }: { value: string }) {
     const renderedEmoji = toRenderedEmoji(value);
     if (!renderedEmoji) return <>Pick Emoji</>;
 
     if (renderedEmoji.kind === "custom") {
-        return (
-            <CustomEmojiPreview
-                id={renderedEmoji.id}
-                name={renderedEmoji.name}
-                animated={renderedEmoji.animated}
-            />
-        );
+        return <CustomEmojiPreview id={renderedEmoji.id} name={renderedEmoji.name} animated={renderedEmoji.animated} />;
     }
 
     return <span className={cl("unicode-preview")}>{renderedEmoji.name}</span>;

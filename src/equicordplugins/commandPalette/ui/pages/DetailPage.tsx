@@ -10,7 +10,7 @@ import type { DetailPageSpec } from "../../api/types";
 
 const cl = classNameFactory("vc-cmdpal-");
 
-export function DetailPage({ spec }: { spec: DetailPageSpec; }) {
+export function DetailPage({ spec }: { spec: DetailPageSpec }) {
     return (
         <div className={cl("detail")}>
             <div className={cl("detail-heading")}>{spec.heading}</div>

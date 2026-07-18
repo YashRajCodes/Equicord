@@ -4,20 +4,26 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { copyToClipboard } from "@utils/index";
 import type { Quest } from "@vencord/discord-types";
-import { Menu } from "@webpack/common";
 import type { ReactNode } from "react";
+
+import { copyToClipboard } from "@utils/index";
+import { Menu } from "@webpack/common";
 
 import { addIgnoredQuest, questIsIgnored, removeIgnoredQuest } from "../settings/ignoredQuests";
 import { rerenderQuests } from "../settings/rerender";
-import { canAutoCompleteQuest, getQuestAutoCompleteEntry, processQuestForAutoComplete, stopQuestAutoComplete } from "../utils/completion";
+import {
+    canAutoCompleteQuest,
+    getQuestAutoCompleteEntry,
+    processQuestForAutoComplete,
+    stopQuestAutoComplete
+} from "../utils/completion";
 import { q } from "../utils/ui";
 
 export function QuestTileContextMenu(
     children: ReactNode[],
-    props: { quest?: Quest; },
-    isClaimedMenu: boolean = false,
+    props: { quest?: Quest },
+    isClaimedMenu: boolean = false
 ): void {
     const { quest } = props;
 
@@ -30,21 +36,22 @@ export function QuestTileContextMenu(
     const isAutoCompleting = getQuestAutoCompleteEntry(quest) != null;
     const canStartAutoComplete = !isClaimedMenu && isEnrolled && canAutoCompleteQuest(quest);
 
-    children.unshift((
+    children.unshift(
         <Menu.MenuGroup>
-            {!isClaimedMenu && (!isIgnored ? (
-                <Menu.MenuItem
-                    id={q("ignore-quest")}
-                    label="Mark as Ignored"
-                    action={() => addIgnoredQuest(quest.id)}
-                />
-            ) : (
-                <Menu.MenuItem
-                    id={q("unignore-quest")}
-                    label="Unmark as Ignored"
-                    action={() => removeIgnoredQuest(quest.id)}
-                />
-            ))}
+            {!isClaimedMenu &&
+                (!isIgnored ? (
+                    <Menu.MenuItem
+                        id={q("ignore-quest")}
+                        label="Mark as Ignored"
+                        action={() => addIgnoredQuest(quest.id)}
+                    />
+                ) : (
+                    <Menu.MenuItem
+                        id={q("unignore-quest")}
+                        label="Unmark as Ignored"
+                        action={() => removeIgnoredQuest(quest.id)}
+                    />
+                ))}
             {isAutoCompleting ? (
                 <Menu.MenuItem
                     id={q("stop-auto-complete")}
@@ -53,7 +60,7 @@ export function QuestTileContextMenu(
                         stopQuestAutoComplete(quest, {
                             manual: true,
                             preserveResume: false,
-                            terminalHeartbeat: true,
+                            terminalHeartbeat: true
                         });
                         rerenderQuests();
                     }}
@@ -65,17 +72,13 @@ export function QuestTileContextMenu(
                     action={() => {
                         processQuestForAutoComplete(quest, {
                             force: true,
-                            source: "manual",
+                            source: "manual"
                         });
                         rerenderQuests();
                     }}
                 />
             ) : null}
-            <Menu.MenuItem
-                id={q("copy-quest-id")}
-                label="Copy Quest ID"
-                action={() => copyToClipboard(quest.id)}
-            />
+            <Menu.MenuItem id={q("copy-quest-id")} label="Copy Quest ID" action={() => copyToClipboard(quest.id)} />
         </Menu.MenuGroup>
-    ));
+    );
 }

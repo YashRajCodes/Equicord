@@ -4,8 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Logger } from "@utils/Logger";
 import { Activity } from "@vencord/discord-types";
+
+import { Logger } from "@utils/Logger";
 import { ApplicationAssetUtils, FluxDispatcher, showToast } from "@webpack/common";
 
 import { settings } from "../settings";
@@ -39,7 +40,7 @@ async function authenticate(): Promise<boolean> {
         const res = await fetch(`${baseUrl}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ username: abs_username, password: abs_password }),
+            body: JSON.stringify({ username: abs_username, password: abs_password })
         });
 
         if (!res.ok) throw `${res.status} ${res.statusText}`;
@@ -59,7 +60,7 @@ async function fetchMediaData(): Promise<AbsMediaData | null> {
     try {
         const baseUrl = settings.store.abs_serverUrl!.replace(/\/$/, "");
         const res = await fetch(`${baseUrl}/api/me/listening-sessions`, {
-            headers: { "Authorization": `Bearer ${authToken}` },
+            headers: { Authorization: `Bearer ${authToken}` }
         });
 
         if (!res.ok) {
@@ -70,7 +71,7 @@ async function fetchMediaData(): Promise<AbsMediaData | null> {
             throw `${res.status} ${res.statusText}`;
         }
 
-        const { sessions }: { sessions: AbsSession[]; } = await res.json();
+        const { sessions }: { sessions: AbsSession[] } = await res.json();
         const activeSession = sessions.find(s => s.updatedAt && !s.isFinished);
         if (!activeSession?.updatedAt || (Date.now() - activeSession.updatedAt) / 1000 > 30) return null;
 
@@ -85,7 +86,7 @@ async function fetchMediaData(): Promise<AbsMediaData | null> {
             duration,
             currentTime,
             imageUrl: libraryItemId ? `${baseUrl}/api/items/${libraryItemId}/cover` : undefined,
-            isFinished: activeSession.isFinished || false,
+            isFinished: activeSession.isFinished || false
         };
     } catch (e) {
         logger.error("Failed to query AudioBookShelf API", e);
@@ -100,18 +101,22 @@ async function getActivity(): Promise<Activity | null> {
     const largeImage = mediaData.imageUrl;
     const assets = {
         large_image: largeImage ? await getAsset(largeImage) : await getAsset("audiobookshelf"),
-        large_text: mediaData.series || mediaData.author || undefined,
+        large_text: mediaData.series || mediaData.author || undefined
     };
 
     const details = mediaData.name;
-    const state = mediaData.series && mediaData.author
-        ? `${mediaData.series} \u2022 ${mediaData.author}`
-        : mediaData.author || "AudioBook";
+    const state =
+        mediaData.series && mediaData.author
+            ? `${mediaData.series} \u2022 ${mediaData.author}`
+            : mediaData.author || "AudioBook";
 
-    const timestamps = mediaData.currentTime != null && mediaData.duration != null ? {
-        start: Date.now() - (mediaData.currentTime * 1000),
-        end: Date.now() + ((mediaData.duration - mediaData.currentTime) * 1000),
-    } : undefined;
+    const timestamps =
+        mediaData.currentTime != null && mediaData.duration != null
+            ? {
+                  start: Date.now() - mediaData.currentTime * 1000,
+                  end: Date.now() + (mediaData.duration - mediaData.currentTime) * 1000
+              }
+            : undefined;
 
     return {
         application_id: APPLICATION_ID,
@@ -121,7 +126,7 @@ async function getActivity(): Promise<Activity | null> {
         assets,
         timestamps,
         type: 2,
-        flags: 1,
+        flags: 1
     };
 }
 

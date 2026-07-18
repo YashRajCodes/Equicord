@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Activity } from "@vencord/discord-types";
+
 import { definePluginSettings, migratePluginSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
-import { Activity } from "@vencord/discord-types";
 import { PresenceStore, SettingsRouter, UserStore } from "@webpack/common";
 
 const extraTimeslots = [3, 4, 5, 6, 7, 10, 15, 20, 25, 30];
@@ -22,7 +23,7 @@ const settings = definePluginSettings({
         options: [
             { label: "Always", value: "always" },
             { label: "Only when beginning or end of activity name matches", value: "whenMatched", default: true },
-            { label: "Never", value: "never" },
+            { label: "Never", value: "never" }
         ]
     },
     clipsLink: {
@@ -37,11 +38,11 @@ const settings = definePluginSettings({
                         }}
                     >
                         Change FPS and duration options in Clips settings!
-                    </Button >
+                    </Button>
                 </>
             );
         }
-    },
+    }
 });
 
 migratePluginSettings("ClipsEnhancements", "TimelessClips");
@@ -71,34 +72,38 @@ export default definePlugin({
                     replace: " $self.patchFramerates($&)"
                 }
             ]
-        },
+        }
     ],
 
-    patchTimeslots(timeslots: { id: string; value: number; label: string; }[]) {
+    patchTimeslots(timeslots: { id: string; value: number; label: string }[]) {
         const newTimeslots = [...timeslots];
 
-        extraTimeslots.forEach(timeslot => newTimeslots.push({
-            id: `${timeslot}min`,
-            value: timeslot * 60000,
-            label: getIntlMessage("CLIPS_LENGTH_MINUTES", {
-                count: timeslot
+        extraTimeslots.forEach(timeslot =>
+            newTimeslots.push({
+                id: `${timeslot}min`,
+                value: timeslot * 60000,
+                label: getIntlMessage("CLIPS_LENGTH_MINUTES", {
+                    count: timeslot
+                })
             })
-        }));
+        );
 
         return newTimeslots.sort((a, b) => a.value - b.value);
     },
 
-    patchFramerates(framerates: { id: string; value: number; label: string; }[]) {
+    patchFramerates(framerates: { id: string; value: number; label: string }[]) {
         const newFramerates = [...framerates];
 
         // Lower framerates than 15FPS have adverse affects on compression, 3 minute clips at 10FPS skyrocket the filesize to 200mb!!
-        extraFramerates.forEach(framerate => newFramerates.push({
-            id: `${framerate}fps`,
-            value: framerate,
-            label: getIntlMessage("SCREENSHARE_FPS_ABBREVIATED", {
-                fps: framerate
+        extraFramerates.forEach(framerate =>
+            newFramerates.push({
+                id: `${framerate}fps`,
+                value: framerate,
+                label: getIntlMessage("SCREENSHARE_FPS_ABBREVIATED", {
+                    fps: framerate
+                })
             })
-        }));
+        );
 
         return newFramerates.sort((a, b) => a.value - b.value);
     },
@@ -111,7 +116,9 @@ export default definePlugin({
         const splitName = activityName.split(" ");
 
         // Try to match activity by it's start and end
-        const matchedActivities = validActivities.filter(activity => activity.name.endsWith(splitName.at(-1)!) || activity.name.startsWith(splitName.at(0)!));
+        const matchedActivities = validActivities.filter(
+            activity => activity.name.endsWith(splitName.at(-1)!) || activity.name.startsWith(splitName.at(0)!)
+        );
 
         if (matchedActivities.length > 0) {
             return matchedActivities[0].application_id;
@@ -122,5 +129,5 @@ export default definePlugin({
         }
 
         return null;
-    },
+    }
 });

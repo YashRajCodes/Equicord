@@ -4,21 +4,50 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Channel, MessageAttachment } from "@vencord/discord-types";
+import { findByCodeLazy, findByPropsLazy } from "@webpack";
+import { deflateSync, inflateSync } from "fflate";
+import { Key } from "react";
+import { JsonValue } from "type-fest";
+
 import { classNameFactory } from "@utils/css";
 import { sendMessage } from "@utils/discord";
 import { proxyLazy } from "@utils/lazy";
 import { Queue } from "@utils/Queue";
 import { useForceUpdater } from "@utils/react";
 import { PluginNative } from "@utils/types";
-import { Channel, MessageAttachment } from "@vencord/discord-types";
-import { findByCodeLazy, findByPropsLazy } from "@webpack";
-import { Constants, DraftType, FluxDispatcher, MessageActions, PendingReplyStore, PermissionStore, RestAPI, Toasts, UploadAttachmentStore, UploadHandler, UploadManager, useCallback, useEffect, useRef, UserSettingsActionCreators, UserSettingsProtoStore, useStateFromStores } from "@webpack/common";
-import { deflateSync, inflateSync } from "fflate";
-import { Key } from "react";
-import { JsonValue } from "type-fest";
+import {
+    Constants,
+    DraftType,
+    FluxDispatcher,
+    MessageActions,
+    PendingReplyStore,
+    PermissionStore,
+    RestAPI,
+    Toasts,
+    UploadAttachmentStore,
+    UploadHandler,
+    UploadManager,
+    useCallback,
+    useEffect,
+    useRef,
+    UserSettingsActionCreators,
+    UserSettingsProtoStore,
+    useStateFromStores
+} from "@webpack/common";
 
 import { base64ToUint8Array, uint8ArrayToBase64 } from "./polyfills";
-import { AttachmentTransformer, CustomItemDef, CustomItemFormat, FavouriteItem, FavouriteItemFormat, ImageUtils as ImageUtils_, ItemsDef, ResizeObserverHook, UnfurledEmbedsResponse } from "./types";
+import {
+    AttachmentTransformer,
+    CustomItemDef,
+    CustomItemFormat,
+    FavouriteItem,
+    FavouriteItemFormat,
+    ImageUtils as ImageUtils_,
+    ItemsDef,
+    ResizeObserverHook,
+    UnfurledEmbedsResponse
+} from "./types";
 
 const Native = VencordNative.pluginHelpers.FavouriteAnything as PluginNative<typeof import("./native")>;
 
@@ -55,7 +84,7 @@ function defineItems<T extends Record<CustomItemFormat, CustomItemDef>>(def: Ite
                 if (!(format in def)) return null;
 
                 return { format, data: def[format].decode(data) } as {
-                    [F in CustomItemFormat]: { format: F; data: Type<F>; };
+                    [F in CustomItemFormat]: { format: F; data: Type<F> };
                 }[CustomItemFormat];
             } catch {
                 return null;
@@ -97,7 +126,9 @@ export const defs = defineItems({
 });
 
 // TODO: make thumbnails prettier
-const fallbackThumbnail = new URL("https://images-ext-1.discordapp.net/external/pGTJg3YdSHpyGTltH4vZUKEyQoNzf5mtqbSJs7I4ebc/https/equicord.org/assets/plugins/favoriteAnything/invalid.png");
+const fallbackThumbnail = new URL(
+    "https://images-ext-1.discordapp.net/external/pGTJg3YdSHpyGTltH4vZUKEyQoNzf5mtqbSJs7I4ebc/https/equicord.org/assets/plugins/favoriteAnything/invalid.png"
+);
 
 export async function getThumbnailUrl(data: string, width: number, height: number): Promise<URL | null> {
     try {
@@ -112,7 +143,7 @@ export async function getThumbnailUrl(data: string, width: number, height: numbe
             url: Constants.Endpoints.UNFURL_EMBED_URLS,
             body: { urls: [url] },
             retries: 3
-        }).then(({ body }: { body: UnfurledEmbedsResponse; }) => {
+        }).then(({ body }: { body: UnfurledEmbedsResponse }) => {
             const [{ thumbnail } = {}] = body.embeds;
             return thumbnail?.proxy_url ? new URL(thumbnail.proxy_url) : fallbackThumbnail;
         });
@@ -287,8 +318,8 @@ export class BatchedRequestQueue<T> {
 
     constructor(
         private readonly cb: (items: T[]) => Promise<void>,
-        private readonly options: { maxCount: number; timeout?: number; }
-    ) { }
+        private readonly options: { maxCount: number; timeout?: number }
+    ) {}
 
     public add(item: T) {
         if (this.items.indexOf(item) !== -1) return;

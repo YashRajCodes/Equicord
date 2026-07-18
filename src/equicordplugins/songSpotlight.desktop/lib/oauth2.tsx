@@ -5,7 +5,8 @@
  */
 
 import { ApplicationIntegrationType } from "@vencord/discord-types/enums";
-import { OAuth2AuthorizeModal, openModal,showToast, Toasts } from "@webpack/common";
+
+import { OAuth2AuthorizeModal, openModal, showToast, Toasts } from "@webpack/common";
 
 import { apiConstants, authFetch, getData } from "./api";
 import { useAuthorizationStore } from "./stores/AuthorizationStore";

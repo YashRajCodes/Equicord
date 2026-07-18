@@ -17,7 +17,7 @@ export default definePlugin({
             find: '"UserProfilePopout");',
             replacement: {
                 match: /user:\i,widgets:.{0,100}?\}\),/,
-                replace: "$&Vencord.Api.ProfileCollections.renderProfileCollections(arguments[0]),",
+                replace: "$&Vencord.Api.ProfileCollections.renderProfileCollections(arguments[0]),"
             }
         },
         // user panel popout
@@ -25,8 +25,8 @@ export default definePlugin({
             find: '"UserProfileAccountPopout"',
             replacement: {
                 match: /user:\i,widgets:.{0,100}}\),/,
-                replace: "$&Vencord.Api.ProfileCollections.renderProfileCollections(arguments[0]),",
-            },
+                replace: "$&Vencord.Api.ProfileCollections.renderProfileCollections(arguments[0]),"
+            }
         },
         // dm sidebar
         {

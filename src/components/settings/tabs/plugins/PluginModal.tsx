@@ -14,9 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./PluginModal.css";
+import { RenderModalProps, User } from "@vencord/discord-types";
+import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
+import { Constructor } from "type-fest";
+import { PluginMeta } from "~plugins";
 
 import { generateId } from "@api/Commands";
 import { hasAnyVisibleSettings, isSettingHidden } from "@api/PluginManager";
@@ -33,12 +37,22 @@ import { proxyLazy } from "@utils/lazy";
 import { Margins } from "@utils/margins";
 import { classes, isObjectEmpty } from "@utils/misc";
 import { OptionType, Plugin, PluginTag } from "@utils/types";
-import { RenderModalProps, User } from "@vencord/discord-types";
-import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { Clickable, FluxDispatcher, Modal, openModal, React, Text, Toasts, Tooltip, useEffect, useMemo, UserStore, UserSummaryItem, UserUtils, useState } from "@webpack/common";
-import { Constructor } from "type-fest";
-
-import { PluginMeta } from "~plugins";
+import {
+    Clickable,
+    FluxDispatcher,
+    Modal,
+    openModal,
+    React,
+    Text,
+    Toasts,
+    Tooltip,
+    useEffect,
+    useMemo,
+    UserStore,
+    UserSummaryItem,
+    UserUtils,
+    useState
+} from "@webpack/common";
 
 import { OptionComponentMap } from "./components";
 import { openContributorModal } from "./ContributorModal";
@@ -57,28 +71,30 @@ interface PluginModalProps extends RenderModalProps {
     onRestartNeeded(key: string): void;
 }
 
-export function makeDummyUser(user: { username: string; id?: string; avatar?: string; }) {
+export function makeDummyUser(user: { username: string; id?: string; avatar?: string }) {
     const newUser = new UserRecord({
         username: user.username,
         id: user.id ?? generateId(),
         avatar: user.avatar,
         /** To stop discord making unwanted requests... */
-        bot: true,
+        bot: true
     });
 
     FluxDispatcher.dispatch({
         type: "USER_UPDATE",
-        user: newUser,
+        user: newUser
     });
 
     return newUser;
 }
 
-function PluginTags({ tags }: { tags: PluginTag[]; }) {
+function PluginTags({ tags }: { tags: PluginTag[] }) {
     return (
         <div className={cl("tags")}>
             {tags.map(tag => (
-                <div key={tag} className={cl("tag")}>{tag}</div>
+                <div key={tag} className={cl("tag")}>
+                    {tag}
+                </div>
             ))}
         </div>
     );
@@ -97,8 +113,7 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
             for (const [index, user] of plugin.authors.slice(0, 6).entries()) {
                 try {
                     const author = user.id
-                        ? await UserUtils.getUser(String(user.id))
-                            .catch(() => makeDummyUser({ username: user.name }))
+                        ? await UserUtils.getUser(String(user.id)).catch(() => makeDummyUser({ username: user.name }))
                         : makeDummyUser({ username: user.name });
 
                     setAuthors(a => [...a, author]);
@@ -115,8 +130,7 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
 
     function renderSettings() {
         const { settings } = plugin;
-        if (!hasSettings || !settings)
-            return <Paragraph>There are no settings for this plugin.</Paragraph>;
+        if (!hasSettings || !settings) return <Paragraph>There are no settings for this plugin.</Paragraph>;
 
         const options = Object.entries(settings.def).map(([key, setting]) => {
             if (setting.type === OptionType.CUSTOM) return null;
@@ -147,11 +161,7 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
             );
         });
 
-        return (
-            <div className="vc-plugins-settings">
-                {options}
-            </div>
-        );
+        return <div className="vc-plugins-settings">{options}</div>;
     }
 
     function renderMoreUsers(_label: string) {
@@ -160,11 +170,7 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
         return (
             <Tooltip text={remainingAuthors.map(u => u.name).join(", ")}>
                 {({ onMouseEnter, onMouseLeave }) => (
-                    <div
-                        className={AvatarStyles.moreUsers}
-                        onMouseEnter={onMouseEnter}
-                        onMouseLeave={onMouseLeave}
-                    >
+                    <div className={AvatarStyles.moreUsers} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
                         +{remainingAuthors.length}
                     </div>
                 )}
@@ -182,7 +188,9 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
             size="lg"
             title={
                 <div className={cl("header")}>
-                    <BaseText tag="h1" weight="semibold" size="lg">{plugin.name}</BaseText>
+                    <BaseText tag="h1" weight="semibold" size="lg">
+                        {plugin.name}
+                    </BaseText>
                 </div>
             }
             subtitle={
@@ -205,7 +213,9 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
             )}
             <div className={"vc-settings-modal-content"}>
                 <section>
-                    <Text variant="heading-lg/semibold" className={classes(Margins.top8, Margins.bottom8)}>Authors</Text>
+                    <Text variant="heading-lg/semibold" className={classes(Margins.top8, Margins.bottom8)}>
+                        Authors
+                    </Text>
                     <div style={{ width: "fit-content" }}>
                         <ErrorBoundary noop>
                             <UserSummaryItem
@@ -217,7 +227,9 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
                                 renderUser={(user: User) => (
                                     <Clickable
                                         className={AvatarStyles.clickableAvatar}
-                                        onClick={() => isEquicordPlugin ? openContributorModal(user) : openContributorModal(user)}
+                                        onClick={() =>
+                                            isEquicordPlugin ? openContributorModal(user) : openContributorModal(user)
+                                        }
                                     >
                                         <img
                                             className={AvatarStyles.avatar}
@@ -233,7 +245,14 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
                 </section>
 
                 <section>
-                    <BaseText size="lg" weight="semibold" color="text-strong" className={classes(Margins.top16, Margins.bottom8)}>Settings</BaseText>
+                    <BaseText
+                        size="lg"
+                        weight="semibold"
+                        color="text-strong"
+                        className={classes(Margins.top16, Margins.bottom8)}
+                    >
+                        Settings
+                    </BaseText>
                     {renderSettings()}
                 </section>
             </div>
@@ -255,12 +274,18 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
                                     </Button>
                                 )}
                             </Tooltip>
-                        ) : <div />}
+                        ) : (
+                            <div />
+                        )}
                         {!pluginMeta.userPlugin && (
                             <div className={cl("links")}>
                                 <WebsiteButton
                                     text="Website"
-                                    href={isEquicordPlugin ? `https://equicord.org/plugins/${plugin.name}` : `https://vencord.dev/plugins/${plugin.name}`}
+                                    href={
+                                        isEquicordPlugin
+                                            ? `https://equicord.org/plugins/${plugin.name}`
+                                            : `https://vencord.dev/plugins/${plugin.name}`
+                                    }
                                 />
                                 <GithubButton
                                     text="Source Code"
@@ -271,7 +296,7 @@ export default function PluginModal({ plugin, onRestartNeeded, onClose, transiti
                     </Flex>
                 </Flex>
             </div>
-        </Modal >
+        </Modal>
     );
 }
 
@@ -330,7 +355,13 @@ function resetSettings(plugin: Plugin, onRestartNeeded?: (pluginName: string) =>
     });
 }
 
-export function openWarningModal(plugin?: Plugin | null, onRestartNeeded?: (pluginName: string) => void, isPlugin = true, enabledPlugins?: number | null, reset?: () => void) {
+export function openWarningModal(
+    plugin?: Plugin | null,
+    onRestartNeeded?: (pluginName: string) => void,
+    isPlugin = true,
+    enabledPlugins?: number | null,
+    reset?: () => void
+) {
     openModal(props => (
         <ConfirmModal
             {...props}
@@ -348,10 +379,14 @@ export function openWarningModal(plugin?: Plugin | null, onRestartNeeded?: (plug
             onCancel={props.onClose}
         >
             <Paragraph>
-                {isPlugin
-                    ? <>Are you sure you want to reset all settings for <strong>{plugin?.name}</strong> to their default values?</>
-                    : `Are you sure you want to disable ${enabledPlugins} plugins?`
-                }
+                {isPlugin ? (
+                    <>
+                        Are you sure you want to reset all settings for <strong>{plugin?.name}</strong> to their default
+                        values?
+                    </>
+                ) : (
+                    `Are you sure you want to disable ${enabledPlugins} plugins?`
+                )}
             </Paragraph>
             <div className={classes(Margins.top16, cl("warning"))}>
                 <WarningIcon color="var(--text-feedback-critical)" />

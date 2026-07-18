@@ -33,7 +33,7 @@ interface Value {
 class Parser {
     private pos = 0;
 
-    constructor(private readonly input: string) { }
+    constructor(private readonly input: string) {}
 
     private peek(): string {
         return this.input[this.pos] ?? "";
@@ -59,7 +59,7 @@ class Parser {
     private expr(): Value {
         let left = this.term();
 
-        for (; ;) {
+        for (;;) {
             this.skipSpaces();
             const op = this.peek();
             if (op !== "+" && op !== "-") break;
@@ -76,14 +76,23 @@ class Parser {
     private term(): Value {
         let left = this.factor();
 
-        for (; ;) {
+        for (;;) {
             this.skipSpaces();
             const op = this.peek();
-            const isOf = /[a-z]/i.test(op) && this.input.slice(this.pos, this.pos + 2).toLowerCase() === "of" && !/[a-z]/i.test(this.input[this.pos + 2] ?? "");
+            const isOf =
+                /[a-z]/i.test(op) &&
+                this.input.slice(this.pos, this.pos + 2).toLowerCase() === "of" &&
+                !/[a-z]/i.test(this.input[this.pos + 2] ?? "");
 
             if (op === "*" || op === "/") {
                 this.pos += 1;
-            } else if (op === "%" && this.input.slice(this.pos + 1).trimStart().match(/^[\d(]/)) {
+            } else if (
+                op === "%" &&
+                this.input
+                    .slice(this.pos + 1)
+                    .trimStart()
+                    .match(/^[\d(]/)
+            ) {
                 this.pos += 1;
             } else if (isOf) {
                 this.pos += 2;

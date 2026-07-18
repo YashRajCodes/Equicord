@@ -26,8 +26,8 @@ const migrations: MigrationMapping[] = [
         keys: {
             serverUrl: "abs_serverUrl",
             username: "abs_username",
-            password: "abs_password",
-        },
+            password: "abs_password"
+        }
     },
     {
         oldPlugin: "StatsfmPresence",
@@ -43,8 +43,8 @@ const migrations: MigrationMapping[] = [
             useListeningStatus: "sfm_useListeningStatus",
             missingArt: "sfm_missingArt",
             showStatsFmLogo: "sfm_showLogo",
-            alwaysHideArt: "sfm_alwaysHideArt",
-        },
+            alwaysHideArt: "sfm_alwaysHideArt"
+        }
     },
     {
         oldPlugin: "JellyfinRichPresence",
@@ -60,16 +60,16 @@ const migrations: MigrationMapping[] = [
             showEpisodeName: "jf_showEpisodeName",
             overrideRichPresenceType: "jf_overrideType",
             showPausedState: "jf_showPausedState",
-            privacyMode: "jf_privacyMode",
-        },
+            privacyMode: "jf_privacyMode"
+        }
     },
     {
         oldPlugin: "GensokyoRadioRPC",
         enableKey: "gr_enabled",
         keys: {
-            refreshInterval: "gr_refreshInterval",
-        },
-    },
+            refreshInterval: "gr_refreshInterval"
+        }
+    }
 ];
 
 function setStoreValue(key: SettingsKey, value: boolean | string | number) {
@@ -79,7 +79,14 @@ function setStoreValue(key: SettingsKey, value: boolean | string | number) {
 export function migrateOldSettings() {
     if (Settings.plugins.RichPresence._migrated) return;
 
-    migratePluginSettings("RichPresence", "AudioBookShelfRichPresence", "GensokyoRadioRPC", "JellyfinRichPresence", "StatsfmPresence", "TosuRPC");
+    migratePluginSettings(
+        "RichPresence",
+        "AudioBookShelfRichPresence",
+        "GensokyoRadioRPC",
+        "JellyfinRichPresence",
+        "StatsfmPresence",
+        "TosuRPC"
+    );
 
     for (const migration of migrations) {
         const oldSettings = Settings.plugins[migration.oldPlugin];

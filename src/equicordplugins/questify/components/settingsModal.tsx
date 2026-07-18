@@ -14,19 +14,10 @@ import { setSettingsModalOpen } from "../state";
 export function openQuestifySettingsModal(plugin: Plugin): void {
     setSettingsModalOpen(true);
 
-    openModal(
-        modalProps => (
-            <PluginModal
-                {...modalProps}
-                plugin={plugin}
-                onRestartNeeded={() => { }}
-            />
-        ),
-        {
-            onCloseCallback: () => {
-                setSettingsModalOpen(false);
-                promptToRestartIfDirty();
-            }
+    openModal(modalProps => <PluginModal {...modalProps} plugin={plugin} onRestartNeeded={() => {}} />, {
+        onCloseCallback: () => {
+            setSettingsModalOpen(false);
+            promptToRestartIfDirty();
         }
-    );
+    });
 }

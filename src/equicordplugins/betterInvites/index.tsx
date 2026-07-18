@@ -5,14 +5,14 @@
  */
 
 import "./style.css";
+import { Guild } from "@vencord/discord-types";
+import { findByPropsLazy, findCssClassesLazy } from "@webpack";
 
 import { InfoIcon } from "@components/Icons";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { openUserProfile } from "@utils/discord";
 import { classes } from "@utils/misc";
 import definePlugin, { StartAt } from "@utils/types";
-import { Guild } from "@vencord/discord-types";
-import { findByPropsLazy, findCssClassesLazy } from "@webpack";
 import { Parser, Tooltip, UserStore } from "@webpack/common";
 
 const AvatarStyles = findCssClassesLazy("avatar", "zalgo", "clickable");
@@ -27,13 +27,18 @@ interface User {
 
 function lurk(id: string) {
     GuildManager.joinGuild(id, { lurker: true })
-        .then(() => { GuildManager.transitionToGuildSync(id); })
-        .catch(() => { throw new Error("Guild is not lurkable"); });
+        .then(() => {
+            GuildManager.transitionToGuildSync(id);
+        })
+        .catch(() => {
+            throw new Error("Guild is not lurkable");
+        });
 }
 
 export default definePlugin({
     name: "BetterInvites",
-    description: "See invites expiration date, view inviter profile and preview servers before joining by clicking the name",
+    description:
+        "See invites expiration date, view inviter profile and preview servers before joining by clicking the name",
     tags: ["Appearance", "Customisation", "Chat", "Servers"],
     authors: [EquicordDevs.iamme, Devs.thororen],
     patches: [
@@ -57,28 +62,21 @@ export default definePlugin({
                 {
                     // tip gets inserted in the name container, header gets inserted beside it
                     match: /(:(\i),disableGuildNameClick:.{0,20}\}\),\i)(\]\}\))/,
-                    replace: "$1,$self.RenderTip(arguments[0].invite?.expires_at)$3,$self.Header(arguments[0].invite?.inviter,$2.name)"
+                    replace:
+                        "$1,$self.RenderTip(arguments[0].invite?.expires_at)$3,$self.Header(arguments[0].invite?.inviter,$2.name)"
                 }
             ]
-        },
+        }
     ],
     RenderTip(expires_at: string) {
         if (!expires_at) return null;
         const timestamp = <>{Parser.parse(`<t:${Math.round(new Date(expires_at).getTime() / 1000)}:R>`)}</>;
-        const tooltipText = (
-            <>
-                This invite will {expires_at ? <>expire {timestamp}</> : <>not expire</>}
-            </>
-        );
+        const tooltipText = <>This invite will {expires_at ? <>expire {timestamp}</> : <>not expire</>}</>;
 
         return (
             <Tooltip text={tooltipText}>
                 {({ onMouseEnter, onMouseLeave }) => (
-                    <div
-                        className="vc-bi-tooltip"
-                        onMouseEnter={onMouseEnter}
-                        onMouseLeave={onMouseLeave}
-                    >
+                    <div className="vc-bi-tooltip" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
                         <InfoIcon className="vc-bi-tooltip-icon" />
                     </div>
                 )}
@@ -97,9 +95,11 @@ export default definePlugin({
                     alt=""
                     className={classes(AvatarStyles.avatar, AvatarStyles.clickable) + " vc-bi-inviter-avatar"}
                     onClick={() => openUserProfile(inviter.id)}
-                    src={inviter.avatar
-                        ? `https://cdn.discordapp.com/avatars/${inviter.id}/${inviter.avatar}.webp?size=80`
-                        : "/assets/1f0bfc0865d324c2587920a7d80c609b.png?size=128"}
+                    src={
+                        inviter.avatar
+                            ? `https://cdn.discordapp.com/avatars/${inviter.id}/${inviter.avatar}.webp?size=80`
+                            : "/assets/1f0bfc0865d324c2587920a7d80c609b.png?size=128"
+                    }
                 />
                 <div className="vc-bi-header-text">
                     {isSelf

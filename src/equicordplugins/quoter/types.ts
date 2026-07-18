@@ -55,7 +55,7 @@ export const FONT_SIZES = {
     minimum: 18,
     decrement: 2,
     lineHeightMultiplier: 1.25,
-    authorMultiplier: 0.60,
+    authorMultiplier: 0.6,
     usernameMultiplier: 0.45,
     authorMinimum: 22,
     usernameMinimum: 18,

@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 export const enum IpcEvents {
     INIT_FILE_WATCHERS = "VencordInitFileWatchers",
@@ -55,5 +55,5 @@ export const enum IpcEvents {
     TRAY_REPAIR = "VencordTrayRepair",
     TRAY_CHECK_UPDATES = "VencordTrayCheckUpdates",
     TRAY_ABOUT = "VencordTrayAbout",
-    SUPPORTS_WINDOWS_MATERIAL = "VencordSupportsWindowsMaterial",
+    SUPPORTS_WINDOWS_MATERIAL = "VencordSupportsWindowsMaterial"
 }

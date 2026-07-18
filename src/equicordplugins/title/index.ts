@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findByCodeLazy } from "@webpack";
+
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { findByCodeLazy } from "@webpack";
 
 const flashPageTitle = findByCodeLazy("=>({flashQueue:[...");
 const rootTitle = { base: null as string | null };
@@ -17,8 +18,8 @@ export const settings = definePluginSettings({
         type: OptionType.STRING,
         default: "Equicord",
         description: "Window title prefix",
-        onChange: setTitle,
-    },
+        onChange: setTitle
+    }
 });
 
 function setTitle(v: string) {
@@ -38,14 +39,14 @@ export default definePlugin({
             find: 'isPlatformEmbedded?void 0:"Discord"',
             replacement: {
                 match: /\{base:\i\("?\d+?"?\)\.isPlatformEmbedded\?void 0:"Discord"\}/,
-                replace: "$self.rootTitle",
-            },
-        },
+                replace: "$self.rootTitle"
+            }
+        }
     ],
 
     start() {
         setTitle(settings.store.title);
     },
 
-    rootTitle,
+    rootTitle
 });

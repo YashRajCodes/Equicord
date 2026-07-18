@@ -4,10 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findByPropsLazy } from "@webpack";
+
 import { playAudio } from "@api/AudioPlayer";
 import { classNameFactory } from "@utils/css";
 import { saveFile } from "@utils/web";
-import { findByPropsLazy } from "@webpack";
 
 import settings from "./settings";
 import { Emoji } from "./types";

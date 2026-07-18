@@ -14,7 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { Activity } from "@vencord/discord-types";
+import { ActivityType } from "@vencord/discord-types/enums";
+import { findByCodeLazy, findComponentByCodeLazy } from "@webpack";
 
 import { definePluginSettings } from "@api/Settings";
 import { getUserSettingLazy } from "@api/UserSettings";
@@ -30,9 +34,6 @@ import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useAwaiter } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
-import { Activity } from "@vencord/discord-types";
-import { ActivityType } from "@vencord/discord-types/enums";
-import { findByCodeLazy, findComponentByCodeLazy } from "@webpack";
 import { ApplicationAssetUtils, Button, FluxDispatcher, React, UserStore } from "@webpack/common";
 
 import { RPCSettings } from "./RpcSettings";
@@ -50,14 +51,14 @@ export const enum TimestampMode {
     NONE,
     NOW,
     TIME,
-    CUSTOM,
+    CUSTOM
 }
 
 export const settings = definePluginSettings({
     config: {
         type: OptionType.COMPONENT,
         component: RPCSettings
-    },
+    }
 }).withPrivateSettings<{
     appID?: string;
     appName?: string;
@@ -119,7 +120,7 @@ async function createActivity(): Promise<Activity | undefined> {
         state,
         details,
         type: type ?? ActivityType.PLAYING,
-        flags: 1 << 0,
+        flags: 1 << 0
     };
 
     if (type === ActivityType.STREAMING) activity.url = streamLink;
@@ -132,7 +133,9 @@ async function createActivity(): Promise<Activity | undefined> {
             break;
         case TimestampMode.TIME:
             activity.timestamps = {
-                start: Date.now() - (new Date().getHours() * 3600 + new Date().getMinutes() * 60 + new Date().getSeconds()) * 1000
+                start:
+                    Date.now() -
+                    (new Date().getHours() * 3600 + new Date().getMinutes() * 60 + new Date().getSeconds()) * 1000
             };
             break;
         case TimestampMode.CUSTOM:
@@ -162,16 +165,10 @@ async function createActivity(): Promise<Activity | undefined> {
     }
 
     if (buttonOneText) {
-        activity.buttons = [
-            buttonOneText,
-            buttonTwoText
-        ].filter(isTruthy);
+        activity.buttons = [buttonOneText, buttonTwoText].filter(isTruthy);
 
         activity.metadata = {
-            button_urls: [
-                buttonOneURL,
-                buttonTwoURL
-            ].filter(isTruthy)
+            button_urls: [buttonOneURL, buttonTwoURL].filter(isTruthy)
         };
     }
 
@@ -201,8 +198,7 @@ async function createActivity(): Promise<Activity | undefined> {
     for (const k in activity) {
         if (k === "type") continue;
         const v = activity[k];
-        if (!v || v.length === 0)
-            delete activity[k];
+        if (!v || v.length === 0) delete activity[k];
     }
 
     return activity;
@@ -214,7 +210,7 @@ export async function setRpc(disable?: boolean) {
     FluxDispatcher.dispatch({
         type: "LOCAL_ACTIVITY_UPDATE",
         activity: !disable ? activity : null,
-        socketId: "CustomRPC",
+        socketId: "CustomRPC"
     });
 }
 
@@ -235,7 +231,6 @@ function startTimestampLoop() {
     loopAnchor = Date.now();
 
     loopInterval = setInterval(() => {
-
         if (Date.now() >= loopAnchor + duration) {
             loopAnchor = Date.now();
             setRpc();
@@ -277,24 +272,26 @@ export default definePlugin({
             replacement: {
                 match: /.getId\(\)===\i.id/,
                 replace: "$& && false"
-            },
+            }
         }
     ],
 
     settingsAboutComponent: () => {
-        const [activity] = useAwaiter(createActivity, { fallbackValue: undefined, deps: Object.values(settings.store) });
+        const [activity] = useAwaiter(createActivity, {
+            fallbackValue: undefined,
+            deps: Object.values(settings.store)
+        });
         const gameActivityEnabled = ShowCurrentGame.useSetting();
         const { profileThemeStyle } = useProfileThemeStyle({});
 
         return (
             <>
                 {!gameActivityEnabled && (
-                    <ErrorCard
-                        className={classes(Margins.top16, Margins.bottom16)}
-                        style={{ padding: "1em" }}
-                    >
+                    <ErrorCard className={classes(Margins.top16, Margins.bottom16)} style={{ padding: "1em" }}>
                         <Heading>Notice</Heading>
-                        <Paragraph>Activity Sharing isn't enabled, people won't be able to see your custom rich presence!</Paragraph>
+                        <Paragraph>
+                            Activity Sharing isn't enabled, people won't be able to see your custom rich presence!
+                        </Paragraph>
 
                         <Button
                             color={Button.Colors.TRANSPARENT}
@@ -308,31 +305,43 @@ export default definePlugin({
 
                 <Flex flexDirection="column" gap=".5em" className={Margins.top16}>
                     <Paragraph>
-                        Go to the <Link href="https://discord.com/developers/applications">Discord Developer Portal</Link> to create an application and
-                        get the application ID.
+                        Go to the{" "}
+                        <Link href="https://discord.com/developers/applications">Discord Developer Portal</Link> to
+                        create an application and get the application ID.
                     </Paragraph>
+                    <Paragraph>Upload images in the Rich Presence tab to get the image keys.</Paragraph>
                     <Paragraph>
-                        Upload images in the Rich Presence tab to get the image keys.
-                    </Paragraph>
-                    <Paragraph>
-                        If you want to use an image link, download your image and reupload the image to <Link href="https://imgur.com">Imgur</Link> and get the image link by right-clicking the image and selecting "Copy image address".
+                        If you want to use an image link, download your image and reupload the image to{" "}
+                        <Link href="https://imgur.com">Imgur</Link> and get the image link by right-clicking the image
+                        and selecting "Copy image address".
                     </Paragraph>
                     <Paragraph>
                         You can't see your own buttons on your profile, but everyone else can see it fine.
                     </Paragraph>
                     <Paragraph>
-                        Some weird unicode text ("fonts" 𝖑𝖎𝖐𝖊 𝖙𝖍𝖎𝖘) may cause the rich presence to not show up, try using normal letters instead.
+                        Some weird unicode text ("fonts" 𝖑𝖎𝖐𝖊 𝖙𝖍𝖎𝖘) may cause the rich presence to not show up, try
+                        using normal letters instead.
                     </Paragraph>
                 </Flex>
 
                 <Divider className={Margins.top8} />
 
-                <div style={{ width: "284px", ...profileThemeStyle, marginTop: 8, borderRadius: 8, background: "var(--background-mod-muted)" }}>
-                    {activity && <ActivityView
-                        activity={activity}
-                        user={UserStore.getCurrentUser()}
-                        currentUser={UserStore.getCurrentUser()}
-                    />}
+                <div
+                    style={{
+                        width: "284px",
+                        ...profileThemeStyle,
+                        marginTop: 8,
+                        borderRadius: 8,
+                        background: "var(--background-mod-muted)"
+                    }}
+                >
+                    {activity && (
+                        <ActivityView
+                            activity={activity}
+                            user={UserStore.getCurrentUser()}
+                            currentUser={UserStore.getCurrentUser()}
+                        />
+                    )}
                 </div>
             </>
         );

@@ -14,11 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { ThemeStore } from "@vencord/discord-types";
 
 import { Settings, SettingsStore, type ThemeActivationMode } from "@api/Settings";
 import { createAndAppendStyle } from "@utils/css";
-import { ThemeStore } from "@vencord/discord-types";
 import { PopoutWindowStore } from "@webpack/common";
 
 import { coreStyleRootNode, managedStyleRootNode, userStyleRootNode, vencordRootNode } from "./Styles";
@@ -48,8 +49,7 @@ async function toggle(isEnabled: boolean) {
             });
             style.textContent = await VencordNative.quickCss.get();
         }
-    } else
-        style.disabled = !isEnabled;
+    } else style.disabled = !isEnabled;
 }
 
 async function initThemes() {
@@ -61,9 +61,7 @@ async function initThemes() {
 
     // "darker" and "midnight" both count as dark
     // This function is first called on DOMContentLoaded, so ThemeStore may not have been loaded yet
-    const activeTheme = ThemeStore == null
-        ? undefined
-        : ThemeStore.theme === "light" ? "light" : "dark";
+    const activeTheme = ThemeStore == null ? undefined : ThemeStore.theme === "light" ? "light" : "dark";
 
     const links = new Set<string>();
 
@@ -96,7 +94,9 @@ async function initThemes() {
         }
     }
 
-    themesStyle.textContent = Array.from(links).map(link => `@import url("${link.trim()}");`).join("\n");
+    themesStyle.textContent = Array.from(links)
+        .map(link => `@import url("${link.trim()}");`)
+        .join("\n");
     updatePopoutWindows();
 }
 
@@ -109,10 +109,7 @@ function applyToPopout(popoutWindow: Window | undefined, key: string) {
 
     const clonedRoot = vencordRootNode.cloneNode(false) as HTMLElement;
 
-    clonedRoot.append(
-        coreStyleRootNode.cloneNode(true),
-        managedStyleRootNode.cloneNode(true)
-    );
+    clonedRoot.append(coreStyleRootNode.cloneNode(true), managedStyleRootNode.cloneNode(true));
 
     if (key !== "DISCORD_OutOfProcessOverlay") {
         clonedRoot.append(userStyleRootNode.cloneNode(true));
@@ -129,29 +126,33 @@ function updatePopoutWindows() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    if (IS_USERSCRIPT) return;
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+        if (IS_USERSCRIPT) return;
 
-    initThemes();
+        initThemes();
 
-    toggle(Settings.useQuickCss);
-    SettingsStore.addChangeListener("useQuickCss", toggle);
+        toggle(Settings.useQuickCss);
+        SettingsStore.addChangeListener("useQuickCss", toggle);
 
-    SettingsStore.addChangeListener("enabledThemeLinks", initThemes);
-    SettingsStore.addChangeListener("enabledThemes", initThemes);
-    SettingsStore.addChangeListener("themeActivationModes", initThemes);
+        SettingsStore.addChangeListener("enabledThemeLinks", initThemes);
+        SettingsStore.addChangeListener("enabledThemes", initThemes);
+        SettingsStore.addChangeListener("themeActivationModes", initThemes);
 
-    window.addEventListener("message", event => {
-        const { discordPopoutEvent } = event.data || {};
-        if (discordPopoutEvent?.type !== "loaded") return;
+        window.addEventListener("message", event => {
+            const { discordPopoutEvent } = event.data || {};
+            if (discordPopoutEvent?.type !== "loaded") return;
 
-        applyToPopout(PopoutWindowStore.getWindow(discordPopoutEvent.key), discordPopoutEvent.key);
-    });
+            applyToPopout(PopoutWindowStore.getWindow(discordPopoutEvent.key), discordPopoutEvent.key);
+        });
 
-    if (!IS_WEB) {
-        VencordNative.quickCss.addThemeChangeListener(initThemes);
-    }
-}, { once: true });
+        if (!IS_WEB) {
+            VencordNative.quickCss.addThemeChangeListener(initThemes);
+        }
+    },
+    { once: true }
+);
 
 export function initQuickCssThemeStore(themeStore: ThemeStore) {
     if (IS_USERSCRIPT) return;

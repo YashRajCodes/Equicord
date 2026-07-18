@@ -5,6 +5,8 @@
  */
 
 import "./style.css";
+import { CustomEmoji, UnicodeEmoji } from "@vencord/discord-types";
+import { JSX } from "react";
 
 import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
 import { DataStore } from "@api/index";
@@ -12,9 +14,7 @@ import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { chooseFile, saveFile } from "@utils/web";
-import { CustomEmoji, UnicodeEmoji } from "@vencord/discord-types";
 import { Alerts, Button, EmojiStore, GuildStore, IconUtils, Menu, Toasts, useEffect, useState } from "@webpack/common";
-import { JSX } from "react";
 
 import { ContextMenuEmoji, SavedEmoji, Target } from "./types";
 
@@ -24,7 +24,8 @@ let cache_allowedList: ContextMenuEmoji[] = [];
 const cacheListeners = new Set<() => void>();
 let writeChain: Promise<unknown> = Promise.resolve();
 
-const getAllowedList = async (): Promise<ContextMenuEmoji[]> => (await DataStore.get<ContextMenuEmoji[]>(DATA_COLLECTION_NAME)) ?? [];
+const getAllowedList = async (): Promise<ContextMenuEmoji[]> =>
+    (await DataStore.get<ContextMenuEmoji[]>(DATA_COLLECTION_NAME)) ?? [];
 
 function notifyCacheChange() {
     for (const listener of cacheListeners) listener();
@@ -42,7 +43,7 @@ async function setAllowedList(newList: ContextMenuEmoji[]) {
     notifyCacheChange();
 }
 
-function isItemAllowed(item: (CustomEmoji | UnicodeEmoji)) {
+function isItemAllowed(item: CustomEmoji | UnicodeEmoji) {
     if ("uniqueName" in item) {
         return cache_allowedList.some(emoji => emoji.name === item.uniqueName);
     }
@@ -58,7 +59,7 @@ function buildSaveData(item: ContextMenuEmoji): SavedEmoji {
         type: "emoji",
         id: item.id,
         name: item.name,
-        surrogates: item.surrogates,
+        surrogates: item.surrogates
     };
 
     if (!item.surrogates) {
@@ -88,7 +89,9 @@ function addBulkToAllowedList(items: ContextMenuEmoji[]) {
         const validItemsToAdd = items.filter(item => !itemAlreadyInList(item)).map(buildSaveData);
         await setAllowedList([...cache_allowedList, ...validItemsToAdd]);
 
-        showToast(`Added ${validItemsToAdd.length} emojis to the list, ${items.length - validItemsToAdd.length} already in the list`);
+        showToast(
+            `Added ${validItemsToAdd.length} emojis to the list, ${items.length - validItemsToAdd.length} already in the list`
+        );
     });
 }
 
@@ -125,7 +128,7 @@ function removeFromAllowedList(item: ContextMenuEmoji) {
     });
 }
 
-const expressionPickerPatch: NavContextMenuPatchCallback = (children, { target }: { target: Target; }) => {
+const expressionPickerPatch: NavContextMenuPatchCallback = (children, { target }: { target: Target }) => {
     const { dataset } = target;
 
     if (!dataset) return;
@@ -138,11 +141,14 @@ const expressionPickerPatch: NavContextMenuPatchCallback = (children, { target }
     }
 };
 
-const guildContextPatch: NavContextMenuPatchCallback = (children, { guild }: { guild: { id: string; name: string; }; }) => {
+const guildContextPatch: NavContextMenuPatchCallback = (
+    children,
+    { guild }: { guild: { id: string; name: string } }
+) => {
     children.push(buildGuildContextPatch(guild));
 };
 
-const buildGuildContextPatch = (guild: { id: string; name: string; }) => {
+const buildGuildContextPatch = (guild: { id: string; name: string }) => {
     return (
         <Menu.MenuGroup>
             <Menu.MenuItem
@@ -151,11 +157,13 @@ const buildGuildContextPatch = (guild: { id: string; name: string; }) => {
                 label="Add All Guild Emojis"
                 action={() => {
                     const emojis = EmojiStore.getGuildEmoji(guild.id);
-                    addBulkToAllowedList(emojis.map(emoji => ({
-                        type: "emoji",
-                        id: emoji.id,
-                        name: emoji.name
-                    })));
+                    addBulkToAllowedList(
+                        emojis.map(emoji => ({
+                            type: "emoji",
+                            id: emoji.id,
+                            name: emoji.name
+                        }))
+                    );
                 }}
             />
             <Menu.MenuItem
@@ -164,11 +172,13 @@ const buildGuildContextPatch = (guild: { id: string; name: string; }) => {
                 label="Remove All Guild Emojis"
                 action={() => {
                     const emojis = EmojiStore.getGuildEmoji(guild.id);
-                    removeBulkFromAllowedList(emojis.map(emoji => ({
-                        type: "emoji",
-                        id: emoji.id,
-                        name: emoji.name
-                    })));
+                    removeBulkFromAllowedList(
+                        emojis.map(emoji => ({
+                            type: "emoji",
+                            id: emoji.id,
+                            name: emoji.name
+                        }))
+                    );
                 }}
             />
         </Menu.MenuGroup>
@@ -184,7 +194,7 @@ function buildMenuItems(emoji: ContextMenuEmoji) {
                 id="white-list-emoji"
                 key="white-list-emoji"
                 label={isInList ? "Remove from Whitelist" : "Add to Whitelist"}
-                action={() => isInList ? removeFromAllowedList(emoji) : addToAllowedList(emoji)}
+                action={() => (isInList ? removeFromAllowedList(emoji) : addToAllowedList(emoji))}
             />
         </>
     );
@@ -207,7 +217,9 @@ const WhiteListedEmojisComponent = (): JSX.Element => {
     const handleRemoveEmoji = (emoji: SavedEmoji) => removeFromAllowedList(emoji);
 
     const handleRemoveAllEmojis = (guildId: string) => {
-        const emojisToRemove = whitelistedEmojis.filter(emoji => emoji.guildId === guildId || (guildId === "default" && !emoji.guildId));
+        const emojisToRemove = whitelistedEmojis.filter(
+            emoji => emoji.guildId === guildId || (guildId === "default" && !emoji.guildId)
+        );
         return removeBulkFromAllowedList(emojisToRemove);
     };
 
@@ -218,14 +230,17 @@ const WhiteListedEmojisComponent = (): JSX.Element => {
         }));
     };
 
-    const groupedEmojis = whitelistedEmojis.reduce((groups, emoji) => {
-        const groupKey = emoji.guildId || "default";
-        if (!groups[groupKey]) {
-            groups[groupKey] = [];
-        }
-        groups[groupKey].push(emoji);
-        return groups;
-    }, {} as Record<string, SavedEmoji[]>);
+    const groupedEmojis = whitelistedEmojis.reduce(
+        (groups, emoji) => {
+            const groupKey = emoji.guildId || "default";
+            if (!groups[groupKey]) {
+                groups[groupKey] = [];
+            }
+            groups[groupKey].push(emoji);
+            return groups;
+        },
+        {} as Record<string, SavedEmoji[]>
+    );
 
     return (
         <div className="emoji-container">
@@ -233,7 +248,9 @@ const WhiteListedEmojisComponent = (): JSX.Element => {
                 <div key={guildId} className="guild-section">
                     <div className="guild-header">
                         <h3 className="guild-name" onClick={() => toggleGroupCollapse(guildId)}>
-                            {guildId === "default" ? "Default Emojis" : `${GuildStore.getGuild(guildId)?.name || `Guild ${guildId}`} Emojis`}
+                            {guildId === "default"
+                                ? "Default Emojis"
+                                : `${GuildStore.getGuild(guildId)?.name || `Guild ${guildId}`} Emojis`}
                         </h3>
                         <Button
                             className="remove-all-button"
@@ -255,7 +272,11 @@ const WhiteListedEmojisComponent = (): JSX.Element => {
                                     ) : (
                                         <img
                                             className="emoji-image"
-                                            src={IconUtils.getEmojiURL({ id: emoji.id, animated: !!emoji.animated, size: 64 })}
+                                            src={IconUtils.getEmojiURL({
+                                                id: emoji.id,
+                                                animated: !!emoji.animated,
+                                                size: 64
+                                            })}
                                             alt={emoji.name}
                                         />
                                     )}
@@ -274,9 +295,7 @@ const WhiteListedEmojisComponent = (): JSX.Element => {
                     )}
                 </div>
             ))}
-            {whitelistedEmojis.length === 0 && (
-                <span className="no-emoji-message">No emojis in the whitelist.</span>
-            )}
+            {whitelistedEmojis.length === 0 && <span className="no-emoji-message">No emojis in the whitelist.</span>}
         </div>
     );
 };
@@ -316,24 +335,26 @@ const uploadEmojis = async () => {
     await importEmojis(data);
 };
 
-const importEmojis = (data: string) => withWriteLock(async () => {
-    try {
-        const parsed = JSON.parse(data);
-        if (parsed && typeof parsed === "object" && Array.isArray(parsed.emojis)) {
-            await setAllowedList(parsed.emojis);
-            showToast("Successfully imported emojis");
-        } else {
-            showToast("Invalid JSON data", Toasts.Type.FAILURE);
+const importEmojis = (data: string) =>
+    withWriteLock(async () => {
+        try {
+            const parsed = JSON.parse(data);
+            if (parsed && typeof parsed === "object" && Array.isArray(parsed.emojis)) {
+                await setAllowedList(parsed.emojis);
+                showToast("Successfully imported emojis");
+            } else {
+                showToast("Invalid JSON data", Toasts.Type.FAILURE);
+            }
+        } catch (err) {
+            showToast(`Failed to import emojis: ${err}`, Toasts.Type.FAILURE);
         }
-    } catch (err) {
-        showToast(`Failed to import emojis: ${err}`, Toasts.Type.FAILURE);
-    }
-});
+    });
 
-const resetEmojis = () => withWriteLock(async () => {
-    await setAllowedList([]);
-    showToast("Reset emojis");
-});
+const resetEmojis = () =>
+    withWriteLock(async () => {
+        await setAllowedList([]);
+        showToast("Reset emojis");
+    });
 
 const settings = definePluginSettings({
     defaultEmojis: {
@@ -359,23 +380,24 @@ const settings = definePluginSettings({
     exportEmojis: {
         type: OptionType.COMPONENT,
         description: "Export Emojis",
-        component: () => (
-            <Button onClick={exportEmojis}>Export Emojis</Button>
-        )
+        component: () => <Button onClick={exportEmojis}>Export Emojis</Button>
     },
     importEmojis: {
         type: OptionType.COMPONENT,
         description: "Import Emojis",
         component: () => (
-            <Button onClick={() =>
-                Alerts.show({
-                    title: "Are you sure?",
-                    body: "This will overwrite your current whitelist.",
-                    confirmText: "Import",
-                    confirmColor: Button.Colors.RED,
-                    cancelText: "Cancel",
-                    onConfirm: uploadEmojis
-                })}>
+            <Button
+                onClick={() =>
+                    Alerts.show({
+                        title: "Are you sure?",
+                        body: "This will overwrite your current whitelist.",
+                        confirmText: "Import",
+                        confirmColor: Button.Colors.RED,
+                        cancelText: "Cancel",
+                        onConfirm: uploadEmojis
+                    })
+                }
+            >
                 Import Emojis
             </Button>
         )
@@ -384,15 +406,18 @@ const settings = definePluginSettings({
         type: OptionType.COMPONENT,
         description: "Reset Emojis",
         component: () => (
-            <Button onClick={() =>
-                Alerts.show({
-                    title: "Are you sure?",
-                    body: "This will remove all emojis from your whitelist.",
-                    confirmText: "Reset",
-                    confirmColor: Button.Colors.RED,
-                    cancelText: "Cancel",
-                    onConfirm: resetEmojis
-                })}>
+            <Button
+                onClick={() =>
+                    Alerts.show({
+                        title: "Are you sure?",
+                        body: "This will remove all emojis from your whitelist.",
+                        confirmText: "Reset",
+                        confirmColor: Button.Colors.RED,
+                        cancelText: "Cancel",
+                        onConfirm: resetEmojis
+                    })
+                }
+            >
                 Reset Emojis
             </Button>
         )

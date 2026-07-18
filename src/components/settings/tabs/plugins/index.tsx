@@ -14,9 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./styles.css";
+import { JSX } from "react";
+import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
 
 import * as DataStore from "@api/DataStore";
 import { isPluginEnabled, stopPlugin } from "@api/PluginManager";
@@ -37,10 +39,23 @@ import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useAwaiter, useCleanupEffect, useIntersection } from "@utils/react";
 import { PluginTag, PluginTags } from "@utils/types";
-import { Alerts, ConfirmModal, lodash, openModal, Parser, React, SearchableSelect, Select, TextInput, Toasts, Tooltip, useCallback, useMemo, useRef, useState } from "@webpack/common";
-import { JSX } from "react";
-
-import Plugins, { ExcludedPlugins, PluginMeta } from "~plugins";
+import {
+    Alerts,
+    ConfirmModal,
+    lodash,
+    openModal,
+    Parser,
+    React,
+    SearchableSelect,
+    Select,
+    TextInput,
+    Toasts,
+    Tooltip,
+    useCallback,
+    useMemo,
+    useRef,
+    useState
+} from "@webpack/common";
 
 import { PluginCard } from "./PluginCard";
 import { openWarningModal } from "./PluginModal";
@@ -117,16 +132,15 @@ export const ExcludedReasons: Record<"web" | "discordDesktop" | "vesktop" | "equ
     dev: "Developer version of Equicord"
 };
 
-function ExcludedPluginsList({ search }: { search: string; }) {
+function ExcludedPluginsList({ search }: { search: string }) {
     const matchingExcludedPlugins = search
-        ? Object.entries(ExcludedPlugins)
-            .filter(([name]) => name.toLowerCase().includes(search))
+        ? Object.entries(ExcludedPlugins).filter(([name]) => name.toLowerCase().includes(search))
         : [];
 
     return (
         <Paragraph className={Margins.top16}>
-            {matchingExcludedPlugins.length
-                ? <>
+            {matchingExcludedPlugins.length ? (
+                <>
                     <Paragraph>Are you looking for:</Paragraph>
                     <ul>
                         {matchingExcludedPlugins.map(([name, reason]) => (
@@ -136,8 +150,9 @@ function ExcludedPluginsList({ search }: { search: string; }) {
                         ))}
                     </ul>
                 </>
-                : "No plugins meet the search criteria."
-            }
+            ) : (
+                "No plugins meet the search criteria."
+            )}
         </Paragraph>
     );
 }
@@ -145,7 +160,7 @@ function ExcludedPluginsList({ search }: { search: string; }) {
 export default function PluginSettings() {
     const settings = useSettings();
     const changeRef = useRef<ChangeList<string>>(null);
-    const changes = changeRef.current ??= new ChangeList<string>();
+    const changes = (changeRef.current ??= new ChangeList<string>());
 
     useCleanupEffect(() => {
         return () => {
@@ -197,8 +212,7 @@ export default function PluginSettings() {
         return o;
     }, []);
 
-    const sortedPlugins = useMemo(() => Object.values(Plugins)
-        .sort((a, b) => a.name.localeCompare(b.name)), []);
+    const sortedPlugins = useMemo(() => Object.values(Plugins).sort((a, b) => a.name.localeCompare(b.name)), []);
 
     const hasUserPlugins = useMemo(() => !IS_STANDALONE && Object.values(PluginMeta).some(m => m.userPlugin), []);
 
@@ -207,63 +221,71 @@ export default function PluginSettings() {
     const search = searchValue.value.toLowerCase();
     const onSearch = (query: string) => setSearchValue(prev => ({ ...prev, value: query }));
 
-    const pluginFilter = useCallback((plugin: typeof Plugins[keyof typeof Plugins], newPluginsSet: Set<string> | null) => {
-        const { status, tags } = searchValue;
+    const pluginFilter = useCallback(
+        (plugin: (typeof Plugins)[keyof typeof Plugins], newPluginsSet: Set<string> | null) => {
+            const { status, tags } = searchValue;
 
-        switch (status) {
-            case SearchStatus.DISABLED:
-                if (isPluginEnabled(plugin.name)) return false;
-                break;
-            case SearchStatus.ENABLED:
-                if (!isPluginEnabled(plugin.name)) return false;
-                break;
-            case SearchStatus.EQUICORD:
-                if (!PluginMeta[plugin.name].folderName.startsWith("src/equicordplugins/")) return false;
-                break;
-            case SearchStatus.VENCORD:
-                if (!PluginMeta[plugin.name].folderName.startsWith("src/plugins/")) return false;
-                break;
-            case SearchStatus.NEW:
-                if (!newPluginsSet?.has(plugin.name)) return false;
-                break;
-            case SearchStatus.USER_PLUGINS:
-                if (!PluginMeta[plugin.name]?.userPlugin) return false;
-                break;
-            case SearchStatus.API_PLUGINS:
-                if (!plugin.name.endsWith("API")) return false;
-                break;
-        }
-
-        if (tags.length && tags.some(t => !plugin.tags?.includes(t))) return false;
-
-        if (!search.length) return true;
-
-        return (
-            plugin.name.toLowerCase().includes(search.replace(/\s+/g, "")) ||
-            plugin.name.match(/[A-Z]/g)?.join("").toLowerCase().includes(search) || // acronyms like BF for BetterFolders
-            plugin.description.toLowerCase().includes(search) ||
-            plugin.searchTerms?.some(t => t.toLowerCase().includes(search))
-        );
-    }, [searchValue, search]);
-
-    const [newPluginsSet] = useAwaiter(() => DataStore.get("Vencord_existingPlugins").then((cachedPlugins: Record<string, number> | undefined) => {
-        const now = Date.now() / 1000;
-        const existingTimestamps: Record<string, number> = {};
-        const sortedPluginNames = Object.values(sortedPlugins).map(plugin => plugin.name);
-
-        const newPlugins: string[] = [];
-        for (const { name: p } of sortedPlugins) {
-            const time = existingTimestamps[p] = cachedPlugins?.[p] ?? now;
-            if ((time + 60 * 60 * 24 * 2) > now) {
-                newPlugins.push(p);
+            switch (status) {
+                case SearchStatus.DISABLED:
+                    if (isPluginEnabled(plugin.name)) return false;
+                    break;
+                case SearchStatus.ENABLED:
+                    if (!isPluginEnabled(plugin.name)) return false;
+                    break;
+                case SearchStatus.EQUICORD:
+                    if (!PluginMeta[plugin.name].folderName.startsWith("src/equicordplugins/")) return false;
+                    break;
+                case SearchStatus.VENCORD:
+                    if (!PluginMeta[plugin.name].folderName.startsWith("src/plugins/")) return false;
+                    break;
+                case SearchStatus.NEW:
+                    if (!newPluginsSet?.has(plugin.name)) return false;
+                    break;
+                case SearchStatus.USER_PLUGINS:
+                    if (!PluginMeta[plugin.name]?.userPlugin) return false;
+                    break;
+                case SearchStatus.API_PLUGINS:
+                    if (!plugin.name.endsWith("API")) return false;
+                    break;
             }
-        }
-        DataStore.set("Vencord_existingPlugins", existingTimestamps);
 
-        return lodash.isEqual(newPlugins, sortedPluginNames) ? null : new Set(newPlugins);
-    }));
+            if (tags.length && tags.some(t => !plugin.tags?.includes(t))) return false;
 
-    const handleRestartNeeded = useCallback((name: string, key: string) => changes.handleChange(`${name}:${key}`), [changes]);
+            if (!search.length) return true;
+
+            return (
+                plugin.name.toLowerCase().includes(search.replace(/\s+/g, "")) ||
+                plugin.name.match(/[A-Z]/g)?.join("").toLowerCase().includes(search) || // acronyms like BF for BetterFolders
+                plugin.description.toLowerCase().includes(search) ||
+                plugin.searchTerms?.some(t => t.toLowerCase().includes(search))
+            );
+        },
+        [searchValue, search]
+    );
+
+    const [newPluginsSet] = useAwaiter(() =>
+        DataStore.get("Vencord_existingPlugins").then((cachedPlugins: Record<string, number> | undefined) => {
+            const now = Date.now() / 1000;
+            const existingTimestamps: Record<string, number> = {};
+            const sortedPluginNames = Object.values(sortedPlugins).map(plugin => plugin.name);
+
+            const newPlugins: string[] = [];
+            for (const { name: p } of sortedPlugins) {
+                const time = (existingTimestamps[p] = cachedPlugins?.[p] ?? now);
+                if (time + 60 * 60 * 24 * 2 > now) {
+                    newPlugins.push(p);
+                }
+            }
+            DataStore.set("Vencord_existingPlugins", existingTimestamps);
+
+            return lodash.isEqual(newPlugins, sortedPluginNames) ? null : new Set(newPlugins);
+        })
+    );
+
+    const handleRestartNeeded = useCallback(
+        (name: string, key: string) => changes.handleChange(`${name}:${key}`),
+        [changes]
+    );
 
     const { plugins, requiredPlugins } = useMemo(() => {
         const plugins = [] as JSX.Element[];
@@ -271,17 +293,19 @@ export default function PluginSettings() {
 
         const showApi = searchValue.status === SearchStatus.API_PLUGINS;
         for (const p of sortedPlugins) {
-            if (p.hidden || (!p.settings?.def && p.name.endsWith("API") && !showApi))
-                continue;
+            if (p.hidden || (!p.settings?.def && p.name.endsWith("API") && !showApi)) continue;
 
             if (!pluginFilter(p, newPluginsSet)) continue;
 
             const isRequired = p.required || p.isDependency || depMap[p.name]?.some(d => settings.plugins[d].enabled);
 
             if (isRequired) {
-                const tooltipText = p.required || !depMap[p.name]
-                    ? "This plugin is required for Equicord to function."
-                    : <PluginDependencyList deps={depMap[p.name]?.filter(d => settings.plugins[d].enabled)} />;
+                const tooltipText =
+                    p.required || !depMap[p.name] ? (
+                        "This plugin is required for Equicord to function."
+                    ) : (
+                        <PluginDependencyList deps={depMap[p.name]?.filter(d => settings.plugins[d].enabled)} />
+                    );
 
                 requiredPlugins.push(
                     <Tooltip text={tooltipText} key={p.name}>
@@ -352,18 +376,19 @@ export default function PluginSettings() {
     }
 
     // Code directly taken from supportHelper.tsx
-    const { totalStockPlugins, totalUserPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins } = useMemo(() => {
-        const isApiPlugin = (plugin: string) => plugin.endsWith("API") || Plugins[plugin].required;
+    const { totalStockPlugins, totalUserPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins } =
+        useMemo(() => {
+            const isApiPlugin = (plugin: string) => plugin.endsWith("API") || Plugins[plugin].required;
 
-        const totalPlugins = Object.keys(Plugins).filter(p => !isApiPlugin(p));
-        const enabledPlugins = Object.keys(Plugins).filter(p => isPluginEnabled(p) && !isApiPlugin(p));
+            const totalPlugins = Object.keys(Plugins).filter(p => !isApiPlugin(p));
+            const enabledPlugins = Object.keys(Plugins).filter(p => isPluginEnabled(p) && !isApiPlugin(p));
 
-        const totalStockPlugins = totalPlugins.filter(p => !PluginMeta[p].userPlugin && !Plugins[p].hidden).length;
-        const totalUserPlugins = totalPlugins.filter(p => PluginMeta[p].userPlugin).length;
-        const enabledStockPlugins = enabledPlugins.filter(p => !PluginMeta[p].userPlugin).length;
-        const enabledUserPlugins = enabledPlugins.filter(p => PluginMeta[p].userPlugin).length;
-        return { totalStockPlugins, totalUserPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins };
-    }, [settings.plugins]);
+            const totalStockPlugins = totalPlugins.filter(p => !PluginMeta[p].userPlugin && !Plugins[p].hidden).length;
+            const totalUserPlugins = totalPlugins.filter(p => PluginMeta[p].userPlugin).length;
+            const enabledStockPlugins = enabledPlugins.filter(p => !PluginMeta[p].userPlugin).length;
+            const enabledUserPlugins = enabledPlugins.filter(p => PluginMeta[p].userPlugin).length;
+            return { totalStockPlugins, totalUserPlugins, enabledStockPlugins, enabledUserPlugins, enabledPlugins };
+        }, [settings.plugins]);
     const pluginsToLoad = Math.min(36, plugins.length);
     const [visibleCount, setVisibleCount] = React.useState(pluginsToLoad);
     const loadMore = React.useCallback(() => {
@@ -383,26 +408,23 @@ export default function PluginSettings() {
 
     return (
         <SettingsTab>
-            <ReloadRequiredCard required={changes.hasChanges} enabledPlugins={enabledPlugins} openWarningModal={openWarningModal} resetCheckAndDo={resetCheckAndDo} />
+            <ReloadRequiredCard
+                required={changes.hasChanges}
+                enabledPlugins={enabledPlugins}
+                openWarningModal={openWarningModal}
+                resetCheckAndDo={resetCheckAndDo}
+            />
 
             <div className={cl("stats-container")}>
-                <StockPluginsCard
-                    totalStockPlugins={totalStockPlugins}
-                    enabledStockPlugins={enabledStockPlugins}
-                />
-                <UserPluginsCard
-                    totalUserPlugins={totalUserPlugins}
-                    enabledUserPlugins={enabledUserPlugins}
-                />
+                <StockPluginsCard totalStockPlugins={totalStockPlugins} enabledStockPlugins={enabledStockPlugins} />
+                <UserPluginsCard totalUserPlugins={totalUserPlugins} enabledUserPlugins={enabledUserPlugins} />
             </div>
 
             <div className={cl("ui-elements")}>
                 <UIElementsButton />
             </div>
 
-            <HeadingTertiary className={classes(Margins.top20, Margins.bottom8)}>
-                Filters
-            </HeadingTertiary>
+            <HeadingTertiary className={classes(Margins.top20, Margins.bottom8)}>Filters</HeadingTertiary>
 
             <ErrorBoundary noop>
                 <TextInput
@@ -425,7 +447,7 @@ export default function PluginSettings() {
                             { label: "Show Vencord", value: SearchStatus.VENCORD },
                             { label: "Show New", value: SearchStatus.NEW },
                             hasUserPlugins && { label: "Show UserPlugins", value: SearchStatus.USER_PLUGINS },
-                            { label: "Show API Plugins", value: SearchStatus.API_PLUGINS },
+                            { label: "Show API Plugins", value: SearchStatus.API_PLUGINS }
                         ].filter(isTruthy)}
                         serialize={String}
                         select={status => setSearchValue(prev => ({ ...prev, status }))}
@@ -446,44 +468,41 @@ export default function PluginSettings() {
 
             <HeadingTertiary className={Margins.top20}>Plugins</HeadingTertiary>
 
-            {plugins.length || requiredPlugins.length
-                ? (
-                    <>
-                        <div className={cl("grid")}>
-                            {visiblePlugins.length
-                                ? visiblePlugins
-                                : <Paragraph>No plugins meet the search criteria.</Paragraph>
-                            }
-                        </div>
-                        {visibleCount < plugins.length && (
-                            <div ref={sentinelRef} style={{ height: 32 }} />
+            {plugins.length || requiredPlugins.length ? (
+                <>
+                    <div className={cl("grid")}>
+                        {visiblePlugins.length ? (
+                            visiblePlugins
+                        ) : (
+                            <Paragraph>No plugins meet the search criteria.</Paragraph>
                         )}
-                    </>
-                )
-                : <ExcludedPluginsList search={search} />
-            }
+                    </div>
+                    {visibleCount < plugins.length && <div ref={sentinelRef} style={{ height: 32 }} />}
+                </>
+            ) : (
+                <ExcludedPluginsList search={search} />
+            )}
 
             <Divider className={Margins.top20} />
 
-            <HeadingTertiary className={classes(Margins.top20, Margins.bottom8)}>
-                Required Plugins
-            </HeadingTertiary>
+            <HeadingTertiary className={classes(Margins.top20, Margins.bottom8)}>Required Plugins</HeadingTertiary>
 
             <div className={cl("grid")}>
-                {requiredPlugins.length
-                    ? requiredPlugins
-                    : <Paragraph>No plugins meet the search criteria.</Paragraph>
-                }
+                {requiredPlugins.length ? requiredPlugins : <Paragraph>No plugins meet the search criteria.</Paragraph>}
             </div>
-        </SettingsTab >
+        </SettingsTab>
     );
 }
 
-export function PluginDependencyList({ deps }: { deps: string[]; }) {
+export function PluginDependencyList({ deps }: { deps: string[] }) {
     return (
         <>
             <Paragraph>This plugin is required by:</Paragraph>
-            {deps.map((dep: string) => <Paragraph key={dep} className={cl("dep-text")}>{dep}</Paragraph>)}
+            {deps.map((dep: string) => (
+                <Paragraph key={dep} className={cl("dep-text")}>
+                    {dep}
+                </Paragraph>
+            ))}
         </>
     );
 }

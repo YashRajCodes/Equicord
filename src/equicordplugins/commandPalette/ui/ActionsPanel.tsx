@@ -19,7 +19,13 @@ interface ActionsPanelProps {
     onRun(action: PaletteAction): void;
 }
 
-function PanelRow({ action, selected, index, onSelect, onRun }: {
+function PanelRow({
+    action,
+    selected,
+    index,
+    onSelect,
+    onRun
+}: {
     action: PaletteAction;
     selected: boolean;
     index: number;
@@ -36,11 +42,16 @@ function PanelRow({ action, selected, index, onSelect, onRun }: {
         <div
             ref={ref}
             className={cl("panel-row", { "panel-row-selected": selected })}
-            onMouseMove={() => { if (!selected) onSelect(index); }}
+            onMouseMove={() => {
+                if (!selected) onSelect(index);
+            }}
             onClick={() => onRun(action)}
         >
             <div className={cl("chip-wrap", "chip-wrap-sm")}>
-                <PaletteIcon icon={action.icon} className={typeof action.icon === "string" ? cl("chip-img") : cl("panel-icon")} />
+                <PaletteIcon
+                    icon={action.icon}
+                    className={typeof action.icon === "string" ? cl("chip-img") : cl("panel-icon")}
+                />
             </div>
             <span className={cl("panel-label")}>{action.label}</span>
         </div>

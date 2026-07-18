@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { User } from "@vencord/discord-types";
+import { findComponentByCodeLazy } from "@webpack";
+
 import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -11,8 +14,6 @@ import alwaysExpandProfiles from "@equicordplugins/alwaysExpandProfiles";
 import { Devs } from "@utils/constants";
 import { fetchUserProfile, getCurrentChannel, openUserProfile } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
-import { User } from "@vencord/discord-types";
-import { findComponentByCodeLazy } from "@webpack";
 import { ContextMenuApi, Menu, useEffect, UserStore } from "@webpack/common";
 
 interface UserProfileProps {
@@ -25,38 +26,42 @@ const UserProfile = findComponentByCodeLazy(".isNonUserBot()?", ",onClickContain
 let openAlternatePopout = false;
 let accountPanelRef: React.RefObject<HTMLDivElement | null> = { current: null };
 
-const AccountPanelContextMenu = ErrorBoundary.wrap(() => {
-    const { prioritizeServerProfile } = settings.use(["prioritizeServerProfile"]);
+const AccountPanelContextMenu = ErrorBoundary.wrap(
+    () => {
+        const { prioritizeServerProfile } = settings.use(["prioritizeServerProfile"]);
 
-    return (
-        <Menu.Menu
-            navId="vc-ap-server-profile"
-            onClose={ContextMenuApi.closeContextMenu}
-        >
-            <Menu.MenuItem
-                id="vc-ap-view-alternate-popout"
-                label={prioritizeServerProfile ? "View Account Profile" : "View Server Profile"}
-                disabled={getCurrentChannel()?.getGuildId() == null}
-                action={async e => {
-                    if (isPluginEnabled(alwaysExpandProfiles.name)) {
-                        const user = await fetchUserProfile(UserStore.getCurrentUser().id, {
-                            guild_id: prioritizeServerProfile ? undefined : getCurrentChannel()?.getGuildId()
-                        }, false);
-                        return openUserProfile(user!.userId);
-                    }
-                    openAlternatePopout = true;
-                    accountPanelRef.current?.click();
-                }}
-            />
-            <Menu.MenuCheckboxItem
-                id="vc-ap-prioritize-server-profile"
-                label="Prioritize Server Profile"
-                checked={prioritizeServerProfile}
-                action={() => settings.store.prioritizeServerProfile = !prioritizeServerProfile}
-            />
-        </Menu.Menu>
-    );
-}, { noop: true });
+        return (
+            <Menu.Menu navId="vc-ap-server-profile" onClose={ContextMenuApi.closeContextMenu}>
+                <Menu.MenuItem
+                    id="vc-ap-view-alternate-popout"
+                    label={prioritizeServerProfile ? "View Account Profile" : "View Server Profile"}
+                    disabled={getCurrentChannel()?.getGuildId() == null}
+                    action={async e => {
+                        if (isPluginEnabled(alwaysExpandProfiles.name)) {
+                            const user = await fetchUserProfile(
+                                UserStore.getCurrentUser().id,
+                                {
+                                    guild_id: prioritizeServerProfile ? undefined : getCurrentChannel()?.getGuildId()
+                                },
+                                false
+                            );
+                            return openUserProfile(user!.userId);
+                        }
+                        openAlternatePopout = true;
+                        accountPanelRef.current?.click();
+                    }}
+                />
+                <Menu.MenuCheckboxItem
+                    id="vc-ap-prioritize-server-profile"
+                    label="Prioritize Server Profile"
+                    checked={prioritizeServerProfile}
+                    action={() => (settings.store.prioritizeServerProfile = !prioritizeServerProfile)}
+                />
+            </Menu.Menu>
+        );
+    },
+    { noop: true }
+);
 
 const settings = definePluginSettings({
     prioritizeServerProfile: {
@@ -80,7 +85,8 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(\.AVATAR,children:.+?renderPopout:\((\i),\i\)=>)\{(.+?)\}(?=,position)(?<=currentUser:(\i).+?)/,
-                    replace: (_, rest, popoutProps, originalPopout, currentUser) => `${rest}$self.UserProfile({popoutProps:${popoutProps},currentUser:${currentUser},originalRenderPopout:()=>{${originalPopout}}})`
+                    replace: (_, rest, popoutProps, originalPopout, currentUser) =>
+                        `${rest}$self.UserProfile({popoutProps:${popoutProps},currentUser:${currentUser},originalRenderPopout:()=>{${originalPopout}}})`
                 },
                 {
                     match: /\.AVATAR,children:.+?onRequestClose:\(\)=>\{/,
@@ -111,36 +117,53 @@ export default definePlugin({
         openAlternatePopout = false;
     },
 
-    UserProfile: ErrorBoundary.wrap(({ popoutProps, currentUser, originalRenderPopout }: UserProfileProps) => {
-        if (
-            (settings.store.prioritizeServerProfile && openAlternatePopout) ||
-            (!settings.store.prioritizeServerProfile && !openAlternatePopout)
-        ) {
-            return originalRenderPopout();
-        }
+    UserProfile: ErrorBoundary.wrap(
+        ({ popoutProps, currentUser, originalRenderPopout }: UserProfileProps) => {
+            if (
+                (settings.store.prioritizeServerProfile && openAlternatePopout) ||
+                (!settings.store.prioritizeServerProfile && !openAlternatePopout)
+            ) {
+                return originalRenderPopout();
+            }
 
-        const currentChannel = getCurrentChannel();
-        if (currentChannel?.getGuildId() == null || !UserProfile.$$vencordGetWrappedComponent()) {
-            return originalRenderPopout();
-        }
+            const currentChannel = getCurrentChannel();
+            if (currentChannel?.getGuildId() == null || !UserProfile.$$vencordGetWrappedComponent()) {
+                return originalRenderPopout();
+            }
 
-        if (isPluginEnabled(alwaysExpandProfiles.name)) {
-            return <ServerProfileLauncher popoutProps={popoutProps} userId={currentUser.id} guildId={currentChannel.getGuildId()!} />;
-        }
+            if (isPluginEnabled(alwaysExpandProfiles.name)) {
+                return (
+                    <ServerProfileLauncher
+                        popoutProps={popoutProps}
+                        userId={currentUser.id}
+                        guildId={currentChannel.getGuildId()!}
+                    />
+                );
+            }
 
-        return (
-            <UserProfile
-                {...popoutProps}
-                user={currentUser}
-                currentUser={currentUser}
-                guildId={currentChannel.getGuildId()}
-                channelId={currentChannel.id}
-            />
-        );
-    }, { noop: true })
+            return (
+                <UserProfile
+                    {...popoutProps}
+                    user={currentUser}
+                    currentUser={currentUser}
+                    guildId={currentChannel.getGuildId()}
+                    channelId={currentChannel.id}
+                />
+            );
+        },
+        { noop: true }
+    )
 });
 
-function ServerProfileLauncher({ popoutProps, userId, guildId }: { popoutProps: Record<string, any>; userId: string; guildId: string; }) {
+function ServerProfileLauncher({
+    popoutProps,
+    userId,
+    guildId
+}: {
+    popoutProps: Record<string, any>;
+    userId: string;
+    guildId: string;
+}) {
     useEffect(() => {
         popoutProps.closePopout?.();
         popoutProps.onRequestClose?.();

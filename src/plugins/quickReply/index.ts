@@ -14,7 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { Message } from "@vencord/discord-types";
+import { MessageFlags } from "@vencord/discord-types/enums";
 
 import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings } from "@api/Settings";
@@ -22,9 +25,19 @@ import NoBlockedMessagesPlugin from "@plugins/noBlockedMessages";
 import NoReplyMentionPlugin from "@plugins/noReplyMention";
 import { Devs, IS_MAC } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { Message } from "@vencord/discord-types";
-import { MessageFlags } from "@vencord/discord-types/enums";
-import { ChannelStore, ComponentDispatch, FluxDispatcher as Dispatcher, MessageActions, MessageStore, MessageTypeSets, PermissionsBits, PermissionStore, RelationshipStore, SelectedChannelStore, UserStore } from "@webpack/common";
+import {
+    ChannelStore,
+    ComponentDispatch,
+    FluxDispatcher as Dispatcher,
+    MessageActions,
+    MessageStore,
+    MessageTypeSets,
+    PermissionsBits,
+    PermissionStore,
+    RelationshipStore,
+    SelectedChannelStore,
+    UserStore
+} from "@webpack/common";
 
 let currentlyReplyingId: string | null = null;
 let currentlyEditingId: string | null = null;
@@ -46,7 +59,7 @@ const settings = definePluginSettings({
                 default: true
             },
             { label: "Enabled", value: MentionOptions.ENABLED },
-            { label: "Disabled", value: MentionOptions.DISABLED },
+            { label: "Disabled", value: MentionOptions.DISABLED }
         ]
     },
     ignoreBlockedAndIgnored: {
@@ -92,13 +105,13 @@ function onStartEdit({ messageId, _isQuickEdit }: any) {
     currentlyEditingId = messageId;
 }
 
-function onCreatePendingReply({ message, _isQuickReply }: { message: Message; _isQuickReply: boolean; }) {
+function onCreatePendingReply({ message, _isQuickReply }: { message: Message; _isQuickReply: boolean }) {
     if (_isQuickReply) return;
 
     currentlyReplyingId = message.id;
 }
 
-const isCtrl = (e: KeyboardEvent) => IS_MAC ? e.metaKey : e.ctrlKey;
+const isCtrl = (e: KeyboardEvent) => (IS_MAC ? e.metaKey : e.ctrlKey);
 const isAltOrMeta = (e: KeyboardEvent) => e.altKey || (!IS_MAC && e.metaKey);
 
 function onKeydown(e: KeyboardEvent) {
@@ -108,10 +121,8 @@ function onKeydown(e: KeyboardEvent) {
 
     e.preventDefault();
 
-    if (e.shiftKey)
-        nextEdit(isUp);
-    else
-        nextReply(isUp);
+    if (e.shiftKey) nextEdit(isUp);
+    else nextReply(isUp);
 }
 
 function jumpIfOffScreen(channelId: string, messageId: string) {
@@ -191,7 +202,7 @@ function nextReply(isUp: boolean) {
     if (!message) {
         return void Dispatcher.dispatch({
             type: "DELETE_PENDING_REPLY",
-            channelId: SelectedChannelStore.getChannelId(),
+            channelId: SelectedChannelStore.getChannelId()
         });
     }
 

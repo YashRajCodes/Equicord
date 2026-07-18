@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { Notice } from "@components/Notice";
 import { EquicordDevs } from "@utils/constants";
@@ -22,13 +22,12 @@ import definePlugin from "@utils/types";
 
 export default definePlugin({
     name: "NeverPausePreviews",
-    description: "Prevents in-call/PiP previews (screenshare, streams, etc) from pausing even if the client loses focus",
+    description:
+        "Prevents in-call/PiP previews (screenshare, streams, etc) from pausing even if the client loses focus",
     tags: ["Media"],
     authors: [EquicordDevs.vappstar],
     settingsAboutComponent: () => (
-        <Notice.Warning>
-            This plugin will cause discord to use more resources than normal
-        </Notice.Warning>
+        <Notice.Warning>This plugin will cause discord to use more resources than normal</Notice.Warning>
     ),
     patches: [
         {
@@ -45,5 +44,5 @@ export default definePlugin({
                 replace: "true"
             }
         }
-    ],
+    ]
 });

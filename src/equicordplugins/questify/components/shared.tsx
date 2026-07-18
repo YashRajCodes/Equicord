@@ -4,16 +4,17 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findComponentByCodeLazy } from "@webpack";
+import type { ComponentProps, ComponentType, JSX, ReactNode } from "react";
+
 import { Card } from "@components/Card";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
-import { findComponentByCodeLazy } from "@webpack";
 import { ColorPicker, Slider } from "@webpack/common";
-import type { ComponentProps, ComponentType, JSX, ReactNode } from "react";
 
 import { q } from "../utils/ui";
 
-export function SettingsCard({ children }: { children: ReactNode; }): JSX.Element {
+export function SettingsCard({ children }: { children: ReactNode }): JSX.Element {
     return (
         <Card variant="primary" className={q("setting")}>
             {children}
@@ -21,53 +22,50 @@ export function SettingsCard({ children }: { children: ReactNode; }): JSX.Elemen
     );
 }
 
-export function SettingsHeader({ children }: { children: ReactNode; }): JSX.Element {
-    return (
-        <Heading className={q("setting-header")}>
-            {children}
-        </Heading>
-    );
+export function SettingsHeader({ children }: { children: ReactNode }): JSX.Element {
+    return <Heading className={q("setting-header")}>{children}</Heading>;
 }
 
-export function SettingsSubheader({ children, className }: { children: ReactNode; className?: string | string[]; }): JSX.Element {
-    return (
-        <Heading className={q("setting-subheader", className)}>
-            {children}
-        </Heading>
-    );
+export function SettingsSubheader({
+    children,
+    className
+}: {
+    children: ReactNode;
+    className?: string | string[];
+}): JSX.Element {
+    return <Heading className={q("setting-subheader", className)}>{children}</Heading>;
 }
 
-export function SettingsDescription({ children }: { children: ReactNode; }): JSX.Element {
-    return (
-        <Paragraph className={q("setting-description")}>
-            {children}
-        </Paragraph>
-    );
+export function SettingsDescription({ children }: { children: ReactNode }): JSX.Element {
+    return <Paragraph className={q("setting-description")}>{children}</Paragraph>;
 }
 
-export function SettingsParagraph({ children, className }: { children: ReactNode; className?: string | string[]; }): JSX.Element {
-    return (
-        <Paragraph className={q("setting-paragraph", className)}>
-            {children}
-        </Paragraph>
-    );
+export function SettingsParagraph({
+    children,
+    className
+}: {
+    children: ReactNode;
+    className?: string | string[];
+}): JSX.Element {
+    return <Paragraph className={q("setting-paragraph", className)}>{children}</Paragraph>;
 }
 
 function withDimmedClass(className: string | string[] | undefined, dimmed: boolean): string | string[] | undefined {
     if (!dimmed) return className;
 
-    return [
-        ...(Array.isArray(className) ? className : [className]),
-        "dimmed-settings-item",
-    ].filter(c => c !== undefined);
+    return [...(Array.isArray(className) ? className : [className]), "dimmed-settings-item"].filter(
+        c => c !== undefined
+    );
 }
 
-export function SettingsNotice({ children, className }: { children: ReactNode; className?: string | string[]; }): JSX.Element {
-    return (
-        <Paragraph className={q("notice-card", className)}>
-            {children}
-        </Paragraph>
-    );
+export function SettingsNotice({
+    children,
+    className
+}: {
+    children: ReactNode;
+    className?: string | string[];
+}): JSX.Element {
+    return <Paragraph className={q("notice-card", className)}>{children}</Paragraph>;
 }
 
 export interface SettingsRowProps {
@@ -76,11 +74,7 @@ export interface SettingsRowProps {
 }
 
 export function SettingsRow({ children, className }: SettingsRowProps): JSX.Element {
-    return (
-        <div className={q("settings-row", className)}>
-            {children}
-        </div>
-    );
+    return <div className={q("settings-row", className)}>{children}</div>;
 }
 
 export interface SettingsRowItemProps {
@@ -89,17 +83,11 @@ export interface SettingsRowItemProps {
     width?: "fill" | "content";
 }
 
-export function SettingsRowItem({
-    children,
-    className,
-    width = "fill",
-}: SettingsRowItemProps): JSX.Element {
+export function SettingsRowItem({ children, className, width = "fill" }: SettingsRowItemProps): JSX.Element {
     return (
-        <div className={q(
-            "settings-row-item",
-            width === "content" ? "settings-row-item-content" : undefined,
-            className,
-        )}>
+        <div
+            className={q("settings-row-item", width === "content" ? "settings-row-item-content" : undefined, className)}
+        >
             {children}
         </div>
     );
@@ -141,14 +129,16 @@ export interface ManaSelectProps {
     required?: boolean;
 }
 
-export const ManaSelect = findComponentByCodeLazy('"data-mana-component":"select"') as React.ComponentType<ManaSelectProps>;
+export const ManaSelect = findComponentByCodeLazy(
+    '"data-mana-component":"select"'
+) as React.ComponentType<ManaSelectProps>;
 
 export interface SettingsSelectProps extends Omit<ManaSelectProps, "label"> {
     label: ReactNode;
     className?: string | string[];
     labelClassName?: string | string[];
     selectClassName?: string | string[];
-    tooltip?: { position: "top" | "bottom", text: string; wider?: boolean; };
+    tooltip?: { position: "top" | "bottom"; text: string; wider?: boolean };
 }
 
 export function SettingsSelect({
@@ -203,7 +193,11 @@ export function SettingsColorPicker({
 }: SettingsColorPickerProps): JSX.Element {
     return (
         <>
-            {label != null && <SettingsParagraph className={withDimmedClass(labelClassName, !!props.disabled)}>{label}</SettingsParagraph>}
+            {label != null && (
+                <SettingsParagraph className={withDimmedClass(labelClassName, !!props.disabled)}>
+                    {label}
+                </SettingsParagraph>
+            )}
             <div className={q("settings-color-picker", className)}>
                 <ColorPickerWithOnClose {...props} />
             </div>
@@ -232,7 +226,7 @@ export function SettingsSlider({
     minValue = 0,
     onChange,
     sliderClassName,
-    value,
+    value
 }: SettingsSliderProps): JSX.Element {
     return (
         <div className={q("settings-slider", className)}>
@@ -263,28 +257,36 @@ interface SettingsSwitchLayoutProps extends SwitchWithLabelProps {
     bottomSpacing?: "5" | "10" | "15";
     topSpacing?: "5" | "10" | "15";
     className?: string | string[];
-    tooltip?: { position: "top" | "bottom", text: string; };
+    tooltip?: { position: "top" | "bottom"; text: string };
 }
 
-const SwitchWithLabel = findComponentByCodeLazy('auxiliaryContentPosition:"under-label"') as React.ComponentType<SwitchWithLabelProps>;
+const SwitchWithLabel = findComponentByCodeLazy(
+    'auxiliaryContentPosition:"under-label"'
+) as React.ComponentType<SwitchWithLabelProps>;
 
 export type SettingsSubtleSwitchProps = Omit<SettingsSwitchLayoutProps, "description">;
 
 export function SettingsSubtleSwitch(props: SettingsSubtleSwitchProps): JSX.Element {
     const switchElement = (
-        <div className={q(
-            "setting-subtle-switch",
-            props.topSpacing ? `margin-top-${props.topSpacing}` : undefined,
-            props.bottomSpacing ? `margin-bottom-${props.bottomSpacing}` : undefined,
-            withDimmedClass(props.className, !!props.disabled)
-        )}>
+        <div
+            className={q(
+                "setting-subtle-switch",
+                props.topSpacing ? `margin-top-${props.topSpacing}` : undefined,
+                props.bottomSpacing ? `margin-bottom-${props.bottomSpacing}` : undefined,
+                withDimmedClass(props.className, !!props.disabled)
+            )}
+        >
             <SwitchWithLabel {...props} />
         </div>
     );
 
     if (props.tooltip) {
         return (
-            <SettingsTooltip text={props.tooltip.text} aria-label={props.tooltip.text} position={props.tooltip.position}>
+            <SettingsTooltip
+                text={props.tooltip.text}
+                aria-label={props.tooltip.text}
+                position={props.tooltip.position}
+            >
                 {switchElement}
             </SettingsTooltip>
         );
@@ -294,13 +296,13 @@ export function SettingsSubtleSwitch(props: SettingsSubtleSwitchProps): JSX.Elem
 }
 
 export const TooltipPositions = ["top", "bottom", "left", "right"] as const;
-export type TooltipPosition = typeof TooltipPositions[number];
+export type TooltipPosition = (typeof TooltipPositions)[number];
 
 export const TooltipAligns = ["start", "center", "end"] as const;
-export type TooltipAlign = typeof TooltipAligns[number];
+export type TooltipAlign = (typeof TooltipAligns)[number];
 
 export const TooltipColors = ["primary", "grey", "brand", "green", "red"] as const;
-export type TooltipColor = typeof TooltipColors[number];
+export type TooltipColor = (typeof TooltipColors)[number];
 
 export interface ManaTooltipProps {
     text: string | (() => React.ReactNode);
@@ -329,7 +331,9 @@ export interface ManaTooltipProps {
     children: (props: Record<string, any>) => React.ReactNode;
 }
 
-export const ManaTooltip = findComponentByCodeLazy("VoidTooltip cannot find DOM node") as React.ComponentType<ManaTooltipProps>;
+export const ManaTooltip = findComponentByCodeLazy(
+    "VoidTooltip cannot find DOM node"
+) as React.ComponentType<ManaTooltipProps>;
 
 function SettingsTooltip({
     children,
@@ -362,11 +366,20 @@ function SettingsTooltip({
     );
 }
 
-export const ManaButtonVariants = ["primary", "secondary", "critical-primary", "critical-secondary", "active", "overlay-primary", "overlay-secondary", "expressive"] as const;
-export type ManaButtonVariant = typeof ManaButtonVariants[number];
+export const ManaButtonVariants = [
+    "primary",
+    "secondary",
+    "critical-primary",
+    "critical-secondary",
+    "active",
+    "overlay-primary",
+    "overlay-secondary",
+    "expressive"
+] as const;
+export type ManaButtonVariant = (typeof ManaButtonVariants)[number];
 
 export const ManaButtonSizes = ["xs", "sm", "md"] as const;
-export type ManaButtonSize = typeof ManaButtonSizes[number];
+export type ManaButtonSize = (typeof ManaButtonSizes)[number];
 
 export interface ManaButtonProps {
     text?: string;
@@ -378,4 +391,6 @@ export interface ManaButtonProps {
     style?: React.CSSProperties;
 }
 
-export const ManaButton = findComponentByCodeLazy('"data-mana-component":"button"') as React.ComponentType<ManaButtonProps>;
+export const ManaButton = findComponentByCodeLazy(
+    '"data-mana-component":"button"'
+) as React.ComponentType<ManaButtonProps>;

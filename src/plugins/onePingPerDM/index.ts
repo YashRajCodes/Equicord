@@ -4,11 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { MessageJSON } from "@vencord/discord-types";
+import { ChannelType } from "@vencord/discord-types/enums";
+
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { MessageJSON } from "@vencord/discord-types";
-import { ChannelType } from "@vencord/discord-types/enums";
 import { ChannelStore, ReadStateStore, UserStore } from "@webpack/common";
 
 const settings = definePluginSettings({
@@ -18,18 +19,18 @@ const settings = definePluginSettings({
         options: [
             { label: "Both", value: "both_dms", default: true },
             { label: "User DMs", value: "user_dm" },
-            { label: "Group DMs", value: "group_dm" },
+            { label: "Group DMs", value: "group_dm" }
         ]
     },
     allowMentions: {
         type: OptionType.BOOLEAN,
         description: "Receive audio pings for @mentions",
-        default: false,
+        default: false
     },
     allowEveryone: {
         type: OptionType.BOOLEAN,
         description: "Receive audio pings for @everyone and @here in group DMs",
-        default: false,
+        default: false
     },
     ignoreUsers: {
         type: OptionType.STRING,
@@ -47,7 +48,8 @@ const settings = definePluginSettings({
 
 export default definePlugin({
     name: "OnePingPerDM",
-    description: "If unread messages are sent by a user in DMs multiple times, you'll only receive one audio ping. Read the messages to reset the limit",
+    description:
+        "If unread messages are sent by a user in DMs multiple times, you'll only receive one audio ping. Read the messages to reset the limit",
     tags: ["Notifications", "Customisation"],
     authors: [Devs.ProffDea],
     isModified: true,
@@ -58,11 +60,13 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(\i\.\i\.getDesktopType\(\)===\i\.\i\.NEVER)\)(?=.*?(\i\.\i\.playNotificationSound\(.{0,5}\)))/,
-                    replace: "$&if(!$self.isPrivateChannelRead(arguments[0]?.message))return;else if($self.playSound())return $2;else "
+                    replace:
+                        "$&if(!$self.isPrivateChannelRead(arguments[0]?.message))return;else if($self.playSound())return $2;else "
                 },
                 {
                     match: /sound:(\i\?(\i):void 0,volume:\i,onClick)/,
-                    replace: "sound:!$self.isPrivateChannelRead(arguments[0]?.message)?undefined:$self.playSound()?$2:$1"
+                    replace:
+                        "sound:!$self.isPrivateChannelRead(arguments[0]?.message)?undefined:$self.playSound()?$2:$1"
                 }
             ]
         }
@@ -84,5 +88,5 @@ export default definePlugin({
             return true;
         }
         return ReadStateStore.getOldestUnreadMessageId(message.channel_id) === message.id;
-    },
+    }
 });

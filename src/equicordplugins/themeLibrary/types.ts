@@ -41,7 +41,7 @@ export interface ThemeInfoModalProps extends RenderModalProps {
 
 export const enum TabItem {
     THEMES,
-    SUBMIT_THEMES,
+    SUBMIT_THEMES
 }
 
 export interface LikesComponentProps {
@@ -57,16 +57,18 @@ export const enum SearchStatus {
     SNIPPET,
     DARK,
     LIGHT,
-    LIKED,
+    LIKED
 }
 
 export type ThemeLikeProps = {
     status: number;
-    likes: [{
-        themeId: number;
-        likes: number;
-        hasLiked?: boolean;
-    }];
+    likes: [
+        {
+            themeId: number;
+            likes: number;
+            hasLiked?: boolean;
+        }
+    ];
 };
 
 export interface Contributor {

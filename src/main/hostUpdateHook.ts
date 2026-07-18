@@ -172,7 +172,11 @@ const attachToUpdater = (updater: DiscordHostUpdater | null | undefined) => {
         const bound = sync.bind(updater);
         updater.startCurrentVersionSync = (options?: StartCurrentVersionOptions) => {
             bound(options);
-            try { retainEquicord(updater, "startCurrentVersionSync"); } catch (e) { error(e); }
+            try {
+                retainEquicord(updater, "startCurrentVersionSync");
+            } catch (e) {
+                error(e);
+            }
         };
     }
     const async_ = updater.startCurrentVersion;
@@ -180,7 +184,11 @@ const attachToUpdater = (updater: DiscordHostUpdater | null | undefined) => {
         const bound = async_.bind(updater);
         updater.startCurrentVersion = async (queryOptions?: object, options?: StartCurrentVersionOptions) => {
             await bound(queryOptions, options);
-            try { retainEquicord(updater, "startCurrentVersion"); } catch (e) { error(e); }
+            try {
+                retainEquicord(updater, "startCurrentVersion");
+            } catch (e) {
+                error(e);
+            }
         };
     }
 };
@@ -205,7 +213,11 @@ const wrapStartup = (coreExports: DiscordDesktopCore | null | undefined) => {
                 const origTry = updaterModule.tryInitUpdater.bind(updaterModule);
                 updaterModule.tryInitUpdater = (buildInfo, repositoryUrl, useRustBspatch) => {
                     const ok = origTry(buildInfo, repositoryUrl, useRustBspatch);
-                    try { attachToUpdater(updaterModule.getUpdater?.()); } catch (e) { error(e); }
+                    try {
+                        attachToUpdater(updaterModule.getUpdater?.());
+                    } catch (e) {
+                        error(e);
+                    }
                     return ok;
                 };
             }
@@ -233,7 +245,11 @@ export const installHostUpdateHook = () => {
         if (!id.includes("discord_desktop_core")) return result;
 
         if (basename(id.replace(/\\/g, "/")) === "discord_desktop_core") {
-            try { wrapStartup(result?.default ?? result); } catch (e) { error(e); }
+            try {
+                wrapStartup(result?.default ?? result);
+            } catch (e) {
+                error(e);
+            }
             Module.prototype.require = origRequire;
         }
         return result;

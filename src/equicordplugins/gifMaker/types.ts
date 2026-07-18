@@ -33,7 +33,7 @@ export const DEFAULT_OPTIONS: GifMakerOptions = {
     fontFamily: "Arial",
     bubbleTipX: 80,
     bubbleTipY: 80,
-    bubbleTipBase: 0.1,
+    bubbleTipBase: 0.1
 };
 
 export interface GoogleFontAxis {

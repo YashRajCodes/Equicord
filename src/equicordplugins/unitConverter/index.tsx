@@ -14,10 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./style.css";
-
 import { addMessageAccessory } from "@api/MessageAccessories";
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
@@ -35,14 +34,14 @@ export const settings = definePluginSettings({
             {
                 default: true,
                 label: "Imperial",
-                value: "imperial",
+                value: "imperial"
             },
             {
                 label: "Metric",
                 value: "metric"
             }
         ]
-    },
+    }
 });
 
 export default definePlugin({
@@ -71,5 +70,5 @@ export default definePlugin({
     start() {
         addMessageAccessory("vc-converter", props => <ConverterAccessory message={props.message} />);
     },
-    settings,
+    settings
 });

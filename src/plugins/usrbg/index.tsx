@@ -14,10 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import "./styles.css";
-
 import { definePluginSettings } from "@api/Settings";
 import { Button } from "@components/Button";
 import { Devs } from "@utils/constants";
@@ -40,7 +39,7 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             { label: "Nitro banner", value: true, default: true },
-            { label: "USRBG banner", value: false },
+            { label: "USRBG banner", value: false }
         ]
     },
     voiceBackground: {
@@ -63,11 +62,10 @@ export default definePlugin({
             replacement: {
                 match: /\i(?:\?)?.getPreviewBanner\(\i,\i,\i\)(?=.{0,100}"COMPLETE")/,
                 replace: "$self.patchBannerUrl(arguments[0])||$&"
-
             }
         },
         {
-            find: "\"data-selenium-video-tile\":",
+            find: '"data-selenium-video-tile":',
             replacement: [
                 {
                     match: /(?<=function\((\i),\i\)\{)(?=let.{20,40},style:)/,
@@ -80,7 +78,7 @@ export default definePlugin({
             predicate: () => settings.store.voiceBackground,
             replacement: {
                 match: /backgroundColor:.{0,25},\{style:(?=\i\?)/,
-                replace: "$&$self.userHasBackground(arguments[0]?.userId)?null:",
+                replace: "$&$self.userHasBackground(arguments[0]?.userId)?null:"
             }
         }
     ],
@@ -91,7 +89,11 @@ export default definePlugin({
         <Button
             variant="link"
             className={cl("settings-button")}
-            onClick={() => VencordNative.native.openExternal("https://github.com/AutumnVN/usrbg#how-to-request-your-own-usrbg-banner")}
+            onClick={() =>
+                VencordNative.native.openExternal(
+                    "https://github.com/AutumnVN/usrbg#how-to-request-your-own-usrbg-banner"
+                )
+            }
         >
             Get your own USRBG banner
         </Button>
@@ -123,7 +125,12 @@ export default definePlugin({
         if (!this.userHasBackground(userId)) return null;
 
         // We can assert that data exists because userHasBackground returned true
-        const { endpoint, bucket, prefix, users: { [userId]: etag } } = this.data!;
+        const {
+            endpoint,
+            bucket,
+            prefix,
+            users: { [userId]: etag }
+        } = this.data!;
         return `${endpoint}/${bucket}/${prefix}${userId}?${etag}`;
     },
 

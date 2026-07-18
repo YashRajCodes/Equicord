@@ -13,7 +13,7 @@ type DragSessionState = {
     dragSourceIsInput: boolean;
     active: boolean;
     lastDropAt: number;
-    lastHandledDrop: { at: number; key: string; };
+    lastHandledDrop: { at: number; key: string };
     lastDragEventAt: number;
     watchdogTimer: number | null;
     guildCleanupTimer: number | null;
@@ -31,7 +31,7 @@ const state: DragSessionState = {
     lastHandledDrop: { at: 0, key: "" },
     lastDragEventAt: 0,
     watchdogTimer: null,
-    guildCleanupTimer: null,
+    guildCleanupTimer: null
 };
 
 export function beginDrag(entity: DropEntity) {

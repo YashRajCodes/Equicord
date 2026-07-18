@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { useTimer } from "@utils/react";
 
@@ -34,11 +34,7 @@ export type VoicePreviewOptions = {
     recording?: boolean;
 };
 
-export const VoicePreview = ({
-    src,
-    waveform,
-    recording,
-}: VoicePreviewOptions) => {
+export const VoicePreview = ({ src, waveform, recording }: VoicePreviewOptions) => {
     const durationMs = useTimer({
         deps: [recording]
     });
@@ -46,8 +42,7 @@ export const VoicePreview = ({
     const durationSeconds = recording ? Math.floor(durationMs / 1000) : 0;
     const durationDisplay = Math.floor(durationSeconds / 60) + ":" + (durationSeconds % 60).toString().padStart(2, "0");
 
-    if (src && !recording)
-        return <VoiceMessage key={src} src={src} waveform={waveform} />;
+    if (src && !recording) return <VoiceMessage key={src} src={src} waveform={waveform} />;
 
     return (
         <div className={cl("preview", recording ? "preview-recording" : [])}>

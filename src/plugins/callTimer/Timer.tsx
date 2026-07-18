@@ -12,7 +12,7 @@ import { settings } from "./index";
 import { TimerIcon } from "./TimerIcon";
 import { TimerText } from "./timerText";
 
-export function Timer({ time }: Readonly<{ time: number; }>) {
+export function Timer({ time }: Readonly<{ time: number }>) {
     const durationMs = useFixedTimer({ initialTime: time });
     const formatted = formatDurationMs(durationMs, settings.store.format === "human", settings.store.showSeconds);
     const defaultColorClassName = settings.store.showRoleColor ? "" : "usernameFont__71dd5 username__73ce9";
@@ -24,11 +24,7 @@ export function Timer({ time }: Readonly<{ time: number; }>) {
         return (
             <Tooltip text={formatted}>
                 {({ onMouseEnter, onMouseLeave }) => (
-                    <div
-                        onMouseEnter={onMouseEnter}
-                        onMouseLeave={onMouseLeave}
-                        role="tooltip"
-                    >
+                    <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave} role="tooltip">
                         <TimerIcon />
                     </div>
                 )}

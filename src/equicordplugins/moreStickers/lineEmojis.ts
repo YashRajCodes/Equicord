@@ -58,11 +58,11 @@ function toStickerId(stickerId: string, lineEmojiPackId: string): string {
 }
 
 /**
-  * Convert LineEmoji to Sticker
-  *
-  * @param {LineEmoji} s The LineEmoji to convert.
-  * @return {Sticker} The sticker.
-  */
+ * Convert LineEmoji to Sticker
+ *
+ * @param {LineEmoji} s The LineEmoji to convert.
+ * @return {Sticker} The sticker.
+ */
 export function convertSticker(s: LineEmoji): Sticker {
     return {
         id: toStickerId(s.id, s.stickerPackId),
@@ -74,11 +74,11 @@ export function convertSticker(s: LineEmoji): Sticker {
 }
 
 /**
-  * Convert LineEmojiPack to StickerPack
-  *
-  * @param {LineEmojiPack} sp The LineEmojiPack to convert.
-  * @return {StickerPack} The sticker pack.
-  */
+ * Convert LineEmojiPack to StickerPack
+ *
+ * @param {LineEmojiPack} sp The LineEmojiPack to convert.
+ * @return {StickerPack} The sticker pack.
+ */
 export function convert(sp: LineEmojiPack): StickerPack {
     return {
         id: toStickerPackId(sp.id),
@@ -90,27 +90,30 @@ export function convert(sp: LineEmojiPack): StickerPack {
 }
 
 /**
-  * Get stickers from given HTML
-  *
-  * @param {string} html The HTML.
-  * @return {Promise<LineEmojiPack>} The sticker pack.
-  */
+ * Get stickers from given HTML
+ *
+ * @param {string} html The HTML.
+ * @return {Promise<LineEmojiPack>} The sticker pack.
+ */
 export function parseHtml(html: string): LineEmojiPack {
     const doc = new DOMParser().parseFromString(html, "text/html");
-    const mainImage = JSON.parse((doc.querySelector("[ref=mainImage]") as HTMLElement)?.dataset?.preview ?? "null") as LineEmoji;
+    const mainImage = JSON.parse(
+        (doc.querySelector("[ref=mainImage]") as HTMLElement)?.dataset?.preview ?? "null"
+    ) as LineEmoji;
     const { id } = mainImage;
 
-    const stickers =
-        [...doc.querySelectorAll(".FnStickerPreviewItem")]
-            .map(x => JSON.parse((x as HTMLElement).dataset.preview ?? "null"))
-            .filter(x => x !== null)
-            .map(x => ({ ...x, stickerPackId: id })) as LineEmoji[];
+    const stickers = [...doc.querySelectorAll(".FnStickerPreviewItem")]
+        .map(x => JSON.parse((x as HTMLElement).dataset.preview ?? "null"))
+        .filter(x => x !== null)
+        .map(x => ({ ...x, stickerPackId: id })) as LineEmoji[];
 
     const stickerPack = {
         title: doc.querySelector("[data-test=emoji-name-title]")?.textContent ?? "null",
         author: {
             name: doc.querySelector("[data-test=emoji-author]")?.textContent ?? "null",
-            url: "https://store.line.me/" + (doc.querySelector("[data-test=emoji-author]")?.getAttribute("href") ?? "null")
+            url:
+                "https://store.line.me/" +
+                (doc.querySelector("[data-test=emoji-author]")?.getAttribute("href") ?? "null")
         },
         id,
         mainImage,
@@ -121,15 +124,15 @@ export function parseHtml(html: string): LineEmojiPack {
 }
 
 export function isLineEmojiPackHtml(html: string): boolean {
-    return html.includes("data-test=\"emoji-name-title\"");
+    return html.includes('data-test="emoji-name-title"');
 }
 
 /**
-  * Get stickers from LINE
-  *
-  * @param {string} id The id of the sticker pack.
-  * @return {Promise<LineEmojiPack>} The sticker pack.
-  */
+ * Get stickers from LINE
+ *
+ * @param {string} id The id of the sticker pack.
+ * @return {Promise<LineEmojiPack>} The sticker pack.
+ */
 export async function getStickerPackById(id: string, region = "en"): Promise<LineEmojiPack> {
     const res = await corsFetch(`https://store.line.me/emojishop/product/${id}/${region}`);
     const html = await res.text();

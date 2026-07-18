@@ -4,17 +4,32 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { extractAndLoadChunksLazy } from "@webpack";
+
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { PaintbrushIcon } from "@components/Icons";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { extractAndLoadChunksLazy } from "@webpack";
-import { ChannelStore, closeModal, DraftType, FluxDispatcher, Menu, openModal, PendingReplyStore, SelectedChannelStore, UploadHandler } from "@webpack/common";
+import {
+    ChannelStore,
+    closeModal,
+    DraftType,
+    FluxDispatcher,
+    Menu,
+    openModal,
+    PendingReplyStore,
+    SelectedChannelStore,
+    UploadHandler
+} from "@webpack/common";
 
 import RemixModal from "./RemixModal";
+
 import css from "./styles.css?managed";
 
-const requireCreateStickerModal = extractAndLoadChunksLazy([".CREATE_STICKER_MODAL,", "isDisplayingIndividualStickers"]);
+const requireCreateStickerModal = extractAndLoadChunksLazy([
+    ".CREATE_STICKER_MODAL,",
+    "isDisplayingIndividualStickers"
+]);
 const requireSettingsMenu = extractAndLoadChunksLazy(['type:"USER_SETTINGS_MODAL_OPEN"']);
 
 const validMediaTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
@@ -22,15 +37,15 @@ const validMediaTypes = ["image/png", "image/jpeg", "image/jpg", "image/webp"];
 const UploadContextMenuPatch: NavContextMenuPatchCallback = (children, props) => {
     if (children.find(c => c?.props?.id === "vc-remix")) return;
 
-    children.push(<Menu.MenuItem
-        id="vc-remix"
-        label="Remix"
-        action={() => {
-            const key = openModal(props =>
-                <RemixModal modalProps={props} close={() => closeModal(key)} />
-            );
-        }}
-    />);
+    children.push(
+        <Menu.MenuItem
+            id="vc-remix"
+            label="Remix"
+            action={() => {
+                const key = openModal(props => <RemixModal modalProps={props} close={() => closeModal(key)} />);
+            }}
+        />
+    );
 };
 
 const MessageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => {
@@ -44,16 +59,20 @@ const MessageContextMenuPatch: NavContextMenuPatchCallback = (children, props) =
 
     const index = group.findIndex(c => c?.props?.id === "copy-text");
 
-    group.splice(index + 1, 0, <Menu.MenuItem
-        id="vc-remix"
-        label="Remix"
-        icon={PaintbrushIcon}
-        action={() => {
-            const key = openModal(modalProps =>
-                <RemixModal modalProps={modalProps} close={() => closeModal(key)} url={url} />
-            );
-        }}
-    />);
+    group.splice(
+        index + 1,
+        0,
+        <Menu.MenuItem
+            id="vc-remix"
+            label="Remix"
+            icon={PaintbrushIcon}
+            action={() => {
+                const key = openModal(modalProps => (
+                    <RemixModal modalProps={modalProps} close={() => closeModal(key)} url={url} />
+                ));
+            }}
+        />
+    );
 };
 
 export function sendRemix(blob: Blob) {
@@ -73,12 +92,11 @@ export default definePlugin({
     authors: [EquicordDevs.MrDiamond, EquicordDevs.meowabyte],
     contextMenus: {
         "channel-attach": UploadContextMenuPatch,
-        "message": MessageContextMenuPatch,
+        message: MessageContextMenuPatch
     },
     managedStyle: css,
     async start() {
-
         await requireCreateStickerModal();
         await requireSettingsMenu();
-    },
+    }
 });

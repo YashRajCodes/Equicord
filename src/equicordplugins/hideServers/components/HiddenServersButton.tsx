@@ -5,7 +5,6 @@
  */
 
 import "./style.css";
-
 import { HiddenServersStore } from "@equicordplugins/hideServers/HiddenServersStore";
 import { classNameFactory } from "@utils/css";
 import { Button, GuildStore, useStateFromStores } from "@webpack/common";
@@ -15,7 +14,12 @@ import { openHiddenServersModal } from "./HiddenServersMenu";
 const cl = classNameFactory("vc-hideservers-");
 
 function HiddenServersButton() {
-    const hiddenGuilds = useStateFromStores([HiddenServersStore], () => HiddenServersStore.hiddenGuilds, undefined, (old, newer) => old.size === newer.size);
+    const hiddenGuilds = useStateFromStores(
+        [HiddenServersStore],
+        () => HiddenServersStore.hiddenGuilds,
+        undefined,
+        (old, newer) => old.size === newer.size
+    );
     // if youve left a server dont show it in the count
     const actuallyHidden = Array.from(hiddenGuilds).filter(x => GuildStore.getGuild(x)).length;
     return (
@@ -30,8 +34,10 @@ function HiddenServersButton() {
                     {actuallyHidden} Hidden
                 </Button>
             ) : null}
-        </div >
+        </div>
     );
 }
 
-export default () => { return <HiddenServersButton />; };
+export default () => {
+    return <HiddenServersButton />;
+};

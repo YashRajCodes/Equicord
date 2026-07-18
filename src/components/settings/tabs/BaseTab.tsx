@@ -14,18 +14,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import type { ComponentType, PropsWithChildren } from "react";
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { handleComponentFailed } from "@components/handleComponentFailed";
 import { onlyOnce } from "@utils/onlyOnce";
-import { Modal,openModal } from "@webpack/common";
-import type { ComponentType, PropsWithChildren } from "react";
+import { Modal, openModal } from "@webpack/common";
 
 export function SettingsTab({ children }: PropsWithChildren) {
-    return (
-        <section className="vc-settings-tab">{children}</section>
-    );
+    return <section className="vc-settings-tab">{children}</section>;
 }
 
 export const handleSettingsTabError = onlyOnce(handleComponentFailed);
@@ -34,7 +33,7 @@ export function wrapTab(component: ComponentType<any>, tab: string) {
     const wrapped = ErrorBoundary.wrap(component, {
         displayName: `${tab}SettingsTab`,
         message: `Failed to render the ${tab} tab. If this issue persists, try using the installer to reinstall!`,
-        onError: handleSettingsTabError,
+        onError: handleSettingsTabError
     });
 
     return wrapped;
@@ -45,11 +44,7 @@ export function openSettingsTabModal(Tab: ComponentType<any>) {
 
     try {
         openModal(props => (
-            <Modal
-                {...props}
-                size="lg"
-                title={Tab.displayName?.replace("SettingsTab", "") || "Settings"}
-            >
+            <Modal {...props} size="lg" title={Tab.displayName?.replace("SettingsTab", "") || "Settings"}>
                 <Tab />
             </Modal>
         ));

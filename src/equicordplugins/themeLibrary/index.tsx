@@ -22,7 +22,7 @@ export default definePlugin({
     toolboxActions: {
         "Open Theme Library": () => {
             SettingsRouter.openUserSettings("equicord_theme_library_panel");
-        },
+        }
     },
 
     start() {
@@ -36,5 +36,5 @@ export default definePlugin({
 
     stop() {
         removeFromArray(SettingsPlugin.customEntries, e => e.key === "equicord_theme_library");
-    },
+    }
 });

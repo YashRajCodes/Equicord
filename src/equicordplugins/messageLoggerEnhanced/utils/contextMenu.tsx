@@ -4,21 +4,21 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
 import { findStoreLazy } from "@webpack";
+
+import { addContextMenuPatch, NavContextMenuPatchCallback, removeContextMenuPatch } from "@api/ContextMenu";
 import { FluxDispatcher, Menu, MessageActions, React, Toasts, UserStore } from "@webpack/common";
 
+import { addToXAndRemoveFromOpposite, ListType, removeFromX } from ".";
 import { openLogModal } from "../components/LogsModal";
 import { deleteMessageIDB } from "../db";
 import { settings } from "../index";
-import { addToXAndRemoveFromOpposite, ListType, removeFromX } from ".";
 
 const SortedGuildStore = findStoreLazy("SortedGuildStore");
 
 const idFunctions = {
     Folder: props =>
-        props?.folderId &&
-        SortedGuildStore?.getGuildFolders?.().find(f => f?.folderId === props.folderId)?.guildIds,
+        props?.folderId && SortedGuildStore?.getGuildFolders?.().find(f => f?.folderId === props.folderId)?.guildIds,
     Server: props => props?.guild?.id,
     User: props => props?.message?.author?.id || props?.user?.id,
     Channel: props => props.message?.channel_id || props.channel?.id
@@ -46,7 +46,9 @@ function renderListOption(listType: ListType, IdType: idKeys, props: any) {
             label={
                 isOppositeBlocked
                     ? `Move ${IdType} to ${list}`
-                    : isBlocked ? `Remove ${IdType} From ${list}` : `${list} ${IdType}`
+                    : isBlocked
+                      ? `Remove ${IdType} From ${list}`
+                      : `${list} ${IdType}`
             }
             action={isBlocked ? removeFromList : addToList}
         />
@@ -73,16 +75,8 @@ export const contextMenuPath: NavContextMenuPatchCallback = (children, props) =>
     if (!children.some(child => child?.props?.id === "message-logger")) {
         children.push(
             <Menu.MenuSeparator />,
-            <Menu.MenuItem
-                id="message-logger"
-                label="Message Logger"
-            >
-
-                <Menu.MenuItem
-                    id="open-logs"
-                    label="Open Logs"
-                    action={() => openLogModal()}
-                />
+            <Menu.MenuItem id="message-logger" label="Message Logger">
+                <Menu.MenuItem id="open-logs" label="Open Logs" action={() => openLogModal()} />
 
                 {Object.keys(idFunctions).map(IdType => renderOpenLogs(IdType as idKeys, props))}
 
@@ -95,46 +89,47 @@ export const contextMenuPath: NavContextMenuPatchCallback = (children, props) =>
                     </React.Fragment>
                 ))}
 
-                {
-                    props.navId === "message"
-                    && (props.message?.deleted || props.message?.editHistory?.length > 0)
-                    && (
-                        <>
-                            <Menu.MenuSeparator />
-                            <Menu.MenuItem
-                                id="remove-message"
-                                label={props.message?.deleted ? "Remove Message (Permanent)" : "Remove Message History (Permanent)"}
-                                color="danger"
-                                action={() =>
-                                    deleteMessageIDB(props.message.id)
-                                        .then(() => {
-                                            if (props.message.deleted) {
-                                                FluxDispatcher.dispatch({
-                                                    type: "MESSAGE_DELETE",
-                                                    channelId: props.message.channel_id,
-                                                    id: props.message.id,
-                                                    mlDeleted: true
-                                                });
-                                            } else {
-                                                props.message.editHistory = [];
-                                            }
-                                        }).catch(() => Toasts.show({
+                {props.navId === "message" && (props.message?.deleted || props.message?.editHistory?.length > 0) && (
+                    <>
+                        <Menu.MenuSeparator />
+                        <Menu.MenuItem
+                            id="remove-message"
+                            label={
+                                props.message?.deleted
+                                    ? "Remove Message (Permanent)"
+                                    : "Remove Message History (Permanent)"
+                            }
+                            color="danger"
+                            action={() =>
+                                deleteMessageIDB(props.message.id)
+                                    .then(() => {
+                                        if (props.message.deleted) {
+                                            FluxDispatcher.dispatch({
+                                                type: "MESSAGE_DELETE",
+                                                channelId: props.message.channel_id,
+                                                id: props.message.id,
+                                                mlDeleted: true
+                                            });
+                                        } else {
+                                            props.message.editHistory = [];
+                                        }
+                                    })
+                                    .catch(() =>
+                                        Toasts.show({
                                             type: Toasts.Type.FAILURE,
                                             message: "Failed to remove message",
                                             id: Toasts.genId()
-                                        }))
-                                }
-                            />
-                        </>
-                    )
-                }
+                                        })
+                                    )
+                            }
+                        />
+                    </>
+                )}
 
-                {
-                    settings.store.hideMessageFromMessageLoggers
-                    && props.navId === "message"
-                    && props.message?.author?.id === UserStore.getCurrentUser().id
-                    && props.message?.deleted === false
-                    && (
+                {settings.store.hideMessageFromMessageLoggers &&
+                    props.navId === "message" &&
+                    props.message?.author?.id === UserStore.getCurrentUser().id &&
+                    props.message?.deleted === false && (
                         <>
                             <Menu.MenuSeparator />
                             <Menu.MenuItem
@@ -144,17 +139,20 @@ export const contextMenuPath: NavContextMenuPatchCallback = (children, props) =>
 
                                 action={async () => {
                                     await MessageActions.deleteMessage(props.message.channel_id, props.message.id);
-                                    MessageActions._sendMessage(props.message.channel_id, {
-                                        "content": settings.store.hideMessageFromMessageLoggersDeletedMessage,
-                                        "tts": false,
-                                        "invalidEmojis": [],
-                                        "validNonShortcutEmojis": []
-                                    }, { nonce: props.message.id });
+                                    MessageActions._sendMessage(
+                                        props.message.channel_id,
+                                        {
+                                            content: settings.store.hideMessageFromMessageLoggersDeletedMessage,
+                                            tts: false,
+                                            invalidEmojis: [],
+                                            validNonShortcutEmojis: []
+                                        },
+                                        { nonce: props.message.id }
+                                    );
                                 }}
                             />
                         </>
-                    )
-                }
+                    )}
             </Menu.MenuItem>
         );
     }

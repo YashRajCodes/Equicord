@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
@@ -26,24 +26,24 @@ const settings = definePluginSettings({
         type: OptionType.SLIDER,
         markers: makeRange(1, 5, 0.5),
         default: 2,
-        stickToMarkers: true,
+        stickToMarkers: true
     }
 });
 
 interface StreamData {
-    audioContext: AudioContext,
-    audioElement: HTMLAudioElement,
-    emitter: any,
+    audioContext: AudioContext;
+    audioElement: HTMLAudioElement;
+    emitter: any;
     // added by this plugin
-    gainNode?: GainNode,
-    id: string,
-    levelNode: AudioWorkletNode,
-    sinkId: string | "default",
-    stream: MediaStream,
-    streamSourceNode?: MediaStreamAudioSourceNode,
-    videoStreamId: string,
-    _mute: boolean,
-    _speakingFlags: number,
+    gainNode?: GainNode;
+    id: string;
+    levelNode: AudioWorkletNode;
+    sinkId: string | "default";
+    stream: MediaStream;
+    streamSourceNode?: MediaStreamAudioSourceNode;
+    videoStreamId: string;
+    _mute: boolean;
+    _speakingFlags: number;
     _volume: number;
 }
 
@@ -118,10 +118,11 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(\.settings\.audioContextSettings.+?)(\i\[\i\])=(\i\.volume)(.+?setLocalVolume\(\i,).+?\)/,
-                    replace: (_, rest1, localVolume, syncVolume, rest2) => rest1
-                        + `(${localVolume}>200?void 0:${localVolume}=${syncVolume})`
-                        + rest2
-                        + `${localVolume}??${syncVolume})`
+                    replace: (_, rest1, localVolume, syncVolume, rest2) =>
+                        rest1 +
+                        `(${localVolume}>200?void 0:${localVolume}=${syncVolume})` +
+                        rest2 +
+                        `${localVolume}??${syncVolume})`
                 }
             ]
         }
@@ -133,7 +134,7 @@ export default definePlugin({
         data.streamSourceNode ??= data.audioContext.createMediaStreamSource(data.stream);
 
         if (!data.gainNode) {
-            const gain = data.gainNode = data.audioContext.createGain();
+            const gain = (data.gainNode = data.audioContext.createGain());
             data.streamSourceNode.connect(gain);
             gain.connect(data.audioContext.destination);
         }
@@ -144,8 +145,6 @@ export default definePlugin({
             data.audioContext.setSinkId(data.sinkId === "default" ? "" : data.sinkId);
         }
 
-        data.gainNode.gain.value = data._mute
-            ? 0
-            : data._volume / 100;
+        data.gainNode.gain.value = data._mute ? 0 : data._volume / 100;
     }
 });

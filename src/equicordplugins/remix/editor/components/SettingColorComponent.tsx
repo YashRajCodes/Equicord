@@ -5,7 +5,6 @@
  */
 
 import "./colorStyles.css";
-
 import { classNameFactory } from "@utils/css";
 import { ColorPicker } from "@webpack/common";
 
@@ -29,11 +28,7 @@ export function SettingColorComponent({ name, onChange, color }: Props) {
     return (
         <section>
             <div className={cl("swatch-row")}>
-                <ColorPicker
-                    key={name}
-                    color={color}
-                    onChange={handleChange}
-                />
+                <ColorPicker key={name} color={color} onChange={handleChange} />
             </div>
         </section>
     );

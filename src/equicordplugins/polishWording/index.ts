@@ -4,13 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {
-    MessageSendListener,
-} from "@api/MessageEvents";
-import {
-    definePluginSettings,
-    Settings,
-} from "@api/Settings";
+import { MessageSendListener } from "@api/MessageEvents";
+import { definePluginSettings, Settings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 
@@ -22,42 +17,42 @@ const settings = definePluginSettings({
     quickDisable: {
         type: OptionType.BOOLEAN,
         description: "Quick disable. Turns off message modifying without requiring a client reload.",
-        default: false,
+        default: false
     },
 
     blockedWords: {
         type: OptionType.STRING,
         description: "Words that will not be capitalized (comma separated).",
-        default: "",
+        default: ""
     },
     // fixApostrophes is the only one that defaults to enabled because in the version before this one,
     //   the other features did not exist / had a bug making them not work.
     fixApostrophes: {
         type: OptionType.BOOLEAN,
         description: "Ensure contractions contain apostrophes.",
-        default: true,
+        default: true
     },
     expandContractions: {
         type: OptionType.BOOLEAN,
         description: "Expand contractions.",
-        default: false,
+        default: false
     },
     fixCapitalization: {
         type: OptionType.BOOLEAN,
         description: "Capitalize sentences.",
-        default: false,
+        default: false
     },
     fixPunctuation: {
         type: OptionType.BOOLEAN,
         description: "Punctate sentences.",
-        default: false,
+        default: false
     },
     fixPunctuationFrequency: {
         type: OptionType.SLIDER,
         description: "Percent period frequency (this majorly annoys some people).",
         markers: makeRange(0, 100, 10),
         stickToMarkers: false,
-        default: 100,
+        default: 100
     }
 });
 
@@ -68,7 +63,7 @@ export default definePlugin({
     tags: ["Chat"],
     authors: [Devs.Samwich, EquicordDevs.WKoA],
     onBeforeMessageSend: presendObject,
-    settings,
+    settings
 });
 
 function textProcessing(input: string) {
@@ -88,7 +83,8 @@ function textProcessing(input: string) {
     // Run message through formatters.
     if (settings.store.fixApostrophes || settings.store.expandContractions) text = ensureApostrophe(text); // Note: if expanding contractions, fix them first.
     if (settings.store.fixCapitalization) text = capitalize(text);
-    if (settings.store.fixPunctuation && (Math.random() * 100 < settings.store.fixPunctuationFrequency)) text = addPeriods(text);
+    if (settings.store.fixPunctuation && Math.random() * 100 < settings.store.fixPunctuationFrequency)
+        text = addPeriods(text);
     if (settings.store.expandContractions) text = expandContractions(text);
 
     text = text.replace(/__CODE_BLOCK_(\d+)__/g, (_, index) => codeBlocks[parseInt(index)]);
@@ -97,7 +93,7 @@ function textProcessing(input: string) {
 }
 
 // Injecting apostrophe as well as contraction expansion rely on this mapping
-const contractionsMap: { [key: string]: string; } = {
+const contractionsMap: { [key: string]: string } = {
     "wasn't": "was not",
     "can't": "cannot",
     "don't": "do not",
@@ -140,10 +136,10 @@ const contractionsMap: { [key: string]: string; } = {
     "we'd": "we would",
     "they'd": "they would",
     "y'all": "you all",
-    "here's": "here is",
+    "here's": "here is"
 };
 
-const missingApostropheMap: { [key: string]: string; } = {};
+const missingApostropheMap: { [key: string]: string } = {};
 for (const contraction in contractionsMap) {
     const withoutApostrophe = removeApostrophes(contraction.toLowerCase());
     missingApostropheMap[withoutApostrophe] = contraction;
@@ -152,7 +148,8 @@ for (const contraction in contractionsMap) {
 function getCapData(str: string) {
     const booleanArray: boolean[] = [];
     for (const char of str) {
-        if (char.match(/[a-zA-Z]/)) { // Only record capitalization for letters
+        if (char.match(/[a-zA-Z]/)) {
+            // Only record capitalization for letters
             booleanArray.push(char === char.toUpperCase());
         }
     }
@@ -205,10 +202,7 @@ function ensureApostrophe(textInput: string): string {
 }
 
 function expandContractions(textInput: string) {
-    const contractionRegex = new RegExp(
-        `\\b(${Object.keys(contractionsMap).join("|")})\\b`,
-        "gi"
-    );
+    const contractionRegex = new RegExp(`\\b(${Object.keys(contractionsMap).join("|")})\\b`, "gi");
 
     return textInput.replace(contractionRegex, match => {
         const lowerCaseMatch = match.toLowerCase();
@@ -300,7 +294,6 @@ function addPeriods(textInput: string) {
             if (i < lines.length - 1) {
                 processedLines.push("");
             }
-
         } else {
             const lastChar = strippedLine.slice(-1);
             if (
@@ -312,7 +305,6 @@ function addPeriods(textInput: string) {
             }
 
             processedLines.push(strippedLine);
-
         }
     }
 

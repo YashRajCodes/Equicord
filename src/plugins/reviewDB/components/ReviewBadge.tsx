@@ -14,23 +14,25 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { HTMLAttributes } from "react";
 
 import { Badge } from "@plugins/reviewDB/entities";
 import { cl } from "@plugins/reviewDB/utils";
 import { MaskedLink, React, Tooltip } from "@webpack/common";
-import { HTMLAttributes } from "react";
 
-export default function ReviewBadge(badge: Badge & { onClick?(): void; }) {
+export default function ReviewBadge(badge: Badge & { onClick?(): void }) {
     const Wrapper = badge.redirectURL
         ? MaskedLink
         : (props: HTMLAttributes<HTMLDivElement>) => (
-            <span {...props} role="button">{props.children}</span>
-        );
+              <span {...props} role="button">
+                  {props.children}
+              </span>
+          );
 
     return (
-        <Tooltip
-            text={badge.name}>
+        <Tooltip text={badge.name}>
             {({ onMouseEnter, onMouseLeave }) => (
                 <Wrapper className={cl("blocked-badge")} href={badge.redirectURL!} onClick={badge.onClick}>
                     <img

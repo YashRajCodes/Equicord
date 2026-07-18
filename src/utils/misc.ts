@@ -14,12 +14,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { User } from "@vencord/discord-types";
+
 import { ChannelStore, GuildMemberStore, IconUtils } from "@webpack/common";
 
-import { EQUICORD_HELPERS, EquicordDevsById, GUILD_ID, KNOWN_ISSUES_CHANNEL_ID, SUPPORT_CHANNEL_ID, VencordDevsById } from "./constants";
+import {
+    EQUICORD_HELPERS,
+    EquicordDevsById,
+    GUILD_ID,
+    KNOWN_ISSUES_CHANNEL_ID,
+    SUPPORT_CHANNEL_ID,
+    VencordDevsById
+} from "./constants";
 
 /**
  * Calls .join(" ") on the arguments
@@ -47,8 +55,7 @@ export function isObject(obj: unknown): obj is object {
  * Check if an object is empty or in other words has no own properties
  */
 export function isObjectEmpty(obj: object) {
-    for (const k in obj)
-        if (Object.hasOwn(obj, k)) return false;
+    for (const k in obj) if (Object.hasOwn(obj, k)) return false;
 
     return true;
 }
@@ -82,7 +89,8 @@ export const isPluginDev = (id: string) => Object.hasOwn(VencordDevsById, id);
 export const shouldShowContributorBadge = (id: string) => isPluginDev(id) && VencordDevsById[id].badge !== false;
 
 export const isEquicordPluginDev = (id: string) => Object.hasOwn(EquicordDevsById, id);
-export const shouldShowEquicordContributorBadge = (id: string) => isEquicordPluginDev(id) && EquicordDevsById[id].badge !== false;
+export const shouldShowEquicordContributorBadge = (id: string) =>
+    isEquicordPluginDev(id) && EquicordDevsById[id].badge !== false;
 
 export const isAnyPluginDev = (id: string) => Object.hasOwn(VencordDevsById, id) || Object.hasOwn(EquicordDevsById, id);
 
@@ -98,9 +106,7 @@ export function interpolateIfDefined(strings: TemplateStringsArray, ...args: any
 export function tryOrElse<T>(func: () => T, fallback: T): T {
     try {
         const res = func();
-        return res instanceof Promise
-            ? res.catch(() => fallback) as T
-            : res;
+        return res instanceof Promise ? (res.catch(() => fallback) as T) : res;
     } catch {
         return fallback;
     }
@@ -149,5 +155,8 @@ export function getUserAvatarUrl(user: User, guildId?: string, canAnimate?: bool
         });
     }
 
-    return IconUtils.getUserAvatarURL(user, canAnimate, size) ?? IconUtils.getDefaultAvatarURL(user.id, user?.discriminator);
+    return (
+        IconUtils.getUserAvatarURL(user, canAnimate, size) ??
+        IconUtils.getDefaultAvatarURL(user.id, user?.discriminator)
+    );
 }

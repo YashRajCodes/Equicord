@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { migratePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
@@ -46,12 +46,12 @@ export default definePlugin({
                 {
                     // Add next to username (compact mode)
                     match: /className:\i\(\)\(\i\.className(?:,\i\.\i)?,\i\)\}\)(?:\))?,(?=\i)/g,
-                    replace: "$&$self.CompactPronounsChatComponentWrapper(arguments[0]),",
-                },
+                    replace: "$&$self.CompactPronounsChatComponentWrapper(arguments[0]),"
+                }
             ]
         }
     ],
 
     PronounsChatComponentWrapper,
-    CompactPronounsChatComponentWrapper,
+    CompactPronounsChatComponentWrapper
 });

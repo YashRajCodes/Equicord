@@ -5,9 +5,9 @@
  */
 
 import "./Link.css";
+import type { AnchorHTMLAttributes, DetailedHTMLProps, PropsWithChildren } from "react";
 
 import { classes } from "@utils/misc";
-import type { AnchorHTMLAttributes, DetailedHTMLProps, PropsWithChildren } from "react";
 
 export interface LinkProps extends DetailedHTMLProps<AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement> {
     disabled?: boolean;
@@ -24,7 +24,6 @@ export function Link({
     children,
     ...restProps
 }: PropsWithChildren<LinkProps>) {
-
     const isInternal = href && /^(?:discord:\/)?\/[a-zA-Z0-9_-]/.test(href);
     const needsSafeAttrs = href && !isInternal;
 

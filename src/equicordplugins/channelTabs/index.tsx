@@ -5,30 +5,38 @@
  */
 
 import "./style.css";
+import { Channel, Message } from "@vencord/discord-types";
+import { JSX } from "react";
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { Channel, Message } from "@vencord/discord-types";
 import { ChannelStore, Menu } from "@webpack/common";
-import { JSX } from "react";
 
 import ChannelsTabsContainer from "./components/ChannelTabsContainer";
 import * as ChannelTabsUtils from "./util";
 import { BasicChannelTabsProps, createTab, handleChannelSwitch, settings } from "./util";
 
-const contextMenuPatch: NavContextMenuPatchCallback = (children, props: { channel: Channel, messageId?: string; }) => {
+const contextMenuPatch: NavContextMenuPatchCallback = (children, props: { channel: Channel; messageId?: string }) => {
     const { channel, messageId } = props;
 
     const menuItem = (
         <Menu.MenuItem
             label="Open in New Tab"
             id="open-link-in-tab"
-            action={() => createTab({
-                guildId: channel.guild_id || "@me", // Normalize for DMs/Group Chats
-                channelId: channel.id
-            }, settings.store.openInNewTabAutoSwitch, messageId, true, true)} // The true values are important for bypassing tab limits
+            action={() =>
+                createTab(
+                    {
+                        guildId: channel.guild_id || "@me", // Normalize for DMs/Group Chats
+                        channelId: channel.id
+                    },
+                    settings.store.openInNewTabAutoSwitch,
+                    messageId,
+                    true,
+                    true
+                )
+            } // The true values are important for bypassing tab limits
         />
     );
 
@@ -36,11 +44,7 @@ const contextMenuPatch: NavContextMenuPatchCallback = (children, props: { channe
     if (group) {
         group.push(menuItem);
     } else {
-        children.splice(-1, 0, (
-            <Menu.MenuGroup>
-                {menuItem}
-            </Menu.MenuGroup>
-        ));
+        children.splice(-1, 0, <Menu.MenuGroup>{menuItem}</Menu.MenuGroup>);
     }
 };
 
@@ -48,7 +52,15 @@ export default definePlugin({
     name: "ChannelTabs",
     description: "Group your commonly visited channels in tabs, like a browser",
     tags: ["Appearance", "Customisation", "Organisation", "Servers"],
-    authors: [Devs.TheSun, Devs.TheKodeToad, EquicordDevs.keifufu, Devs.Nickyux, EquicordDevs.DiabeloDEV, EquicordDevs.justjxke, EquicordDevs.keircn],
+    authors: [
+        Devs.TheSun,
+        Devs.TheKodeToad,
+        EquicordDevs.keifufu,
+        Devs.Nickyux,
+        EquicordDevs.DiabeloDEV,
+        EquicordDevs.justjxke,
+        EquicordDevs.keircn
+    ],
     dependencies: ["ContextMenuAPI", "ConcatenatedModules"],
     contextMenus: {
         "channel-mention-context": contextMenuPatch,
@@ -63,7 +75,7 @@ export default definePlugin({
             replacement: [
                 {
                     match: /"div",{(?=.{0,80}(\i\?\.params))/,
-                    replace: "$self.render,{currentChannel:$1,",
+                    replace: "$self.render,{currentChannel:$1,"
                 }
             ]
         },
@@ -90,7 +102,7 @@ export default definePlugin({
                 match: /(\i)\.stopPropagation.{0,50}(?=null!=(\i))/,
                 replace: "$&if ($1.ctrlKey) return $self.open($2);"
             }
-        },
+        }
     ],
 
     settings,
@@ -115,7 +127,7 @@ export default definePlugin({
     containerHeight: 0,
 
     flux: {
-        CHANNEL_SELECT(data: { channelId: string | null, guildId: string | null; }) {
+        CHANNEL_SELECT(data: { channelId: string | null; guildId: string | null }) {
             // Skip if this navigation was triggered by us (clicking a tab)
             if (ChannelTabsUtils.isNavigatingViaTab()) {
                 ChannelTabsUtils.clearNavigationFlag();
@@ -181,10 +193,7 @@ export default definePlugin({
         }
     },
 
-    render({ currentChannel, children }: {
-        currentChannel: BasicChannelTabsProps,
-        children: JSX.Element;
-    }) {
+    render({ currentChannel, children }: { currentChannel: BasicChannelTabsProps; children: JSX.Element }) {
         const tabsContainer = (
             <ErrorBoundary>
                 <ChannelsTabsContainer {...currentChannel} />
@@ -237,5 +246,5 @@ export default definePlugin({
         });
     },
 
-    util: ChannelTabsUtils,
+    util: ChannelTabsUtils
 });

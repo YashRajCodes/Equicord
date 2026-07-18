@@ -4,11 +4,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { classNameFactory } from "@utils/css";
-import { ChannelStore, useEffect, useLayoutEffect, useMemo, useRef, useState } from "@webpack/common";
 import type { KeyboardEvent } from "react";
 
-import type { FormField, FormFieldOption, FormPageSpec, FormSubmitExtras, FormValues, PaletteContext } from "../../api/types";
+import { classNameFactory } from "@utils/css";
+import { ChannelStore, useEffect, useLayoutEffect, useMemo, useRef, useState } from "@webpack/common";
+
+import type {
+    FormField,
+    FormFieldOption,
+    FormPageSpec,
+    FormSubmitExtras,
+    FormValues,
+    PaletteContext
+} from "../../api/types";
 import { tryMaskedLinkPaste } from "../markdownPaste";
 import { MessageMarkdownPreview } from "../MessageMarkdownPreview";
 import { PaletteIcon } from "../PaletteIcon";
@@ -48,7 +56,13 @@ function shouldSubmitOnEnter(e: KeyboardEvent) {
     return e.key === "Enter" && !e.metaKey && !e.ctrlKey && !e.altKey && !e.shiftKey;
 }
 
-function PickerField({ field, state, onChange, onSubmit, inputRef }: {
+function PickerField({
+    field,
+    state,
+    onChange,
+    onSubmit,
+    inputRef
+}: {
     field: FormField;
     state: FieldState;
     onChange(next: FieldState): void;
@@ -59,9 +73,7 @@ function PickerField({ field, state, onChange, onSubmit, inputRef }: {
     const [highlight, setHighlight] = useState(0);
     const itemRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-    const suggestions = focused && field.suggestions
-        ? field.suggestions(state.selected ? "" : state.text)
-        : [];
+    const suggestions = focused && field.suggestions ? field.suggestions(state.selected ? "" : state.text) : [];
 
     useEffect(() => {
         itemRefs.current[highlight]?.scrollIntoView({ block: "nearest" });
@@ -105,9 +117,7 @@ function PickerField({ field, state, onChange, onSubmit, inputRef }: {
     return (
         <div className={cl("picker")}>
             <div className={cl("picker-input", { "picker-input-focused": focused })}>
-                {state.selected?.icon && (
-                    <PaletteIcon icon={state.selected.icon} className={cl("picker-icon")} />
-                )}
+                {state.selected?.icon && <PaletteIcon icon={state.selected.icon} className={cl("picker-icon")} />}
                 <input
                     ref={inputRef}
                     className={cl("picker-input-field")}
@@ -129,7 +139,9 @@ function PickerField({ field, state, onChange, onSubmit, inputRef }: {
                     {suggestions.map((option, i) => (
                         <div
                             key={option.value}
-                            ref={el => { itemRefs.current[i] = el; }}
+                            ref={el => {
+                                itemRefs.current[i] = el;
+                            }}
                             className={cl("picker-item", { "picker-item-selected": i === highlight })}
                             onMouseMove={() => setHighlight(i)}
                             onMouseDown={e => {
@@ -153,9 +165,10 @@ export function FormPage({ spec, ctx, formRef }: FormPageProps) {
         const initial: Record<string, FieldState> = {};
         for (const field of spec.fields) {
             const value = field.initial ?? "";
-            initial[field.key] = field.type === "select" && field.options
-                ? { text: value, selected: field.options.find(o => o.value === value) }
-                : { text: value };
+            initial[field.key] =
+                field.type === "select" && field.options
+                    ? { text: value, selected: field.options.find(o => o.value === value) }
+                    : { text: value };
         }
         return initial;
     });
@@ -195,7 +208,9 @@ export function FormPage({ spec, ctx, formRef }: FormPageProps) {
 
     useLayoutEffect(() => {
         formRef.current = { submit: () => void submit() };
-        return () => { formRef.current = null; };
+        return () => {
+            formRef.current = null;
+        };
     });
 
     useEffect(() => {
@@ -253,7 +268,9 @@ export function FormPage({ spec, ctx, formRef }: FormPageProps) {
                         {field.type === "textarea" && (
                             <div className={cl("textarea-stack")}>
                                 <textarea
-                                    ref={takeRef ? (firstInputRef as { current: HTMLTextAreaElement | null }) : undefined}
+                                    ref={
+                                        takeRef ? (firstInputRef as { current: HTMLTextAreaElement | null }) : undefined
+                                    }
                                     className={cl("field-textarea")}
                                     value={state.text}
                                     placeholder={field.placeholder}
@@ -261,9 +278,15 @@ export function FormPage({ spec, ctx, formRef }: FormPageProps) {
                                     onChange={e => setField(field.key, { text: e.target.value })}
                                     onMouseDown={stopModalCapture}
                                     onKeyDown={onFieldEnter}
-                                    onPaste={field.markdown ? e => {
-                                        tryMaskedLinkPaste(e, state.text, next => setField(field.key, { text: next }));
-                                    } : undefined}
+                                    onPaste={
+                                        field.markdown
+                                            ? e => {
+                                                  tryMaskedLinkPaste(e, state.text, next =>
+                                                      setField(field.key, { text: next })
+                                                  );
+                                              }
+                                            : undefined
+                                    }
                                 />
                                 {field.attachments && (
                                     <div className={cl("attachments")}>
@@ -275,7 +298,10 @@ export function FormPage({ spec, ctx, formRef }: FormPageProps) {
                                                 onChange={e => {
                                                     const picked = e.target.files ? Array.from(e.target.files) : [];
                                                     if (picked.length) {
-                                                        setFieldFiles(field.key, [...(files[field.key] ?? []), ...picked]);
+                                                        setFieldFiles(field.key, [
+                                                            ...(files[field.key] ?? []),
+                                                            ...picked
+                                                        ]);
                                                     }
                                                     e.target.value = "";
                                                 }}
@@ -286,12 +312,21 @@ export function FormPage({ spec, ctx, formRef }: FormPageProps) {
                                         {(files[field.key]?.length ?? 0) > 0 && (
                                             <div className={cl("attachments-list")}>
                                                 {files[field.key]?.map((file, index) => (
-                                                    <span key={`${file.name}-${file.size}-${file.lastModified}-${index}`} className={cl("attachments-item")}>
+                                                    <span
+                                                        key={`${file.name}-${file.size}-${file.lastModified}-${index}`}
+                                                        className={cl("attachments-item")}
+                                                    >
                                                         {file.name}
                                                         <button
                                                             type="button"
                                                             className={cl("attachments-remove")}
-                                                            onClick={() => setFieldFiles(field.key, files[field.key]?.filter((_, i) => i !== index) ?? [])}
+                                                            onClick={() =>
+                                                                setFieldFiles(
+                                                                    field.key,
+                                                                    files[field.key]?.filter((_, i) => i !== index) ??
+                                                                        []
+                                                                )
+                                                            }
                                                         >
                                                             Remove
                                                         </button>
@@ -316,7 +351,9 @@ export function FormPage({ spec, ctx, formRef }: FormPageProps) {
                                     <button
                                         key={option.value}
                                         type="button"
-                                        className={cl("chip", { "chip-selected": state.selected?.value === option.value })}
+                                        className={cl("chip", {
+                                            "chip-selected": state.selected?.value === option.value
+                                        })}
                                         onClick={() => setField(field.key, { text: option.label, selected: option })}
                                     >
                                         <PaletteIcon icon={option.icon} className={cl("chip-icon")} />

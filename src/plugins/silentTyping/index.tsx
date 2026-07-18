@@ -14,7 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { Channel } from "@vencord/discord-types";
 
 import { ChatBarButton, ChatBarButtonFactory } from "@api/ChatButtons";
 import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, sendBotMessage } from "@api/Commands";
@@ -25,8 +27,16 @@ import { openPluginModal } from "@components/settings";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
-import { Channel } from "@vencord/discord-types";
-import { ChannelStore, FluxDispatcher, Menu, MessageStore, React, SelectedChannelStore, useEffect, UserStore } from "@webpack/common";
+import {
+    ChannelStore,
+    FluxDispatcher,
+    Menu,
+    MessageStore,
+    React,
+    SelectedChannelStore,
+    useEffect,
+    UserStore
+} from "@webpack/common";
 
 const rerenderListeners = new Set<() => void>();
 
@@ -40,22 +50,22 @@ const settings = definePluginSettings({
     enabledGlobally: {
         type: OptionType.BOOLEAN,
         description: "Toggle functionality of your own typing indicator globally.",
-        default: true,
+        default: true
     },
     hideChatBoxTypingIndicators: {
         type: OptionType.BOOLEAN,
         description: "Hide other users' typing indicators from above the chat bar.",
-        default: false,
+        default: false
     },
     hideMembersListTypingIndicators: {
         type: OptionType.BOOLEAN,
         description: "Hide other users' typing indicators from the members list.",
-        default: false,
+        default: false
     },
     chatIcon: {
         type: OptionType.BOOLEAN,
         description: "Show an icon in the chat bar for modifying the plugin on the go.",
-        default: true,
+        default: true
     },
     chatIconLeftClickAction: {
         type: OptionType.SELECT,
@@ -94,8 +104,9 @@ const settings = definePluginSettings({
     },
     defaultHidden: {
         type: OptionType.BOOLEAN,
-        description: "If enabled, the plugin will hide your typing from others in any DMs/channels/guilds not listed in \"Disabled Locations\" below. If disabled, the plugin will show your typing to others for any DMs/channels/guilds not listed in \"Enabled Locations\" below.",
-        default: true,
+        description:
+            'If enabled, the plugin will hide your typing from others in any DMs/channels/guilds not listed in "Disabled Locations" below. If disabled, the plugin will show your typing to others for any DMs/channels/guilds not listed in "Enabled Locations" below.',
+        default: true
     },
     alwaysEnableInActiveVoiceChat: {
         type: OptionType.BOOLEAN,
@@ -104,24 +115,28 @@ const settings = definePluginSettings({
     },
     temporaryEnableThresholdServers: {
         type: OptionType.NUMBER,
-        description: "Temporarily allow your typing indicator to show for this many seconds after sending a message in a server channel. If the typing indicator is already visible in the channel, this setting will have no effect.",
-        default: 0,
+        description:
+            "Temporarily allow your typing indicator to show for this many seconds after sending a message in a server channel. If the typing indicator is already visible in the channel, this setting will have no effect.",
+        default: 0
     },
     temporaryEnableThresholdDirectMessages: {
         type: OptionType.NUMBER,
-        description: "Temporarily allow your typing indicator to show for this many seconds after sending a message in a DM or Group DM. If the typing indicator is already visible in the channel, this setting will have no effect.",
-        default: 0,
+        description:
+            "Temporarily allow your typing indicator to show for this many seconds after sending a message in a DM or Group DM. If the typing indicator is already visible in the channel, this setting will have no effect.",
+        default: 0
     },
     enabledLocations: {
         type: OptionType.STRING,
-        description: "Enable functionality for these IDs. Accepts a comma separated list of DM IDs, channel IDs, and guild IDs. Only used if \"Default Hidden\" is disabled.",
-        default: "",
+        description:
+            'Enable functionality for these IDs. Accepts a comma separated list of DM IDs, channel IDs, and guild IDs. Only used if "Default Hidden" is disabled.',
+        default: ""
     },
     disabledLocations: {
         type: OptionType.STRING,
-        description: "Disable functionality for these IDs. Accepts a comma separated list of DM IDs, channel IDs, and guild IDs. Only used if \"Default Hidden\" is enabled.",
-        default: "",
-    },
+        description:
+            'Disable functionality for these IDs. Accepts a comma separated list of DM IDs, channel IDs, and guild IDs. Only used if "Default Hidden" is enabled.',
+        default: ""
+    }
 });
 
 function toggleGlobal(): void {
@@ -154,7 +169,7 @@ const SilentTypingChatToggle: ChatBarButtonFactory = ({ channel, type }) => {
         temporaryEnableThresholdDirectMessages,
         chatIconLeftClickAction,
         chatIconMiddleClickAction,
-        chatIconRightClickAction,
+        chatIconRightClickAction
     } = settings.use([
         "enabledGlobally",
         "chatIcon",
@@ -166,7 +181,7 @@ const SilentTypingChatToggle: ChatBarButtonFactory = ({ channel, type }) => {
         "temporaryEnableThresholdDirectMessages",
         "chatIconLeftClickAction",
         "chatIconMiddleClickAction",
-        "chatIconRightClickAction",
+        "chatIconRightClickAction"
     ]);
 
     const forceUpdate = useForceUpdater();
@@ -186,16 +201,22 @@ const SilentTypingChatToggle: ChatBarButtonFactory = ({ channel, type }) => {
     const effectiveList = getEffectiveList();
     const isLocallyDisallowed = isExplicitlyDisallowed(channel);
     const allowedLocallyImplicitly = isImplicitlyAllowed(channel);
-    const location = channel.guild_id && effectiveList.includes(channel.guild_id) ? "Guild" : effectiveList.includes(channel.id) ? "Channel" : "Global";
+    const location =
+        channel.guild_id && effectiveList.includes(channel.guild_id)
+            ? "Guild"
+            : effectiveList.includes(channel.id)
+              ? "Channel"
+              : "Global";
 
-    const tooltip = enabledGlobally ? (
-        allowedLocallyImplicitly === 1
+    const tooltip = enabledGlobally
+        ? allowedLocallyImplicitly === 1
             ? "Typing Always Visible In The Connected Voice Channel Chat"
             : allowedLocallyImplicitly === 2
-                ? "Typing Temporarily Visible In This Channel Due To A Recent Message"
-                : isLocallyDisallowed
-                    ? `Typing Hidden (${location})` : `Typing Visible (${location})`
-    ) : "Typing Visible (Global)";
+              ? "Typing Temporarily Visible In This Channel Due To A Recent Message"
+              : isLocallyDisallowed
+                ? `Typing Hidden (${location})`
+                : `Typing Visible (${location})`
+        : "Typing Visible (Global)";
 
     function performAction(action: string): void {
         switch (action) {
@@ -231,16 +252,30 @@ const SilentTypingChatToggle: ChatBarButtonFactory = ({ channel, type }) => {
                 if (e.button === 2) {
                     performAction(settings.store.chatIconRightClickAction);
                 }
-            }}>
+            }}
+        >
             <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ scale: "1.2" }}>
-                <path fill="currentColor" mask={`url(#silent-typing-msg-mask-${channel.id})`} d="M18.333 15.556H1.667a1.667 1.667 0 0 1 -1.667 -1.667v-10a1.667 1.667 0 0 1 1.667 -1.667h16.667a1.667 1.667 0 0 1 1.667 1.667v10a1.667 1.667 0 0 1 -1.667 1.667M4.444 6.25V4.861a0.417 0.417 0 0 0 -0.417 -0.417H2.639a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417H5.973a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m-11.667 3.333V8.194a0.417 0.417 0 0 0 -0.417 -0.417H4.306a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417H7.639a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m-11.667 3.333v-1.389a0.417 0.417 0 0 0 -0.417 -0.417H2.639a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m10 0v-1.389a0.417 0.417 0 0 0 -0.417 -0.417H5.973a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h8.056a0.417 0.417 0 0 0 0.417 -0.417m3.333 0v-1.389a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417" transform="translate(2, 3)" />
-                {(isLocallyDisallowed && !allowedLocallyImplicitly) && (
+                <path
+                    fill="currentColor"
+                    mask={`url(#silent-typing-msg-mask-${channel.id})`}
+                    d="M18.333 15.556H1.667a1.667 1.667 0 0 1 -1.667 -1.667v-10a1.667 1.667 0 0 1 1.667 -1.667h16.667a1.667 1.667 0 0 1 1.667 1.667v10a1.667 1.667 0 0 1 -1.667 1.667M4.444 6.25V4.861a0.417 0.417 0 0 0 -0.417 -0.417H2.639a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417H5.973a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m-11.667 3.333V8.194a0.417 0.417 0 0 0 -0.417 -0.417H4.306a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417H7.639a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m-11.667 3.333v-1.389a0.417 0.417 0 0 0 -0.417 -0.417H2.639a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m10 0v-1.389a0.417 0.417 0 0 0 -0.417 -0.417H5.973a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h8.056a0.417 0.417 0 0 0 0.417 -0.417m3.333 0v-1.389a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417"
+                    transform="translate(2, 3)"
+                />
+                {isLocallyDisallowed && !allowedLocallyImplicitly && (
                     <>
                         <mask id={`silent-typing-msg-mask-${channel.id}`}>
                             <path fill="#fff" d="M0 0h24v24H0Z"></path>
-                            <path stroke="#000" strokeWidth="5.99068" d="M0 24 24 0" transform="translate(-2, -3)"></path>
+                            <path
+                                stroke="#000"
+                                strokeWidth="5.99068"
+                                d="M0 24 24 0"
+                                transform="translate(-2, -3)"
+                            ></path>
                         </mask>
-                        <path fill="var(--status-danger)" d="m21.178 1.70703 1.414 1.414L4.12103 21.593l-1.414-1.415L21.178 1.70703Z" />
+                        <path
+                            fill="var(--status-danger)"
+                            d="m21.178 1.70703 1.414 1.414L4.12103 21.593l-1.414-1.415L21.178 1.70703Z"
+                        />
                     </>
                 )}
             </svg>
@@ -251,7 +286,11 @@ const SilentTypingChatToggle: ChatBarButtonFactory = ({ channel, type }) => {
 function SilentTypingChatIcon() {
     return (
         <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" style={{ scale: "1.2" }}>
-            <path fill="currentColor" d="M18.333 15.556H1.667a1.667 1.667 0 0 1 -1.667 -1.667v-10a1.667 1.667 0 0 1 1.667 -1.667h16.667a1.667 1.667 0 0 1 1.667 1.667v10a1.667 1.667 0 0 1 -1.667 1.667M4.444 6.25V4.861a0.417 0.417 0 0 0 -0.417 -0.417H2.639a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417H5.973a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m-11.667 3.333V8.194a0.417 0.417 0 0 0 -0.417 -0.417H4.306a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417H7.639a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m-11.667 3.333v-1.389a0.417 0.417 0 0 0 -0.417 -0.417H2.639a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m10 0v-1.389a0.417 0.417 0 0 0 -0.417 -0.417H5.973a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h8.056a0.417 0.417 0 0 0 0.417 -0.417m3.333 0v-1.389a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417" transform="translate(2, 3)" />
+            <path
+                fill="currentColor"
+                d="M18.333 15.556H1.667a1.667 1.667 0 0 1 -1.667 -1.667v-10a1.667 1.667 0 0 1 1.667 -1.667h16.667a1.667 1.667 0 0 1 1.667 1.667v10a1.667 1.667 0 0 1 -1.667 1.667M4.444 6.25V4.861a0.417 0.417 0 0 0 -0.417 -0.417H2.639a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417H5.973a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V4.861a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V6.25a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m-11.667 3.333V8.194a0.417 0.417 0 0 0 -0.417 -0.417H4.306a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417H7.639a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m3.333 0V8.194a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V9.583a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m-11.667 3.333v-1.389a0.417 0.417 0 0 0 -0.417 -0.417H2.639a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417m10 0v-1.389a0.417 0.417 0 0 0 -0.417 -0.417H5.973a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h8.056a0.417 0.417 0 0 0 0.417 -0.417m3.333 0v-1.389a0.417 0.417 0 0 0 -0.417 -0.417h-1.389a0.417 0.417 0 0 0 -0.417 0.417V12.917a0.417 0.417 0 0 0 0.417 0.417h1.389a0.417 0.417 0 0 0 0.417 -0.417"
+                transform="translate(2, 3)"
+            />
         </svg>
     );
 }
@@ -262,14 +301,20 @@ function getEffectiveList(): string[] {
             settings.store.disabledLocations = "";
             return [];
         } else {
-            return settings.store.disabledLocations.split(",").map(x => x.trim()).filter(Boolean);
+            return settings.store.disabledLocations
+                .split(",")
+                .map(x => x.trim())
+                .filter(Boolean);
         }
     } else {
         if (!settings.store.enabledLocations) {
             settings.store.enabledLocations = "";
             return [];
         } else {
-            return settings.store.enabledLocations.split(",").map(x => x.trim()).filter(Boolean);
+            return settings.store.enabledLocations
+                .split(",")
+                .map(x => x.trim())
+                .filter(Boolean);
         }
     }
 }
@@ -299,7 +344,7 @@ function isImplicitlyAllowed(channel: string | Channel): number {
     const lastMessage = MessageStore.getLastEditableMessage(resolvedChannel.id);
     const messageTimestamp = lastMessage?.timestamp?.getTime?.();
 
-    if (messageTimestamp && Date.now() < messageTimestamp + (addedThreshold * 1000)) {
+    if (messageTimestamp && Date.now() < messageTimestamp + addedThreshold * 1000) {
         return 2;
     }
 
@@ -345,18 +390,44 @@ const ChatBarContextCheckbox: NavContextMenuPatchCallback = children => {
 
     const idx = group.findIndex(c => c?.props?.id === "submit-button");
 
-    group.splice(idx >= 0 ? idx : 0, 0,
+    group.splice(
+        idx >= 0 ? idx : 0,
+        0,
         <Menu.MenuItem id="vc-silent-typing" label="Silent Typing">
-            <Menu.MenuCheckboxItem id="vc-silent-typing-enabled" label="Enabled" checked={enabledGlobally}
-                action={() => settings.store.enabledGlobally = !settings.store.enabledGlobally} />
-            <Menu.MenuCheckboxItem id="vc-silent-typing-chat-bar-indicators" label="Chat Bar Indicators" checked={settings.store.hideChatBoxTypingIndicators}
-                action={() => settings.store.hideChatBoxTypingIndicators = !settings.store.hideChatBoxTypingIndicators} />
-            <Menu.MenuCheckboxItem id="vc-silent-typing-members-list-indicators" label="Members List Indicators" checked={settings.store.hideMembersListTypingIndicators}
-                action={() => settings.store.hideMembersListTypingIndicators = !settings.store.hideMembersListTypingIndicators} />
-            <Menu.MenuCheckboxItem id="vc-silent-typing-chat-icon" label="Chat Icon" checked={chatIcon}
-                action={() => settings.store.chatIcon = !settings.store.chatIcon} />
-            <Menu.MenuCheckboxItem id="vc-silent-typing-default" label="Default Hidden" checked={defaultHidden}
-                action={() => settings.store.defaultHidden = !settings.store.defaultHidden} />
+            <Menu.MenuCheckboxItem
+                id="vc-silent-typing-enabled"
+                label="Enabled"
+                checked={enabledGlobally}
+                action={() => (settings.store.enabledGlobally = !settings.store.enabledGlobally)}
+            />
+            <Menu.MenuCheckboxItem
+                id="vc-silent-typing-chat-bar-indicators"
+                label="Chat Bar Indicators"
+                checked={settings.store.hideChatBoxTypingIndicators}
+                action={() =>
+                    (settings.store.hideChatBoxTypingIndicators = !settings.store.hideChatBoxTypingIndicators)
+                }
+            />
+            <Menu.MenuCheckboxItem
+                id="vc-silent-typing-members-list-indicators"
+                label="Members List Indicators"
+                checked={settings.store.hideMembersListTypingIndicators}
+                action={() =>
+                    (settings.store.hideMembersListTypingIndicators = !settings.store.hideMembersListTypingIndicators)
+                }
+            />
+            <Menu.MenuCheckboxItem
+                id="vc-silent-typing-chat-icon"
+                label="Chat Icon"
+                checked={chatIcon}
+                action={() => (settings.store.chatIcon = !settings.store.chatIcon)}
+            />
+            <Menu.MenuCheckboxItem
+                id="vc-silent-typing-default"
+                label="Default Hidden"
+                checked={defaultHidden}
+                action={() => (settings.store.defaultHidden = !settings.store.defaultHidden)}
+            />
         </Menu.MenuItem>
     );
 };
@@ -422,9 +493,12 @@ export default definePlugin({
                 if (threshold > 0) {
                     triggerChatToggleRerender();
 
-                    setTimeout(() => {
-                        triggerChatToggleRerender();
-                    }, (threshold * 1000) + 25);
+                    setTimeout(
+                        () => {
+                            triggerChatToggleRerender();
+                        },
+                        threshold * 1000 + 25
+                    );
                 }
             }
         }
@@ -444,7 +518,8 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(let{activityInviteEducationActivity)/,
-                    replace: "const silentTypingShouldHideChatBarTypingIndicators=$self.shouldHideChatBarTypingIndicators();$1"
+                    replace:
+                        "const silentTypingShouldHideChatBarTypingIndicators=$self.shouldHideChatBarTypingIndicators();$1"
                 },
                 {
                     match: /("stop-animation".{0,80}?ref:\i,children:)/,
@@ -456,9 +531,10 @@ export default definePlugin({
             find: ",{avatarCutoutX",
             replacement: {
                 match: /isTyping:(\i)=!1(,typingIndicatorRef:\i,isSpeaking:)/,
-                replace: "silentTypingIsTyping:$1=$self.shouldHideMembersListTypingIndicators()?false:(arguments[0].isTyping??false)$2"
+                replace:
+                    "silentTypingIsTyping:$1=$self.shouldHideMembersListTypingIndicators()?false:(arguments[0].isTyping??false)$2"
             }
-        },
+        }
     ],
 
     commands: [
@@ -476,38 +552,38 @@ export default definePlugin({
                     choices: [
                         { name: "Global", label: "Global", value: "global" },
                         { name: "Channel", label: "Channel", value: "channel" },
-                        { name: "Guild", label: "Guild", value: "guild" },
+                        { name: "Guild", label: "Guild", value: "guild" }
                     ]
                 },
                 {
                     name: "chat-bar-indicators",
                     description: "Hide other users' typing indicators from above the chat bar.",
                     required: false,
-                    type: ApplicationCommandOptionType.BOOLEAN,
+                    type: ApplicationCommandOptionType.BOOLEAN
                 },
                 {
                     name: "members-list-indicators",
                     description: "Hide other users' typing indicators from the members list.",
                     required: false,
-                    type: ApplicationCommandOptionType.BOOLEAN,
+                    type: ApplicationCommandOptionType.BOOLEAN
                 },
                 {
                     name: "chat-icon",
                     description: "Show an icon in the chat bar for toggling the plugin on the go.",
                     required: false,
-                    type: ApplicationCommandOptionType.BOOLEAN,
+                    type: ApplicationCommandOptionType.BOOLEAN
                 },
                 {
                     name: "chat-context-menu",
                     description: "Show a dropdown in the chat context menu to toggle plugin settings on the go.",
                     required: false,
-                    type: ApplicationCommandOptionType.BOOLEAN,
+                    type: ApplicationCommandOptionType.BOOLEAN
                 },
                 {
                     name: "default-hidden",
                     description: "Whether to hide typing in DMs/channels/guilds by default or not.",
                     required: false,
-                    type: ApplicationCommandOptionType.BOOLEAN,
+                    type: ApplicationCommandOptionType.BOOLEAN
                 }
             ],
 
@@ -548,9 +624,9 @@ export default definePlugin({
                 }
 
                 sendBotMessage(ctx.channel.id, {
-                    content: updated ? "Silent typing settings updated." : "No changes made to silent typing settings.",
+                    content: updated ? "Silent typing settings updated." : "No changes made to silent typing settings."
                 });
-            },
+            }
         }
     ],
 
@@ -560,5 +636,5 @@ export default definePlugin({
         }
 
         FluxDispatcher.dispatch({ type: "TYPING_START_LOCAL", channelId });
-    },
+    }
 });

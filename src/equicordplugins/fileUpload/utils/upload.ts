@@ -6,7 +6,13 @@
 
 import { normalizeCorsProxyUrl, toProxiedUrl } from "@equicordplugins/fileUpload/constants";
 import { settings } from "@equicordplugins/fileUpload/settings";
-import { fallbackServiceOrder, serviceLabels, ServiceType, ShareXUploaderConfig, UploadResponse } from "@equicordplugins/fileUpload/types";
+import {
+    fallbackServiceOrder,
+    serviceLabels,
+    ServiceType,
+    ShareXUploaderConfig,
+    UploadResponse
+} from "@equicordplugins/fileUpload/types";
 import { copyToClipboard } from "@utils/clipboard";
 import { insertTextIntoChatInputBox } from "@utils/discord";
 import { Logger } from "@utils/Logger";
@@ -20,13 +26,13 @@ import { isS3Configured, uploadToS3 } from "./s3";
 import { parseShareXConfig, resolveShareXTemplate } from "./sharex";
 
 const Native = IS_DISCORD_DESKTOP
-    ? VencordNative.pluginHelpers.FileUpload as PluginNative<typeof import("../native")>
+    ? (VencordNative.pluginHelpers.FileUpload as PluginNative<typeof import("../native")>)
     : null;
 
 export const logger = new Logger("FileUpload", "#7cb7ff");
 
 function toProxyUrl(url: string): string {
-    const corsProxyUrl = normalizeCorsProxyUrl((settings.store as { corsProxyUrl?: string; }).corsProxyUrl);
+    const corsProxyUrl = normalizeCorsProxyUrl((settings.store as { corsProxyUrl?: string }).corsProxyUrl);
 
     if (url.startsWith(`${corsProxyUrl}?url=`)) {
         return url;
@@ -79,11 +85,17 @@ function isUploadCancelledError(error: unknown): boolean {
     if (!(error instanceof Error)) return false;
 
     const message = error.message.toLowerCase();
-    return message.includes("cancelled") || message.includes("canceled") || message.includes("aborted") || message.includes("aborterror");
+    return (
+        message.includes("cancelled") ||
+        message.includes("canceled") ||
+        message.includes("aborted") ||
+        message.includes("aborterror")
+    );
 }
 
 function getFallbackServices(): ServiceType[] {
-    const configuredOrder = (settings.store as { fallbackOrder?: string; }).fallbackOrder || fallbackServiceOrder.join(",");
+    const configuredOrder =
+        (settings.store as { fallbackOrder?: string }).fallbackOrder || fallbackServiceOrder.join(",");
     const services = configuredOrder
         .split(/[\n,]/)
         .map(service => service.trim())
@@ -136,7 +148,7 @@ export function cancelCurrentUpload() {
 }
 
 function getUploadTimeoutMs(): number {
-    const value = (settings.store as { uploadTimeoutMs?: number; }).uploadTimeoutMs;
+    const value = (settings.store as { uploadTimeoutMs?: number }).uploadTimeoutMs;
     if (!Number.isFinite(value) || !value) {
         return 300000;
     }
@@ -203,9 +215,7 @@ class XhrResponse {
     }
 
     async text(): Promise<string> {
-        return typeof this.xhr.response === "string"
-            ? this.xhr.response
-            : this.xhr.responseText;
+        return typeof this.xhr.response === "string" ? this.xhr.response : this.xhr.responseText;
     }
 
     async json(): Promise<unknown> {
@@ -223,15 +233,13 @@ function setXhrUploadProgress(event: ProgressEvent) {
         return;
     }
 
-    const percent = Math.round(Math.max(0, Math.min(100, event.loaded / event.total * 100)));
+    const percent = Math.round(Math.max(0, Math.min(100, (event.loaded / event.total) * 100)));
     setUploadState({
         phase: "uploading",
         percent,
         transferredBytes: event.loaded,
         totalBytes: event.total,
-        status: uploadState.currentServiceLabel
-            ? `Uploading via ${uploadState.currentServiceLabel}...`
-            : "Uploading..."
+        status: uploadState.currentServiceLabel ? `Uploading via ${uploadState.currentServiceLabel}...` : "Uploading..."
     });
 }
 
@@ -262,7 +270,7 @@ async function uploadRequestWithTimeout(url: string, options: RequestInit): Prom
         };
 
         const { body } = options;
-        xhr.send(body instanceof ReadableStream ? null : body as XMLHttpRequestBodyInit | null);
+        xhr.send(body instanceof ReadableStream ? null : (body as XMLHttpRequestBodyInit | null));
     });
 }
 
@@ -344,9 +352,10 @@ async function uploadToShareX(fileBlob: Blob, filename: string): Promise<string>
     }
 
     const configuredUrl = resolveShareXTemplate(config.URL, responseText, responseJson)?.trim();
-    const fallbackUrl = typeof responseJson === "object" && responseJson && "url" in responseJson
-        ? String((responseJson as Record<string, unknown>).url || "")
-        : responseText.trim();
+    const fallbackUrl =
+        typeof responseJson === "object" && responseJson && "url" in responseJson
+            ? String((responseJson as Record<string, unknown>).url || "")
+            : responseText.trim();
 
     const resultUrl = configuredUrl || fallbackUrl;
     if (!resultUrl) {
@@ -368,7 +377,7 @@ async function uploadToZipline(fileBlob: Blob, filename: string): Promise<string
     formData.append("file", fileBlob, filename);
 
     const headers: Record<string, string> = {
-        "Authorization": ziplineToken
+        Authorization: ziplineToken
     };
 
     if (folderId) {
@@ -392,7 +401,7 @@ async function uploadToZipline(fileBlob: Blob, filename: string): Promise<string
         throw new Error("Server returned invalid response (not JSON)");
     }
 
-    const data = await response.json() as UploadResponse;
+    const data = (await response.json()) as UploadResponse;
 
     if (data.files && data.files.length > 0 && data.files[0].url) {
         return data.files[0].url;
@@ -429,7 +438,7 @@ async function uploadToNest(fileBlob: Blob, filename: string): Promise<string> {
     const response = await uploadRequestWithTimeout("https://nest.rip/api/files/upload", {
         method: "POST",
         headers: {
-            "Authorization": nestToken
+            Authorization: nestToken
         },
         body: formData
     });
@@ -439,7 +448,7 @@ async function uploadToNest(fileBlob: Blob, filename: string): Promise<string> {
         throw new Error(`Upload failed: ${response.status} ${errorText}`);
     }
 
-    const data = await response.json() as { fileURL?: string; };
+    const data = (await response.json()) as { fileURL?: string };
 
     if (data.fileURL) {
         return data.fileURL;
@@ -500,7 +509,7 @@ function getEncryptingHostConfig(): {
         throw new Error("Invalid Encrypting.host URL style");
     }
 
-    const domainsRaw = encryptingHostDomains?.trim() || "[\"offensive\"]";
+    const domainsRaw = encryptingHostDomains?.trim() || '["offensive"]';
 
     return {
         key,
@@ -537,10 +546,10 @@ async function uploadToEncryptingHost(fileBlob: Blob, filename: string): Promise
     });
 
     const text = await response.text();
-    let data: { url?: string; error?: string; } | null = null;
+    let data: { url?: string; error?: string } | null = null;
 
     try {
-        data = text ? JSON.parse(text) as { url?: string; error?: string; } : null;
+        data = text ? (JSON.parse(text) as { url?: string; error?: string }) : null;
     } catch {
         data = null;
     }
@@ -560,12 +569,7 @@ async function uploadToEncryptingHost(fileBlob: Blob, filename: string): Promise
 }
 
 export function isConfigured(): boolean {
-    const {
-        serviceType,
-        serviceUrl,
-        ziplineToken,
-        nestToken
-    } = settings.store as {
+    const { serviceType, serviceUrl, ziplineToken, nestToken } = settings.store as {
         serviceType: ServiceType;
         serviceUrl?: string;
         ziplineToken?: string;
@@ -575,9 +579,9 @@ export function isConfigured(): boolean {
         case ServiceType.NEST:
             return Boolean(nestToken);
         case ServiceType.EZHOST:
-            return Boolean((settings.store as { ezHostKey?: string; }).ezHostKey);
+            return Boolean((settings.store as { ezHostKey?: string }).ezHostKey);
         case ServiceType.ENCRYPTINGHOST:
-            return Boolean((settings.store as { encryptingHostKey?: string; }).encryptingHostKey);
+            return Boolean((settings.store as { encryptingHostKey?: string }).encryptingHostKey);
         case ServiceType.S3:
             return isS3Configured();
         case ServiceType.CATBOX:
@@ -593,9 +597,9 @@ export function isConfigured(): boolean {
         case ServiceType.PIXELDRAIN:
             return true;
         case ServiceType.PIXELVAULT:
-            return Boolean((settings.store as { pixelVaultKey?: string; }).pixelVaultKey);
+            return Boolean((settings.store as { pixelVaultKey?: string }).pixelVaultKey);
         case ServiceType.WEBDAV:
-            return Boolean((settings.store as { webdavUrl?: string; }).webdavUrl);
+            return Boolean((settings.store as { webdavUrl?: string }).webdavUrl);
         case ServiceType.SHAREX:
             try {
                 parseShareXConfigFromSettings();
@@ -610,7 +614,7 @@ export function isConfigured(): boolean {
 }
 
 async function uploadToEzHost(fileBlob: Blob, filename: string): Promise<string> {
-    const { ezHostKey } = (settings.store as { ezHostKey?: string; });
+    const { ezHostKey } = settings.store as { ezHostKey?: string };
 
     if (!ezHostKey) throw new Error("E-Z Host API key is required");
 
@@ -645,7 +649,7 @@ async function uploadToEzHost(fileBlob: Blob, filename: string): Promise<string>
         throw new Error(`Upload failed: ${response.status} ${text}`);
     }
 
-    const data = await response.json() as { success?: boolean; error?: string; imageUrl?: string; rawUrl?: string; };
+    const data = (await response.json()) as { success?: boolean; error?: string; imageUrl?: string; rawUrl?: string };
     if (!data || !data.success) {
         throw new Error(data?.error || "Upload failed");
     }
@@ -725,7 +729,7 @@ async function uploadToLitterbox(fileBlob: Blob, filename: string): Promise<stri
 }
 
 async function uploadToGofile(fileBlob: Blob, filename: string): Promise<string> {
-    const { gofileToken } = settings.store as { gofileToken?: string; };
+    const { gofileToken } = settings.store as { gofileToken?: string };
 
     if (Native) {
         const result = await Native.uploadToGofile(await fileBlob.arrayBuffer(), filename, gofileToken || undefined);
@@ -749,10 +753,10 @@ async function uploadToGofile(fileBlob: Blob, filename: string): Promise<string>
         throw new Error(`Upload failed: ${response.status} ${await response.text()}`);
     }
 
-    const data = await response.json() as {
+    const data = (await response.json()) as {
         status?: string;
         error?: string;
-        data?: { downloadPage?: string; code?: string; };
+        data?: { downloadPage?: string; code?: string };
     };
 
     if (data.status !== "ok") {
@@ -784,7 +788,7 @@ async function uploadToTmpfiles(fileBlob: Blob, filename: string): Promise<strin
         throw new Error(`Upload failed: ${response.status} ${await response.text()}`);
     }
 
-    const data = await response.json() as { status?: string; data?: { url?: string; }; };
+    const data = (await response.json()) as { status?: string; data?: { url?: string } };
     const url = data.data?.url;
     if (!url || data.status !== "success") {
         throw new Error("No URL returned from upload");
@@ -814,13 +818,12 @@ async function uploadToBuzzheavier(fileBlob: Blob, filename: string): Promise<st
     }
 
     try {
-        const data = JSON.parse(text) as { code?: number; data?: { id?: string; }; };
+        const data = JSON.parse(text) as { code?: number; data?: { id?: string } };
         const id = data.data?.id;
         if (data.code === 201 && id) {
             return `https://buzzheavier.com/${id}`;
         }
-    } catch {
-    }
+    } catch {}
 
     const fallback = text.trim();
     if (!fallback) throw new Error("No URL returned from upload");
@@ -883,7 +886,7 @@ async function uploadToFilebin(fileBlob: Blob, filename: string): Promise<string
 }
 
 async function uploadToPixelVault(fileBlob: Blob, filename: string): Promise<string> {
-    const { pixelVaultKey } = settings.store as { pixelVaultKey?: string; };
+    const { pixelVaultKey } = settings.store as { pixelVaultKey?: string };
 
     if (!pixelVaultKey?.trim()) {
         throw new Error("PixelVault upload key is required");
@@ -915,7 +918,7 @@ async function uploadToPixelVault(fileBlob: Blob, filename: string): Promise<str
     });
 
     const text = await response.text();
-    let data: { resource?: string; url?: string; } | null = null;
+    let data: { resource?: string; url?: string } | null = null;
 
     try {
         data = text ? JSON.parse(text) : null;
@@ -936,10 +939,14 @@ async function uploadToPixelVault(fileBlob: Blob, filename: string): Promise<str
 }
 
 async function uploadToPixelDrain(fileBlob: Blob, filename: string): Promise<string> {
-    const { pixelDrainKey } = settings.store as { pixelDrainKey?: string; };
+    const { pixelDrainKey } = settings.store as { pixelDrainKey?: string };
 
     if (Native) {
-        const result = await Native.uploadToPixelDrain(await fileBlob.arrayBuffer(), filename, pixelDrainKey?.trim() || undefined);
+        const result = await Native.uploadToPixelDrain(
+            await fileBlob.arrayBuffer(),
+            filename,
+            pixelDrainKey?.trim() || undefined
+        );
         if (!result.success || !result.url) throw new Error(result.error || "No URL returned from upload");
         return result.url;
     }
@@ -956,7 +963,7 @@ async function uploadToPixelDrain(fileBlob: Blob, filename: string): Promise<str
     });
 
     const text = await response.text();
-    let data: { id?: string; success?: boolean; message?: string; } | null = null;
+    let data: { id?: string; success?: boolean; message?: string } | null = null;
     try {
         data = text ? JSON.parse(text) : null;
     } catch {
@@ -1034,7 +1041,7 @@ async function createWebdavShare(relativePath: string, serverOrigin: string, fil
             throw new Error(`Failed to create public share: ${response.status} ${responseText}`);
         }
 
-        let shareData: { ocs?: { data?: { url?: string; token?: string; }; meta?: Record<string, string>; }; };
+        let shareData: { ocs?: { data?: { url?: string; token?: string }; meta?: Record<string, string> } };
         try {
             shareData = JSON.parse(responseText);
         } catch {
@@ -1045,7 +1052,9 @@ async function createWebdavShare(relativePath: string, serverOrigin: string, fil
 
         if (!shareToken) {
             const meta = shareData?.ocs?.meta;
-            const description = meta ? `${meta.status || "unknown"} (${meta.statuscode || "?"})` : "no token in response";
+            const description = meta
+                ? `${meta.status || "unknown"} (${meta.statuscode || "?"})`
+                : "no token in response";
             throw new Error(`Failed to create public share: ${description}`);
         }
 
@@ -1055,9 +1064,10 @@ async function createWebdavShare(relativePath: string, serverOrigin: string, fil
     const shareType = webdavShareType || "share-page";
 
     const sharePageUrl = shareUrl || `${serverOrigin}/s/${shareToken}`;
-    const directDownloadUrl = webdavServerType === "owncloud"
-        ? `${serverOrigin}/remote.php/dav/public-files/${shareToken}`
-        : `${serverOrigin}/public.php/dav/files/${shareToken}`;
+    const directDownloadUrl =
+        webdavServerType === "owncloud"
+            ? `${serverOrigin}/remote.php/dav/public-files/${shareToken}`
+            : `${serverOrigin}/public.php/dav/files/${shareToken}`;
 
     if (shareType === "direct-download") {
         return directDownloadUrl;
@@ -1169,16 +1179,11 @@ async function uploadToService(serviceType: ServiceType, fileBlob: Blob, filenam
     }
 }
 
-const EXE_BLOCKED_SERVICES = new Set<ServiceType>([
-    ServiceType.CATBOX,
-    ServiceType.LITTERBOX,
-    ServiceType.ZEROX0
-]);
+const EXE_BLOCKED_SERVICES = new Set<ServiceType>([ServiceType.CATBOX, ServiceType.LITTERBOX, ServiceType.ZEROX0]);
 
 function getEmbedProxyService(): EmbedProxyService {
     const service = settings.store.embedProxyService;
     return service === "nfp" ? service : "cors";
-
 }
 
 function shouldProxyEmbedUrl(url: string): boolean {
@@ -1243,7 +1248,7 @@ function normalizePrimaryService(primary: ServiceType, fileName: string): Servic
 }
 
 function buildUploadOrder(primary: ServiceType, fileName: string): ServiceType[] {
-    const disableFallbacks = Boolean((settings.store as { disableFallbacks?: boolean; }).disableFallbacks);
+    const disableFallbacks = Boolean((settings.store as { disableFallbacks?: boolean }).disableFallbacks);
     const effectivePrimary = normalizePrimaryService(primary, fileName);
 
     const order: ServiceType[] = [effectivePrimary];
@@ -1275,10 +1280,13 @@ function finalizeUploadedUrl(url: string): string {
 }
 
 function getAllowedExtensions(): Set<string> | null {
-    const raw = (settings.store as { uploadAllowedFileTypes?: string; }).uploadAllowedFileTypes?.trim();
+    const raw = (settings.store as { uploadAllowedFileTypes?: string }).uploadAllowedFileTypes?.trim();
     if (!raw) return null;
 
-    const exts = raw.split(/[\s,;]+/).map(e => e.trim().toLowerCase()).filter(Boolean);
+    const exts = raw
+        .split(/[\s,;]+/)
+        .map(e => e.trim().toLowerCase())
+        .filter(Boolean);
     return exts.length > 0 ? new Set(exts) : null;
 }
 
@@ -1319,8 +1327,8 @@ async function notifyUploadSuccess(finalUrl: string, forceSend?: boolean): Promi
         showToast("Upload successful", Toasts.Type.SUCCESS);
     }
 
-    const autoSend = forceSend || Boolean((settings.store as { autoSend?: boolean; }).autoSend);
-    const autoFormat = Boolean((settings.store as { autoFormat?: boolean; }).autoFormat);
+    const autoSend = forceSend || Boolean((settings.store as { autoSend?: boolean }).autoSend);
+    const autoFormat = Boolean((settings.store as { autoFormat?: boolean }).autoFormat);
     if (autoSend) {
         insertTextIntoChatInputBox(autoFormat ? `<${finalUrl}>` : finalUrl);
     }
@@ -1358,9 +1366,10 @@ async function uploadWithFallbacks(fileBlob: Blob, filename: string, primary: Se
             transferredBytes: 0,
             totalBytes: fileBlob.size,
             percent: 0,
-            status: attempt === 1
-                ? `Uploading via ${serviceLabels[service]}...`
-                : `Retrying with ${serviceLabels[service]} (${attempt}/${uploadOrder.length})...`
+            status:
+                attempt === 1
+                    ? `Uploading via ${serviceLabels[service]}...`
+                    : `Retrying with ${serviceLabels[service]} (${attempt}/${uploadOrder.length})...`
         });
 
         try {
@@ -1411,7 +1420,7 @@ async function uploadWithFallbacks(fileBlob: Blob, filename: string, primary: Se
     throw new Error(`All upload services failed. Last error: ${lastError}. Tried: ${attempted.join(", ")}`);
 }
 
-async function normalizeUploadBlob(blob: Blob, sourceUrl?: string): Promise<{ blob: Blob; filename: string; }> {
+async function normalizeUploadBlob(blob: Blob, sourceUrl?: string): Promise<{ blob: Blob; filename: string }> {
     let sourceFileName = "";
     if (blob instanceof File && blob.name) {
         sourceFileName = blob.name;
@@ -1421,11 +1430,12 @@ async function normalizeUploadBlob(blob: Blob, sourceUrl?: string): Promise<{ bl
     }
 
     const extGuessFromSource = sourceUrl ? getUrlExtension(sourceUrl) : undefined;
-    let ext = await getExtensionFromBytes(blob)
-        || getExtensionFromMime(blob.type)
-        || getFilenameExtension(sourceFileName)
-        || extGuessFromSource
-        || "bin";
+    let ext =
+        (await getExtensionFromBytes(blob)) ||
+        getExtensionFromMime(blob.type) ||
+        getFilenameExtension(sourceFileName) ||
+        extGuessFromSource ||
+        "bin";
 
     if (ext === "apng" && settings.store.apngToGif) {
         const gifBlob = await convertApngToGif(blob);

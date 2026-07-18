@@ -5,18 +5,18 @@
  */
 
 import "./style.css";
+import { RenderModalProps } from "@vencord/discord-types";
 
 import { actions } from "@equicordplugins/keyboardNavigation/commands";
 import { classNameFactory } from "@utils/css";
 import { Logger } from "@utils/Logger";
-import { RenderModalProps } from "@vencord/discord-types";
-import { closeAllModals, Modal,openModal, React, TextInput, useEffect, useState } from "@webpack/common";
+import { closeAllModals, Modal, openModal, React, TextInput, useEffect, useState } from "@webpack/common";
 
 import { settings } from "..";
 
 const logger = new Logger("CommandPalette", "#e5c890");
 
-export function CommandPalette({ modalProps }: { modalProps: RenderModalProps; }) {
+export function CommandPalette({ modalProps }: { modalProps: RenderModalProps }) {
     const cl = classNameFactory("vc-command-palette-");
     const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
     const [startIndex, setStartIndex] = useState(0);
@@ -27,9 +27,7 @@ export function CommandPalette({ modalProps }: { modalProps: RenderModalProps; }
 
     const [queryEh, setQuery] = useState("");
 
-    const filteredActions = sortedActions.filter(
-        action => action.label.toLowerCase().includes(queryEh.toLowerCase())
-    );
+    const filteredActions = sortedActions.filter(action => action.label.toLowerCase().includes(queryEh.toLowerCase()));
 
     const visibleActions = filteredActions.slice(startIndex, startIndex + 20);
 
@@ -105,7 +103,12 @@ export function CommandPalette({ modalProps }: { modalProps: RenderModalProps; }
                 <TextInput
                     value={queryEh}
                     onChange={e => setQuery(e)}
-                    style={{ width: "100%", borderBottomLeftRadius: "0", borderBottomRightRadius: "0", paddingLeft: "0.9rem" }}
+                    style={{
+                        width: "100%",
+                        borderBottomLeftRadius: "0",
+                        borderBottomRightRadius: "0",
+                        paddingLeft: "0.9rem"
+                    }}
                     placeholder="Search the Command Palette"
                 />
                 <div className={cl("option-container")}>
@@ -113,8 +116,12 @@ export function CommandPalette({ modalProps }: { modalProps: RenderModalProps; }
                         <button
                             key={action.id}
                             className={cl("option", { "key-hover": index === focusedIndex })}
-                            onClick={() => { if (allowMouse) handleButtonClick(action.id, index); }}
-                            onMouseMove={() => { if (allowMouse) setFocusedIndex(index); }}
+                            onClick={() => {
+                                if (allowMouse) handleButtonClick(action.id, index);
+                            }}
+                            onMouseMove={() => {
+                                if (allowMouse) setFocusedIndex(index);
+                            }}
                             style={allowMouse ? { cursor: "pointer" } : { cursor: "default" }}
                         >
                             {action.label}

@@ -15,7 +15,7 @@ export const settings = definePluginSettings({
     tagsList: {
         type: OptionType.CUSTOM,
         description: "",
-        default: {} as Record<string, Tag>,
+        default: {} as Record<string, Tag>
     },
     tagComponent: {
         type: OptionType.COMPONENT,

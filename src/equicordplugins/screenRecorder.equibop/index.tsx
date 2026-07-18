@@ -33,7 +33,10 @@ function startRecording(children) {
                 </div>
             }
             action={async () => {
-                const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: { frameRate: { ideal: 60 } } });
+                const stream = await navigator.mediaDevices.getDisplayMedia({
+                    audio: true,
+                    video: { frameRate: { ideal: 60 } }
+                });
                 recoder = new MediaRecorder(stream);
                 recoder.start();
                 removeContextMenuPatch("channel-attach", startRecording);

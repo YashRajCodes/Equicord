@@ -4,6 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { Channel, Message } from "@vencord/discord-types";
+import { ApplicationIntegrationType, MessageFlags } from "@vencord/discord-types/enums";
+
 import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings } from "@api/Settings";
 import NoReplyMentionPlugin from "@plugins/noReplyMention";
@@ -11,19 +14,44 @@ import { Devs, EquicordDevs } from "@utils/constants";
 import { copyWithToast, insertTextIntoChatInputBox } from "@utils/discord";
 import { Logger } from "@utils/Logger";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
-import type { Channel, Message } from "@vencord/discord-types";
-import { ApplicationIntegrationType, MessageFlags } from "@vencord/discord-types/enums";
-import { AuthenticationStore, Constants, EditMessageStore, FluxDispatcher, MessageActions, MessageTypeSets, PermissionsBits, PermissionStore, PinActions, RestAPI, Toasts, WindowStore } from "@webpack/common";
+import {
+    AuthenticationStore,
+    Constants,
+    EditMessageStore,
+    FluxDispatcher,
+    MessageActions,
+    MessageTypeSets,
+    PermissionsBits,
+    PermissionStore,
+    PinActions,
+    RestAPI,
+    Toasts,
+    WindowStore
+} from "@webpack/common";
 
 import { AdditionalReactEmojisSetting, MAX_ADDITIONAL_REACT_EMOJIS, ReactEmojiSetting } from "./ReactEmojiSetting";
 
 type Modifier = "NONE" | "SHIFT" | "CTRL" | "ALT" | "BACKSPACE" | "DELETE";
-type ClickAction = "NONE" | "DELETE" | "COPY_LINK" | "COPY_ID" | "COPY_CONTENT" | "COPY_USER_ID" | "EDIT" | "REPLY" | "REACT" | "OPEN_THREAD" | "OPEN_TAB" | "EDIT_REPLY" | "QUOTE" | "PIN";
+type ClickAction =
+    | "NONE"
+    | "DELETE"
+    | "COPY_LINK"
+    | "COPY_ID"
+    | "COPY_CONTENT"
+    | "COPY_USER_ID"
+    | "EDIT"
+    | "REPLY"
+    | "REACT"
+    | "OPEN_THREAD"
+    | "OPEN_TAB"
+    | "EDIT_REPLY"
+    | "QUOTE"
+    | "PIN";
 
 const logger = new Logger("MessageClickActions");
 const ADDITIONAL_REACTION_DELAY_MS = 300; // discord seems to rate limit this for 300ms but that might not be constant
 
-const actions: { label: string; value: ClickAction; }[] = [
+const actions: { label: string; value: ClickAction }[] = [
     { label: "None", value: "NONE" },
     { label: "Delete", value: "DELETE" },
     { label: "Copy Link", value: "COPY_LINK" },
@@ -37,7 +65,7 @@ const actions: { label: string; value: ClickAction; }[] = [
     { label: "Open Tab", value: "OPEN_TAB" }
 ];
 
-const doubleClickOwnActions: { label: string; value: ClickAction; }[] = [
+const doubleClickOwnActions: { label: string; value: ClickAction }[] = [
     { label: "None", value: "NONE" },
     { label: "Delete", value: "DELETE" },
     { label: "Reply", value: "REPLY" },
@@ -51,7 +79,7 @@ const doubleClickOwnActions: { label: string; value: ClickAction; }[] = [
     { label: "Pin", value: "PIN" }
 ];
 
-const doubleClickOthersActions: { label: string; value: ClickAction; }[] = [
+const doubleClickOthersActions: { label: string; value: ClickAction }[] = [
     { label: "None", value: "NONE" },
     { label: "Delete", value: "DELETE" },
     { label: "Reply", value: "REPLY" },
@@ -64,14 +92,14 @@ const doubleClickOthersActions: { label: string; value: ClickAction; }[] = [
     { label: "Pin", value: "PIN" }
 ];
 
-const modifiers: { label: string; value: Modifier; }[] = [
+const modifiers: { label: string; value: Modifier }[] = [
     { label: "None", value: "NONE" },
     { label: "Shift", value: "SHIFT" },
     { label: "Ctrl", value: "CTRL" },
     { label: "Alt", value: "ALT" }
 ];
 
-const singleClickModifiers: { label: string; value: Modifier; }[] = [
+const singleClickModifiers: { label: string; value: Modifier }[] = [
     { label: "Backspace", value: "BACKSPACE" },
     { label: "Delete", value: "DELETE" },
     ...modifiers
@@ -311,32 +339,34 @@ function getConfiguredReactionEmojis() {
     return Array.from(new Set(configured.filter((emoji): emoji is string => Boolean(emoji))));
 }
 
-const canSend = (channel: Channel) =>
-    !channel.guild_id || PermissionStore.can(PermissionsBits.SEND_MESSAGES, channel);
+const canSend = (channel: Channel) => !channel.guild_id || PermissionStore.can(PermissionsBits.SEND_MESSAGES, channel);
 
 const canDelete = (msg: Message, channel: Channel) => {
     const myId = AuthenticationStore.getId();
-    return msg.author.id === myId ||
+    return (
+        msg.author.id === myId ||
         PermissionStore.can(PermissionsBits.MANAGE_MESSAGES, channel) ||
-        msg.interactionMetadata?.authorizing_integration_owners?.[ApplicationIntegrationType.USER_INSTALL] === myId;
+        msg.interactionMetadata?.authorizing_integration_owners?.[ApplicationIntegrationType.USER_INSTALL] === myId
+    );
 };
 
-const canReply = (msg: Message) =>
-    MessageTypeSets.REPLYABLE.has(msg.type) && !msg.hasFlag(MessageFlags.EPHEMERAL);
+const canReply = (msg: Message) => MessageTypeSets.REPLYABLE.has(msg.type) && !msg.hasFlag(MessageFlags.EPHEMERAL);
 
 async function toggleReaction(channelId: string, messageId: string, emoji: string, channel: Channel, msg: Message) {
     const emojiParam = normalizeEmoji(emoji);
     if (!emojiParam) return;
 
-    if (channel.guild_id && (!PermissionStore.can(PermissionsBits.ADD_REACTIONS, channel) || !PermissionStore.can(PermissionsBits.READ_MESSAGE_HISTORY, channel))) {
+    if (
+        channel.guild_id &&
+        (!PermissionStore.can(PermissionsBits.ADD_REACTIONS, channel) ||
+            !PermissionStore.can(PermissionsBits.READ_MESSAGE_HISTORY, channel))
+    ) {
         showWarning("Cannot react: Missing permissions");
         return;
     }
 
     const hasReacted = msg.reactions?.some(r => {
-        const reactionEmoji = r.emoji.id
-            ? `${r.emoji.name}:${r.emoji.id}`
-            : r.emoji.name;
+        const reactionEmoji = r.emoji.id ? `${r.emoji.name}:${r.emoji.id}` : r.emoji.name;
         return r.me && reactionEmoji === emojiParam;
     });
 
@@ -359,7 +389,11 @@ async function addReaction(channelId: string, messageId: string, emoji: string, 
     const emojiParam = normalizeEmoji(emoji);
     if (!emojiParam) return;
 
-    if (channel.guild_id && (!PermissionStore.can(PermissionsBits.ADD_REACTIONS, channel) || !PermissionStore.can(PermissionsBits.READ_MESSAGE_HISTORY, channel))) {
+    if (
+        channel.guild_id &&
+        (!PermissionStore.can(PermissionsBits.ADD_REACTIONS, channel) ||
+            !PermissionStore.can(PermissionsBits.READ_MESSAGE_HISTORY, channel))
+    ) {
         showWarning("Cannot react: Missing permissions");
         return;
     }
@@ -422,7 +456,11 @@ function quoteMessage(channel: Channel, msg: Message) {
     }
     if (!content) return;
 
-    const quoteText = content.split("\n").map(line => `> ${line}`).join("\n") + "\n";
+    const quoteText =
+        content
+            .split("\n")
+            .map(line => `> ${line}`)
+            .join("\n") + "\n";
 
     insertTextIntoChatInputBox(quoteText);
 
@@ -449,12 +487,7 @@ function openInThread(msg: Message, channel: Channel) {
     });
 }
 
-async function executeAction(
-    action: ClickAction,
-    msg: Message,
-    channel: Channel,
-    event: MouseEvent
-) {
+async function executeAction(action: ClickAction, msg: Message, channel: Channel, event: MouseEvent) {
     const myId = AuthenticationStore.getId();
     const isMe = msg.author.id === myId;
 
@@ -661,15 +694,13 @@ export default definePlugin({
             return;
         }
 
-        const canDoubleClick = (isModifierPressed(doubleClickModifier) || doubleClickModifier === "NONE") && doubleClickAction !== "NONE";
+        const canDoubleClick =
+            (isModifierPressed(doubleClickModifier) || doubleClickModifier === "NONE") && doubleClickAction !== "NONE";
         const canTripleClick =
             settings.store.deferDoubleClickForTriple &&
             isModifierPressed(tripleClickModifier) &&
             tripleClickAction !== "NONE";
-        const shouldDeferDoubleClick =
-            canDoubleClick &&
-            canTripleClick &&
-            doubleClickModifier === tripleClickModifier;
+        const shouldDeferDoubleClick = canDoubleClick && canTripleClick && doubleClickModifier === tripleClickModifier;
 
         if (isDoubleClick) {
             doubleClickFired = true;
@@ -679,7 +710,8 @@ export default definePlugin({
                 singleClickTimeout = null;
             }
 
-            const isQuickDoubleClick = !doubleClickDetected || (Date.now() - secondMouseDownTime < settings.store.doubleClickHoldThreshold);
+            const isQuickDoubleClick =
+                !doubleClickDetected || Date.now() - secondMouseDownTime < settings.store.doubleClickHoldThreshold;
             const executeDoubleClick = () => {
                 if (!canSend(channel)) return;
                 if (msg.deleted === true) return;
@@ -715,7 +747,12 @@ export default definePlugin({
             doubleClickFired = false;
 
             const executeSingleClick = () => {
-                if (!doubleClickFired && !doubleClickDetected && isModifierPressed(singleClickModifier) && singleClickAction !== "NONE") {
+                if (
+                    !doubleClickFired &&
+                    !doubleClickDetected &&
+                    isModifierPressed(singleClickModifier) &&
+                    singleClickAction !== "NONE"
+                ) {
                     executeAction(singleClickAction, msg, channel, event);
                     pressedModifiers.clear();
                 }
@@ -734,5 +771,5 @@ export default definePlugin({
                 executeSingleClick();
             }
         }
-    },
+    }
 });

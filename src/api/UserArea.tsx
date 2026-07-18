@@ -4,12 +4,16 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import ErrorBoundary from "@components/ErrorBoundary";
-import { Logger } from "@utils/Logger";
 import { findComponentByCodeLazy } from "@webpack";
 import type { ComponentType, MouseEventHandler, ReactNode } from "react";
 
-const PanelButton = findComponentByCodeLazy("tooltipPositionKey", "positionKeyStemOverride") as ComponentType<UserAreaButtonProps>;
+import ErrorBoundary from "@components/ErrorBoundary";
+import { Logger } from "@utils/Logger";
+
+const PanelButton = findComponentByCodeLazy(
+    "tooltipPositionKey",
+    "positionKeyStemOverride"
+) as ComponentType<UserAreaButtonProps>;
 
 export interface UserAreaButtonProps {
     icon: ReactNode;
@@ -36,7 +40,7 @@ export type UserAreaButtonFactory = (props: UserAreaRenderProps) => ReactNode;
 
 export interface UserAreaButtonData {
     render: UserAreaButtonFactory;
-    icon: ComponentType<{ className?: string; }>;
+    icon: ComponentType<{ className?: string }>;
     priority?: number;
 }
 
@@ -59,7 +63,7 @@ export function removeUserAreaButton(id: string) {
     buttons.delete(id);
 }
 
-function UserAreaButtons({ props }: { props: UserAreaRenderProps; }) {
+function UserAreaButtons({ props }: { props: UserAreaRenderProps }) {
     return (
         <>
             {Array.from(buttons)

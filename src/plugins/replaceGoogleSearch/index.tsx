@@ -26,7 +26,7 @@ const DefaultEngines = {
 
 const enum ReplacementEngineValue {
     OFF = "off",
-    CUSTOM = "custom",
+    CUSTOM = "custom"
 }
 
 const settings = definePluginSettings({
@@ -60,7 +60,9 @@ function makeSearchItem(src: string) {
     const { customEngineName, customEngineURL, replacementEngine } = settings.store;
 
     const hasCustomEngine = Boolean(customEngineName && customEngineURL);
-    const hasValidReplacementEngine = replacementEngine !== ReplacementEngineValue.OFF && !(replacementEngine === ReplacementEngineValue.CUSTOM && !hasCustomEngine);
+    const hasValidReplacementEngine =
+        replacementEngine !== ReplacementEngineValue.OFF &&
+        !(replacementEngine === ReplacementEngineValue.CUSTOM && !hasCustomEngine);
 
     const Engines = { ...DefaultEngines };
 
@@ -69,9 +71,10 @@ function makeSearchItem(src: string) {
     }
 
     if (hasValidReplacementEngine) {
-        const name = replacementEngine === ReplacementEngineValue.CUSTOM && hasCustomEngine
-            ? customEngineName
-            : replacementEngine;
+        const name =
+            replacementEngine === ReplacementEngineValue.CUSTOM && hasCustomEngine
+                ? customEngineName
+                : replacementEngine;
 
         return (
             <Menu.MenuItem
@@ -84,11 +87,7 @@ function makeSearchItem(src: string) {
     }
 
     return (
-        <Menu.MenuItem
-            label="Search Text"
-            key="search-text"
-            id="vc-search-text"
-        >
+        <Menu.MenuItem label="Search Text" key="search-text" id="vc-search-text">
             {Object.keys(Engines).map(engine => {
                 const key = "vc-search-content-" + engine;
                 return (
@@ -138,6 +137,6 @@ export default definePlugin({
     settings,
 
     contextMenus: {
-        "message": messageContextMenuPatch
+        message: messageContextMenuPatch
     }
 });

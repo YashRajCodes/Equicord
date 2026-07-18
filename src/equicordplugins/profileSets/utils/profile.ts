@@ -4,9 +4,17 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { getUserSettingLazy } from "@api/UserSettings";
-import { AvatarDecorationData, CustomStatus, DisplayNameStyles, Nameplate, ProfileEffect, ProfilePreset } from "@vencord/discord-types";
+import {
+    AvatarDecorationData,
+    CustomStatus,
+    DisplayNameStyles,
+    Nameplate,
+    ProfileEffect,
+    ProfilePreset
+} from "@vencord/discord-types";
 import { findStoreLazy } from "@webpack";
+
+import { getUserSettingLazy } from "@api/UserSettings";
 import { FluxDispatcher, GuildMemberStore, IconUtils, UserProfileStore, UserStore } from "@webpack/common";
 
 const UserProfileSettingsStore = findStoreLazy("UserProfileSettingsStore");
@@ -28,7 +36,7 @@ type PendingChanges = Record<string, unknown> & {
     pendingPrimaryGuildId?: string | null;
 };
 
-type ImageInput = string | { imageUri: string; [key: string]: unknown; } | null | undefined;
+type ImageInput = string | { imageUri: string; [key: string]: unknown } | null | undefined;
 type AvatarDecorationLike = AvatarDecorationData & {
     label?: string;
     type?: number;
@@ -59,7 +67,7 @@ function setPendingChanges(payload: Record<string, unknown>, guildId?: string) {
 
 function openProfileImagePreview(
     uploadType: "AVATAR" | "BANNER",
-    image: Extract<ImageInput, { imageUri: string; }>,
+    image: Extract<ImageInput, { imageUri: string }>,
     guildId?: string
 ) {
     dispatch("PROFILE_CUSTOMIZATION_OPEN_PREVIEW_MODAL", {
@@ -83,12 +91,14 @@ function hasImageInput(value: ImageInput): boolean {
 }
 
 function hasAvatarDecoration(value: unknown): value is AvatarDecorationLike {
-    return typeof value === "object"
-        && value != null
-        && "asset" in value
-        && "skuId" in value
-        && isNonEmptyString((value as { asset?: unknown; }).asset)
-        && isNonEmptyString((value as { skuId?: unknown; }).skuId);
+    return (
+        typeof value === "object" &&
+        value != null &&
+        "asset" in value &&
+        "skuId" in value &&
+        isNonEmptyString((value as { asset?: unknown }).asset) &&
+        isNonEmptyString((value as { skuId?: unknown }).skuId)
+    );
 }
 
 function normalizeDisplayNameStyles(value: DisplayNameStylesLike | null | undefined): DisplayNameStylesLike | null {
@@ -122,7 +132,13 @@ export async function imageUrlToBase64(url: string): Promise<string | null> {
     }
 }
 
-async function processImage(imageData: ImageInput, userId: string, type: "avatar" | "banner", guildId?: string, useGuildPath?: boolean): Promise<string | null> {
+async function processImage(
+    imageData: ImageInput,
+    userId: string,
+    type: "avatar" | "banner",
+    guildId?: string,
+    useGuildPath?: boolean
+): Promise<string | null> {
     if (!imageData) return null;
 
     if (typeof imageData === "object" && isNonEmptyString(imageData?.imageUri)) {
@@ -138,7 +154,9 @@ async function processImage(imageData: ImageInput, userId: string, type: "avatar
         const isAnimated = imageData.startsWith("a_");
         const size = type === "banner" ? 1024 : 512;
         const urlPath = type === "banner" ? "banners" : "avatars";
-        const guildPath = guildId ? `guilds/${guildId}/users/${userId}/${type === "banner" ? "banners" : "avatars"}` : urlPath;
+        const guildPath = guildId
+            ? `guilds/${guildId}/users/${userId}/${type === "banner" ? "banners" : "avatars"}`
+            : urlPath;
         const guildUrl = `https://cdn.discordapp.com/${guildPath}/${imageData}.${isAnimated ? "gif" : "png"}?size=${size}`;
         const globalUrl = `https://cdn.discordapp.com/${urlPath}/${userId}/${imageData}.${isAnimated ? "gif" : "png"}?size=${size}`;
         if (useGuildPath && guildId) {
@@ -151,39 +169,46 @@ async function processImage(imageData: ImageInput, userId: string, type: "avatar
     return null;
 }
 
-export async function getCurrentProfile(guildId?: string, options: CurrentProfileOptions = {}): Promise<Omit<ProfilePreset, "name" | "timestamp">> {
+export async function getCurrentProfile(
+    guildId?: string,
+    options: CurrentProfileOptions = {}
+): Promise<Omit<ProfilePreset, "name" | "timestamp">> {
     const currentUser = UserStore.getCurrentUser();
     const baseProfile = UserProfileStore.getUserProfile(currentUser.id);
     const isGuildProfile = options.isGuildProfile ?? Boolean(guildId);
     const effectiveGuildId = isGuildProfile ? guildId : undefined;
-    const guildProfile = effectiveGuildId ? UserProfileStore.getGuildMemberProfile(currentUser.id, effectiveGuildId) : null;
+    const guildProfile = effectiveGuildId
+        ? UserProfileStore.getGuildMemberProfile(currentUser.id, effectiveGuildId)
+        : null;
     const userProfile = guildProfile ?? baseProfile;
     const userAny = currentUser;
     const guildMember = effectiveGuildId ? GuildMemberStore.getMember(effectiveGuildId, currentUser.id) : null;
 
     const pendingChangesDefault: PendingChanges = UserProfileSettingsStore.getPendingChanges() ?? {};
     const pendingChangesForGuild: PendingChanges = UserProfileSettingsStore.getPendingChanges(effectiveGuildId) ?? {};
-    const pendingChanges: PendingChanges = isGuildProfile && Object.keys(pendingChangesForGuild).length > 0
-        ? pendingChangesForGuild
-        : pendingChangesDefault;
+    const pendingChanges: PendingChanges =
+        isGuildProfile && Object.keys(pendingChangesForGuild).length > 0
+            ? pendingChangesForGuild
+            : pendingChangesDefault;
     const customStatusSetting = CustomStatusSettings.getSetting();
     const customStatus = isGuildProfile
         ? null
         : {
-            text: customStatusSetting?.text ?? "",
-            emojiId: customStatusSetting?.emojiId ?? "0",
-            emojiName: customStatusSetting?.emojiName ?? "",
-            expiresAtMs: customStatusSetting?.expiresAtMs ?? "0"
-        };
+              text: customStatusSetting?.text ?? "",
+              emojiId: customStatusSetting?.emojiId ?? "0",
+              emojiName: customStatusSetting?.emojiName ?? "",
+              expiresAtMs: customStatusSetting?.expiresAtMs ?? "0"
+          };
 
-    const avatarDecorationSource = pendingChanges.pendingAvatarDecoration
-        ?? (isGuildProfile ? guildMember?.avatarDecoration : userAny.avatarDecorationData);
+    const avatarDecorationSource =
+        pendingChanges.pendingAvatarDecoration ??
+        (isGuildProfile ? guildMember?.avatarDecoration : userAny.avatarDecorationData);
     const avatarDecoration = hasAvatarDecoration(avatarDecorationSource)
         ? {
-            ...avatarDecorationSource,
-            asset: avatarDecorationSource.asset,
-            skuId: avatarDecorationSource.skuId
-        }
+              ...avatarDecorationSource,
+              asset: avatarDecorationSource.asset,
+              skuId: avatarDecorationSource.skuId
+          }
         : null;
 
     let profileEffect: ProfileEffect | null = null;
@@ -223,15 +248,18 @@ export async function getCurrentProfile(guildId?: string, options: CurrentProfil
         }
     }
 
-    const nameplateToUse = pendingChanges.pendingNameplate
-        ?? (isGuildProfile ? guildMember?.collectibles?.nameplate : userAny.collectibles?.nameplate);
-    const nameplate = nameplateToUse ? {
-        skuId: nameplateToUse.skuId,
-        asset: nameplateToUse.asset,
-        label: nameplateToUse.label,
-        palette: typeof nameplateToUse.palette === "string" ? nameplateToUse.palette : undefined,
-        type: nameplateToUse.type || 2
-    } : null;
+    const nameplateToUse =
+        pendingChanges.pendingNameplate ??
+        (isGuildProfile ? guildMember?.collectibles?.nameplate : userAny.collectibles?.nameplate);
+    const nameplate = nameplateToUse
+        ? {
+              skuId: nameplateToUse.skuId,
+              asset: nameplateToUse.asset,
+              label: nameplateToUse.label,
+              palette: typeof nameplateToUse.palette === "string" ? nameplateToUse.palette : undefined,
+              type: nameplateToUse.type || 2
+          }
+        : null;
 
     const savedDisplayNameStyles = isGuildProfile
         ? (guildMember?.displayNameStyles ?? userAny.displayNameStyles)
@@ -242,9 +270,16 @@ export async function getCurrentProfile(guildId?: string, options: CurrentProfil
     const { pendingAvatar } = pendingChanges;
     const avatarToUse: ImageInput = hasImageInput(pendingAvatar)
         ? pendingAvatar
-        : (isGuildProfile ? (guildMember?.avatar ?? currentUser.avatar ?? null) : (currentUser.avatar ?? null));
+        : isGuildProfile
+          ? (guildMember?.avatar ?? currentUser.avatar ?? null)
+          : (currentUser.avatar ?? null);
 
-    const useGuildAvatar = !!(effectiveGuildId && isGuildProfile && guildMember?.avatar && avatarToUse === guildMember.avatar);
+    const useGuildAvatar = !!(
+        effectiveGuildId &&
+        isGuildProfile &&
+        guildMember?.avatar &&
+        avatarToUse === guildMember.avatar
+    );
 
     const avatarInput: ImageInput = hasImageInput(avatarToUse)
         ? avatarToUse
@@ -255,8 +290,15 @@ export async function getCurrentProfile(guildId?: string, options: CurrentProfil
     const { pendingBanner } = pendingChanges;
     const bannerToUse: ImageInput = hasImageInput(pendingBanner)
         ? pendingBanner
-        : (isGuildProfile ? (guildProfile?.banner ?? baseProfile?.banner) : baseProfile?.banner);
-    const useGuildBanner = !!(effectiveGuildId && isGuildProfile && guildProfile?.banner && bannerToUse === guildProfile?.banner);
+        : isGuildProfile
+          ? (guildProfile?.banner ?? baseProfile?.banner)
+          : baseProfile?.banner;
+    const useGuildBanner = !!(
+        effectiveGuildId &&
+        isGuildProfile &&
+        guildProfile?.banner &&
+        bannerToUse === guildProfile?.banner
+    );
 
     const bannerDataUrl = await processImage(bannerToUse, currentUser.id, "banner", effectiveGuildId, useGuildBanner);
 
@@ -288,10 +330,12 @@ function jsonEq(a: unknown, b: unknown): boolean {
 
 function customStatusEq(a: CustomStatus | null | undefined, b: CustomStatus | null | undefined): boolean {
     if (a == null || b == null) return a == null && b == null;
-    return a.text === b.text
-        && String(a.emojiId ?? "") === String(b.emojiId ?? "")
-        && a.emojiName === b.emojiName
-        && String(a.expiresAtMs ?? "0") === String(b.expiresAtMs ?? "0");
+    return (
+        a.text === b.text &&
+        String(a.emojiId ?? "") === String(b.emojiId ?? "") &&
+        a.emojiName === b.emojiName &&
+        String(a.expiresAtMs ?? "0") === String(b.expiresAtMs ?? "0")
+    );
 }
 
 function resolvePendingAvatar(pendingChanges: PendingChanges | null): ImageInput {
@@ -303,23 +347,32 @@ function resolvePendingAvatar(pendingChanges: PendingChanges | null): ImageInput
 function normalizeImageValue(value: unknown): string | null {
     if (typeof value === "string") return value;
     if (value && typeof value === "object" && "imageUri" in value) {
-        const { imageUri } = value as { imageUri: unknown; };
+        const { imageUri } = value as { imageUri: unknown };
         return typeof imageUri === "string" ? imageUri : null;
     }
     return null;
 }
 
-function collectibleEqBySku(a: { skuId?: string | number | null; } | null | undefined, b: { skuId?: string | number | null; } | null | undefined): boolean {
+function collectibleEqBySku(
+    a: { skuId?: string | number | null } | null | undefined,
+    b: { skuId?: string | number | null } | null | undefined
+): boolean {
     if (a == null || b == null) return a == null && b == null;
     return String(a.skuId ?? "") === String(b.skuId ?? "");
 }
 
-function avatarDecorationEq(a: { skuId?: string | number | null; asset?: string | null; } | null | undefined, b: { skuId?: string | number | null; asset?: string | null; } | null | undefined): boolean {
+function avatarDecorationEq(
+    a: { skuId?: string | number | null; asset?: string | null } | null | undefined,
+    b: { skuId?: string | number | null; asset?: string | null } | null | undefined
+): boolean {
     if (a == null || b == null) return a == null && b == null;
     return String(a.skuId ?? "") === String(b.skuId ?? "") && String(a.asset ?? "") === String(b.asset ?? "");
 }
 
-function nameplateEq(a: { skuId?: string | number | null; asset?: string | null; } | null | undefined, b: { skuId?: string | number | null; asset?: string | null; } | null | undefined): boolean {
+function nameplateEq(
+    a: { skuId?: string | number | null; asset?: string | null } | null | undefined,
+    b: { skuId?: string | number | null; asset?: string | null } | null | undefined
+): boolean {
     if (a == null || b == null) return a == null && b == null;
     return String(a.skuId ?? "") === String(b.skuId ?? "") && String(a.asset ?? "") === String(b.asset ?? "");
 }
@@ -331,9 +384,10 @@ export async function loadPresetAsPending(preset: ProfilePreset, guildId?: strin
         const current = await getCurrentProfile(guildId, {
             isGuildProfile: isGuild
         });
-        const pendingChanges = (isGuild && guildId
-            ? UserProfileSettingsStore.getPendingChanges(guildId)
-            : UserProfileSettingsStore.getPendingChanges());
+        const pendingChanges =
+            isGuild && guildId
+                ? UserProfileSettingsStore.getPendingChanges(guildId)
+                : UserProfileSettingsStore.getPendingChanges();
         const setPending = (payload: Record<string, unknown>) => {
             const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([, v]) => v !== undefined));
             if (!Object.keys(cleanPayload).length) return;
@@ -346,17 +400,17 @@ export async function loadPresetAsPending(preset: ProfilePreset, guildId?: strin
             const currentAvatar = normalizeImageValue(current.avatarDataUrl);
             const pendingAvatar = normalizeImageValue(resolvePendingAvatar(pendingChanges));
             if (presetAvatar !== currentAvatar && presetAvatar !== pendingAvatar) {
-                const avatarPayload =
-                    avatarValue?.startsWith?.("data:")
-                        ? {
-                            assetOrigin: "NEW_ASSET",
-                            imageUri: avatarValue,
-                            description: `profilesets-${preset.name ?? "preset"}`
-                        }
-                        : avatarValue;
-                const avatarImageUri = avatarPayload != null && "imageUri" in Object(avatarPayload)
-                    ? (avatarPayload as { imageUri?: unknown; }).imageUri
-                    : null;
+                const avatarPayload = avatarValue?.startsWith?.("data:")
+                    ? {
+                          assetOrigin: "NEW_ASSET",
+                          imageUri: avatarValue,
+                          description: `profilesets-${preset.name ?? "preset"}`
+                      }
+                    : avatarValue;
+                const avatarImageUri =
+                    avatarPayload != null && "imageUri" in Object(avatarPayload)
+                        ? (avatarPayload as { imageUri?: unknown }).imageUri
+                        : null;
                 if (isNonEmptyString(avatarImageUri)) {
                     openProfileImagePreview("AVATAR", { ...Object(avatarPayload), imageUri: avatarImageUri }, guildId);
                 } else {
@@ -368,15 +422,16 @@ export async function loadPresetAsPending(preset: ProfilePreset, guildId?: strin
         if ("bannerDataUrl" in preset && preset.bannerDataUrl !== current.bannerDataUrl) {
             const bannerPayload = preset.bannerDataUrl?.startsWith?.("data:")
                 ? {
-                    assetOrigin: "NEW_ASSET",
-                    imageUri: preset.bannerDataUrl,
-                    description: `profilesets-${preset.name ?? "preset"}`
-                }
+                      assetOrigin: "NEW_ASSET",
+                      imageUri: preset.bannerDataUrl,
+                      description: `profilesets-${preset.name ?? "preset"}`
+                  }
                 : preset.bannerDataUrl;
 
-            const bannerImageUri = bannerPayload != null && "imageUri" in Object(bannerPayload)
-                ? (bannerPayload as { imageUri?: unknown; }).imageUri
-                : null;
+            const bannerImageUri =
+                bannerPayload != null && "imageUri" in Object(bannerPayload)
+                    ? (bannerPayload as { imageUri?: unknown }).imageUri
+                    : null;
             if (isNonEmptyString(bannerImageUri)) {
                 openProfileImagePreview("BANNER", { ...Object(bannerPayload), imageUri: bannerImageUri }, guildId);
             } else {
@@ -396,7 +451,10 @@ export async function loadPresetAsPending(preset: ProfilePreset, guildId?: strin
             setPending(isGuild ? { pendingNickname: preset.globalName } : { pendingGlobalName: preset.globalName });
         }
 
-        if (preset.avatarDecoration !== undefined && !avatarDecorationEq(preset.avatarDecoration, current.avatarDecoration)) {
+        if (
+            preset.avatarDecoration !== undefined &&
+            !avatarDecorationEq(preset.avatarDecoration, current.avatarDecoration)
+        ) {
             setPending({
                 pendingAvatarDecoration: preset.avatarDecoration
             });

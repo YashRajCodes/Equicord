@@ -5,12 +5,12 @@
  */
 
 import "./styles.css";
+import { findByPropsLazy, findCssClassesLazy } from "@webpack";
 
 import { BaseText } from "@components/BaseText";
 import { Flex } from "@components/Flex";
 import { Heading, HeadingTertiary } from "@components/Heading";
 import { copyToClipboard } from "@utils/clipboard";
-import { findByPropsLazy, findCssClassesLazy } from "@webpack";
 import { Button, Parser, useEffect, useState } from "@webpack/common";
 
 import { FriendInvite } from "./types";
@@ -39,16 +39,15 @@ function CopyButton({ copyText, copiedText, onClick }) {
     );
 }
 
-function FriendInviteCard({ invite }: { invite: FriendInvite; }) {
+function FriendInviteCard({ invite }: { invite: FriendInvite }) {
     return (
         <div className="vc-friend-codes-card">
             <Flex justifyContent="start">
                 <div className="vc-friend-codes-card-title">
-                    <HeadingTertiary style={{ textTransform: "none" }}>
-                        {invite.code}
-                    </HeadingTertiary>
+                    <HeadingTertiary style={{ textTransform: "none" }}>{invite.code}</HeadingTertiary>
                     <span>
-                        Expires {Parser.parse(`<t:${new Date(invite.expires_at).getTime() / 1000}:R>`)} • {invite.uses}/{invite.max_uses} uses
+                        Expires {Parser.parse(`<t:${new Date(invite.expires_at).getTime() / 1000}:R>`)} • {invite.uses}/
+                        {invite.max_uses} uses
                     </span>
                 </div>
                 <Flex justifyContent="end">
@@ -77,23 +76,19 @@ export default function FriendCodesPanel() {
     return (
         <>
             <header className={FormStyles.header}>
-                <Heading
-                    tag="h2"
-                    className={FormStyles.title}
-                >
+                <Heading tag="h2" className={FormStyles.title}>
                     Your Friend Codes
                 </Heading>
 
-                <Flex
-                    style={{ marginBottom: "16px" }}
-                    justifyContent="space-between"
-                >
+                <Flex style={{ marginBottom: "16px" }} justifyContent="space-between">
                     <h2 className="vc-friend-codes-info-header">{`Friend Codes - ${invites.length}`}</h2>
                     <Flex justifyContent="end">
                         <Button
                             color={Button.Colors.GREEN}
                             look={Button.Looks.FILLED}
-                            onClick={() => createFriendInvite().then((invite: FriendInvite) => setInvites([...invites, invite]))}
+                            onClick={() =>
+                                createFriendInvite().then((invite: FriendInvite) => setInvites([...invites, invite]))
+                            }
                         >
                             Create Friend Code
                         </Button>
@@ -110,23 +105,23 @@ export default function FriendCodesPanel() {
                 </Flex>
             </header>
             {loading ? (
-                <BaseText
-                    size="md"
-                    weight="semibold"
-                    className="vc-friend-codes-text"
-                >
+                <BaseText size="md" weight="semibold" className="vc-friend-codes-text">
                     Loading...
                 </BaseText>
             ) : invites.length === 0 ? (
-                <BaseText
-                    size="md"
-                    weight="semibold"
-                    className="vc-friend-codes-text"
-                >
+                <BaseText size="md" weight="semibold" className="vc-friend-codes-text">
                     You don't have any friend codes yet
                 </BaseText>
             ) : (
-                <div style={{ marginTop: "16px", display: "flex", flexWrap: "wrap", gap: "16px", justifyContent: "space-evenly" }}>
+                <div
+                    style={{
+                        marginTop: "16px",
+                        display: "flex",
+                        flexWrap: "wrap",
+                        gap: "16px",
+                        justifyContent: "space-evenly"
+                    }}
+                >
                     {invites.map(invite => (
                         <FriendInviteCard key={invite.code} invite={invite} />
                     ))}

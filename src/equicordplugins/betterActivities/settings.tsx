@@ -13,56 +13,58 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Show activity icons in the member list",
         default: true,
-        restartNeeded: true,
+        restartNeeded: true
     },
     iconSize: {
         type: OptionType.SLIDER,
         description: "Size of the activity icons",
         markers: [10, 15, 20],
         default: 15,
-        stickToMarkers: false,
+        stickToMarkers: false
     },
     specialFirst: {
         type: OptionType.BOOLEAN,
         description: "Show special activities first (Currently Spotify and Twitch)",
         default: true,
-        restartNeeded: false,
+        restartNeeded: false
     },
     renderGifs: {
         type: OptionType.BOOLEAN,
         description: "Allow rendering GIFs",
         default: true,
-        restartNeeded: false,
+        restartNeeded: false
     },
     removeGameActivityStatus: {
         type: OptionType.BOOLEAN,
         description: "Remove game activity icon and status",
         default: false,
-        restartNeeded: true,
+        restartNeeded: true
     },
     divider: {
         type: OptionType.COMPONENT,
         description: "",
         component: () => (
-            <div style={{
-                width: "100%",
-                height: 1,
-                borderTop: "thin solid var(--input-border-default, var(--input-border))",
-                paddingTop: 5,
-                paddingBottom: 5
-            }} />
-        ),
+            <div
+                style={{
+                    width: "100%",
+                    height: 1,
+                    borderTop: "thin solid var(--input-border-default, var(--input-border))",
+                    paddingTop: 5,
+                    paddingBottom: 5
+                }}
+            />
+        )
     },
     userPopout: {
         type: OptionType.BOOLEAN,
         description: "Show all activities in the profile popout/sidebar",
         default: true,
-        restartNeeded: true,
+        restartNeeded: true
     },
     hideTooltip: {
         type: OptionType.BOOLEAN,
         description: "Hides activities in various places",
-        default: true,
+        default: true
     },
     allActivitiesStyle: {
         type: OptionType.SELECT,
@@ -71,12 +73,12 @@ export const settings = definePluginSettings({
             {
                 default: true,
                 label: "Carousel",
-                value: "carousel",
+                value: "carousel"
             },
             {
                 label: "List",
-                value: "list",
-            },
+                value: "list"
+            }
         ]
     }
 });

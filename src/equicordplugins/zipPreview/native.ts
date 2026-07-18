@@ -12,7 +12,7 @@ const MAX_ZIP_BYTES = 50 * 1024 * 1024;
 export async function fetchDiscordAttachment(
     _: IpcMainInvokeEvent,
     pathAndQuery: string
-): Promise<{ success: boolean; data?: ArrayBuffer; error?: string; }> {
+): Promise<{ success: boolean; data?: ArrayBuffer; error?: string }> {
     try {
         const attachmentUrl = getDiscordAttachmentUrl(pathAndQuery);
         if (!attachmentUrl) return { success: false, error: "Invalid Discord attachment path" };
@@ -88,18 +88,16 @@ function getDiscordAttachmentUrl(pathAndQuery: string): URL | null {
     if (!isValidDiscordAttachmentPathAndQuery(pathAndQuery)) return null;
 
     const url = new URL(pathAndQuery, DISCORD_ATTACHMENT_BASE_URL);
-    return url.origin === "https://cdn.discordapp.com" && url.pathname.startsWith("/attachments/")
-        ? url
-        : null;
+    return url.origin === "https://cdn.discordapp.com" && url.pathname.startsWith("/attachments/") ? url : null;
 }
 
 function isValidDiscordAttachmentPathAndQuery(pathAndQuery: string): boolean {
     if (
-        pathAndQuery.includes("\\")
-        || pathAndQuery.includes("..")
-        || pathAndQuery.includes("://")
-        || pathAndQuery.startsWith("/")
-        || pathAndQuery.startsWith("//")
+        pathAndQuery.includes("\\") ||
+        pathAndQuery.includes("..") ||
+        pathAndQuery.includes("://") ||
+        pathAndQuery.startsWith("/") ||
+        pathAndQuery.startsWith("//")
     ) {
         return false;
     }
@@ -107,8 +105,10 @@ function isValidDiscordAttachmentPathAndQuery(pathAndQuery: string): boolean {
     const path = pathAndQuery.split("?", 1)[0];
     const parts = path.split("/");
 
-    return parts.length >= 3
-        && /^\d+$/.test(parts[0])
-        && /^\d+$/.test(parts[1])
-        && parts.slice(2).every(part => part.length > 0);
+    return (
+        parts.length >= 3 &&
+        /^\d+$/.test(parts[0]) &&
+        /^\d+$/.test(parts[1]) &&
+        parts.slice(2).every(part => part.length > 0)
+    );
 }

@@ -58,5 +58,5 @@ export const settingVariables = [
     "",
     "Miscellaneous Variables:",
     "{newline} or \\n - Newline character",
-    "",
+    ""
 ];

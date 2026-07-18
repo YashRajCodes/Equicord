@@ -5,13 +5,13 @@
  */
 
 import "./styles.css";
+import { Channel, Message, User } from "@vencord/discord-types";
 
 import { migratePluginToSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { getCurrentChannel, getIntlMessage } from "@utils/discord";
 import definePlugin from "@utils/types";
-import { Channel, Message, User } from "@vencord/discord-types";
 import { ChannelStore, GuildStore, PermissionsBits, SelectedChannelStore, UserStore } from "@webpack/common";
 
 import { computePermissions, Tag, tags } from "./consts";
@@ -39,7 +39,15 @@ export default definePlugin({
     description: "Adds tags for webhooks and moderative roles (owner, admin, etc.)",
     dependencies: ["MemberListDecoratorsAPI", "MessageDecorationsAPI", "NicknameIconsAPI"],
     tags: ["Appearance", "Chat"],
-    authors: [Devs.Cyn, Devs.TheSun, Devs.RyanCaoDev, Devs.LordElias, Devs.AutumnVN, EquicordDevs.Hen, EquicordDevs.meowabyte],
+    authors: [
+        Devs.Cyn,
+        Devs.TheSun,
+        Devs.RyanCaoDev,
+        Devs.LordElias,
+        Devs.AutumnVN,
+        EquicordDevs.Hen,
+        EquicordDevs.meowabyte
+    ],
     settings,
     patches: [
         // Make discord actually use our tags
@@ -48,14 +56,14 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(?<=type:(\i).*?\.BOT:.{0,25})default:(\i)=/,
-                    replace: "default:$2=$self.getTagText($self.localTags[$1]);",
+                    replace: "default:$2=$self.getTagText($self.localTags[$1]);"
                 },
                 {
                     match: /(?<=type:\i.*?)\.BOT:(?=default:)/,
                     replace: "$&return null;",
                     predicate: () => settings.store.dontShowBotTag
-                },
-            ],
+                }
+            ]
         },
         {
             find: '"#{intl::APP_TAG::hash}":',
@@ -66,12 +74,12 @@ export default definePlugin({
             replacement: {
                 match: /(#{intl::APP_TAG::hash}":\[").*?("\])/,
                 replace: "$1BOT$2",
-                noWarn: true,
+                noWarn: true
             }
         }
     ],
     start() {
-        const tagSettings = settings.store.tagSettings || {} as TagSettings;
+        const tagSettings = settings.store.tagSettings || ({} as TagSettings);
         for (const tag of Object.values(tags)) {
             tagSettings[tag.name] ??= {
                 showInChat: true,
@@ -94,11 +102,7 @@ export default definePlugin({
             isChat: false
         });
 
-        return tagId && <Tag
-            type={tagId}
-            verified={false}>
-        </Tag>;
-
+        return tagId && <Tag type={tagId} verified={false}></Tag>;
     },
     renderMessageDecoration(props) {
         const tagId = this.getTag({
@@ -108,12 +112,16 @@ export default definePlugin({
             isChat: true
         });
 
-        return tagId && <Tag
-            useRemSizes={true}
-            className={cl("message-tag", props.message.author.isVerifiedBot() && "message-verified")}
-            type={tagId}
-            verified={false}>
-        </Tag>;
+        return (
+            tagId && (
+                <Tag
+                    useRemSizes={true}
+                    className={cl("message-tag", props.message.author.isVerifiedBot() && "message-verified")}
+                    type={tagId}
+                    verified={false}
+                ></Tag>
+            )
+        );
     },
     renderMemberListDecorator(props) {
         const tagId = this.getTag({
@@ -123,10 +131,7 @@ export default definePlugin({
             isChat: false
         });
 
-        return tagId && <Tag
-            type={tagId}
-            verified={false}>
-        </Tag>;
+        return tagId && <Tag type={tagId} verified={false}></Tag>;
     },
 
     getTagText(tagName: string) {
@@ -138,11 +143,15 @@ export default definePlugin({
     },
 
     getTag({
-        message, user, channelId, isChat, channel
+        message,
+        user,
+        channelId,
+        isChat,
+        channel
     }: {
-        message?: Message,
-        user?: User,
-        channel?: Channel & { isForumPost(): boolean; isMediaPost(): boolean; },
+        message?: Message;
+        user?: User;
+        channel?: Channel & { isForumPost(): boolean; isMediaPost(): boolean };
         channelId?: string;
         isChat?: boolean;
     }): number | null {
@@ -158,30 +167,27 @@ export default definePlugin({
         const perms = this.getPermissions(user, channel);
 
         for (const tag of tags) {
-            if (isChat && !settings.tagSettings[tag.name]?.showInChat)
-                continue;
-            if (!isChat && !settings.tagSettings[tag.name]?.showInNotChat)
-                continue;
+            if (isChat && !settings.tagSettings[tag.name]?.showInChat) continue;
+            if (!isChat && !settings.tagSettings[tag.name]?.showInNotChat) continue;
 
             // If the owner tag is disabled, and the user is the owner of the guild,
             // avoid adding other tags because the owner will always match the condition for them
             if (
                 (tag.name !== "OWNER" &&
-                    GuildStore.getGuild(channel?.guild_id)?.ownerId ===
-                    user.id &&
+                    GuildStore.getGuild(channel?.guild_id)?.ownerId === user.id &&
                     isChat &&
                     !settings.tagSettings.OWNER.showInChat) ||
-                (GuildStore.getGuild(channel?.guild_id)?.ownerId ===
-                    user.id &&
+                (GuildStore.getGuild(channel?.guild_id)?.ownerId === user.id &&
                     !isChat &&
                     !settings.tagSettings.OWNER.showInNotChat)
             )
                 continue;
 
-            if ("permissions" in tag ?
-                tag.permissions.some(perm => perms.includes(perm)) :
-                tag.condition(message!, user, channel)) {
-
+            if (
+                "permissions" in tag
+                    ? tag.permissions.some(perm => perms.includes(perm))
+                    : tag.condition(message!, user, channel)
+            ) {
                 return this.localTags[tag.name];
             }
         }
@@ -194,9 +200,7 @@ export default definePlugin({
 
         const permissions = computePermissions({ user, context: guild, overwrites: channel.permissionOverwrites });
         return Object.entries(PermissionsBits)
-            .map(([perm, permInt]) =>
-                permissions & permInt ? perm : ""
-            )
+            .map(([perm, permInt]) => (permissions & permInt ? perm : ""))
             .filter(Boolean);
-    },
+    }
 });

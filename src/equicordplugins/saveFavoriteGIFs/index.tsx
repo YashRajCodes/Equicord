@@ -27,20 +27,22 @@ async function saveContentToFile(content: string, filename: string) {
         showNotification({
             title: "Save Favorite GIFs",
             body: `Saved GIFs successfully as ${filename}`,
-            color: "var(--text-positive)",
+            color: "var(--text-positive)"
         });
     } catch (error) {
         console.error(error);
         showNotification({
             title: "Save Favorite GIFs",
             body: "Failed to save GIFs",
-            color: "var(--text-danger)",
+            color: "var(--text-danger)"
         });
     }
 }
 
 function getGifUrls(): string[] {
-    return Object.keys(UserSettingsActionCreators.FrecencyUserSettingsActionCreators.getCurrentValue().favoriteGifs.gifs);
+    return Object.keys(
+        UserSettingsActionCreators.FrecencyUserSettingsActionCreators.getCurrentValue().favoriteGifs.gifs
+    );
 }
 
 async function saveAllGifs() {
@@ -66,22 +68,24 @@ async function saveWorkingGifs() {
 
     showNotification({
         title: "Save Favorite GIFs",
-        body: `Testing ${gifUrls.length} GIFs.. This may take a moment...`,
+        body: `Testing ${gifUrls.length} GIFs.. This may take a moment...`
     });
 
     const workingUrls: string[] = [];
 
-    await Promise.all(gifUrls.map(async url => {
-        try {
-            const response = await fetch(url, { method: "HEAD" });
-            if (response.ok) workingUrls.push(url);
-        } catch (e) {
+    await Promise.all(
+        gifUrls.map(async url => {
             try {
-                const response = await fetch(url);
+                const response = await fetch(url, { method: "HEAD" });
                 if (response.ok) workingUrls.push(url);
-            } catch (err) { }
-        }
-    }));
+            } catch (e) {
+                try {
+                    const response = await fetch(url);
+                    if (response.ok) workingUrls.push(url);
+                } catch (err) {}
+            }
+        })
+    );
 
     if (workingUrls.length === 0) {
         showNotification({ title: "Save Favorite GIFs", body: "None of your saved GIFs appear to be working." });
@@ -96,7 +100,7 @@ async function saveWorkingGifs() {
     showNotification({
         title: "Save Favorite GIFs",
         body: `Filtered ${gifUrls.length - workingUrls.length} possibly broken GIFs. Saved ${workingUrls.length} working GIFs.`,
-        color: "var(--text-positive)",
+        color: "var(--text-positive)"
     });
 }
 
@@ -137,12 +141,6 @@ export default definePlugin({
         const { showToolboxButton } = settings.use(["showToolboxButton"]);
         if (!showToolboxButton) return null;
 
-        return (
-            <Menu.MenuItem
-                id="save-favorite-gifs-toolbox"
-                label="Save Favorite GIFs"
-                action={saveAllGifs}
-            />
-        );
+        return <Menu.MenuItem id="save-favorite-gifs-toolbox" label="Save Favorite GIFs" action={saveAllGifs} />;
     }
 });

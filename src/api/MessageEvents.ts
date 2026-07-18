@@ -14,17 +14,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import type { Channel, CloudUpload, CustomEmoji, Message } from "@vencord/discord-types";
+import type { Promisable } from "type-fest";
 
 import { Logger } from "@utils/Logger";
-import type { Channel, CloudUpload, CustomEmoji, Message } from "@vencord/discord-types";
 import { MessageStore } from "@webpack/common";
-import type { Promisable } from "type-fest";
 
 const MessageEventsLogger = new Logger("MessageEvents", "#e5c890");
 
 export interface MessageObject {
-    content: string,
+    content: string;
     validNonShortcutEmojis: CustomEmoji[];
     invalidEmojis: any[];
     tts: boolean;
@@ -63,13 +64,28 @@ export interface SendMessageProps {
     openWarningPopout: (props: any) => any;
 }
 
-export type MessageSendListener = (channelId: string, messageObj: MessageObject, options: SendMessageOptions, props: SendMessageProps) => Promisable<void | { cancel: boolean; }>;
-export type MessageEditListener = (channelId: string, messageId: string, messageObj: MessageObject) => Promisable<void | { cancel: boolean; }>;
+export type MessageSendListener = (
+    channelId: string,
+    messageObj: MessageObject,
+    options: SendMessageOptions,
+    props: SendMessageProps
+) => Promisable<void | { cancel: boolean }>;
+export type MessageEditListener = (
+    channelId: string,
+    messageId: string,
+    messageObj: MessageObject
+) => Promisable<void | { cancel: boolean }>;
 
 const sendListeners = new Set<MessageSendListener>();
 const editListeners = new Set<MessageEditListener>();
 
-export async function _handlePreSend(channelId: string, messageObj: MessageObject, options: SendMessageOptions, props: SendMessageProps, contentOptions: MessageContentOptions) {
+export async function _handlePreSend(
+    channelId: string,
+    messageObj: MessageObject,
+    options: SendMessageOptions,
+    props: SendMessageProps,
+    contentOptions: MessageContentOptions
+) {
     options = { ...contentOptions, ...options };
 
     for (const listener of sendListeners) {

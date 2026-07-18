@@ -8,8 +8,8 @@ import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
 
 export interface folderIcon {
-    url: string,
-    size: number,
+    url: string;
+    size: number;
 }
 export type folderIconsData = Record<string, folderIcon | null>;
 

@@ -5,10 +5,10 @@
  */
 
 import "./Card.css";
+import { ComponentPropsWithRef } from "react";
 
 import { classNameFactory } from "@utils/css";
 import { classes } from "@utils/misc";
-import { ComponentPropsWithRef } from "react";
 
 const cl = classNameFactory("vc-card-");
 
@@ -19,13 +19,24 @@ export interface CardProps extends ComponentPropsWithRef<"div"> {
     defaultPadding?: boolean;
 }
 
-export function Card({ variant = "primary", outline = false, defaultPadding, children, className, ...restProps }: CardProps) {
-    const addDefaultPadding = defaultPadding != null
-        ? defaultPadding
-        : !className;
+export function Card({
+    variant = "primary",
+    outline = false,
+    defaultPadding,
+    children,
+    className,
+    ...restProps
+}: CardProps) {
+    const addDefaultPadding = defaultPadding != null ? defaultPadding : !className;
 
     return (
-        <div className={classes(cl("base", variant, outline && "outline", addDefaultPadding && "defaultPadding"), className)} {...restProps}>
+        <div
+            className={classes(
+                cl("base", variant, outline && "outline", addDefaultPadding && "defaultPadding"),
+                className
+            )}
+            {...restProps}
+        >
             {children}
         </div>
     );

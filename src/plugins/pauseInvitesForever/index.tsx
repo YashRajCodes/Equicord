@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
@@ -26,10 +26,7 @@ function showDisableInvites(guildId: string) {
     const guild = GuildStore.getGuild(guildId);
     if (!guild) return false;
 
-    return (
-        !hasGuildFeature(guild, "INVITES_DISABLED") &&
-        PermissionStore.getGuildPermissionProps(guild).canManageRoles
-    );
+    return !hasGuildFeature(guild, "INVITES_DISABLED") && PermissionStore.getGuildPermissionProps(guild).canManageRoles;
 }
 
 function disableInvites(guildId: string) {
@@ -37,7 +34,7 @@ function disableInvites(guildId: string) {
     const features = [...guild.features, "INVITES_DISABLED"];
     RestAPI.patch({
         url: Constants.Endpoints.GUILD(guildId),
-        body: { features },
+        body: { features }
     });
 }
 
@@ -55,7 +52,7 @@ export default definePlugin({
             replacement: [
                 {
                     match: /children:\i\.\i\.string\(\i\.\i#{intl::GUILD_INVITE_DISABLE_ACTION_SHEET_DESCRIPTION}\)/,
-                    replace: "children: $self.renderInvitesLabel({guildId:arguments[0].guildId,setChecked})",
+                    replace: "children: $self.renderInvitesLabel({guildId:arguments[0].guildId,setChecked})"
                 },
                 {
                     match: /\.INVITES_DISABLED\)(?=.+?#{intl::INVITES_PERMANENTLY_DISABLED_TIP}.+?checked:(\i)).+?\[\1,(\i)\]=\i.useState\(\i\)/,
@@ -65,15 +62,26 @@ export default definePlugin({
         }
     ],
 
-    renderInvitesLabel: ErrorBoundary.wrap(({ guildId, setChecked }) => {
-        return (
-            <div>
-                {getIntlMessage("GUILD_INVITE_DISABLE_ACTION_SHEET_DESCRIPTION")}
-                {showDisableInvites(guildId) && <a role="button" onClick={() => {
-                    setChecked(true);
-                    disableInvites(guildId);
-                }}> Pause Indefinitely.</a>}
-            </div>
-        );
-    }, { noop: true })
+    renderInvitesLabel: ErrorBoundary.wrap(
+        ({ guildId, setChecked }) => {
+            return (
+                <div>
+                    {getIntlMessage("GUILD_INVITE_DISABLE_ACTION_SHEET_DESCRIPTION")}
+                    {showDisableInvites(guildId) && (
+                        <a
+                            role="button"
+                            onClick={() => {
+                                setChecked(true);
+                                disableInvites(guildId);
+                            }}
+                        >
+                            {" "}
+                            Pause Indefinitely.
+                        </a>
+                    )}
+                </div>
+            );
+        },
+        { noop: true }
+    )
 });

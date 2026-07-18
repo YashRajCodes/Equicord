@@ -14,11 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { useCopyCooldown } from "@plugins/shikiCodeblocks.desktop/hooks/useCopyCooldown";
 
-export interface CopyButtonProps extends React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement> {
+export interface CopyButtonProps extends React.DetailedHTMLProps<
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
+    HTMLButtonElement
+> {
     content: string;
 }
 
@@ -30,12 +33,11 @@ export function CopyButton({ content, ...props }: CopyButtonProps) {
             {...props}
             style={{
                 ...props.style,
-                cursor: copyCooldown ? "default" : undefined,
+                cursor: copyCooldown ? "default" : undefined
             }}
             onClick={() => copy(content)}
         >
             {copyCooldown ? "Copied!" : "Copy"}
         </button>
-
     );
 }

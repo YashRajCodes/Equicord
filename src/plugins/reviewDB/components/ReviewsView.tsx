@@ -14,7 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { findByCodeLazy, findByPropsLazy, findComponentByCodeLazy } from "@webpack";
 
 import { Paragraph } from "@components/Paragraph";
 import { Auth, authorize } from "@plugins/reviewDB/auth";
@@ -23,7 +25,6 @@ import { addReview, getReviews, REVIEWS_PER_PAGE, UserReviewsData } from "@plugi
 import { settings } from "@plugins/reviewDB/settings";
 import { cl, showToast } from "@plugins/reviewDB/utils";
 import { useAwaiter, useForceUpdater } from "@utils/react";
-import { findByCodeLazy, findByPropsLazy, findComponentByCodeLazy } from "@webpack";
 import { React, RelationshipStore, useRef, UserStore } from "@webpack/common";
 
 import ReviewComponent from "./ReviewComponent";
@@ -58,23 +59,27 @@ export default function ReviewsView({
     page = 1,
     showInput = false,
     hideOwnReview = false,
-    type,
+    type
 }: Props) {
     const [signal, refetch] = useForceUpdater(true);
 
-    const [reviewData] = useAwaiter(() => getReviews(discordId, { offset: (page - 1) * REVIEWS_PER_PAGE, fetchVotes: true }), {
-        fallbackValue: null,
-        deps: [refetchSignal, signal, page],
-        onSuccess: data => {
-            if (settings.store.hideBlockedUsers) data!.reviews = data!.reviews?.filter(r => !RelationshipStore.isBlocked(r.sender.discordID));
-            const systemReviews = data!.reviews.filter(r => r.type === ReviewType.System);
-            const normalReviews = data!.reviews.filter(r => r.type !== ReviewType.System);
+    const [reviewData] = useAwaiter(
+        () => getReviews(discordId, { offset: (page - 1) * REVIEWS_PER_PAGE, fetchVotes: true }),
+        {
+            fallbackValue: null,
+            deps: [refetchSignal, signal, page],
+            onSuccess: data => {
+                if (settings.store.hideBlockedUsers)
+                    data!.reviews = data!.reviews?.filter(r => !RelationshipStore.isBlocked(r.sender.discordID));
+                const systemReviews = data!.reviews.filter(r => r.type === ReviewType.System);
+                const normalReviews = data!.reviews.filter(r => r.type !== ReviewType.System);
 
-            data!.reviews = [...systemReviews, ...normalReviews.reverse()];
-            scrollToTop?.();
-            onFetchReviews(data!);
+                data!.reviews = [...systemReviews, ...normalReviews.reverse()];
+                scrollToTop?.();
+                onFetchReviews(data!);
+            }
         }
-    });
+    );
 
     if (!reviewData) return null;
 
@@ -100,33 +105,55 @@ export default function ReviewsView({
     );
 }
 
-function ReviewList({ refetch, reviews, hideOwnReview, profileId, type }: { refetch(): void; reviews: Review[]; hideOwnReview: boolean; profileId: string; type: ReviewType; }) {
+function ReviewList({
+    refetch,
+    reviews,
+    hideOwnReview,
+    profileId,
+    type
+}: {
+    refetch(): void;
+    reviews: Review[];
+    hideOwnReview: boolean;
+    profileId: string;
+    type: ReviewType;
+}) {
     const myId = UserStore.getCurrentUser().id;
 
     return (
         <div className={cl("view")}>
-            {reviews?.map(review =>
-                (review.sender.discordID !== myId || !hideOwnReview) &&
-                <ReviewComponent
-                    key={review.id}
-                    review={review}
-                    refetch={refetch}
-                    profileId={profileId}
-                />
+            {reviews?.map(
+                review =>
+                    (review.sender.discordID !== myId || !hideOwnReview) && (
+                        <ReviewComponent key={review.id} review={review} refetch={refetch} profileId={profileId} />
+                    )
             )}
 
             {reviews?.length === 0 && (
                 <Paragraph className={cl("placeholder")}>
-                    Looks like nobody reviewed this {type === ReviewType.User ? "user" : "server"} yet. You could be the first!
+                    Looks like nobody reviewed this {type === ReviewType.User ? "user" : "server"} yet. You could be the
+                    first!
                 </Paragraph>
             )}
         </div>
     );
 }
 
-export function ReviewsInputComponent(
-    { discordId, isAuthor, refetch, name, modalKey, repliesTo }: { discordId: string, name: string; isAuthor: boolean; refetch(): void; modalKey?: string; repliesTo?: number; }
-) {
+export function ReviewsInputComponent({
+    discordId,
+    isAuthor,
+    refetch,
+    name,
+    modalKey,
+    repliesTo
+}: {
+    discordId: string;
+    name: string;
+    isAuthor: boolean;
+    refetch(): void;
+    modalKey?: string;
+    repliesTo?: number;
+}) {
     const { token } = Auth;
     const editorRef = useRef<any>(null);
     const inputType = ChatInputTypes.USER_PROFILE_REPLY;
@@ -136,62 +163,62 @@ export function ReviewsInputComponent(
 
     return (
         <>
-            <div onClick={() => {
-                if (!token) {
-                    showToast("Opening authorization window...");
-                    authorize();
-                }
-            }}>
+            <div
+                onClick={() => {
+                    if (!token) {
+                        showToast("Opening authorization window...");
+                        authorize();
+                    }
+                }}
+            >
                 <InputComponent
                     className={cl("input")}
                     channel={channel}
                     placeholder={
                         !token
                             ? "You need to authorize to review users!"
-                            : repliesTo ? `Reply to @${name}`
-                                : isAuthor
-                                    ? `Update review for @${name}`
-                                    : `Review @${name}`
+                            : repliesTo
+                              ? `Reply to @${name}`
+                              : isAuthor
+                                ? `Update review for @${name}`
+                                : `Review @${name}`
                     }
                     type={inputType}
                     disableThemedBackground={true}
-                    setEditorRef={ref => editorRef.current = ref}
+                    setEditorRef={ref => (editorRef.current = ref)}
                     parentModalKey={modalKey}
                     textValue=""
-                    onSubmit={
-                        async res => {
-                            // I know this naming is deranged, but for compatibility it has to stay this way
+                    onSubmit={async res => {
+                        // I know this naming is deranged, but for compatibility it has to stay this way
 
-                            const response = await addReview({
-                                userid: discordId,
-                                comment: res.value,
-                                repliesto: repliesTo,
+                        const response = await addReview({
+                            userid: discordId,
+                            comment: res.value,
+                            repliesto: repliesTo
+                        });
+
+                        if (response) {
+                            refetch();
+
+                            const slateEditor = editorRef.current.ref.current.getSlateEditor();
+
+                            // clear editor
+                            Transforms.delete(slateEditor, {
+                                at: {
+                                    anchor: Editor.start(slateEditor, []),
+                                    focus: Editor.end(slateEditor, [])
+                                }
                             });
-
-                            if (response) {
-                                refetch();
-
-                                const slateEditor = editorRef.current.ref.current.getSlateEditor();
-
-                                // clear editor
-                                Transforms.delete(slateEditor, {
-                                    at: {
-                                        anchor: Editor.start(slateEditor, []),
-                                        focus: Editor.end(slateEditor, []),
-                                    }
-                                });
-                            }
-
-                            // even tho we need to return this, it doesnt do anything
-                            return {
-                                shouldClear: false,
-                                shouldRefocus: true,
-                            };
                         }
-                    }
+
+                        // even tho we need to return this, it doesnt do anything
+                        return {
+                            shouldClear: false,
+                            shouldRefocus: true
+                        };
+                    }}
                 />
             </div>
-
         </>
     );
 }

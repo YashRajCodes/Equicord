@@ -4,12 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { Quest } from "@vencord/discord-types";
+import { findByCodeLazy, findStoreLazy } from "@webpack";
+
 import { playAudio } from "@api/AudioPlayer";
 import { showNotification } from "@api/Notifications";
 import { sleep } from "@utils/misc";
 import type { PluginNative } from "@utils/types";
-import type { Quest } from "@vencord/discord-types";
-import { findByCodeLazy, findStoreLazy } from "@webpack";
 import { QuestStore, RestAPI } from "@webpack/common";
 import { NavigationRouter } from "@webpack/common/utils";
 
@@ -31,8 +32,8 @@ export function snakeToCamel(obj: any): any {
         return Object.fromEntries(
             Object.entries(obj).map(([key, value]) => [
                 key.replace(/_([a-z])/g, (_, c) => c.toUpperCase()),
-                snakeToCamel(value),
-            ]),
+                snakeToCamel(value)
+            ])
         );
     }
 
@@ -81,8 +82,7 @@ async function fetchExcludedQuestConfigs(questIds: string[]): Promise<Quest[]> {
 }
 
 export function canOpenDevToolsWindow(): boolean {
-    return typeof QuestifyNative?.canOpenDevTools === "function"
-        && typeof QuestifyNative?.openDevTools === "function";
+    return typeof QuestifyNative?.canOpenDevTools === "function" && typeof QuestifyNative?.openDevTools === "function";
 }
 
 export async function openDevToolsWindow(): Promise<boolean> {
@@ -92,12 +92,10 @@ export async function openDevToolsWindow(): Promise<boolean> {
 
     const native = QuestifyNative!;
 
-    return await native.canOpenDevTools()
-        ? native.openDevTools()
-        : false;
+    return (await native.canOpenDevTools()) ? native.openDevTools() : false;
 }
 
-function getQuestNotificationText(quests: Quest[], excluded: boolean): { title: string; body: string; } {
+function getQuestNotificationText(quests: Quest[], excluded: boolean): { title: string; body: string } {
     const firstQuest = quests[0];
     const firstQuestName = normalizeQuestName(firstQuest);
 
@@ -124,7 +122,9 @@ function notifyNewQuests(quests: Quest[], excluded: boolean): void {
     const firstQuest = quests[0];
     const { title, body } = getQuestNotificationText(quests, excluded);
     const onClick = excluded
-        ? canOpenDevToolsWindow() ? openDevToolsWindow : undefined
+        ? canOpenDevToolsWindow()
+            ? openDevToolsWindow
+            : undefined
         : () => NavigationRouter.transitionTo(`${QUEST_PAGE}#${firstQuest.id}`);
 
     showNotification({
@@ -160,17 +160,22 @@ export async function fetchAndAlertQuests(source: string): Promise<Quest[] | nul
     const newQuests = getNewQuests(currentQuests, nextQuests);
     const newExcludedQuestIds = shouldFetchExcludedQuests
         ? Array.from(QuestStore.excludedQuests.values())
-            .map(quest => quest.id)
-            .filter(questId => !currentExcludedQuestIds.has(questId))
+              .map(quest => quest.id)
+              .filter(questId => !currentExcludedQuestIds.has(questId))
         : [];
 
     if (newQuests.length === 0 && newExcludedQuestIds.length === 0) {
         return nextQuests;
     }
 
-    const newExcludedQuests = newExcludedQuestIds.length > 0 ? await fetchExcludedQuestConfigs(newExcludedQuestIds) : [];
-    const newIncludedQuests = newQuests.filter(quest => questMatchesIncludedTypes(quest, includedTypes) && !questIsIgnored(quest.id));
-    const newIncludedExcludedQuests = newExcludedQuests.filter(quest => questMatchesIncludedTypes(quest, includedTypes) && !questIsIgnored(quest.id));
+    const newExcludedQuests =
+        newExcludedQuestIds.length > 0 ? await fetchExcludedQuestConfigs(newExcludedQuestIds) : [];
+    const newIncludedQuests = newQuests.filter(
+        quest => questMatchesIncludedTypes(quest, includedTypes) && !questIsIgnored(quest.id)
+    );
+    const newIncludedExcludedQuests = newExcludedQuests.filter(
+        quest => questMatchesIncludedTypes(quest, includedTypes) && !questIsIgnored(quest.id)
+    );
     const shouldAlert = Boolean(alertSound) && newIncludedQuests.length > 0;
     const shouldAlertExcluded = Boolean(excludedAlertSound) && newIncludedExcludedQuests.length > 0;
     const shouldNotify = settings.notifyOnNewQuests && newIncludedQuests.length > 0;
@@ -181,29 +186,25 @@ export async function fetchAndAlertQuests(source: string): Promise<Quest[] | nul
         newQuestCount: newQuests.length,
         newQuests: newIncludedQuests,
         matchedQuestCount: newIncludedQuests.length + newIncludedExcludedQuests.length,
-        ...(shouldFetchExcludedQuests ? {
-            newExcludedQuestCount: newExcludedQuestIds.length,
-            newExcludedQuests: newIncludedExcludedQuests,
-            matchedExcludedQuestCount: newIncludedExcludedQuests.length,
-        } : {}),
+        ...(shouldFetchExcludedQuests
+            ? {
+                  newExcludedQuestCount: newExcludedQuestIds.length,
+                  newExcludedQuests: newIncludedExcludedQuests,
+                  matchedExcludedQuestCount: newIncludedExcludedQuests.length
+              }
+            : {}),
         shouldAlert,
         shouldAlertExcluded,
         shouldNotify,
-        shouldNotifyExcluded,
+        shouldNotifyExcluded
     });
 
     if (shouldAlert) {
-        playAudio(
-            alertSound!,
-            { volume: Math.max(0, Math.min(100, alertVolume)) }
-        );
+        playAudio(alertSound!, { volume: Math.max(0, Math.min(100, alertVolume)) });
     }
 
     if (shouldAlertExcluded) {
-        playAudio(
-            excludedAlertSound!,
-            { volume: Math.max(0, Math.min(100, excludedAlertVolume)) }
-        );
+        playAudio(excludedAlertSound!, { volume: Math.max(0, Math.min(100, excludedAlertVolume)) });
     }
 
     if (shouldNotify) {

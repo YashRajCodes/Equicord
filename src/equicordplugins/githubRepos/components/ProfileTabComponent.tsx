@@ -5,15 +5,20 @@
  */
 
 import { BaseText } from "@components/BaseText";
-import { fetchReposByUserId, fetchReposByUsername, fetchUserInfo, GitHubUserInfo } from "@equicordplugins/githubRepos/githubApi";
+import {
+    fetchReposByUserId,
+    fetchReposByUsername,
+    fetchUserInfo,
+    GitHubUserInfo
+} from "@equicordplugins/githubRepos/githubApi";
 import { GitHubRepo } from "@equicordplugins/githubRepos/types";
-import { openModal,React, useEffect, UserProfileStore, useState } from "@webpack/common";
+import { openModal, React, useEffect, UserProfileStore, useState } from "@webpack/common";
 
 import { cl, settings } from "..";
 import { RepoCard } from "./RepoCard";
 import { ReposModal } from "./ReposModal";
 
-export function ProfileTabComponent({ id }: { id: string, theme: string; }) {
+export function ProfileTabComponent({ id }: { id: string; theme: string }) {
     const [repos, setRepos] = useState<GitHubRepo[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -23,13 +28,7 @@ export function ProfileTabComponent({ id }: { id: string, theme: string; }) {
         if (!userInfo) return;
 
         const sortedRepos = [...repos].sort((a, b) => b.stargazers_count - a.stargazers_count);
-        openModal(props => (
-            <ReposModal
-                repos={sortedRepos}
-                username={userInfo.username}
-                rootProps={props}
-            />
-        ));
+        openModal(props => <ReposModal repos={sortedRepos} username={userInfo.username} rootProps={props} />);
     };
 
     useEffect(() => {
@@ -83,7 +82,7 @@ export function ProfileTabComponent({ id }: { id: string, theme: string; }) {
     }, [id]);
 
     if (loading) return;
-    <BaseText size="xs" weight="semibold" className={cl("loading")} >
+    <BaseText size="xs" weight="semibold" className={cl("loading")}>
         Loading repositories...
     </BaseText>;
 
@@ -98,11 +97,7 @@ export function ProfileTabComponent({ id }: { id: string, theme: string; }) {
         <div className={cl("container", "tab")}>
             <BaseText size="xs" weight="semibold" className={cl("header")}>
                 GitHub Repositories
-                {userInfo && (
-                    <span className={cl("count")}>
-                        {` (${repos.length})`}
-                    </span>
-                )}
+                {userInfo && <span className={cl("count")}>{` (${repos.length})`}</span>}
             </BaseText>
             <div className={cl("list")}>
                 {repos.map(repo => (
@@ -111,8 +106,8 @@ export function ProfileTabComponent({ id }: { id: string, theme: string; }) {
                         repo={repo}
                         showStars={settings.store.showStars}
                         showLanguage={settings.store.showLanguage}
-                    />))
-                }
+                    />
+                ))}
             </div>
         </div>
     );

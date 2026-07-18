@@ -18,7 +18,7 @@ export default definePlugin({
             replacement: {
                 match: /\i\.self_video\|\|!1/g,
                 replace: "false"
-            },
+            }
         }
     ]
 });

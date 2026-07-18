@@ -45,11 +45,7 @@ export function EditableText({ value, onChange, className }: EditableTextProps) 
             }}
         />
     ) : (
-        <BaseText
-            className={className}
-            onClick={() => setEditing(true)}
-            style={{ cursor: "pointer" }}
-        >
+        <BaseText className={className} onClick={() => setEditing(true)} style={{ cursor: "pointer" }}>
             {value}
         </BaseText>
     );

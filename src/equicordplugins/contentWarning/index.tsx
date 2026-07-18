@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-
 import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
 import { Flex } from "@components/Flex";
@@ -57,7 +56,7 @@ function TriggerContainer({ child }) {
                 }}
             >
                 {child}
-            </div >
+            </div>
         );
     }
 }
@@ -90,42 +89,34 @@ function FlaggedInput({ index, forceUpdate }) {
         forceUpdate();
     };
 
-    return (<Flex flexDirection="row">
-        <div style={{ flexGrow: 1 }}>
-            <TextInput
-                placeholder="Word"
-                spellCheck={false}
-                value={value}
-                onChange={updateValue}
-            />
-        </div>
+    return (
+        <Flex flexDirection="row">
+            <div style={{ flexGrow: 1 }}>
+                <TextInput placeholder="Word" spellCheck={false} value={value} onChange={updateValue} />
+            </div>
 
-        <Button
-            onClick={removeSelf}
-            look={Button.Looks.FILLED}
-            size={Button.Sizes.SMALL}
-            style={{
-                padding: 0,
-                color: "var(--primary-400)",
-                transition: "color 0.2s ease-in-out",
-                opacity: isLast ? "0%" : "100%"
-            }}>
-            <DeleteIcon />
-        </Button>
-    </Flex>);
+            <Button
+                onClick={removeSelf}
+                look={Button.Looks.FILLED}
+                size={Button.Sizes.SMALL}
+                style={{
+                    padding: 0,
+                    color: "var(--primary-400)",
+                    transition: "color 0.2s ease-in-out",
+                    opacity: isLast ? "0%" : "100%"
+                }}
+            >
+                <DeleteIcon />
+            </Button>
+        </Flex>
+    );
 }
 
 function FlaggedWords() {
     const forceUpdate = useForceUpdater();
 
     const inputs = triggerWords.map((_, idx) => {
-        return (
-            <FlaggedInput
-                key={idx}
-                index={idx}
-                forceUpdate={forceUpdate}
-            />
-        );
+        return <FlaggedInput key={idx} index={idx} forceUpdate={forceUpdate} />;
     });
 
     return (
@@ -139,19 +130,20 @@ function FlaggedWords() {
 const settings = definePluginSettings({
     flagged: {
         type: OptionType.COMPONENT,
-        component: () => <FlaggedWords />,
+        component: () => <FlaggedWords />
     },
     onClick: {
         type: OptionType.BOOLEAN,
         description: "Only show trigger content on click instead of hover",
-        default: false,
+        default: false
     }
 });
 
 export default definePlugin({
     name: "ContentWarning",
     authors: [EquicordDevs.camila314],
-    description: "Allows you to specify certain trigger words that will be blurred by default. Hovering/Clicking on the blurred content will reveal it.",
+    description:
+        "Allows you to specify certain trigger words that will be blurred by default. Hovering/Clicking on the blurred content will reveal it.",
     tags: ["Appearance", "Utility"],
     settings,
     patches: [
@@ -173,6 +165,6 @@ export default definePlugin({
     },
 
     async start() {
-        triggerWords = await DataStore.get(WORDS_KEY) ?? [""];
+        triggerWords = (await DataStore.get(WORDS_KEY)) ?? [""];
     }
 });

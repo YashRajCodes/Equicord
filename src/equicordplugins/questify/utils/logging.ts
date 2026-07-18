@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { Quest } from "@vencord/discord-types";
+
 import { showNotification } from "@api/Notifications";
 import { Logger } from "@utils/Logger";
-import type { Quest } from "@vencord/discord-types";
 import { NavigationRouter } from "@webpack/common/utils";
 
 import { normalizeQuestName } from "./filtering";
@@ -15,15 +16,17 @@ import { QUEST_PAGE } from "./ui";
 const LOG = new Logger("Questify");
 
 export function getFormattedNow(): string {
-    return new Date().toLocaleString(undefined, {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-    }).replace(",", "");
+    return new Date()
+        .toLocaleString(undefined, {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: true
+        })
+        .replace(",", "");
 }
 
 function getQuestifyLogPrefix(source: string): string {
@@ -58,11 +61,21 @@ function emitQuestifyLog(level: string, source: string, ...args: unknown[]): voi
 }
 
 export const QL = {
-    log(source: string, ...args: unknown[]): void { emitQuestifyLog("log", source, ...args); },
-    info(source: string, ...args: unknown[]): void { emitQuestifyLog("info", source, ...args); },
-    warn(source: string, ...args: unknown[]): void { emitQuestifyLog("warn", source, ...args); },
-    error(source: string, ...args: unknown[]): void { emitQuestifyLog("error", source, ...args); },
-    debug(source: string, ...args: unknown[]): void { emitQuestifyLog("debug", source, ...args); },
+    log(source: string, ...args: unknown[]): void {
+        emitQuestifyLog("log", source, ...args);
+    },
+    info(source: string, ...args: unknown[]): void {
+        emitQuestifyLog("info", source, ...args);
+    },
+    warn(source: string, ...args: unknown[]): void {
+        emitQuestifyLog("warn", source, ...args);
+    },
+    error(source: string, ...args: unknown[]): void {
+        emitQuestifyLog("error", source, ...args);
+    },
+    debug(source: string, ...args: unknown[]): void {
+        emitQuestifyLog("debug", source, ...args);
+    }
 };
 
 export function notifyQuestCompletion(quest?: Quest): void {

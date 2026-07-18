@@ -14,13 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import type { ReactNode } from "react";
+import type { Root } from "react-dom/client";
 
 import { Settings } from "@api/Settings";
 import { Queue } from "@utils/Queue";
 import { createRoot, WindowStore } from "@webpack/common";
-import type { ReactNode } from "react";
-import type { Root } from "react-dom/client";
 
 import NotificationComponent from "./NotificationComponent";
 import { openNotificationLogModal, persistNotification } from "./notificationLog";
@@ -38,7 +39,7 @@ window.addEventListener("focus", () => {
         showNotification({
             title: "While you were away",
             body: `${missedCount} notifications received`,
-            onClick: () => openNotificationLogModal(),
+            onClick: () => openNotificationLogModal()
         });
         missedCount = 0;
     }
@@ -81,11 +82,15 @@ function _showNotification(notification: NotificationData, id: number) {
     const root = getRoot();
     return new Promise<void>(resolve => {
         root.render(
-            <NotificationComponent key={id} {...notification} onClose={() => {
-                notification.onClose?.();
-                root.render(null);
-                resolve();
-            }} />,
+            <NotificationComponent
+                key={id}
+                {...notification}
+                onClose={() => {
+                    notification.onClose?.();
+                    root.render(null);
+                    resolve();
+                }}
+            />
         );
     });
 }
@@ -109,7 +114,7 @@ export async function requestPermission() {
 export async function showNotification(data: NotificationData) {
     persistNotification(data);
 
-    if (shouldBeNative() && await requestPermission()) {
+    if (shouldBeNative() && (await requestPermission())) {
         const { title, body, icon, image, onClick = null, onClose = null } = data;
         const n = new Notification(title, {
             body,
@@ -123,13 +128,16 @@ export async function showNotification(data: NotificationData) {
         if (!WindowStore.isFocused()) missedCount++;
     } else {
         NotificationQueue.push(() =>
-            _showNotification({
-                ...data,
-                onClose: () => {
-                    data.onClose?.();
-                    if (!WindowStore.isFocused()) missedCount++;
-                }
-            }, id++)
+            _showNotification(
+                {
+                    ...data,
+                    onClose: () => {
+                        data.onClose?.();
+                        if (!WindowStore.isFocused()) missedCount++;
+                    }
+                },
+                id++
+            )
         );
     }
 }

@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { VENCORD_USER_AGENT } from "@shared/vencordUserAgent";
 import { execFile } from "child_process";
 import { promisify } from "util";
+
+import { VENCORD_USER_AGENT } from "@shared/vencordUserAgent";
 
 import type { TrackData } from ".";
 
@@ -18,16 +19,26 @@ async function applescript(cmds: string[]) {
 }
 
 interface RemoteData {
-    appleMusicLink?: string,
+    appleMusicLink?: string;
     appleMusicArtistLink?: string;
-    songLink?: string,
-    albumArtwork?: string,
+    songLink?: string;
+    albumArtwork?: string;
     artistArtwork?: string;
 }
 
-let cachedRemoteData: { id: string, data: RemoteData; } | { id: string, failures: number; } | null = null;
+let cachedRemoteData: { id: string; data: RemoteData } | { id: string; failures: number } | null = null;
 
-async function fetchRemoteData({ id, name, artist, album }: { id: string, name: string, artist: string, album: string; }) {
+async function fetchRemoteData({
+    id,
+    name,
+    artist,
+    album
+}: {
+    id: string;
+    name: string;
+    artist: string;
+    album: string;
+}) {
     if (id === cachedRemoteData?.id) {
         if ("data" in cachedRemoteData) return cachedRemoteData.data;
         if ("failures" in cachedRemoteData && cachedRemoteData.failures >= 5) return null;
@@ -39,11 +50,12 @@ async function fetchRemoteData({ id, name, artist, album }: { id: string, name: 
         dataUrl.searchParams.set("media", "music");
         dataUrl.searchParams.set("entity", "song");
 
-        const fetchData = () => fetch(dataUrl, {
-            headers: {
-                "user-agent": VENCORD_USER_AGENT,
-            },
-        }).then(r => r.json());
+        const fetchData = () =>
+            fetch(dataUrl, {
+                headers: {
+                    "user-agent": VENCORD_USER_AGENT
+                }
+            }).then(r => r.json());
 
         let data = await fetchData();
 
@@ -68,7 +80,7 @@ async function fetchRemoteData({ id, name, artist, album }: { id: string, name: 
                 appleMusicLink: songData.trackViewUrl,
                 appleMusicArtistLink: songData.artistViewUrl,
                 songLink: `https://song.link/i/${new URL(songData.trackViewUrl).searchParams.get("i")}`,
-                albumArtwork: (songData.artworkUrl100).replace("100x100", "512x512"),
+                albumArtwork: songData.artworkUrl100.replace("100x100", "512x512"),
                 artistArtwork: artistArtworkURL
             }
         };
@@ -78,7 +90,8 @@ async function fetchRemoteData({ id, name, artist, album }: { id: string, name: 
         console.error("[AppleMusicRichPresence] Failed to fetch remote data:", e);
         cachedRemoteData = {
             id,
-            failures: (id === cachedRemoteData?.id && "failures" in cachedRemoteData ? cachedRemoteData.failures : 0) + 1
+            failures:
+                (id === cachedRemoteData?.id && "failures" in cachedRemoteData ? cachedRemoteData.failures : 0) + 1
         };
         return null;
     }
@@ -91,12 +104,14 @@ export async function fetchTrackData(): Promise<TrackData | null> {
         return null;
     }
 
-    const playerState = await applescript(['tell application "Music"', "get player state", "end tell"])
-        .then(out => out.trim());
+    const playerState = await applescript(['tell application "Music"', "get player state", "end tell"]).then(out =>
+        out.trim()
+    );
     if (playerState !== "playing") return null;
 
-    const playerPosition = await applescript(['tell application "Music"', "get player position", "end tell"])
-        .then(text => Number.parseFloat(text.trim()));
+    const playerPosition = await applescript(['tell application "Music"', "get player position", "end tell"]).then(
+        text => Number.parseFloat(text.trim())
+    );
 
     const stdout = await applescript([
         'set output to ""',

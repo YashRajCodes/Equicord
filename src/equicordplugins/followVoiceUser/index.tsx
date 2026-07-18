@@ -4,13 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Channel, User, VoiceState } from "@vencord/discord-types";
+import { findByPropsLazy, findStoreLazy } from "@webpack";
+
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { Notice } from "@components/Notice";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import { Channel, User, VoiceState } from "@vencord/discord-types";
-import { findByPropsLazy, findStoreLazy } from "@webpack";
 import { Menu, React, VoiceStateStore } from "@webpack/common";
 
 type TFollowedUserInfo = {
@@ -39,7 +40,8 @@ const settings = definePluginSettings({
     leaveWhenUserLeaves: {
         type: OptionType.BOOLEAN,
         default: false,
-        description: "Leave the voice channel when the user leaves. (That can cause you to sometimes enter infinite leave/join loop)"
+        description:
+            "Leave the voice channel when the user leaves. (That can cause you to sometimes enter infinite leave/join loop)"
     }
 });
 
@@ -78,32 +80,28 @@ export default definePlugin({
     authors: [EquicordDevs.TheArmagan],
     settings,
     settingsAboutComponent: () => (
-        <Notice.Info>
-            This Plugin is used to follow a Friend/Friends into voice chat(s).
-        </Notice.Info>
+        <Notice.Info>This Plugin is used to follow a Friend/Friends into voice chat(s).</Notice.Info>
     ),
     flux: {
-        async VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
+        async VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[] }) {
             if (!followedUserInfo) return;
             if (!RelationshipStore.getFriendIDs().includes(followedUserInfo.userId)) return;
 
-            if (
-                settings.store.onlyWhenInVoice
-                && !VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser().id)
-            ) return;
+            if (settings.store.onlyWhenInVoice && !VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser().id))
+                return;
 
             voiceStates.forEach(voiceState => {
                 if (
-                    voiceState.userId === followedUserInfo!.userId
-                    && voiceState.channelId
-                    && voiceState.channelId !== followedUserInfo!.lastChannelId
+                    voiceState.userId === followedUserInfo!.userId &&
+                    voiceState.channelId &&
+                    voiceState.channelId !== followedUserInfo!.lastChannelId
                 ) {
                     followedUserInfo!.lastChannelId = voiceState.channelId;
                     voiceChannelAction.selectVoiceChannel(followedUserInfo!.lastChannelId);
                 } else if (
-                    voiceState.userId === followedUserInfo!.userId
-                    && !voiceState.channelId
-                    && settings.store.leaveWhenUserLeaves
+                    voiceState.userId === followedUserInfo!.userId &&
+                    !voiceState.channelId &&
+                    settings.store.leaveWhenUserLeaves
                 ) {
                     voiceChannelAction.selectVoiceChannel(null);
                 }

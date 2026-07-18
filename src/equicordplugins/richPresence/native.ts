@@ -15,6 +15,6 @@ export async function fetchTrackData(): Promise<GrTrackData | null> {
         artist: song.SONGINFO.ARTIST,
         position: song.SONGTIMES.SONGSTART,
         duration: song.SONGTIMES.SONGEND,
-        artwork: song.MISC.ALBUMART ? `https://gensokyoradio.net/images/albums/500/${song.MISC.ALBUMART}` : "",
+        artwork: song.MISC.ALBUMART ? `https://gensokyoradio.net/images/albums/500/${song.MISC.ALBUMART}` : ""
     };
 }

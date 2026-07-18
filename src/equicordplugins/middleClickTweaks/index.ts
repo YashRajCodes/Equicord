@@ -32,7 +32,8 @@ function handleAuxClick(event: MouseEvent) {
     const role = anchor?.dataset.role ?? "";
 
     const isMedia = !!media;
-    const isLink = !isMedia && !!anchor?.href && anchor.getAttribute("href") !== "#" && !["img", "video", "button"].includes(role);
+    const isLink =
+        !isMedia && !!anchor?.href && anchor.getAttribute("href") !== "#" && !["img", "video", "button"].includes(role);
 
     if (isLink && ["links", "both"].includes(openScope)) {
         event.preventDefault();
@@ -55,23 +56,29 @@ const settings = definePluginSettings({
             { label: "Links", value: "links" },
             { label: "Media", value: "media" },
             { label: "Links & Media", value: "both" },
-            { label: "None", value: "none", default: true },
+            { label: "None", value: "none", default: true }
         ],
-        onChange(newValue) { updateListeners(newValue !== "none"); }
+        onChange(newValue) {
+            updateListeners(newValue !== "none");
+        }
     },
     pasteScope: {
         type: OptionType.SELECT,
         description: "Prevent middle click from pasting during these situations.",
         options: [
             { label: "Always Prevent Middle Click Pasting", value: "always", default: true },
-            { label: "Only Prevent When Text Area Not Focused", value: "focus" },
+            { label: "Only Prevent When Text Area Not Focused", value: "focus" }
         ]
     },
     pasteThreshold: {
         type: OptionType.NUMBER,
         description: "Milliseconds until pasting is enabled again after a middle click.",
         default: 100,
-        onChange(newValue) { if (newValue < 1) { settings.store.pasteThreshold = 1; } }
+        onChange(newValue) {
+            if (newValue < 1) {
+                settings.store.pasteThreshold = 1;
+            }
+        }
     }
 });
 
@@ -95,8 +102,12 @@ export default definePlugin({
         return false;
     },
 
-    start() { updateListeners(); },
-    stop() { updateListeners(false); },
+    start() {
+        updateListeners();
+    },
+    stop() {
+        updateListeners(false);
+    },
 
     patches: [
         {
@@ -104,12 +115,13 @@ export default definePlugin({
             find: 'document.addEventListener("paste",',
             replacement: {
                 match: /(?<=\.getMigrationStatus\(\)\);.{0,50}\i\((\i)\)\{)/,
-                replace: "if($1.target.tagName===\"BUTTON\"||$self.isPastingDisabled(false)){$1.preventDefault?.();$1.stopPropagation?.();return;};"
+                replace:
+                    'if($1.target.tagName==="BUTTON"||$self.isPastingDisabled(false)){$1.preventDefault?.();$1.stopPropagation?.();return;};'
             }
         },
         {
             // Detects paste events triggered inside of Discord's text inputs.
-            find: ",origin:\"clipboard\"});",
+            find: ',origin:"clipboard"});',
             replacement: {
                 match: /(?<=handlePaste=(\i)=>{)(?=let)/g,
                 replace: "if($self.isPastingDisabled(true)){$1.preventDefault?.();$1.stopPropagation?.();return;}"
@@ -120,8 +132,9 @@ export default definePlugin({
             find: "props.handlePastedText&&",
             replacement: {
                 match: /(?<=clipboardData\);)/,
-                replace: "if($self.isPastingDisabled(true)){arguments[1].preventDefault?.();arguments[1].stopPropagation?.();return;};"
+                replace:
+                    "if($self.isPastingDisabled(true)){arguments[1].preventDefault?.();arguments[1].stopPropagation?.();return;};"
             }
-        },
-    ],
+        }
+    ]
 });

@@ -14,7 +14,7 @@ export const createGoogleFontUrl = (family: string, options = "") =>
     `https://fonts.googleapis.com/css2?family=${encodeURIComponent(family).replace(/%20/g, "+")}${options}&display=swap`;
 
 export function getFontFamilyCss(fontFamily: string) {
-    const escaped = fontFamily.trim().replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+    const escaped = fontFamily.trim().replace(/\\/g, "\\\\").replace(/"/g, '\\"');
     return `"${escaped || "Arial"}", sans-serif`;
 }
 
@@ -37,7 +37,7 @@ function parseFontFaces(css: string) {
             return {
                 descriptors: {
                     display: fontDisplays.has(rule.style.getPropertyValue("font-display") as FontDisplay)
-                        ? rule.style.getPropertyValue("font-display") as FontDisplay
+                        ? (rule.style.getPropertyValue("font-display") as FontDisplay)
                         : "swap",
                     stretch: rule.style.getPropertyValue("font-stretch") || undefined,
                     style: rule.style.getPropertyValue("font-style") || "normal",
@@ -115,9 +115,9 @@ export async function fetchAllGoogleFonts(): Promise<GoogleFontMetadata[]> {
         },
         method: "POST"
     })
-        .then(response => response.ok ? response.json() : null)
+        .then(response => (response.ok ? response.json() : null))
         .then(data => {
-            const rows = Array.isArray(data?.[1]) ? data[1] as unknown[] : [];
+            const rows = Array.isArray(data?.[1]) ? (data[1] as unknown[]) : [];
             const fonts: GoogleFontMetadata[] = [];
 
             for (const row of rows) {
@@ -134,26 +134,30 @@ export async function fetchAllGoogleFonts(): Promise<GoogleFontMetadata[]> {
                 const category = typeof fontData[3] === "number" ? fontData[3] : undefined;
                 const variants = Array.isArray(fontData[6])
                     ? fontData[6]
-                        .filter((variant): variant is unknown[] => Array.isArray(variant))
-                        .map(variant => {
-                            const axesSource = Array.isArray(variant[0]) ? variant[0] as unknown[] : [];
-                            const axes = axesSource
-                                .filter((axis): axis is unknown[] => Array.isArray(axis))
-                                .map(axis => {
-                                    const tag = axis[0];
-                                    const min = axis[1];
-                                    const max = axis[2];
+                          .filter((variant): variant is unknown[] => Array.isArray(variant))
+                          .map(variant => {
+                              const axesSource = Array.isArray(variant[0]) ? (variant[0] as unknown[]) : [];
+                              const axes = axesSource
+                                  .filter((axis): axis is unknown[] => Array.isArray(axis))
+                                  .map(axis => {
+                                      const tag = axis[0];
+                                      const min = axis[1];
+                                      const max = axis[2];
 
-                                    if (typeof tag !== "string" || typeof min !== "number" || typeof max !== "number") {
-                                        return null;
-                                    }
+                                      if (
+                                          typeof tag !== "string" ||
+                                          typeof min !== "number" ||
+                                          typeof max !== "number"
+                                      ) {
+                                          return null;
+                                      }
 
-                                    return { tag, min, max };
-                                })
-                                .filter((axis): axis is NonNullable<typeof axis> => axis !== null);
+                                      return { tag, min, max };
+                                  })
+                                  .filter((axis): axis is NonNullable<typeof axis> => axis !== null);
 
-                            return { axes };
-                        })
+                              return { axes };
+                          })
                     : [];
 
                 fonts.push({

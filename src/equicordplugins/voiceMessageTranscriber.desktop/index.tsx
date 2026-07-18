@@ -5,6 +5,8 @@
  */
 
 import "./style.css";
+import { RenderModalProps } from "@vencord/discord-types";
+import { findComponentByCodeLazy } from "@webpack";
 
 import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
@@ -17,8 +19,6 @@ import { Span } from "@components/Span";
 import { copyToClipboard } from "@utils/clipboard";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType, PluginNative } from "@utils/types";
-import { RenderModalProps } from "@vencord/discord-types";
-import { findComponentByCodeLazy } from "@webpack";
 import { lodash, Modal, openModal, ScrollerAuto, SearchableSelect, useEffect, useRef, useState } from "@webpack/common";
 
 import { cl, decodeAudio, LANGUAGES, TranscriptionWorker } from "./utils";
@@ -34,7 +34,7 @@ const settings = definePluginSettings({
         options: [
             {
                 label: "Tiny (Fastest, lowest accuracy)",
-                value: "Xenova/whisper-tiny",
+                value: "Xenova/whisper-tiny"
             },
             {
                 label: "Base (Recommended)",
@@ -70,7 +70,11 @@ const settings = definePluginSettings({
                     const keys = [] as string[];
 
                     entries.forEach(([key, val]) => {
-                        if (typeof key === "string" && key.startsWith("VoiceMessageTranscriber") && lodash.isArrayBuffer(val)) {
+                        if (
+                            typeof key === "string" &&
+                            key.startsWith("VoiceMessageTranscriber") &&
+                            lodash.isArrayBuffer(val)
+                        ) {
                             keys.push(key);
                             size += val.byteLength ?? 0;
                         }
@@ -81,19 +85,24 @@ const settings = definePluginSettings({
                 });
             }, []);
 
-            return <Button
-                variant="dangerPrimary"
-                onClick={() => {
-                    DataStore.delMany(deleteKeys).then(() => { setSize(0); setDeleteKeys([]); });
-                }}
-            >
-                Delete all cached files ({(size / 1024 / 1024).toFixed(2)} MB)
-            </Button>;
+            return (
+                <Button
+                    variant="dangerPrimary"
+                    onClick={() => {
+                        DataStore.delMany(deleteKeys).then(() => {
+                            setSize(0);
+                            setDeleteKeys([]);
+                        });
+                    }}
+                >
+                    Delete all cached files ({(size / 1024 / 1024).toFixed(2)} MB)
+                </Button>
+            );
         }
     }
 });
 
-function LanguageSelectionModal(props: { modalProps: RenderModalProps, src: string; }) {
+function LanguageSelectionModal(props: { modalProps: RenderModalProps; src: string }) {
     const { modalProps, src } = props;
     const [language, setLanguage] = useState<string>("auto");
     const [task, setTask] = useState<string>("transcribe");
@@ -108,13 +117,7 @@ function LanguageSelectionModal(props: { modalProps: RenderModalProps, src: stri
 
     const start = () => {
         modalProps.onClose();
-        openModal(modalProps => (
-            <TranscriptionModal
-                modalProps={modalProps}
-                src={src}
-                options={{ language, task }}
-            />
-        ));
+        openModal(modalProps => <TranscriptionModal modalProps={modalProps} src={src} options={{ language, task }} />);
     };
 
     return (
@@ -147,13 +150,16 @@ function LanguageSelectionModal(props: { modalProps: RenderModalProps, src: stri
                         Action
                     </BaseText>
                     <ManaBaseRadioGroup
-                        options={[{
-                            name: "Transcribe",
-                            value: "transcribe"
-                        }, {
-                            name: "Translate to English",
-                            value: "translate"
-                        }]}
+                        options={[
+                            {
+                                name: "Transcribe",
+                                value: "transcribe"
+                            },
+                            {
+                                name: "Translate to English",
+                                value: "translate"
+                            }
+                        ]}
                         value={task}
                         onChange={v => setTask(v as string)}
                     />
@@ -163,10 +169,17 @@ function LanguageSelectionModal(props: { modalProps: RenderModalProps, src: stri
     );
 }
 
-function TranscriptionModal(props: { modalProps: RenderModalProps, src: string, options: { language: string, task: string; }; }) {
+function TranscriptionModal(props: {
+    modalProps: RenderModalProps;
+    src: string;
+    options: { language: string; task: string };
+}) {
     const { modalProps, src, options } = props;
     const [status, setStatus] = useState<string>("initializing");
-    const [result, setResult] = useState<{ text: string, chunks: { timestamp: [number, number], text: string; }[]; } | null>(null);
+    const [result, setResult] = useState<{
+        text: string;
+        chunks: { timestamp: [number, number]; text: string }[];
+    } | null>(null);
     const [showTimestamps, setShowTimestamps] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [copied, setCopied] = useState(false);
@@ -247,11 +260,13 @@ function TranscriptionModal(props: { modalProps: RenderModalProps, src: string, 
         return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
     };
 
-    const displayText = result ? (
-        showTimestamps
-            ? result.chunks.map(c => `[${formatTimestamp(c.timestamp[0])} - ${formatTimestamp(c.timestamp[1])}] ${c.text}`).join("\n")
+    const displayText = result
+        ? showTimestamps
+            ? result.chunks
+                  .map(c => `[${formatTimestamp(c.timestamp[0])} - ${formatTimestamp(c.timestamp[1])}] ${c.text}`)
+                  .join("\n")
             : result.text
-    ) : "";
+        : "";
 
     const actions: any[] = [];
     if (error) {
@@ -274,22 +289,21 @@ function TranscriptionModal(props: { modalProps: RenderModalProps, src: string, 
     }
 
     return (
-        <Modal
-            {...modalProps}
-            size="lg"
-            title="Transcription"
-            actions={actions}
-        >
+        <Modal {...modalProps} size="lg" title="Transcription" actions={actions}>
             <div className={cl("content")}>
                 {error ? (
                     <Flex flexDirection="column" gap={16} style={{ padding: "20px 0" }}>
-                        <Heading tag="h3" style={{ color: "var(--red-360)" }}>Error</Heading>
+                        <Heading tag="h3" style={{ color: "var(--red-360)" }}>
+                            Error
+                        </Heading>
                         <Span style={{ whiteSpace: "pre-wrap" }}>{error}</Span>
                     </Flex>
-                ) : (status === "complete" || (status === "transcribing" && result)) ? (
+                ) : status === "complete" || (status === "transcribing" && result) ? (
                     <Flex flexDirection="column" gap={16} style={{ paddingBottom: "20px" }}>
                         {status === "transcribing" && (
-                            <Span size="sm" color="text-muted">Transcribing in progress...</Span>
+                            <Span size="sm" color="text-muted">
+                                Transcribing in progress...
+                            </Span>
                         )}
                         <ScrollerAuto className={cl("result")}>
                             <Span>{displayText}</Span>
@@ -339,7 +353,7 @@ export default definePlugin({
                 match: /(?=function (\i)\(\i\)\{.{0,400}"data-mana-component":"BaseRadioGroup")/,
                 replace: "$self.ManaBaseRadioGroup=$1;"
             }
-        },
+        }
     ],
     set ManaBaseRadioGroup(value: any) {
         ManaBaseRadioGroup = value;
@@ -347,14 +361,17 @@ export default definePlugin({
     settings,
 
     button(src: string) {
-        return <button
-            className={cl("button")}
-            style={{ backgroundColor: "transparent" }}
-            onClick={e => {
-                e.stopPropagation();
-                openModal(modalProps => <LanguageSelectionModal modalProps={modalProps} src={src} />);
-            }}>
-            <ChannelListIcon colorClass={cl("icon")} />
-        </button>;
-    },
+        return (
+            <button
+                className={cl("button")}
+                style={{ backgroundColor: "transparent" }}
+                onClick={e => {
+                    e.stopPropagation();
+                    openModal(modalProps => <LanguageSelectionModal modalProps={modalProps} src={src} />);
+                }}
+            >
+                <ChannelListIcon colorClass={cl("icon")} />
+            </button>
+        );
+    }
 });

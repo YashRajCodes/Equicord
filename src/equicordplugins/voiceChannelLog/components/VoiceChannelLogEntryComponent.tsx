@@ -5,10 +5,19 @@
  */
 
 import "./VoiceChannelLogEntryComponent.css";
+import { Channel } from "@vencord/discord-types";
 
 import { openUserProfile } from "@utils/discord";
-import { Channel } from "@vencord/discord-types";
-import { ApplicationStore, Clickable, closeAllModals,IconUtils, NavigationRouter, Timestamp, Tooltip, UserStore } from "@webpack/common";
+import {
+    ApplicationStore,
+    Clickable,
+    closeAllModals,
+    IconUtils,
+    NavigationRouter,
+    Timestamp,
+    Tooltip,
+    UserStore
+} from "@webpack/common";
 
 import { getCallStartTime } from "../logs";
 import { VoiceChannelLogEntry } from "../types";
@@ -42,7 +51,13 @@ function getEventDescription(entry: VoiceChannelLogEntry): string {
     }
 }
 
-export function VoiceChannelLogEntryComponent({ logEntry, channel }: { logEntry: VoiceChannelLogEntry; channel: Channel; }) {
+export function VoiceChannelLogEntryComponent({
+    logEntry,
+    channel
+}: {
+    logEntry: VoiceChannelLogEntry;
+    channel: Channel;
+}) {
     const user = UserStore.getUser(logEntry.userId);
     const username = user?.globalName ?? user?.username ?? "Unknown";
     const elapsed = formatElapsedTime(getCallStartTime(), logEntry.timestamp);
@@ -51,13 +66,22 @@ export function VoiceChannelLogEntryComponent({ logEntry, channel }: { logEntry:
     return (
         <li className={cl("entry")}>
             <div className={cl("entry-timestamp")}>
-                <Timestamp className={cl("timestamp")} timestamp={new Date(logEntry.timestamp)} compact isInline={false} cozyAlt />
+                <Timestamp
+                    className={cl("timestamp")}
+                    timestamp={new Date(logEntry.timestamp)}
+                    compact
+                    isInline={false}
+                    cozyAlt
+                />
                 {elapsed && <span className={cl("elapsed")}>{elapsed}</span>}
             </div>
             {(logEntry.type === "activity" || logEntry.type === "activity_stop") && logEntry.applicationId ? (
                 <img
                     className={cl("app-icon")}
-                    src={IconUtils.getApplicationIconURL({ id: logEntry.applicationId, icon: ApplicationStore.getApplication(logEntry.applicationId)?.icon })}
+                    src={IconUtils.getApplicationIconURL({
+                        id: logEntry.applicationId,
+                        icon: ApplicationStore.getApplication(logEntry.applicationId)?.icon
+                    })}
                     alt={logEntry.activityName ?? "Activity"}
                 />
             ) : (
@@ -69,29 +93,59 @@ export function VoiceChannelLogEntryComponent({ logEntry, channel }: { logEntry:
                         {...tooltipProps}
                         className={cl("avatar")}
                         onClick={() => openUserProfile(logEntry.userId)}
-                        src={user ? user.getAvatarURL(channel.getGuildId()) : IconUtils.getDefaultAvatarURL(logEntry.userId)}
+                        src={
+                            user
+                                ? user.getAvatarURL(channel.getGuildId())
+                                : IconUtils.getDefaultAvatarURL(logEntry.userId)
+                        }
                         alt={username}
                     />
                 )}
             </Tooltip>
             <div className={cl("content")}>
-                <span className={cl("username")} onClick={() => openUserProfile(logEntry.userId)}>{username}</span>
+                <span className={cl("username")} onClick={() => openUserProfile(logEntry.userId)}>
+                    {username}
+                </span>
                 {logEntry.type === "soundboard" ? (
                     <div className={cl("soundboard-info")}>
-                        {logEntry.emoji && <img className={cl("soundboard-emoji")} src={getEmojiUrl(logEntry.emoji)} alt={logEntry.emoji.name} />}
+                        {logEntry.emoji && (
+                            <img
+                                className={cl("soundboard-emoji")}
+                                src={getEmojiUrl(logEntry.emoji)}
+                                alt={logEntry.emoji.name}
+                            />
+                        )}
                         <span className={cl("soundboard-id")}>Played a soundboard sound</span>
                         <div className={cl("soundboard-actions")}>
                             <Tooltip text="Play sound">
                                 {tooltipProps => (
-                                    <Clickable {...tooltipProps} className={cl("soundboard-action")} onClick={() => playSound(logEntry.soundId!)}>
-                                        <svg width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5v14l11-7z" /></svg>
+                                    <Clickable
+                                        {...tooltipProps}
+                                        className={cl("soundboard-action")}
+                                        onClick={() => playSound(logEntry.soundId!)}
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24">
+                                            <path fill="currentColor" d="M8 5v14l11-7z" />
+                                        </svg>
                                     </Clickable>
                                 )}
                             </Tooltip>
                             <Tooltip text="Save sound">
                                 {tooltipProps => (
-                                    <Clickable {...tooltipProps} className={cl("soundboard-action")} onClick={() => downloadSound(logEntry.soundId!)}>
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>
+                                    <Clickable
+                                        {...tooltipProps}
+                                        className={cl("soundboard-action")}
+                                        onClick={() => downloadSound(logEntry.soundId!)}
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"
+                                            />
+                                        </svg>
                                     </Clickable>
                                 )}
                             </Tooltip>
@@ -108,10 +162,20 @@ export function VoiceChannelLogEntryComponent({ logEntry, channel }: { logEntry:
                                         className={cl("soundboard-action")}
                                         onClick={() => {
                                             closeAllModals();
-                                            NavigationRouter.transitionTo(`/application-directory/${logEntry.applicationId}`);
+                                            NavigationRouter.transitionTo(
+                                                `/application-directory/${logEntry.applicationId}`
+                                            );
                                         }}
                                     >
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" /></svg>
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                                            <path
+                                                stroke="currentColor"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"
+                                            />
+                                        </svg>
                                     </Clickable>
                                 )}
                             </Tooltip>

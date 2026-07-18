@@ -12,17 +12,19 @@ import definePlugin, { OptionType } from "@utils/types";
 import { ignoredKeys, packs } from "./packs";
 
 const allSounds = {
-    backspaces: [] as { playing: boolean; player: AudioPlayerInterface; }[],
-    caps: [] as { playing: boolean; player: AudioPlayerInterface; }[],
-    enters: [] as { playing: boolean; player: AudioPlayerInterface; }[],
-    arrows: [] as { playing: boolean; player: AudioPlayerInterface; }[],
-    others: [] as { playing: boolean; player: AudioPlayerInterface; }[]
+    backspaces: [] as { playing: boolean; player: AudioPlayerInterface }[],
+    caps: [] as { playing: boolean; player: AudioPlayerInterface }[],
+    enters: [] as { playing: boolean; player: AudioPlayerInterface }[],
+    arrows: [] as { playing: boolean; player: AudioPlayerInterface }[],
+    others: [] as { playing: boolean; player: AudioPlayerInterface }[]
 };
 
-let chosenPack: typeof packs[keyof typeof packs];
+let chosenPack: (typeof packs)[keyof typeof packs];
 const keysCurrentlyPressed = new Set<string>();
 
-const keyup = (e: KeyboardEvent) => { keysCurrentlyPressed.delete(e.code); };
+const keyup = (e: KeyboardEvent) => {
+    keysCurrentlyPressed.delete(e.code);
+};
 
 const keydown = (e: KeyboardEvent) => {
     if (!chosenPack) return;
@@ -30,7 +32,7 @@ const keydown = (e: KeyboardEvent) => {
     if (keysCurrentlyPressed.has(e.code)) return;
     keysCurrentlyPressed.add(e.code);
 
-    function getRandomSound(soundsArray: { playing: boolean; player: AudioPlayerInterface; }[]) {
+    function getRandomSound(soundsArray: { playing: boolean; player: AudioPlayerInterface }[]) {
         const nonplayingSounds = soundsArray.filter(sound => !sound?.playing);
         let randomIndex;
         let chosenSound;
@@ -63,8 +65,12 @@ const keydown = (e: KeyboardEvent) => {
 };
 
 function clearSounds() {
-    Array.from(Object.values(allSounds)).forEach(soundsArray => { soundsArray.forEach(sound => sound.player.delete()); });
-    Object.keys(allSounds).forEach(key => { allSounds[key as keyof typeof allSounds] = []; });
+    Array.from(Object.values(allSounds)).forEach(soundsArray => {
+        soundsArray.forEach(sound => sound.player.delete());
+    });
+    Object.keys(allSounds).forEach(key => {
+        allSounds[key as keyof typeof allSounds] = [];
+    });
 }
 
 function assignSounds(volume: number, pack: "operagx" | "osu") {
@@ -89,7 +95,9 @@ function assignSounds(volume: number, pack: "operagx" | "osu") {
                         volume,
                         preload: true,
                         persistent: true,
-                        onEnded: () => { allSounds[key][soundIndex].playing = false; }
+                        onEnded: () => {
+                            allSounds[key][soundIndex].playing = false;
+                        }
                     })
                 });
             }
@@ -110,7 +118,9 @@ const settings = definePluginSettings({
         markers: [0, 25, 50, 75, 100],
         stickToMarkers: false,
         default: 100,
-        onChange: value => { assignSounds(value, settings.store.soundPack); }
+        onChange: value => {
+            assignSounds(value, settings.store.soundPack);
+        }
     },
     soundPack: {
         description: "Sound pack to use.",
@@ -119,7 +129,9 @@ const settings = definePluginSettings({
             { label: "OperaGX", value: "operagx" as "operagx", default: true },
             { label: "osu!", value: "osu" as "osu" }
         ],
-        onChange: value => { assignSounds(settings.store.volume, value); }
+        onChange: value => {
+            assignSounds(settings.store.volume, value);
+        }
     }
 });
 
@@ -139,5 +151,5 @@ export default definePlugin({
         clearSounds();
         document.removeEventListener("keyup", keyup);
         document.removeEventListener("keydown", keydown);
-    },
+    }
 });

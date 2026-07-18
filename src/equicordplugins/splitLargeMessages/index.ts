@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { Channel } from "@vencord/discord-types";
+
 import type { MessageSendListener } from "@api/MessageEvents";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
@@ -11,7 +13,6 @@ import { copyWithToast, getCurrentChannel, insertTextIntoChatInputBox, sendMessa
 import { Logger } from "@utils/Logger";
 import { sleep } from "@utils/misc";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
-import type { Channel } from "@vencord/discord-types";
 import { ChannelStore, ComponentDispatch, PermissionsBits, PermissionStore, Toasts, UserStore } from "@webpack/common";
 
 import { splitMessage, type SplitMode } from "./splitMessage";
@@ -28,7 +29,7 @@ const settings = definePluginSettings({
         description: "Minimum delay between each chunk in seconds.",
         markers: makeRange(0.5, 10, 0.5),
         default: 1,
-        stickToMarkers: true,
+        stickToMarkers: true
     },
     splitMode: {
         type: OptionType.SELECT,
@@ -36,21 +37,21 @@ const settings = definePluginSettings({
         options: [
             { value: "newlines", label: "Newlines", default: true },
             { value: "spaces", label: "Spaces" },
-            { value: "characters", label: "Strict character limit" },
-        ],
+            { value: "characters", label: "Strict character limit" }
+        ]
     },
     splitInSlowmode: {
         type: OptionType.BOOLEAN,
         description: "Allow splitting in slowmode when its delay is within the configured maximum.",
-        default: false,
+        default: false
     },
     slowmodeMax: {
         type: OptionType.SLIDER,
         description: "Maximum slowmode duration allowed when splitting messages.",
         markers: makeRange(1, 30, 1),
         default: 5,
-        stickToMarkers: true,
-    },
+        stickToMarkers: true
+    }
 });
 
 function getMessageLimit() {
@@ -58,31 +59,28 @@ function getMessageLimit() {
 }
 
 function getSplitMode(value: unknown): SplitMode {
-    return typeof value === "string" && splitModes.has(value as SplitMode)
-        ? value as SplitMode
-        : "newlines";
+    return typeof value === "string" && splitModes.has(value as SplitMode) ? (value as SplitMode) : "newlines";
 }
 
 function canBypassSlowmode(channel: Channel) {
-    return PermissionStore.can(PermissionsBits.MANAGE_MESSAGES, channel)
-        || PermissionStore.can(PermissionsBits.MANAGE_CHANNELS, channel);
+    return (
+        PermissionStore.can(PermissionsBits.MANAGE_MESSAGES, channel) ||
+        PermissionStore.can(PermissionsBits.MANAGE_CHANNELS, channel)
+    );
 }
 
 function getSendDelay(channel: Channel) {
     const configuredDelay = settings.store.sendDelay * 1000;
     const slowmodeDelay = channel.rateLimitPerUser * 1000;
 
-    return canBypassSlowmode(channel)
-        ? configuredDelay
-        : Math.max(configuredDelay, slowmodeDelay + SLOWMODE_BUFFER_MS);
+    return canBypassSlowmode(channel) ? configuredDelay : Math.max(configuredDelay, slowmodeDelay + SLOWMODE_BUFFER_MS);
 }
 
 function canSplitInChannel(channel: Channel | undefined) {
     if (!channel) return false;
     if (!channel.rateLimitPerUser || canBypassSlowmode(channel)) return true;
 
-    return settings.store.splitInSlowmode
-        && channel.rateLimitPerUser <= settings.store.slowmodeMax;
+    return settings.store.splitInSlowmode && channel.rateLimitPerUser <= settings.store.slowmodeMax;
 }
 
 async function sendChunks(channelId: string, chunks: string[], delay: number) {
@@ -123,7 +121,7 @@ const listener: MessageSendListener = async (channelId, message) => {
         Toasts.show({
             message: "Cannot split this message because of the channel's slowmode.",
             id: "vc-splitLargeMessages-blocked",
-            type: Toasts.Type.FAILURE,
+            type: Toasts.Type.FAILURE
         });
         return { cancel: true };
     }
@@ -137,7 +135,7 @@ const listener: MessageSendListener = async (channelId, message) => {
         Toasts.show({
             message: `Only ${sent}/${chunks.length} message parts were sent.`,
             id: "vc-splitLargeMessages-failure",
-            type: Toasts.Type.FAILURE,
+            type: Toasts.Type.FAILURE
         });
     }
 
@@ -158,15 +156,15 @@ export default definePlugin({
             find: 'type:"MESSAGE_LENGTH_UPSELL"', // bypass message length check
             replacement: {
                 match: /if\(\i.length>\i/,
-                replace: "if(false",
-            },
+                replace: "if(false"
+            }
         },
         {
             find: ".onHideAutocomplete?", // disable file conversion
             replacement: {
                 match: /(?<=getData\(\i\.type\);)if\(\i.length>\i\)/,
-                replace: "if(false)",
-            },
-        },
-    ],
+                replace: "if(false)"
+            }
+        }
+    ]
 });

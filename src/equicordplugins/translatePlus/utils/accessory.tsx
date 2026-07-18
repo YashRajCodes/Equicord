@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Message } from "@vencord/discord-types";
+
 import { languages } from "@equicordplugins/translatePlus/misc/languages";
 import { cl, Translation } from "@equicordplugins/translatePlus/misc/types";
-import { Message } from "@vencord/discord-types";
 import { Parser, useEffect, useState } from "@webpack/common";
 
 import { SmallIcon } from "./icon";
@@ -14,7 +15,7 @@ import { translate } from "./translator";
 
 const setters = new Map();
 
-export function Accessory({ message }: { message: Message; }) {
+export function Accessory({ message }: { message: Message }) {
     const [translation, setTranslation] = useState<Translation | undefined>(undefined);
 
     useEffect(() => {
@@ -30,9 +31,11 @@ export function Accessory({ message }: { message: Message; }) {
     return (
         <div className={cl("accessory")}>
             <SmallIcon />
-            {Parser.parse(translation.text)}
-            {" "}
-            (translated from {languages[translation.src] ?? translation.src} - <button onClick={() => setTranslation(undefined)} className={cl("dismiss")}>Dismiss</button>)
+            {Parser.parse(translation.text)} (translated from {languages[translation.src] ?? translation.src} -{" "}
+            <button onClick={() => setTranslation(undefined)} className={cl("dismiss")}>
+                Dismiss
+            </button>
+            )
         </div>
     );
 }

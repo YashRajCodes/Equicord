@@ -19,11 +19,11 @@ const settings = definePluginSettings({
             {
                 label: "Desktop",
                 value: "desktop",
-                default: true,
+                default: true
             },
             {
                 label: "Web",
-                value: "web",
+                value: "web"
             },
             {
                 label: "Android",
@@ -35,16 +35,16 @@ const settings = definePluginSettings({
             },
             {
                 label: "Xbox",
-                value: "xbox",
+                value: "xbox"
             },
             {
                 label: "Playstation",
-                value: "playstation",
+                value: "playstation"
             },
             {
                 label: "VR",
-                value: "vr",
-            },
+                value: "vr"
+            }
         ]
     }
 });
@@ -55,9 +55,7 @@ export default definePlugin({
     tags: ["Utility"],
     authors: [EquicordDevs.Drag, EquicordDevs.neoarz],
     settingsAboutComponent: () => (
-        <Notice.Warning>
-            We can't guarantee this plugin won't get you warned or banned.
-        </Notice.Warning>
+        <Notice.Warning>We can't guarantee this plugin won't get you warned or banned.</Notice.Warning>
     ),
     settings: settings,
     patches: [
@@ -71,7 +69,7 @@ export default definePlugin({
                 {
                     match: /(?<="GatewaySocket"\)\}\),properties:)(\i)/,
                     replace: "{...$1,...$self.getPlatform(true)}"
-                },
+                }
             ]
         }
     ],

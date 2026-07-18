@@ -4,17 +4,25 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Message, RenderModalProps } from "@vencord/discord-types";
+
 import { definePluginSettings } from "@api/Settings";
 import { FormSwitch } from "@components/FormSwitch";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { getCurrentChannel } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
-import { Message, RenderModalProps } from "@vencord/discord-types";
 import { IconUtils, Menu, Modal, openModal, TextInput, UploadHandler, useEffect, useState } from "@webpack/common";
 
 import { QuoteIcon } from "./components/QuoteIcon";
 import { QuoteFont } from "./types";
-import { createQuoteImage, ensureFontLoaded, generateFileNamePreview, getFileExtension, getMimeType, resetFontLoading } from "./utils";
+import {
+    createQuoteImage,
+    ensureFontLoaded,
+    generateFileNamePreview,
+    getFileExtension,
+    getMimeType,
+    resetFontLoading
+} from "./utils";
 
 const settings = definePluginSettings({
     quoteFont: {
@@ -71,7 +79,7 @@ export default definePlugin({
     },
 
     contextMenus: {
-        "message": (children, { message }) => {
+        message: (children, { message }) => {
             if (!message.content) return;
             const buttonElement = (
                 <Menu.MenuItem
@@ -87,7 +95,7 @@ export default definePlugin({
     }
 });
 
-function QuoteModal({ message, ...props }: RenderModalProps & { message: Message; }) {
+function QuoteModal({ message, ...props }: RenderModalProps & { message: Message }) {
     const [gray, setGray] = useState(settings.store.grayscale);
     const [showWatermark, setShowWatermark] = useState(settings.store.showWatermark);
     const [saveAsGif, setSaveAsGif] = useState(settings.store.saveAsGif);
@@ -122,7 +130,9 @@ function QuoteModal({ message, ...props }: RenderModalProps & { message: Message
         document.getElementById("quoterPreview")?.setAttribute("src", newUrl);
     };
 
-    useEffect(() => { generateImage(); }, [gray, showWatermark, saveAsGif, watermarkText, quoteFont]);
+    useEffect(() => {
+        generateImage();
+    }, [gray, showWatermark, saveAsGif, watermarkText, quoteFont]);
 
     useEffect(() => {
         return () => {
@@ -181,7 +191,12 @@ function QuoteModal({ message, ...props }: RenderModalProps & { message: Message
                 }
             ]}
         >
-            <img alt="Quote preview" src="" id="quoterPreview" style={{ borderRadius: "20px", width: "100%", marginBottom: "20px" }} />
+            <img
+                alt="Quote preview"
+                src=""
+                id="quoterPreview"
+                style={{ borderRadius: "20px", width: "100%", marginBottom: "20px" }}
+            />
 
             <FormSwitch title="Grayscale" value={gray} onChange={setGray} />
             <FormSwitch

@@ -4,14 +4,26 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { VoiceState } from "@vencord/discord-types";
+import { findByCodeLazy, findStoreLazy } from "@webpack";
+
 import { getUserSettingLazy } from "@api/UserSettings";
 import { HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import { VoiceState } from "@vencord/discord-types";
-import { findByCodeLazy, findStoreLazy } from "@webpack";
-import { ChannelStore, MediaEngineStore, PermissionsBits, PermissionStore, SelectedChannelStore, showToast, Toasts, UserStore, VoiceActions, WindowStore } from "@webpack/common";
+import {
+    ChannelStore,
+    MediaEngineStore,
+    PermissionsBits,
+    PermissionStore,
+    SelectedChannelStore,
+    showToast,
+    Toasts,
+    UserStore,
+    VoiceActions,
+    WindowStore
+} from "@webpack/common";
 
 import { getCurrentMedia, settings } from "./utils";
 
@@ -31,7 +43,7 @@ async function autoStartStream(instant = true) {
 
     const isGuildChannel = !channel.isDM() && !channel.isGroupDM();
 
-    if (channel.type === 13 || isGuildChannel && !PermissionStore.can(PermissionsBits.STREAM, channel)) return;
+    if (channel.type === 13 || (isGuildChannel && !PermissionStore.can(PermissionsBits.STREAM, channel))) return;
 
     if (settings.store.autoDeafen && !MediaEngineStore.isSelfDeaf() && instant) {
         VoiceActions.toggleSelfDeaf();
@@ -49,19 +61,20 @@ async function autoStartStream(instant = true) {
         stopStream(streamKey);
     } else {
         startStream(channel.guild_id ?? null, selected, {
-            "pid": null,
-            "sourceId": sourceId,
-            "sourceName": streamMedia.name,
-            "audioSourceId": streamMedia.name,
-            "sound": soundshareEnabled,
-            "previewDisabled": preview
+            pid: null,
+            sourceId: sourceId,
+            sourceName: streamMedia.name,
+            audioSourceId: streamMedia.name,
+            sound: soundshareEnabled,
+            previewDisabled: preview
         });
     }
 }
 
 export default definePlugin({
     name: "InstantScreenshare",
-    description: "Instantly screenshare when joining a voice channel with support for desktop sources, windows, and video input devices (cameras, capture cards)",
+    description:
+        "Instantly screenshare when joining a voice channel with support for desktop sources, windows, and video input devices (cameras, capture cards)",
     tags: ["Media", "Voice"],
     authors: [Devs.HAHALOSAH, Devs.thororen, EquicordDevs.mart],
     dependencies: ["EquicordToolbox"],
@@ -79,13 +92,12 @@ export default definePlugin({
             </Paragraph>
             <br />
             <HeadingSecondary>Video Devices</HeadingSecondary>
-            <Paragraph>
-                Supports cameras and capture cards (like Elgato HD60X) when enabled in settings
-            </Paragraph>
+            <Paragraph>Supports cameras and capture cards (like Elgato HD60X) when enabled in settings</Paragraph>
             <br />
             <HeadingSecondary>Regarding Sound & Preview Settings</HeadingSecondary>
             <Paragraph>
-                We use the settings set and used by discord to decide if stream preview and sound should be enabled or not
+                We use the settings set and used by discord to decide if stream preview and sound should be enabled or
+                not
             </Paragraph>
         </>
     ),
@@ -96,8 +108,9 @@ export default definePlugin({
             predicate: () => settings.store.keybindScreenshare,
             replacement: {
                 match: /\[\i\.\i\.DISCONNECT_FROM_VOICE_CHANNEL/,
-                replace: '["INSTANT_SCREEN_SHARE"]:{onTrigger(){$self.autoStartStream(false)},keyEvents:{keyUp:!1,keyDown:!0}},$&'
-            },
+                replace:
+                    '["INSTANT_SCREEN_SHARE"]:{onTrigger(){$self.autoStartStream(false)},keyEvents:{keyUp:!1,keyDown:!0}},$&'
+            }
         },
         {
             find: '"push-to-talk-priority"',
@@ -110,7 +123,7 @@ export default definePlugin({
     ],
 
     flux: {
-        async VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
+        async VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[] }) {
             if (!settings.store.toolboxManagement || !settings.store.instantScreenshare) return;
             const myId = UserStore.getCurrentUser().id;
             for (const state of voiceStates) {
@@ -142,7 +155,10 @@ export default definePlugin({
     toolboxActions: {
         "Instant Screenshare"() {
             settings.store.toolboxManagement = !settings.store.toolboxManagement;
-            showToast(`Instant Screenshare ${settings.store.toolboxManagement ? "Enabled" : "Disabled"}`, Toasts.Type.SUCCESS);
+            showToast(
+                `Instant Screenshare ${settings.store.toolboxManagement ? "Enabled" : "Disabled"}`,
+                Toasts.Type.SUCCESS
+            );
         }
     }
 });

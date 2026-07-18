@@ -4,9 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { ReactNode } from "react";
+
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Logger } from "@utils/Logger";
-import { ReactNode } from "react";
 
 export interface NicknameIconProps {
     userId: string;
@@ -25,7 +26,10 @@ const logger = new Logger("NicknameIcons");
 export function addNicknameIcon(id: string, factory: NicknameIconFactory, priority = 0) {
     return nicknameIcons.set(id, {
         priority,
-        factory: ErrorBoundary.wrap(factory, { noop: true, onError: error => logger.error(`Failed to render ${id}`, error) })
+        factory: ErrorBoundary.wrap(factory, {
+            noop: true,
+            onError: error => logger.error(`Failed to render ${id}`, error)
+        })
     });
 }
 

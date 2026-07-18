@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Flex } from "@components/Flex";
@@ -39,11 +39,7 @@ function search(src: string, engine: string) {
 
 function makeSearchItem(src: string) {
     return (
-        <Menu.MenuItem
-            label="Search Image"
-            key="search-image"
-            id="search-image"
-        >
+        <Menu.MenuItem label="Search Image" key="search-image" id="search-image">
             {Object.keys(Engines).map((engine, i) => {
                 const key = "search-image-" + engine;
                 return (
@@ -54,7 +50,7 @@ function makeSearchItem(src: string) {
                             <Flex alignItems="center" gap="0.5em">
                                 <img
                                     style={{
-                                        borderRadius: "50%",
+                                        borderRadius: "50%"
                                     }}
                                     aria-hidden="true"
                                     height={16}
@@ -116,7 +112,7 @@ export default definePlugin({
         }
     ],
     contextMenus: {
-        "message": messageContextMenuPatch,
+        message: messageContextMenuPatch,
         "image-context": imageContextMenuPatch
     }
 });

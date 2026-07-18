@@ -5,7 +5,16 @@
  */
 
 import { openPrivateChannel } from "@utils/discord";
-import { ChannelRouter, GuildChannelStore, GuildStore, IconUtils, NavigationRouter, RelationshipStore, SelectedGuildStore, UserStore } from "@webpack/common";
+import {
+    ChannelRouter,
+    GuildChannelStore,
+    GuildStore,
+    IconUtils,
+    NavigationRouter,
+    RelationshipStore,
+    SelectedGuildStore,
+    UserStore
+} from "@webpack/common";
 
 import type { PaletteCommand, PaletteListItem } from "../api/types";
 import { CompassIcon, GearIcon, HashIcon, HomeIcon, ServerIcon, UserIcon } from "../ui/icons";
@@ -18,11 +27,13 @@ function guildItems(): PaletteListItem[] {
         id: guild.id,
         label: guild.name,
         icon: IconUtils.getGuildIconURL({ id: guild.id, icon: guild.icon, size: 64 }) ?? ServerIcon,
-        actions: [{
-            id: "open",
-            label: "Open Server",
-            run: () => NavigationRouter.transitionToGuild(guild.id)
-        }]
+        actions: [
+            {
+                id: "open",
+                label: "Open Server",
+                run: () => NavigationRouter.transitionToGuild(guild.id)
+            }
+        ]
     }));
 }
 
@@ -34,11 +45,13 @@ function channelItems(): PaletteListItem[] {
         id: channel.id,
         label: `#${channel.name}`,
         icon: HashIcon,
-        actions: [{
-            id: "open",
-            label: "Open Channel",
-            run: () => ChannelRouter.transitionToChannel(channel.id)
-        }]
+        actions: [
+            {
+                id: "open",
+                label: "Open Channel",
+                run: () => ChannelRouter.transitionToChannel(channel.id)
+            }
+        ]
     }));
 }
 
@@ -54,11 +67,13 @@ function friendItems(): PaletteListItem[] {
             label: user.globalName || user.username,
             sublabel: user.username,
             icon: IconUtils.getUserAvatarURL(user, false, 64),
-            actions: [{
-                id: "open",
-                label: "Open DM",
-                run: () => openPrivateChannel(user.id)
-            }]
+            actions: [
+                {
+                    id: "open",
+                    label: "Open DM",
+                    run: () => openPrivateChannel(user.id)
+                }
+            ]
         }));
 }
 
@@ -69,11 +84,13 @@ export const navigationCommands: PaletteCommand[] = [
         section: SECTION,
         keywords: ["friends", "dms", "home"],
         icon: HomeIcon,
-        actions: [{
-            id: "run",
-            label: "Go Home",
-            run: () => NavigationRouter.transitionTo("/channels/@me")
-        }]
+        actions: [
+            {
+                id: "run",
+                label: "Go Home",
+                run: () => NavigationRouter.transitionTo("/channels/@me")
+            }
+        ]
     },
     {
         id: "navigation.server",
@@ -124,17 +141,20 @@ export const navigationCommands: PaletteCommand[] = [
             spec: {
                 type: "list",
                 placeholder: "Search settings pages...",
-                items: () => DISCORD_SETTINGS_ROUTES.map(entry => ({
-                    id: entry.route,
-                    label: entry.label,
-                    keywords: entry.keywords,
-                    icon: CompassIcon,
-                    actions: [{
-                        id: "open",
-                        label: "Open Settings Page",
-                        run: () => void openSettingsPage(entry.route, entry.label)
-                    }]
-                }))
+                items: () =>
+                    DISCORD_SETTINGS_ROUTES.map(entry => ({
+                        id: entry.route,
+                        label: entry.label,
+                        keywords: entry.keywords,
+                        icon: CompassIcon,
+                        actions: [
+                            {
+                                id: "open",
+                                label: "Open Settings Page",
+                                run: () => void openSettingsPage(entry.route, entry.label)
+                            }
+                        ]
+                    }))
             }
         })
     }

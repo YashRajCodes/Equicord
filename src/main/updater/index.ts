@@ -14,18 +14,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import { ipcMain } from "electron";
+import gitRemote from "~git-remote";
 
 import { IpcEvents } from "@shared/IpcEvents";
-import { ipcMain } from "electron";
-
-import gitRemote from "~git-remote";
 
 import { serializeErrors } from "./common";
 
 if (!IS_UPDATER_DISABLED) {
     require(IS_STANDALONE ? "./http" : "./git");
 } else {
-    ipcMain.handle(IpcEvents.GET_REPO, serializeErrors(() => `https://github.com/${gitRemote}`));
-    ipcMain.handle(IpcEvents.GET_UPDATES, serializeErrors(() => []));
+    ipcMain.handle(
+        IpcEvents.GET_REPO,
+        serializeErrors(() => `https://github.com/${gitRemote}`)
+    );
+    ipcMain.handle(
+        IpcEvents.GET_UPDATES,
+        serializeErrors(() => [])
+    );
 }

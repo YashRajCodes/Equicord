@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { popNotice, showNotice } from "@api/Notices";
 import { migratePluginSettings } from "@api/Settings";
@@ -51,7 +51,10 @@ export default definePlugin({
         <>
             <HeadingSecondary>How to use arRPC</HeadingSecondary>
             <Paragraph>
-                <Link href="https://github.com/OpenAsar/arrpc/tree/main#server">Follow the instructions in the GitHub repo</Link> to get the server running, and then enable the plugin.
+                <Link href="https://github.com/OpenAsar/arrpc/tree/main#server">
+                    Follow the instructions in the GitHub repo
+                </Link>{" "}
+                to get the server running, and then enable the plugin.
             </Paragraph>
         </>
     ),
@@ -82,7 +85,9 @@ export default definePlugin({
 
         ws.onmessage = this.handleEvent;
 
-        const connectionSuccessful = await new Promise(res => setTimeout(() => res(ws.readyState === WebSocket.OPEN), 5000)); // check if open after 5s
+        const connectionSuccessful = await new Promise(res =>
+            setTimeout(() => res(ws.readyState === WebSocket.OPEN), 5000)
+        ); // check if open after 5s
         if (!connectionSuccessful) {
             showNotice("Failed to connect to arRPC, is it running?", "Retry", () => {
                 // show notice about failure to connect, with retry/ignore

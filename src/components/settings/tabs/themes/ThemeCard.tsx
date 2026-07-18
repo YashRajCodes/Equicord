@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { findComponentByCodeLazy } from "@webpack";
+
 import type { ThemeActivationMode } from "@api/Settings";
 import { Flex } from "@components/Flex";
 import { CogWheel, DeleteIcon, FolderIcon } from "@components/Icons";
@@ -12,7 +14,6 @@ import { OnlineThemeCard } from "@components/settings/OnlineThemeCard";
 import { UserThemeHeader } from "@main/themes";
 import { classNameFactory } from "@utils/css";
 import { openInviteModal } from "@utils/discord";
-import { findComponentByCodeLazy } from "@webpack";
 import { Menu, React, showToast, Tooltip, useState } from "@webpack/common";
 import { ContextMenuApi } from "@webpack/common/menu";
 
@@ -25,7 +26,7 @@ const DownloadIcon = findComponentByCodeLazy("1.42l3.3 3.3V3a1");
 
 const cl = classNameFactory("vc-settings-theme-");
 
-const themeActivationModeOptions: { value: ThemeActivationMode; label: string; }[] = [
+const themeActivationModeOptions: { value: ThemeActivationMode; label: string }[] = [
     { value: "always", label: "Always on" },
     { value: "light", label: "Light only" },
     { value: "dark", label: "Dark only" }
@@ -35,7 +36,12 @@ export function getThemeActivationModeLabel(mode: ThemeActivationMode) {
     return themeActivationModeOptions.find(option => option.value === mode)?.label ?? "Always on";
 }
 
-export function ThemeActivationMenu({ themeId, activationMode, onActivationModeChange, children }: {
+export function ThemeActivationMenu({
+    themeId,
+    activationMode,
+    onActivationModeChange,
+    children
+}: {
     themeId: string;
     activationMode: ThemeActivationMode;
     onActivationModeChange?: (mode: ThemeActivationMode) => void;
@@ -67,7 +73,7 @@ export function ThemeActivationMenu({ themeId, activationMode, onActivationModeC
     );
 }
 
-export function LocalThemeIcon({ size }: { size?: string; }) {
+export function LocalThemeIcon({ size }: { size?: string }) {
     const sizeVal = size === "sm" ? 16 : 24;
     return (
         <svg viewBox="0 0 24 24" width={sizeVal} height={sizeVal} fill="currentColor">
@@ -76,7 +82,7 @@ export function LocalThemeIcon({ size }: { size?: string; }) {
     );
 }
 
-export function OnlineThemeIcon({ size }: { size?: string; }) {
+export function OnlineThemeIcon({ size }: { size?: string }) {
     const sizeVal = size === "sm" ? 16 : 24;
     return (
         <svg viewBox="0 0 24 24" width={sizeVal} height={sizeVal} fill="currentColor">
@@ -105,7 +111,25 @@ export interface ThemeCardProps {
     onActivationModeChange?: (mode: ThemeActivationMode) => void;
 }
 
-export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton, onEditName, disabled, onPin, isPinned, onRefresh, onOpenFolder, onCopyUrl, onDownload, themeLink, isLocal, activationMode = "always", onActivationModeChange }: ThemeCardProps) {
+export function ThemeCard({
+    theme,
+    enabled,
+    onChange,
+    onDelete,
+    showDeleteButton,
+    onEditName,
+    disabled,
+    onPin,
+    isPinned,
+    onRefresh,
+    onOpenFolder,
+    onCopyUrl,
+    onDownload,
+    themeLink,
+    isLocal,
+    activationMode = "always",
+    onActivationModeChange
+}: ThemeCardProps) {
     const openThemeMenu = (e: React.MouseEvent) => {
         ContextMenuApi.openContextMenu(e, () => (
             <ThemeActivationMenu
@@ -114,12 +138,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                 onActivationModeChange={onActivationModeChange}
             >
                 {onPin && (
-                    <Menu.MenuItem
-                        id="pin-theme"
-                        label={isPinned ? "Unpin" : "Pin"}
-                        icon={PinIcon}
-                        action={onPin}
-                    />
+                    <Menu.MenuItem id="pin-theme" label={isPinned ? "Unpin" : "Pin"} icon={PinIcon} action={onPin} />
                 )}
                 {theme.website && (
                     <Menu.MenuItem
@@ -135,43 +154,21 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                         label="Join Discord"
                         icon={DiscordIcon}
                         action={() => {
-                            openInviteModal(theme.invite!).catch(() =>
-                                showToast("Invalid or expired invite")
-                            );
+                            openInviteModal(theme.invite!).catch(() => showToast("Invalid or expired invite"));
                         }}
                     />
                 )}
                 {onCopyUrl && themeLink && (
-                    <Menu.MenuItem
-                        id="copy-url"
-                        label="Copy URL"
-                        icon={LinkIcon}
-                        action={onCopyUrl}
-                    />
+                    <Menu.MenuItem id="copy-url" label="Copy URL" icon={LinkIcon} action={onCopyUrl} />
                 )}
                 {onDownload && (
-                    <Menu.MenuItem
-                        id="download-theme"
-                        label="Download"
-                        icon={DownloadIcon}
-                        action={onDownload}
-                    />
+                    <Menu.MenuItem id="download-theme" label="Download" icon={DownloadIcon} action={onDownload} />
                 )}
                 {onOpenFolder && (
-                    <Menu.MenuItem
-                        id="open-folder"
-                        label="Open in Folder"
-                        icon={FolderIcon}
-                        action={onOpenFolder}
-                    />
+                    <Menu.MenuItem id="open-folder" label="Open in Folder" icon={FolderIcon} action={onOpenFolder} />
                 )}
                 {onRefresh && (
-                    <Menu.MenuItem
-                        id="refresh-theme"
-                        label="Refresh"
-                        icon={RefreshIcon}
-                        action={onRefresh}
-                    />
+                    <Menu.MenuItem id="refresh-theme" label="Refresh" icon={RefreshIcon} action={onRefresh} />
                 )}
                 {(IS_WEB || showDeleteButton) && onDelete && (
                     <>
@@ -200,10 +197,7 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
             disabled={disabled}
             infoButton={
                 (IS_WEB || showDeleteButton || onPin) && (
-                    <div
-                        className={cl("menu-button")}
-                        onClick={openThemeMenu}
-                    >
+                    <div className={cl("menu-button")} onClick={openThemeMenu}>
                         <CogWheel />
                     </div>
                 )
@@ -235,18 +229,14 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                         </Tooltip>
                     )}
                     {!!theme.website && <Link href={theme.website}>Website</Link>}
-                    {!!(theme.website && theme.invite) && (
-                        <span style={{ color: "var(--text-muted)" }}>•</span>
-                    )}
+                    {!!(theme.website && theme.invite) && <span style={{ color: "var(--text-muted)" }}>•</span>}
                     {!!theme.invite && (
                         <Link
                             href={`https://discord.gg/${theme.invite}`}
                             onClick={async e => {
                                 e.preventDefault();
                                 theme.invite != null &&
-                                    openInviteModal(theme.invite).catch(() =>
-                                        showToast("Invalid or expired invite")
-                                    );
+                                    openInviteModal(theme.invite).catch(() => showToast("Invalid or expired invite"));
                             }}
                         >
                             Discord Server
@@ -255,7 +245,9 @@ export function ThemeCard({ theme, enabled, onChange, onDelete, showDeleteButton
                     {activationMode !== "always" && (
                         <>
                             {!!(theme.website || theme.invite) && <span style={{ color: "var(--text-muted)" }}>•</span>}
-                            <span style={{ color: "var(--text-muted)" }}>{getThemeActivationModeLabel(activationMode)}</span>
+                            <span style={{ color: "var(--text-muted)" }}>
+                                {getThemeActivationModeLabel(activationMode)}
+                            </span>
                         </>
                     )}
                 </Flex>
