@@ -14,9 +14,23 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
-import { BigIntLiteral, createSourceFile, Identifier, isCallExpression, isIdentifier, isObjectLiteralExpression, isPropertyAssignment, isSatisfiesExpression, isVariableStatement, NamedDeclaration, ObjectLiteralExpression, ScriptTarget, StringLiteral } from "typescript";
+import {
+    BigIntLiteral,
+    createSourceFile,
+    Identifier,
+    isCallExpression,
+    isIdentifier,
+    isObjectLiteralExpression,
+    isPropertyAssignment,
+    isSatisfiesExpression,
+    isVariableStatement,
+    NamedDeclaration,
+    ObjectLiteralExpression,
+    ScriptTarget,
+    StringLiteral
+} from "typescript";
 
 interface Dev {
     name: string;
@@ -51,13 +65,15 @@ async function parseDevs() {
 
         const value = devsDeclaration.initializer.arguments[0];
 
-        if (!isSatisfiesExpression(value) || !isObjectLiteralExpression(value.expression)) throw new Error("Failed to parse devs: not an object literal");
+        if (!isSatisfiesExpression(value) || !isObjectLiteralExpression(value.expression))
+            throw new Error("Failed to parse devs: not an object literal");
 
         for (const prop of value.expression.properties) {
             const name = (prop.name as Identifier).text;
             const value = isPropertyAssignment(prop) ? prop.initializer : prop;
 
-            if (!isObjectLiteralExpression(value)) throw new Error(`Failed to parse devs: ${name} is not an object literal`);
+            if (!isObjectLiteralExpression(value))
+                throw new Error(`Failed to parse devs: ${name} is not an object literal`);
 
             devs[name] = {
                 name: (getObjectProp(value, "name") as StringLiteral).text,
@@ -82,13 +98,15 @@ async function parseEquicordDevs() {
 
         const value = devsDeclaration.initializer.arguments[0];
 
-        if (!isSatisfiesExpression(value) || !isObjectLiteralExpression(value.expression)) throw new Error("Failed to parse EquicordDevs: not an object literal");
+        if (!isSatisfiesExpression(value) || !isObjectLiteralExpression(value.expression))
+            throw new Error("Failed to parse EquicordDevs: not an object literal");
 
         for (const prop of value.expression.properties) {
             const name = (prop.name as Identifier).text;
             const value = isPropertyAssignment(prop) ? prop.initializer : prop;
 
-            if (!isObjectLiteralExpression(value)) throw new Error(`Failed to parse EquicordDevs: ${name} is not an object literal`);
+            if (!isObjectLiteralExpression(value))
+                throw new Error(`Failed to parse EquicordDevs: ${name} is not an object literal`);
 
             equicordDevs[name] = {
                 name: (getObjectProp(value, "name") as StringLiteral).text,
@@ -108,7 +126,7 @@ async function parseEquicordDevs() {
 
     const allDevs = {
         vencord: devs,
-        equicord: equicordDevs,
+        equicord: equicordDevs
     };
 
     const data = JSON.stringify(allDevs, null, 2);

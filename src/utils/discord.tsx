@@ -14,12 +14,41 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
+
+import type {
+    Channel,
+    CloudUpload,
+    Guild,
+    GuildFeatures,
+    MediaModalItem,
+    MediaModalProps,
+    Message,
+    User
+} from "@vencord/discord-types";
+import { Except } from "type-fest";
 
 import type { MessageObject } from "@api/MessageEvents";
-import type { Channel, CloudUpload, Guild, GuildFeatures, MediaModalItem, MediaModalProps, Message, User } from "@vencord/discord-types";
-import { ChannelActionCreators, ChannelStore, ComponentDispatch, Constants, FluxDispatcher, GuildStore, i18n, InviteActions, MessageActions, openMediaModal, RestAPI, SelectedChannelStore, SelectedGuildStore, Toasts, UserProfileActions, UserProfileStore, UserSettingsActionCreators, UserUtils } from "@webpack/common";
-import { Except } from "type-fest";
+import {
+    ChannelActionCreators,
+    ChannelStore,
+    ComponentDispatch,
+    Constants,
+    FluxDispatcher,
+    GuildStore,
+    i18n,
+    InviteActions,
+    MessageActions,
+    openMediaModal,
+    RestAPI,
+    SelectedChannelStore,
+    SelectedGuildStore,
+    Toasts,
+    UserProfileActions,
+    UserProfileStore,
+    UserSettingsActionCreators,
+    UserUtils
+} from "@webpack/common";
 
 import { copyToClipboard } from "./clipboard";
 import { runtimeHashMessageKey } from "./intlHash";
@@ -41,7 +70,11 @@ export function getIntlMessage(key: string, values?: Record<PropertyKey, any>): 
  * @param hashedKey The hashed message key
  * @param values The values to interpolate, if it's a rich message
  */
-export function getIntlMessageFromHash(hashedKey: string, values?: Record<PropertyKey, any>, originalKey?: string): any {
+export function getIntlMessageFromHash(
+    hashedKey: string,
+    values?: Record<PropertyKey, any>,
+    originalKey?: string
+): any {
     try {
         return values == null ? i18n.intl.string(i18n.t[hashedKey]) : i18n.intl.format(i18n.t[hashedKey], values);
     } catch (e) {
@@ -137,12 +170,12 @@ export interface MessageOptions {
             poll_media: {
                 text: string;
                 attachment_ids?: unknown;
-                emoji?: { name: string; id?: string; };
+                emoji?: { name: string; id?: string };
             };
         }>;
         duration: number;
         layout_type: number;
-        question: { text: string; };
+        question: { text: string };
     };
 }
 
@@ -168,11 +201,13 @@ export function sendMessage(
  */
 export function openImageModal(item: Except<MediaModalItem, "type">, mediaModalProps?: Omit<MediaModalProps, "items">) {
     return openMediaModal({
-        items: [{
-            type: "IMAGE",
-            original: item.original ?? item.url,
-            ...item,
-        }],
+        items: [
+            {
+                type: "IMAGE",
+                original: item.original ?? item.url,
+                ...item
+            }
+        ],
         ...mediaModalProps
     });
 }
@@ -217,13 +252,17 @@ export async function fetchUserProfile(id: string, options?: FetchUserProfileOpt
             with_mutual_friends_count: false,
             ...options
         },
-        oldFormErrors: true,
+        oldFormErrors: true
     });
 
     FluxDispatcher.dispatch({ type: "USER_UPDATE", user: body.user });
     await FluxDispatcher.dispatch({ type: "USER_PROFILE_FETCH_SUCCESS", userProfile: body });
     if (options?.guild_id && body.guild_member)
-        FluxDispatcher.dispatch({ type: "GUILD_MEMBER_PROFILE_UPDATE", guildId: options.guild_id, guildMember: body.guild_member });
+        FluxDispatcher.dispatch({
+            type: "GUILD_MEMBER_PROFILE_UPDATE",
+            guildId: options.guild_id,
+            guildMember: body.guild_member
+        });
 
     return UserProfileStore.getUserProfile(id);
 }

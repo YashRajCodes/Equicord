@@ -41,6 +41,7 @@ bash -c "$(curl -sS https://raw.githubusercontent.com/Equicord/Equicord/refs/hea
 [Git](https://git-scm.com/download) and [Bun](https://bun.sh/docs/installation) are required.
 
 Install Bun:
+
 > :exclamation: This next command may need to be run as admin/root depending on your system, and you may need to close and reopen your terminal for Bun to be in your PATH.
 
 > :exclamation: **IMPORTANT** Make sure you aren't using an admin/root terminal from here onwards. It **will** mess up your Discord/Equicord instance and you **will** most likely have to reinstall.

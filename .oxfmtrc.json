@@ -23,9 +23,5 @@
             "@webpack/"
         ]
     },
-    "ignorePatterns": [
-        "dist/**",
-        "packages/vencord-types/**",
-        "src/userplugins/**"
-    ]
+    "ignorePatterns": ["dist/**", "packages/vencord-types/**", "src/userplugins/**"]
 }

@@ -1,19 +1,10 @@
 {
     "$schema": "./node_modules/oxlint/configuration_schema.json",
-    "plugins": [
-        "oxc",
-        "typescript",
-        "unicorn",
-        "react"
-    ],
+    "plugins": ["oxc", "typescript", "unicorn", "react"],
     "categories": {
         "correctness": "off"
     },
-    "ignorePatterns": [
-        "dist/**",
-        "packages/vencord-types/**",
-        "src/userplugins/**"
-    ],
+    "ignorePatterns": ["dist/**", "packages/vencord-types/**", "src/userplugins/**"],
     "rules": {
         "react/react-in-jsx-scope": "off",
         "react/display-name": "off",
@@ -58,9 +49,7 @@
         "no-useless-escape": [
             "error",
             {
-                "allowRegexCharacters": [
-                    "i"
-                ]
+                "allowRegexCharacters": ["i"]
             }
         ],
         "typescript/dot-notation": [
@@ -93,10 +82,6 @@
             }
         ],
         "prefer-spread": "error",
-        "no-restricted-globals": [
-            "error",
-            "event",
-            "name"
-        ]
+        "no-restricted-globals": ["error", "event", "name"]
     }
 }

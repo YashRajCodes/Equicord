@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
@@ -34,9 +34,10 @@ export const settings = definePluginSettings({
         default: true
     },
     usePatchedModule: {
-        description: "On extract requests, reply with the current patched module (if it is patched) instead of the original.",
+        description:
+            "On extract requests, reply with the current patched module (if it is patched) instead of the original.",
         default: true,
-        type: OptionType.BOOLEAN,
+        type: OptionType.BOOLEAN
     },
     reloadAfterToggle: {
         description: "Reload after a disable/enable plugin command is recived.",
@@ -47,7 +48,8 @@ export const settings = definePluginSettings({
 
 export default definePlugin({
     name: "DevCompanion",
-    description: "Dev Companion Plugin. Please report anything not working or being weird (most likely its a bug) to sadan, either ping or dm, thanks!",
+    description:
+        "Dev Companion Plugin. Please report anything not working or being weird (most likely its a bug) to sadan, either ping or dm, thanks!",
     tags: ["Developers", "Utility"],
     authors: [Devs.Ven, Devs.sadan],
     reporterTestable: ReporterTestable.None,
@@ -71,5 +73,5 @@ export default definePlugin({
         };
     },
 
-    stop: stopWs,
+    stop: stopWs
 });

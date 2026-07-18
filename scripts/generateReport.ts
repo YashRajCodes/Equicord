@@ -14,13 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
+ */
 
 /// <reference types="../src/globals" />
 /// <reference types="../src/modules" />
 
 import { createHmac } from "crypto";
 import { join } from "path";
+
 import pup, { JSHandle } from "puppeteer-core";
 
 const logStderr = (...data: any[]) => console.error(`${CANARY ? "CANARY" : "STABLE"} ---`, ...data);
@@ -41,15 +42,18 @@ let metaData = {
 const browser = await pup.launch({
     headless: true,
     executablePath: process.env.CHROMIUM_BIN,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ["--no-sandbox", "--disable-setuid-sandbox"]
 });
 
 const page = await browser.newPage();
-await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36");
+await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36"
+);
 await page.setBypassCSP(true);
 
 async function maybeGetError(handle: JSHandle): Promise<string | undefined> {
-    return await (handle as JSHandle<Error>)?.getProperty("message")
+    return await (handle as JSHandle<Error>)
+        ?.getProperty("message")
         .then(m => m?.jsonValue())
         .catch(() => undefined);
 }
@@ -60,7 +64,7 @@ interface PatchInfo {
     id: string;
     match: string;
     error?: string;
-};
+}
 
 const report = {
     badPatches: [] as PatchInfo[],
@@ -88,12 +92,13 @@ const IGNORED_DISCORD_ERRORS = [
 function toCodeBlock(s: string, indentation = 0, isDiscord = false) {
     s = s.replace(/```/g, "`\u200B`\u200B`");
 
-    s = s.replace(/\\x([0-9A-Fa-f]{2})/g, (_, hex) =>
-        String.fromCharCode(parseInt(hex, 16))
-    );
+    s = s.replace(/\\x([0-9A-Fa-f]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
 
     const indentationStr = " ".repeat(!isDiscord ? indentation : 0);
-    const content = s.split("\n").map(s => indentationStr + s).join("\n");
+    const content = s
+        .split("\n")
+        .map(s => indentationStr + s)
+        .join("\n");
 
     return `\`\`\`\n${content}\n${indentationStr}\`\`\``;
 }
@@ -146,16 +151,18 @@ async function printReport() {
         const patchesToEmbed = (title: string, patches: PatchInfo[], color: number) => ({
             title,
             color,
-            description: patches.map(p => {
-                const lines = [
-                    `**__${p.plugin} (${p.type}):__**`,
-                    `ID: \`${p.id}\``,
-                    `Match: ${toCodeBlock(p.match, "Match: ".length, true)}`
-                ];
-                if (p.error) lines.push(`Error: ${toCodeBlock(p.error, "Error: ".length, true)}`);
+            description: patches
+                .map(p => {
+                    const lines = [
+                        `**__${p.plugin} (${p.type}):__**`,
+                        `ID: \`${p.id}\``,
+                        `Match: ${toCodeBlock(p.match, "Match: ".length, true)}`
+                    ];
+                    if (p.error) lines.push(`Error: ${toCodeBlock(p.error, "Error: ".length, true)}`);
 
-                return lines.join("\n");
-            }).join("\n\n"),
+                    return lines.join("\n");
+                })
+                .join("\n\n")
         });
 
         const embeds = [
@@ -163,7 +170,9 @@ async function printReport() {
                 author: {
                     name: `Discord ${CANARY ? "Canary" : "Stable"} (${metaData.buildNumber})`,
                     url: `https://nelly.tools/builds/app/${metaData.buildHash}`,
-                    icon_url: CANARY ? "https://cdn.discordapp.com/emojis/1252721945699549327.png?size=128" : "https://cdn.discordapp.com/emojis/1252721943463985272.png?size=128"
+                    icon_url: CANARY
+                        ? "https://cdn.discordapp.com/emojis/1252721945699549327.png?size=128"
+                        : "https://cdn.discordapp.com/emojis/1252721943463985272.png?size=128"
                 },
                 color: CANARY ? 0xfbb642 : 0x5865f2
             },
@@ -176,14 +185,13 @@ async function printReport() {
             },
             report.badStarts.length > 0 && {
                 title: "Bad Starts",
-                description: report.badStarts.map(p => {
-                    const lines = [
-                        `**__${p.plugin}:__**`,
-                        toCodeBlock(p.error, 0, true)
-                    ];
-                    return lines.join("\n");
-                }
-                ).join("\n\n") || "None",
+                description:
+                    report.badStarts
+                        .map(p => {
+                            const lines = [`**__${p.plugin}:__**`, toCodeBlock(p.error, 0, true)];
+                            return lines.join("\n");
+                        })
+                        .join("\n\n") || "None",
                 color: 0xff0000
             },
             report.otherErrors.length > 0 && {
@@ -214,7 +222,8 @@ async function printReport() {
         // used by venbot to ensure webhook invocations are genuine (since we will pass the webhook url as a workflow input which is publicly visible)
         // generate a secret with something like `openssl rand -hex 128`
         if (process.env.WEBHOOK_SECRET) {
-            headers["X-Signature"] = "sha256=" + createHmac("sha256", process.env.WEBHOOK_SECRET).update(body).digest("hex");
+            headers["X-Signature"] =
+                "sha256=" + createHmac("sha256", process.env.WEBHOOK_SECRET).update(body).digest("hex");
         }
 
         await fetch(process.env.WEBHOOK_URL, {
@@ -239,7 +248,7 @@ page.on("console", async e => {
         try {
             return await Promise.all(
                 args.map(async a => {
-                    return await maybeGetError(a) || await a.jsonValue();
+                    return (await maybeGetError(a)) || (await a.jsonValue());
                 })
             ).then(a => a.join(" ").trim());
         } catch {
@@ -254,12 +263,11 @@ page.on("console", async e => {
     const isReporterMeta = firstArg === "[REPORTER_META]";
 
     if (isReporterMeta) {
-        metaData = await rawArgs[1].jsonValue() as any;
+        metaData = (await rawArgs[1].jsonValue()) as any;
         return;
     }
 
-    outer:
-    if (isEquicord) {
+    outer: if (isEquicord) {
         try {
             var args = await Promise.all(e.args().map(a => a.jsonValue()));
         } catch {
@@ -270,7 +278,9 @@ page.on("console", async e => {
 
         switch (tag) {
             case "WebpackPatcher:":
-                const patchFailMatch = message.match(/Patch by (.+?) (had no effect|errored|found no module) \(Module id is (.+?)\): (.+)/);
+                const patchFailMatch = message.match(
+                    /Patch by (.+?) (had no effect|errored|found no module) \(Module id is (.+?)\): (.+)/
+                );
                 const patchSlowMatch = message.match(/Patch by (.+?) (took [\d.]+?ms) \(Module id is (.+?)\): (.+)/);
                 const match = patchFailMatch ?? patchSlowMatch;
                 if (!match) break;
@@ -299,7 +309,7 @@ page.on("console", async e => {
                 const [, name] = failedToStartMatch;
                 report.badStarts.push({
                     plugin: name,
-                    error: await maybeGetError(e.args()[3]) ?? "Unknown error"
+                    error: (await maybeGetError(e.args()[3])) ?? "Unknown error"
                 });
 
                 break;
@@ -335,7 +345,11 @@ page.on("console", async e => {
     } else if (level === "error") {
         const text = await getText(false);
 
-        if (text.length && !text.startsWith("Failed to load resource: the server responded with a status of") && !text.includes("Webpack")) {
+        if (
+            text.length &&
+            !text.startsWith("Failed to load resource: the server responded with a status of") &&
+            !text.includes("Webpack")
+        ) {
             if (IGNORED_DISCORD_ERRORS.some(regex => text.match(regex))) {
                 report.ignoredErrors.push(text);
             } else {
