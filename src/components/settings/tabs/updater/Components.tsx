@@ -23,7 +23,7 @@ export interface CommonProps {
     repoPending: boolean;
 }
 
-export function HashLink({ repo, hash, disabled = false }: { repo: string; hash: string; disabled?: boolean }) {
+export function HashLink({ repo, hash, disabled = false }: { repo: string, hash: string, disabled?: boolean; }) {
     return (
         <Link href={`${repo}/commit/${hash}`} disabled={disabled}>
             {hash.slice(0, 7)}
@@ -31,7 +31,7 @@ export function HashLink({ repo, hash, disabled = false }: { repo: string; hash:
     );
 }
 
-export function Changes({ updates, repo, repoPending }: CommonProps & { updates: typeof changes }) {
+export function Changes({ updates, repo, repoPending }: CommonProps & { updates: typeof changes; }) {
     return (
         <Card className={Margins.top16} style={{ padding: 0 }} defaultPadding={false}>
             {updates.map(({ hash, author, message }, i) => (
@@ -63,8 +63,7 @@ export function Newer(props: CommonProps) {
     return (
         <>
             <Paragraph>
-                Your local copy has more recent commits than the remote repository. This usually happens when you've
-                made local changes. Please stash or reset them before updating.
+                Your local copy has more recent commits than the remote repository. This usually happens when you've made local changes. Please stash or reset them before updating.
             </Paragraph>
             <Changes {...props} updates={changes} />
         </>
@@ -139,9 +138,7 @@ export function Updatable(props: CommonProps) {
             </Flex>
             {!updates && updateError ? (
                 <>
-                    <Span size="md" weight="medium" color="text-strong">
-                        Error checking for updates
-                    </Span>
+                    <Span size="md" weight="medium" color="text-strong">Error checking for updates</Span>
                     <ErrorCard className={Margins.top8} style={{ padding: "1em" }}>
                         <p>{updateError.stderr || updateError.stdout || "An unknown error occurred"}</p>
                     </ErrorCard>
@@ -149,13 +146,14 @@ export function Updatable(props: CommonProps) {
             ) : isOutdated ? (
                 <>
                     <Paragraph>
-                        There {updates.length === 1 ? "is 1 update" : `are ${updates.length} updates`} available. Click
-                        the button above to download and install.
+                        There {updates.length === 1 ? "is 1 update" : `are ${updates.length} updates`} available. Click the button above to download and install.
                     </Paragraph>
                     <Changes updates={updates} {...props} />
                 </>
             ) : (
-                <Paragraph>You're running the latest version of Equicord.</Paragraph>
+                <Paragraph>
+                    You're running the latest version of Equicord.
+                </Paragraph>
             )}
         </>
     );

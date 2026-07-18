@@ -14,14 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { constants as fsConstants } from "fs";
-import { access, mkdir, rm, writeFile } from "fs/promises";
-import { join } from "path";
+*/
 
 import { session } from "electron";
 import { unzip } from "fflate";
+import { constants as fsConstants } from "fs";
+import { access, mkdir, rm, writeFile } from "fs/promises";
+import { join } from "path";
 
 import { DATA_DIR } from "./constants";
 import { crxToZip } from "./crxToZip";
@@ -34,27 +33,25 @@ async function extract(data: Buffer, outDir: string) {
     return new Promise<void>((resolve, reject) => {
         unzip(data, (err, files) => {
             if (err) return void reject(err);
-            Promise.all(
-                Object.keys(files).map(async f => {
-                    // Signature stuff
-                    // 'Cannot load extension with file or directory name
-                    // _metadata. Filenames starting with "_" are reserved for use by the system.';
-                    if (f.startsWith("_metadata/")) return;
+            Promise.all(Object.keys(files).map(async f => {
+                // Signature stuff
+                // 'Cannot load extension with file or directory name
+                // _metadata. Filenames starting with "_" are reserved for use by the system.';
+                if (f.startsWith("_metadata/")) return;
 
-                    if (f.endsWith("/")) return void mkdir(join(outDir, f), { recursive: true });
+                if (f.endsWith("/")) return void mkdir(join(outDir, f), { recursive: true });
 
-                    const pathElements = f.split("/");
-                    const name = pathElements.pop()!;
-                    const directories = pathElements.join("/");
-                    const dir = join(outDir, directories);
+                const pathElements = f.split("/");
+                const name = pathElements.pop()!;
+                const directories = pathElements.join("/");
+                const dir = join(outDir, directories);
 
-                    if (directories) {
-                        await mkdir(dir, { recursive: true });
-                    }
+                if (directories) {
+                    await mkdir(dir, { recursive: true });
+                }
 
-                    await writeFile(join(dir, name), files[f]);
-                })
-            )
+                await writeFile(join(dir, name), files[f]);
+            }))
                 .then(() => resolve())
                 .catch(err => {
                     rm(outDir, { recursive: true, force: true });
@@ -78,11 +75,10 @@ export async function installExt(id: string) {
             }
         });
 
-        await extract(crxToZip(buf), extDir).catch(err => console.error(`Failed to extract extension ${id}`, err));
+        await extract(crxToZip(buf), extDir)
+            .catch(err => console.error(`Failed to extract extension ${id}`, err));
     }
 
     // Electron 36 Deprecates session.defaultSession.loadExtension()
-    session.defaultSession.extensions
-        ? session.defaultSession.extensions.loadExtension(extDir)
-        : session.defaultSession.loadExtension(extDir);
+    session.defaultSession.extensions ? session.defaultSession.extensions.loadExtension(extDir) : session.defaultSession.loadExtension(extDir);
 }

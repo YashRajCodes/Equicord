@@ -4,26 +4,33 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findCssClassesLazy } from "@webpack";
-import type { ReactNode } from "react";
-
 import { definePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
 import { Margins } from "@utils/margins";
 import definePlugin, { OptionType } from "@utils/types";
+import { findCssClassesLazy } from "@webpack";
 import { Clickable, useState } from "@webpack/common";
+import type { ReactNode } from "react";
 
 const AdvancedClasses = findCssClassesLazy("trigger", "advancedTitle", "titleCaret");
 const CollapsibleCard = ErrorBoundary.wrap(
-    ({ children }: { children: ReactNode }) => {
+    ({ children }: { children: ReactNode; }) => {
         const [open, setOpen] = useState(!settings.store.collapsedByDefault);
 
         return (
             <div className={Margins.top16}>
-                <Clickable className={AdvancedClasses.trigger} aria-expanded={open} onClick={() => setOpen(v => !v)}>
-                    <BaseText size="lg" weight="semibold" className={AdvancedClasses.advancedTitle}>
+                <Clickable
+                    className={AdvancedClasses.trigger}
+                    aria-expanded={open}
+                    onClick={() => setOpen(v => !v)}
+                >
+                    <BaseText
+                        size="lg"
+                        weight="semibold"
+                        className={AdvancedClasses.advancedTitle}
+                    >
                         Simplified permissions
                         <svg
                             className={AdvancedClasses.titleCaret}
@@ -31,8 +38,10 @@ const CollapsibleCard = ErrorBoundary.wrap(
                             height="20"
                             viewBox="0 0 24 24"
                             style={{
-                                transform: open ? "rotate(0deg)" : "rotate(-90deg)",
-                                transition: "transform .2s"
+                                transform: open
+                                    ? "rotate(0deg)"
+                                    : "rotate(-90deg)",
+                                transition: "transform .2s",
                             }}
                         >
                             <path
@@ -46,24 +55,21 @@ const CollapsibleCard = ErrorBoundary.wrap(
             </div>
         );
     },
-    { noop: true }
+    { noop: true },
 );
 
 let savedCard: ReactNode = null;
 
-const SimplifiedCard = ErrorBoundary.wrap(
-    () => {
-        switch (settings.store.simplifiedCard) {
-            case "hide":
-                return null;
-            case "collapse":
-                return <CollapsibleCard>{savedCard}</CollapsibleCard>;
-            default:
-                return <>{savedCard}</>;
-        }
-    },
-    { noop: true }
-);
+const SimplifiedCard = ErrorBoundary.wrap(() => {
+    switch (settings.store.simplifiedCard) {
+        case "hide":
+            return null;
+        case "collapse":
+            return <CollapsibleCard>{savedCard}</CollapsibleCard>;
+        default:
+            return <>{savedCard}</>;
+    }
+}, { noop: true });
 
 const settings = definePluginSettings({
     simplifiedCard: {
@@ -72,15 +78,15 @@ const settings = definePluginSettings({
         options: [
             { label: "Hide it", value: "hide", default: true },
             { label: "Make it collapsible", value: "collapse" },
-            { label: "Leave it visible", value: "show" }
-        ]
+            { label: "Leave it visible", value: "show" },
+        ],
     },
     collapsedByDefault: {
         type: OptionType.BOOLEAN,
         default: false,
         description: "Start the simplified permissions collapsed.",
-        disabled: () => settings.store.simplifiedCard !== "collapse"
-    }
+        disabled: () => settings.store.simplifiedCard !== "collapse",
+    },
 });
 
 export default definePlugin({
@@ -97,30 +103,30 @@ export default definePlugin({
                 {
                     // render the card below the subtitle
                     match: /(?<=children:\i\.subtitle\}\),)/,
-                    replace: "$self.renderCard(),"
+                    replace: "$self.renderCard(),",
                 },
                 {
                     // grab, store and hide the original card
                     match: /(?<=permissionUpdates:\i\}\):null,).{0,100}?roles:\i,members:\i\}\)/,
-                    replace: "$self.saveCard($&)"
+                    replace: "$self.saveCard($&)",
                 },
                 {
                     // always hide the divider
                     match: /(?<=advancedMode\);.{0,30}children:\[)/,
-                    replace: "null&&"
+                    replace: "null&&",
                 },
                 {
                     // always force advanced open
                     match: /isExpanded:\i(?=,onExpandedChange:)/,
-                    replace: "isExpanded:!0"
+                    replace: "isExpanded:!0",
                 },
                 {
                     // drop advanced header
                     match: /component:(?=.{0,50}slot:"trigger")/,
-                    replace: "component:null&&"
-                }
-            ]
-        }
+                    replace: "component:null&&",
+                },
+            ],
+        },
     ],
 
     renderCard() {
@@ -130,5 +136,5 @@ export default definePlugin({
     saveCard(card: ReactNode) {
         savedCard = card;
         return null;
-    }
+    },
 });

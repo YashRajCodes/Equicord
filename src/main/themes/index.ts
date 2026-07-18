@@ -50,7 +50,7 @@ function makeHeader(fileName: string, opts: Partial<UserThemeHeader> = {}): User
 }
 
 export function stripBOM(fileContent: string) {
-    if (fileContent.charCodeAt(0) === 0xfeff) {
+    if (fileContent.charCodeAt(0) === 0xFEFF) {
         fileContent = fileContent.slice(1);
     }
     return fileContent;
@@ -72,7 +72,8 @@ export function getThemeInfo(css: string, fileName: string): UserThemeHeader {
             const l = line.indexOf(" ");
             field = line.substring(1, l);
             accum = line.substring(l + 1);
-        } else {
+        }
+        else {
             accum += " " + line.replace("\\n", "\n").replace(escapedAtRegex, "@");
         }
     }

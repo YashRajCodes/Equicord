@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { Channel } from "@vencord/discord-types";
-
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { insertTextIntoChatInputBox } from "@utils/discord";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
+import type { Channel } from "@vencord/discord-types";
 import { GuildChannelStore, Menu, React, RestAPI, UserStore, VoiceStateStore } from "@webpack/common";
 
 async function runSequential<T>(promises: Promise<T>[]): Promise<T[]> {
@@ -38,12 +37,10 @@ function sendPatch(channel: Channel, body: Record<string, any>, bypass = false) 
         const userVoice = usersVoice[key];
 
         if (bypass || userVoice.userId !== myId) {
-            promises.push(
-                RestAPI.patch({
-                    url: `/guilds/${channel.guild_id}/members/${userVoice.userId}`,
-                    body: body
-                })
-            );
+            promises.push(RestAPI.patch({
+                url: `/guilds/${channel.guild_id}/members/${userVoice.userId}`,
+                body: body
+            }));
         }
     });
 
@@ -73,15 +70,17 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
     const userCount = Object.keys(VoiceStateStore.getVoiceStatesForChannel(channel.id)).length;
     if (userCount === 0) return;
 
-    const guildChannels: { VOCAL: { channel: Channel; comparator: number }[] } = GuildChannelStore.getChannels(
-        channel.guild_id
-    );
+    const guildChannels: { VOCAL: { channel: Channel, comparator: number; }[]; } = GuildChannelStore.getChannels(channel.guild_id);
     const voiceChannels = guildChannels.VOCAL.map(({ channel }) => channel).filter(({ id }) => id !== channel.id);
 
     children.splice(
         -1,
         0,
-        <Menu.MenuItem label="Voice Tools" key="voice-tools" id="voice-tools">
+        <Menu.MenuItem
+            label="Voice Tools"
+            key="voice-tools"
+            id="voice-tools"
+        >
             <Menu.MenuItem
                 key="voice-tools-mention-all"
                 id="voice-tools-mention-all"
@@ -93,76 +92,65 @@ const VoiceChannelContext: NavContextMenuPatchCallback = (children, { channel }:
                 key="voice-tools-disconnect-all"
                 id="voice-tools-disconnect-all"
                 label="Disconnect all"
-                action={() =>
-                    sendPatch(channel, {
-                        channel_id: null
-                    })
-                }
+                action={() => sendPatch(channel, {
+                    channel_id: null,
+                })}
             />
 
             <Menu.MenuItem
                 key="voice-tools-mute-all"
                 id="voice-tools-mute-all"
                 label="Mute all"
-                action={() =>
-                    sendPatch(channel, {
-                        mute: true
-                    })
-                }
+                action={() => sendPatch(channel, {
+                    mute: true,
+                })}
             />
 
             <Menu.MenuItem
                 key="voice-tools-unmute-all"
                 id="voice-tools-unmute-all"
                 label="Unmute all"
-                action={() =>
-                    sendPatch(channel, {
-                        mute: false
-                    })
-                }
+                action={() => sendPatch(channel, {
+                    mute: false,
+                })}
             />
 
             <Menu.MenuItem
                 key="voice-tools-deafen-all"
                 id="voice-tools-deafen-all"
                 label="Deafen all"
-                action={() =>
-                    sendPatch(channel, {
-                        deaf: true
-                    })
-                }
+                action={() => sendPatch(channel, {
+                    deaf: true,
+                })}
             />
 
             <Menu.MenuItem
                 key="voice-tools-undeafen-all"
                 id="voice-tools-undeafen-all"
                 label="Undeafen all"
-                action={() =>
-                    sendPatch(channel, {
-                        deaf: false
-                    })
-                }
+                action={() => sendPatch(channel, {
+                    deaf: false,
+                })}
             />
 
-            <Menu.MenuItem label="Move all" key="voice-tools-move-all" id="voice-tools-move-all">
+            <Menu.MenuItem
+                label="Move all"
+                key="voice-tools-move-all"
+                id="voice-tools-move-all"
+            >
                 {voiceChannels.map(voiceChannel => {
                     return (
                         <Menu.MenuItem
                             key={voiceChannel.id}
                             id={voiceChannel.id}
                             label={voiceChannel.name}
-                            action={() =>
-                                sendPatch(
-                                    channel,
-                                    {
-                                        channel_id: voiceChannel.id
-                                    },
-                                    true
-                                )
-                            }
+                            action={() => sendPatch(channel, {
+                                channel_id: voiceChannel.id,
+                            }, true)}
                         />
                     );
                 })}
+
             </Menu.MenuItem>
         </Menu.MenuItem>
     );
@@ -173,20 +161,19 @@ const settings = definePluginSettings({
         type: OptionType.SLIDER,
         description: "Amount of API actions to perform before waiting (to avoid rate limits)",
         default: 5,
-        markers: makeRange(1, 20)
+        markers: makeRange(1, 20),
     },
     waitSeconds: {
         type: OptionType.SLIDER,
         description: "Time to wait between each action (in seconds)",
         default: 2,
-        markers: makeRange(1, 10, 0.5)
+        markers: makeRange(1, 10, .5),
     }
 });
 
 export default definePlugin({
     name: "VoiceChatUtilities",
-    description:
-        "This plugin allows you to perform multiple actions on an entire channel (move, mute, disconnect, etc.) (originally by dutake)",
+    description: "This plugin allows you to perform multiple actions on an entire channel (move, mute, disconnect, etc.) (originally by dutake)",
     tags: ["Chat", "Servers", "Voice"],
     authors: [Devs.D3SOX, EquicordDevs.nickwoah],
 
@@ -194,5 +181,5 @@ export default definePlugin({
 
     contextMenus: {
         "channel-context": VoiceChannelContext
-    }
+    },
 });

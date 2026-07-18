@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { User } from "@vencord/discord-types";
-import { Constructor } from "type-fest";
-
 import { generateId } from "@api/Commands";
 import { Settings } from "@api/Settings";
 import { Button } from "@components/Button";
@@ -16,7 +13,9 @@ import { Paragraph } from "@components/Paragraph";
 import type { Theme, ThemeLikeProps } from "@equicordplugins/themeLibrary/types";
 import { proxyLazy } from "@utils/lazy";
 import { Margins } from "@utils/margins";
+import { User } from "@vencord/discord-types";
 import { FluxDispatcher, Modal, openModal, Parser, React, UserStore, UserUtils } from "@webpack/common";
+import { Constructor } from "type-fest";
 
 import { LikesComponent } from "./LikesComponent";
 import { ThemeInfoModal } from "./ThemeInfoModal";
@@ -33,28 +32,22 @@ interface ThemeCardProps {
 
 const UserRecord: Constructor<Partial<User>> = proxyLazy(() => UserStore.getCurrentUser().constructor) as any;
 
-function makeDummyUser(user: { username: string; id?: string; avatar?: string }) {
+function makeDummyUser(user: { username: string; id?: string; avatar?: string; }) {
     const newUser = new UserRecord({
         username: user.username,
         id: user.id ?? generateId(),
         avatar: user.avatar,
-        bot: true
+        bot: true,
     });
     FluxDispatcher.dispatch({
         type: "USER_UPDATE",
-        user: newUser
+        user: newUser,
     });
     return newUser;
 }
 
-export const ThemeCard: React.FC<ThemeCardProps> = ({
-    theme,
-    themeLinks,
-    likedThemes,
-    setThemeLinks,
-    removeButtons,
-    removePreview
-}) => {
+export const ThemeCard: React.FC<ThemeCardProps> = ({ theme, themeLinks, likedThemes, setThemeLinks, removeButtons, removePreview }) => {
+
     const getUser = (id: string, username: string) => UserUtils.getUser(id) ?? makeDummyUser({ username, id });
 
     const handleAddRemoveTheme = () => {
@@ -93,9 +86,7 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({
                     ]}
                 >
                     <Paragraph style={{ padding: "8px" }}>
-                        <p>
-                            This theme requires the <b>ThemeAttributes</b> plugin to work properly!
-                        </p>
+                        <p>This theme requires the <b>ThemeAttributes</b> plugin to work properly!</p>
                         <p>Do you want to enable it?</p>
                     </Paragraph>
                 </Modal>
@@ -118,29 +109,15 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({
     };
 
     return (
-        <Card
-            style={{
-                padding: ".5rem",
-                marginBottom: ".5em",
-                marginTop: ".5em",
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: "var(--background-base-lower-alt)"
-            }}
-            key={theme.id}
-        >
+        <Card style={{ padding: ".5rem", marginBottom: ".5em", marginTop: ".5em", display: "flex", flexDirection: "column", backgroundColor: "var(--background-base-lower-alt)" }} key={theme.id}>
             <HeadingPrimary style={{ overflowWrap: "break-word", marginTop: "8px" }} className="vce-theme-text-title">
                 {theme.name}
             </HeadingPrimary>
-            <Paragraph className="vce-theme-text-description">{Parser.parse(theme.description)}</Paragraph>
+            <Paragraph className="vce-theme-text-description">
+                {Parser.parse(theme.description)}
+            </Paragraph>
             {!removePreview && (
-                <img
-                    role="presentation"
-                    src={theme.thumbnail_url}
-                    loading="lazy"
-                    alt={theme.name}
-                    className="vce-theme-info-preview"
-                />
+                <img role="presentation" src={theme.thumbnail_url} loading="lazy" alt={theme.name} className="vce-theme-info-preview" />
             )}
             <div className="vce-theme-info">
                 <div style={{ justifyContent: "flex-start", flexDirection: "column" }}>
@@ -167,11 +144,7 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({
                             <Button
                                 onClick={async () => {
                                     const authors = Array.isArray(theme.author)
-                                        ? await Promise.all(
-                                              theme.author.map(author =>
-                                                  getUser(author.discord_snowflake, author.discord_name)
-                                              )
-                                          )
+                                        ? await Promise.all(theme.author.map(author => getUser(author.discord_snowflake, author.discord_name)))
                                         : [await getUser(theme.author.discord_snowflake, theme.author.discord_name)];
 
                                     openModal(props => <ThemeInfoModal {...props} author={authors} theme={theme} />);
@@ -195,6 +168,6 @@ export const ThemeCard: React.FC<ThemeCardProps> = ({
                     )}
                 </div>
             </div>
-        </Card>
+        </Card >
     );
 };

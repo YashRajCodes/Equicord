@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -29,8 +29,8 @@ export default definePlugin({
             find: ',"f1"],comboKeysBindGlobal:',
             replacement: {
                 match: ',"f1"],comboKeysBindGlobal:',
-                replace: "],comboKeysBindGlobal:"
-            }
-        }
-    ]
+                replace: "],comboKeysBindGlobal:",
+            },
+        },
+    ],
 });

@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { ProfilePreset } from "@vencord/discord-types";
-
 import { isNonNullish } from "@utils/guards";
 import { classes } from "@utils/misc";
+import { ProfilePreset } from "@vencord/discord-types";
 import { ContextMenuApi, Menu, React, TextInput } from "@webpack/common";
 
 import { cl } from "..";
@@ -121,7 +120,9 @@ export function PresetList({
                                     />
                                 ) : (
                                     <>
-                                        <div className={cl("name")}>{preset.name}</div>
+                                        <div className={cl("name")}>
+                                            {preset.name}
+                                        </div>
                                         <div className={cl("timestamp")}>
                                             {formattedDate} at {formattedTime}
                                         </div>
@@ -152,26 +153,11 @@ export function PresetList({
                                                 id="update"
                                                 label="Update"
                                                 action={async () => {
-                                                    const profile = await getCurrentProfile(guildId, {
-                                                        isGuildProfile
-                                                    });
+                                                    const profile = await getCurrentProfile(guildId, { isGuildProfile });
                                                     await Promise.all(
-                                                        (
-                                                            Object.entries(profile) as [
-                                                                keyof EditableProfile,
-                                                                EditableProfile[keyof EditableProfile]
-                                                            ][]
-                                                        )
+                                                        (Object.entries(profile) as [keyof EditableProfile, EditableProfile[keyof EditableProfile]][])
                                                             .filter(([, value]) => isNonNullish(value))
-                                                            .map(([key, value]) =>
-                                                                updatePresetField(
-                                                                    actualIndex,
-                                                                    key,
-                                                                    value,
-                                                                    section,
-                                                                    guildId
-                                                                )
-                                                            )
+                                                            .map(([key, value]) => updatePresetField(actualIndex, key, value, section, guildId))
                                                     );
                                                     onUpdate();
                                                 }}

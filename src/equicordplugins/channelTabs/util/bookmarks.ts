@@ -18,20 +18,20 @@ export function isBookmarkFolder(bookmark: Bookmark | BookmarkFolder): bookmark 
 export function bookmarkPlaceholderName(bookmark: Omit<Bookmark | BookmarkFolder, "name">) {
     if (isBookmarkFolder(bookmark as Bookmark | BookmarkFolder)) return "Folder";
 
-    const { channelId } = bookmark as Bookmark;
+    const { channelId } = (bookmark as Bookmark);
 
     // handle special synthetic pages
     if (channelId?.startsWith("__")) {
         const specialPagesMap: Record<string, string> = {
-            __quests__: "Quests",
+            "__quests__": "Quests",
             "__message-requests__": "Message Requests",
-            __friends__: "Friends",
-            __shop__: "Shop",
-            __library__: "Library",
-            __discovery__: "Discovery",
-            __nitro__: "Nitro",
-            __icymi__: "ICYMI",
-            __activity__: "Activity"
+            "__friends__": "Friends",
+            "__shop__": "Shop",
+            "__library__": "Library",
+            "__discovery__": "Discovery",
+            "__nitro__": "Nitro",
+            "__icymi__": "ICYMI",
+            "__activity__": "Activity",
         };
 
         return specialPagesMap[channelId] || "Special Page";
@@ -41,26 +41,24 @@ export function bookmarkPlaceholderName(bookmark: Omit<Bookmark | BookmarkFolder
 
     if (!channel) return "Bookmark";
     if (channel.name) return `#${channel.name}`;
-    if (channel.recipients) return UserStore.getUser(channel.recipients?.[0])?.username ?? "Unknown User";
+    if (channel.recipients) return UserStore.getUser(channel.recipients?.[0])?.username
+        ?? "Unknown User";
     return "Bookmark";
 }
 
 export function useBookmarks(userId: string): UseBookmark {
-    const [bookmarks, _setBookmarks] = useState<{ [k: string]: Bookmarks }>({});
-    const setBookmarks = useCallback(
-        (bookmarks: { [k: string]: Bookmarks }) => {
-            _setBookmarks(bookmarks);
-            DataStore.update("ChannelTabs_bookmarks", old => ({
-                ...old,
-                [userId]: bookmarks[userId]
-            }));
-        },
-        [userId]
-    );
+    const [bookmarks, _setBookmarks] = useState<{ [k: string]: Bookmarks; }>({});
+    const setBookmarks = useCallback((bookmarks: { [k: string]: Bookmarks; }) => {
+        _setBookmarks(bookmarks);
+        DataStore.update("ChannelTabs_bookmarks", old => ({
+            ...old,
+            [userId]: bookmarks[userId]
+        }));
+    }, [userId]);
 
     useAwaiter(() => DataStore.get("ChannelTabs_bookmarks"), {
         fallbackValue: undefined,
-        onSuccess(bookmarks: { [k: string]: Bookmarks }) {
+        onSuccess(bookmarks: { [k: string]: Bookmarks; }) {
             if (!bookmarks) {
                 bookmarks = { [userId]: [] };
                 DataStore.set("ChannelTabs_bookmarks", { [userId]: [] });
@@ -68,14 +66,14 @@ export function useBookmarks(userId: string): UseBookmark {
             if (!bookmarks[userId]) bookmarks[userId] = [];
 
             setBookmarks(bookmarks);
-        }
+        },
     });
 
     const methods = {
         addBookmark: (bookmark, folderIndex) => {
             if (!bookmarks) return;
 
-            if (typeof folderIndex === "number" && !isBookmarkFolder(bookmarks[userId][folderIndex]))
+            if (typeof folderIndex === "number" && !(isBookmarkFolder(bookmarks[userId][folderIndex])))
                 return logger.error("Attempted to add bookmark to non-folder " + folderIndex, bookmarks);
 
             const name = bookmark.name ?? bookmarkPlaceholderName(bookmark);
@@ -118,12 +116,12 @@ export function useBookmarks(userId: string): UseBookmark {
                 if (!isBookmarkFolder(folder))
                     return logger.error("Attempted to delete bookmark from non-folder " + folderIndex, bookmarks);
 
-                if (index < 0 || index > folder.bookmarks.length - 1)
+                if (index < 0 || index > (folder.bookmarks.length - 1))
                     return logger.error("Attempted to delete bookmark at index " + index, bookmarks);
 
                 folder.bookmarks.splice(index, 1);
             } else {
-                if (index < 0 || index > bookmarks[userId].length - 1)
+                if (index < 0 || index > (bookmarks[userId].length - 1))
                     return logger.error("Attempted to delete bookmark at index " + index, bookmarks);
 
                 bookmarks[userId].splice(index, 1);

@@ -14,14 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { MessageAttachment } from "@vencord/discord-types";
 
 import { Flogger, settings } from "../..";
 import { LoggedAttachment, LoggedMessage, LoggedMessageJSON } from "../../types";
 import { memoize } from "../memoize";
-import { deleteImage, downloadAttachment, getImage } from "./ImageManager";
+import { deleteImage, downloadAttachment, getImage, } from "./ImageManager";
 
 export function getFileExtension(str: string) {
     const matches = str.match(/(\.[a-zA-Z0-9]+)(?:\?.*)?$/);
@@ -37,7 +37,8 @@ export function isAttachmentGoodToCache(attachment: MessageAttachment, fileExten
     }
     const attachmentFileExtensionsStr = settings.store.attachmentFileExtensions.trim();
 
-    if (attachmentFileExtensionsStr === "") return true;
+    if (attachmentFileExtensionsStr === "")
+        return true;
 
     const allowedFileExtensions = attachmentFileExtensionsStr.split(",");
 
@@ -56,10 +57,7 @@ export function isAttachmentGoodToCache(attachment: MessageAttachment, fileExten
 export async function cacheMessageImages(message: LoggedMessage | LoggedMessageJSON) {
     try {
         for (const attachment of message.attachments) {
-            const fileExtension =
-                getFileExtension(attachment.filename ?? attachment.url) ??
-                attachment?.content_type?.split("/")?.[1] ??
-                ".png";
+            const fileExtension = getFileExtension(attachment.filename ?? attachment.url) ?? attachment?.content_type?.split("/")?.[1] ?? ".png";
 
             if (!isAttachmentGoodToCache(attachment, fileExtension)) {
                 Flogger.log("skipping", attachment.filename);
@@ -89,6 +87,7 @@ export async function cacheMessageImages(message: LoggedMessage | LoggedMessageJ
 
             attachment.path = path;
         }
+
     } catch (error) {
         Flogger.error("Error caching message images:", error);
     }

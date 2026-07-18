@@ -4,19 +4,18 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderModalProps } from "@vencord/discord-types";
-
 import { set } from "@api/DataStore";
 import { HeadingSecondary } from "@components/Heading";
 import { classNameFactory } from "@utils/css";
 import { Margins } from "@utils/margins";
+import { RenderModalProps } from "@vencord/discord-types";
 import { ColorPicker, Modal, React, useState } from "@webpack/common";
 
 import { colors, DATASTORE_KEY } from "./index";
 
 const cl = classNameFactory("vc-customColors-");
 
-export function SetColorModal({ id, modalProps }: { id: string; modalProps: RenderModalProps }) {
+export function SetColorModal({ id, modalProps }: { id: string, modalProps: RenderModalProps; }) {
     const initialColor = parseInt(colors[id], 16) || 372735;
     // color picker default to current color set for user (if null it's 0x05afff :3 )
 
@@ -28,7 +27,8 @@ export function SetColorModal({ id, modalProps }: { id: string; modalProps: Rend
     }
 
     function handleKey(e: React.KeyboardEvent) {
-        if (e.key === "Enter") saveUserColor();
+        if (e.key === "Enter")
+            saveUserColor();
     }
 
     async function saveUserColor() {
@@ -63,8 +63,14 @@ export function SetColorModal({ id, modalProps }: { id: string; modalProps: Rend
         >
             <div onKeyDown={handleKey} className={cl("modal-content")}>
                 <section className={Margins.bottom16}>
-                    <HeadingSecondary>Pick a Color</HeadingSecondary>
-                    <ColorPicker color={colorPickerColor} onChange={setUserColor} showEyeDropper={false} />
+                    <HeadingSecondary>
+                        Pick a Color
+                    </HeadingSecondary>
+                    <ColorPicker
+                        color={colorPickerColor}
+                        onChange={setUserColor}
+                        showEyeDropper={false}
+                    />
                 </section>
             </div>
         </Modal>

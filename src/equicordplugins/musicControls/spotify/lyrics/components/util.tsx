@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findCssClassesLazy } from "@webpack";
-
 import { settings } from "@equicordplugins/musicControls/settings";
 import { SpotifyLrcStore } from "@equicordplugins/musicControls/spotify/lyrics/providers/store";
 import { SyncedLyric } from "@equicordplugins/musicControls/spotify/lyrics/providers/types";
 import { SpotifyStore } from "@equicordplugins/musicControls/spotify/SpotifyStore";
 import { classNameFactory } from "@utils/css";
+import { findCssClassesLazy } from "@webpack";
 import { React, useEffect, useState, useStateFromStores } from "@webpack/common";
 
 export const scrollClasses = findCssClassesLazy("auto", "customTheme");
@@ -19,12 +18,7 @@ export const cl = classNameFactory("vc-spotify-lyrics-");
 
 export function NoteSvg() {
     return (
-        <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 -960 480 720"
-            fill="currentColor"
-            className={cl("music-note")}
-        >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 480 720" fill="currentColor" className={cl("music-note")}>
             <path d="m160,-240 q -66,0 -113,-47 -47,-47 -47,-113 0,-66 47,-113 47,-47 113,-47 23,0 42.5,5.5 19.5,5.5 37.5,16.5 v -422 h 240 v 160 H 320 v 400 q 0,66 -47,113 -47,47 -113,47 z" />
         </svg>
     );
@@ -33,8 +27,7 @@ export function NoteSvg() {
 const getIndexes = (lyrics: SyncedLyric[], position: number, delay: number) => {
     const posInSec = (position + delay) / 1000;
 
-    let left = 0,
-        right = lyrics.length - 1;
+    let left = 0, right = lyrics.length - 1;
     let currentIndex: number | null = null;
 
     while (left <= right) {
@@ -64,12 +57,13 @@ const getIndexes = (lyrics: SyncedLyric[], position: number, delay: number) => {
     return [currentIndex, nextLyricIdx];
 };
 
-export function useLyrics({ scroll = true }: { scroll?: boolean } = {}) {
-    const [track, storePosition, isPlaying] = useStateFromStores([SpotifyStore], () => [
-        SpotifyStore.track,
-        SpotifyStore.mPosition,
-        SpotifyStore.isPlaying
-    ]);
+export function useLyrics({ scroll = true }: { scroll?: boolean; } = {}) {
+    const [track, storePosition, isPlaying] = useStateFromStores(
+        [SpotifyStore], () => [
+            SpotifyStore.track,
+            SpotifyStore.mPosition,
+            SpotifyStore.isPlaying,
+        ]);
     const lyricsInfo = useStateFromStores([SpotifyLrcStore], () => SpotifyLrcStore.lyricsInfo);
 
     const { lyricDelay } = settings.use(["lyricDelay"]);

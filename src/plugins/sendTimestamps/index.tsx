@@ -14,10 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import "./styles.css";
-import { RenderModalProps } from "@vencord/discord-types";
 
 import { ChatBarButton, ChatBarButtonFactory } from "@api/ChatButtons";
 import { definePluginSettings } from "@api/Settings";
@@ -28,14 +27,15 @@ import { classNameFactory } from "@utils/css";
 import { getTheme, insertTextIntoChatInputBox, Theme } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import definePlugin, { IconComponent, OptionType } from "@utils/types";
+import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, openModal, Parser, Select, useMemo, useState } from "@webpack/common";
 
 const settings = definePluginSettings({
     replaceMessageContents: {
         description: "Replace timestamps in message contents",
         type: OptionType.BOOLEAN,
-        default: true
-    }
+        default: true,
+    },
 });
 
 function parseTime(time: string) {
@@ -51,7 +51,7 @@ function parseTime(time: string) {
 }
 
 const Formats = ["", "t", "T", "d", "D", "f", "F", "s", "S", "R"] as const;
-type Format = (typeof Formats)[number];
+type Format = typeof Formats[number];
 
 const cl = classNameFactory("vc-st-");
 
@@ -71,16 +71,14 @@ function PickerModal(props: RenderModalProps) {
         <Modal
             {...props}
             title="Timestamp Picker"
-            actions={[
-                {
-                    text: "Insert",
-                    variant: "primary",
-                    onClick() {
-                        insertTextIntoChatInputBox(formatted + " ");
-                        props.onClose();
-                    }
+            actions={[{
+                text: "Insert",
+                variant: "primary",
+                onClick() {
+                    insertTextIntoChatInputBox(formatted + " ");
+                    props.onClose();
                 }
-            ]}
+            }]}
         >
             <input
                 className={cl("date-picker")}
@@ -88,30 +86,32 @@ function PickerModal(props: RenderModalProps) {
                 value={value}
                 onChange={e => setValue(e.currentTarget.value)}
                 style={{
-                    colorScheme: getTheme() === Theme.Light ? "light" : "dark"
+                    colorScheme: getTheme() === Theme.Light ? "light" : "dark",
                 }}
             />
 
             <Heading tag="h5">Timestamp Format</Heading>
             <div className={cl("format-select")}>
                 <Select
-                    options={Formats.map(m => ({
-                        label: m,
-                        value: m
-                    }))}
+                    options={
+                        Formats.map(m => ({
+                            label: m,
+                            value: m
+                        }))
+                    }
                     isSelected={v => v === format}
                     select={v => setFormat(v)}
                     serialize={v => v}
                     renderOptionLabel={o => (
-                        <div className={cl("format-label")}>{Parser.parse(formatTimestamp(time, o.value))}</div>
+                        <div className={cl("format-label")}>
+                            {Parser.parse(formatTimestamp(time, o.value))}
+                        </div>
                     )}
                     renderOptionValue={() => rendered}
                 />
             </div>
 
-            <Heading tag="h5" className={Margins.bottom8}>
-                Preview
-            </Heading>
+            <Heading tag="h5" className={Margins.bottom8}>Preview</Heading>
             <Paragraph className={cl("preview-text")}>
                 {rendered} ({formatted})
             </Paragraph>
@@ -131,10 +131,7 @@ const SendTimestampIcon: IconComponent = ({ height = 20, width = 20, className }
             style={{ scale: "1.2" }}
         >
             <g fill="none" fillRule="evenodd">
-                <path
-                    fill="currentColor"
-                    d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z"
-                />
+                <path fill="currentColor" d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z" />
                 <rect width="24" height="24" />
             </g>
         </svg>
@@ -175,16 +172,23 @@ export default definePlugin({
     },
 
     settingsAboutComponent() {
-        const samples = ["12:00", "3:51", "17:59", "24:00", "12:00 AM", "0:13PM"].map(s => `\`${s}\``);
+        const samples = [
+            "12:00",
+            "3:51",
+            "17:59",
+            "24:00",
+            "12:00 AM",
+            "0:13PM"
+        ].map(s => `\`${s}\``);
 
         return (
             <>
                 <Paragraph>
-                    To quickly send time only timestamps, include timestamps formatted as `HH:MM` (including the
-                    backticks!) in your message
+                    To quickly send time only timestamps, include timestamps formatted as `HH:MM` (including the backticks!) in your message
                 </Paragraph>
                 <Paragraph>
-                    See below for examples. If you need anything more specific, use the Date button in the chat bar!
+                    See below for examples.
+                    If you need anything more specific, use the Date button in the chat bar!
                 </Paragraph>
                 <Paragraph>
                     Examples:
@@ -198,5 +202,5 @@ export default definePlugin({
                 </Paragraph>
             </>
         );
-    }
+    },
 });

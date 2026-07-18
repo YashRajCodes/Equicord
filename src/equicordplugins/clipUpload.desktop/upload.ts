@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { User } from "@vencord/discord-types";
-
 import { Logger } from "@utils/Logger";
 import { isObject } from "@utils/misc";
 import type { PluginNative } from "@utils/types";
+import type { User } from "@vencord/discord-types";
 import { Constants, MediaEngineStore, RestAPI, showToast, SnowflakeUtils, Toasts } from "@webpack/common";
 
 import { convertClipToMp4 } from "./ffmpeg";
@@ -151,10 +150,7 @@ async function updateTempVideoMetadata(tmpToken: string) {
 }
 
 async function stampVideoFile(file: File, fileName: string) {
-    const tmpToken = await Native.createTempVideoFileFromBytes(
-        getTempVideoFileName(fileName),
-        new Uint8Array(await file.arrayBuffer())
-    );
+    const tmpToken = await Native.createTempVideoFileFromBytes(getTempVideoFileName(fileName), new Uint8Array(await file.arrayBuffer()));
     if (!tmpToken) throw new Error("Couldn't prepare the selected file.");
 
     try {
@@ -170,7 +166,7 @@ async function stampVideoFile(file: File, fileName: string) {
 }
 
 function isClipMetadataUpdater(value: unknown): value is ClipMetadataUpdater {
-    return isObject(value) && typeof (value as { updateClipMetadata?: unknown }).updateClipMetadata === "function";
+    return isObject(value) && typeof (value as { updateClipMetadata?: unknown; }).updateClipMetadata === "function";
 }
 
 export interface ParsedClipMetadata {
@@ -213,38 +209,33 @@ function parseAttachmentUploadResponse(response: RestResponse): AttachmentUpload
 }
 
 async function reserveClipUpload(options: ClipUploadOptions, file: File) {
-    const response = (await RestAPI.post({
+    const response = await RestAPI.post({
         url: Constants.Endpoints.MESSAGE_CREATE_ATTACHMENT_UPLOAD(options.channelId),
         body: {
             content: options.message,
-            files: [
-                {
-                    filename: options.fileName,
-                    file_size: file.size,
-                    id: "0",
-                    is_clip: true,
-                    is_spoiler: options.spoiler,
-                    is_remix: options.remix,
-                    is_thumbnail: options.thumbnail,
-                    title: options.title,
-                    application_id: options.applicationId,
-                    clip_created_at: options.createdAt,
-                    clip_participant_ids: options.participants,
-                    clip_remote_id: options.remoteClipId,
-                    clip_events_timeline: options.eventsTimeline,
-                    original_content_type: file.type || "video/mp4"
-                }
-            ]
+            files: [{
+                filename: options.fileName,
+                file_size: file.size,
+                id: "0",
+                is_clip: true,
+                is_spoiler: options.spoiler,
+                is_remix: options.remix,
+                is_thumbnail: options.thumbnail,
+                title: options.title,
+                application_id: options.applicationId,
+                clip_created_at: options.createdAt,
+                clip_participant_ids: options.participants,
+                clip_remote_id: options.remoteClipId,
+                clip_events_timeline: options.eventsTimeline,
+                original_content_type: file.type || "video/mp4"
+            }]
         }
-    })) as RestResponse;
+    }) as RestResponse;
 
     return parseAttachmentUploadResponse(response).attachments?.[0];
 }
 
-async function uploadReservedClip(
-    attachment: NonNullable<Awaited<ReturnType<typeof reserveClipUpload>>>,
-    uploadFile: File
-) {
+async function uploadReservedClip(attachment: NonNullable<Awaited<ReturnType<typeof reserveClipUpload>>>, uploadFile: File) {
     const uploadAbortController = new AbortController();
     uploadAbortControllers.add(uploadAbortController);
 
@@ -271,7 +262,7 @@ async function sendClipUpload(uploadFile: File, options: ClipUploadOptions) {
 
     await uploadReservedClip(attachment, uploadFile);
 
-    const messageResponse = (await RestAPI.post({
+    const messageResponse = await RestAPI.post({
         url: Constants.Endpoints.MESSAGES(options.channelId),
         body: {
             content: options.message,
@@ -279,26 +270,24 @@ async function sendClipUpload(uploadFile: File, options: ClipUploadOptions) {
             channel_id: options.channelId,
             sticker_ids: [],
             type: 0,
-            attachments: [
-                {
-                    id: "0",
-                    filesize: uploadFile.size,
-                    filename: options.fileName,
-                    uploaded_filename: attachment.upload_filename,
-                    is_clip: true,
-                    is_spoiler: options.spoiler,
-                    is_remix: options.remix,
-                    is_thumbnail: options.thumbnail,
-                    title: options.title,
-                    application_id: options.applicationId,
-                    clip_created_at: options.createdAt,
-                    clip_participant_ids: options.participants,
-                    clip_remote_id: options.remoteClipId,
-                    clip_events_timeline: options.eventsTimeline
-                }
-            ]
+            attachments: [{
+                id: "0",
+                filesize: uploadFile.size,
+                filename: options.fileName,
+                uploaded_filename: attachment.upload_filename,
+                is_clip: true,
+                is_spoiler: options.spoiler,
+                is_remix: options.remix,
+                is_thumbnail: options.thumbnail,
+                title: options.title,
+                application_id: options.applicationId,
+                clip_created_at: options.createdAt,
+                clip_participant_ids: options.participants,
+                clip_remote_id: options.remoteClipId,
+                clip_events_timeline: options.eventsTimeline
+            }]
         }
-    })) as RestResponse;
+    }) as RestResponse;
 
     if (messageResponse.ok === false) throw messageResponse;
 }
@@ -308,7 +297,7 @@ function getSearchableErrorText(error: unknown): string {
     if (typeof error === "string") return error;
     if (!isObject(error)) return "";
 
-    const { body, message, text } = error as { body?: unknown; message?: unknown; text?: unknown };
+    const { body, message, text } = error as { body?: unknown; message?: unknown; text?: unknown; };
     return [
         typeof message === "string" ? message : "",
         typeof text === "string" ? text : "",
@@ -320,7 +309,7 @@ function getSearchableErrorText(error: unknown): string {
 function getRestErrorCode(error: unknown) {
     if (!isObject(error)) return undefined;
 
-    const { body } = error as { body?: unknown };
+    const { body } = error as { body?: unknown; };
     if (!isObject(body)) return undefined;
 
     const { code } = body as Record<string, unknown>;
@@ -344,10 +333,7 @@ export async function uploadClipFile(file: File, options: ClipUploadOptions) {
             if (!shouldRetryWithFFmpeg(error)) throw error;
 
             showToast("Converting clip file.", Toasts.Type.MESSAGE);
-            await sendClipUpload(
-                await stampVideoFile(await convertClipToMp4(file, options.fileName), options.fileName),
-                options
-            );
+            await sendClipUpload(await stampVideoFile(await convertClipToMp4(file, options.fileName), options.fileName), options);
         }
 
         showToast("Clip uploaded.", Toasts.Type.SUCCESS);

@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Icon } from "@vencord/discord-types";
-
 import { Button } from "@components/Button";
 import { Heading } from "@components/Heading";
 import { SettingsTab, wrapTab } from "@components/settings";
@@ -15,6 +13,7 @@ import { debounce } from "@shared/debounce";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useIntersection } from "@utils/react";
+import { Icon } from "@vencord/discord-types";
 import { Clickable, TextInput, useCallback, useEffect, useMemo, useState } from "@webpack/common";
 
 import { IconsDef } from "../types";
@@ -26,7 +25,9 @@ function getIcons(): IconsDef {
     if (cachedIcons) return cachedIcons;
 
     cachedIcons = Object.fromEntries(
-        Object.entries(iconsModule).filter(([name, fn]) => typeof fn === "function" && name.endsWith("Icon"))
+        Object.entries(iconsModule).filter(([name, fn]) =>
+            typeof fn === "function" && name.endsWith("Icon")
+        )
     );
 
     return cachedIcons;
@@ -37,38 +38,24 @@ function searchMatch(search: string, name: string, Icon: Icon, searchByFunction:
 
     if (searchByFunction) return String(Icon).includes(search);
 
-    const words = name
-        .replace(/([A-Z]([a-z]+)?)/g, " $1")
-        .toLowerCase()
-        .split(" ");
+    const words = name.replace(/([A-Z]([a-z]+)?)/g, " $1").toLowerCase().split(" ");
     const keywords = search.toLowerCase().split(" ");
-    return (
-        keywords.every(k => words.includes(k)) ||
+    return keywords.every(k => words.includes(k)) ||
         words.every(w => keywords.includes(w)) ||
-        name.toLowerCase().includes(search.toLowerCase())
-    );
+        name.toLowerCase().includes(search.toLowerCase());
 }
 
-function IconItem({ iconName, Icon }: { iconName: string; Icon: Icon }) {
+function IconItem({ iconName, Icon }: { iconName: string; Icon: Icon; }) {
     const fill = iconName === "CircleShieldIcon" ? "var(--background-base-low)" : "var(--interactive-icon-default)";
 
     return (
         <div className="vc-icon-box">
             <Clickable onClick={() => openIconModal(iconName, Icon)}>
                 <div className="vc-icon-container">
-                    <Icon
-                        className="vc-icon-icon"
-                        size="lg"
-                        width={32}
-                        height={32}
-                        color="var(--interactive-icon-default)"
-                        fill={fill}
-                    />
+                    <Icon className="vc-icon-icon" size="lg" width={32} height={32} color="var(--interactive-icon-default)" fill={fill} />
                 </div>
             </Clickable>
-            <Heading className="vc-icon-title" tag="h3">
-                {iconName}
-            </Heading>
+            <Heading className="vc-icon-title" tag="h3">{iconName}</Heading>
         </div>
     );
 }
@@ -80,18 +67,18 @@ function IconsTab() {
 
     const icons = useMemo(() => getIcons(), []);
 
-    const debouncedSetSearch = useMemo(() => debounce((query: string) => setSearch(query), 150), []);
-
-    const onSearch = useCallback(
-        (query: string) => {
-            setSearchInput(query);
-            debouncedSetSearch(query);
-        },
-        [debouncedSetSearch]
+    const debouncedSetSearch = useMemo(
+        () => debounce((query: string) => setSearch(query), 150),
+        []
     );
 
-    const filteredIcons = useMemo(
-        () => Object.entries(icons).filter(([name, Icon]) => searchMatch(search, name, Icon, searchByFunction)),
+    const onSearch = useCallback((query: string) => {
+        setSearchInput(query);
+        debouncedSetSearch(query);
+    }, [debouncedSetSearch]);
+
+    const filteredIcons = useMemo(() =>
+        Object.entries(icons).filter(([name, Icon]) => searchMatch(search, name, Icon, searchByFunction)),
         [icons, search, searchByFunction]
     );
 
@@ -119,12 +106,7 @@ function IconsTab() {
     return (
         <SettingsTab>
             <div className={classes(Margins.top16, "vc-icon-tab-search-bar-grid")}>
-                <TextInput
-                    autoFocus
-                    value={searchInput}
-                    placeholder={`Search ${Object.keys(icons).length} icons...`}
-                    onChange={onSearch}
-                />
+                <TextInput autoFocus value={searchInput} placeholder={`Search ${Object.keys(icons).length} icons...`} onChange={onSearch} />
                 <TooltipContainer text="Search by function context">
                     <Button
                         size="small"
@@ -142,7 +124,9 @@ function IconsTab() {
                     <IconItem key={iconName} iconName={iconName} Icon={Icon} />
                 ))}
             </div>
-            {visibleCount < filteredIcons.length && <div ref={sentinelRef} className="vc-icon-sentinel" />}
+            {visibleCount < filteredIcons.length && (
+                <div ref={sentinelRef} className="vc-icon-sentinel" />
+            )}
         </SettingsTab>
     );
 }

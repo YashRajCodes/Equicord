@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { BadgePosition, ProfileBadge } from "@api/Badges";
 import { Button } from "@components/Button";
 import { BadgeContextMenu } from "@plugins/_api/badges";
@@ -26,7 +27,11 @@ export default definePlugin({
     settings,
     settingsAboutComponent: () => (
         <>
-            <Button variant="link" className={cl("settings-button")} onClick={() => openInviteModal(INVITE_LINK)}>
+            <Button
+                variant="link"
+                className={cl("settings-button")}
+                onClick={() => openInviteModal(INVITE_LINK)}
+            >
                 Join GlobalBadges Server
             </Button>
         </>
@@ -53,23 +58,20 @@ export default definePlugin({
         return GlobalBadges;
     },
     getGlobalBadges(userId: string) {
-        return GlobalBadges[userId]?.map(
-            (badge, idx) =>
-                ({
-                    id: `global_badges_badge_${idx}`,
-                    iconSrc: badge.badge,
-                    description: badge.tooltip,
-                    position: BadgePosition.START,
-                    props: {
-                        style: {
-                            borderRadius: "50%",
-                            transform: "scale(0.9)"
-                        }
-                    },
-                    onContextMenu(event, badge) {
-                        ContextMenuApi.openContextMenu(event, () => <BadgeContextMenu badge={badge} />);
-                    }
-                }) satisfies ProfileBadge
-        );
+        return GlobalBadges[userId]?.map((badge, idx) => ({
+            id: `global_badges_badge_${idx}`,
+            iconSrc: badge.badge,
+            description: badge.tooltip,
+            position: BadgePosition.START,
+            props: {
+                style: {
+                    borderRadius: "50%",
+                    transform: "scale(0.9)"
+                }
+            },
+            onContextMenu(event, badge) {
+                ContextMenuApi.openContextMenu(event, () => <BadgeContextMenu badge={badge} />);
+            },
+        } satisfies ProfileBadge));
     }
 });

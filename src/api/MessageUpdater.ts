@@ -5,7 +5,6 @@
  */
 
 import { Message } from "@vencord/discord-types";
-
 import { MessageCache, MessageStore } from "@webpack/common";
 
 /**

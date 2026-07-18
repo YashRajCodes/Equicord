@@ -6,34 +6,15 @@
 
 import type { Quest } from "@vencord/discord-types";
 import { findComponentByCodeLazy } from "@webpack";
+import { QuestStore, useEffect, useMemo, useRef, useState, useStateFromStores } from "@webpack/common";
 import type { JSX, SyntheticEvent } from "react";
 
-import { QuestStore, useEffect, useMemo, useRef, useState, useStateFromStores } from "@webpack/common";
-
 import { getQuestifySettings, useQuestifySettings } from "../settings/access";
-import {
-    defaultQuestTileClaimedColorSetting,
-    defaultQuestTileExpiredColorSetting,
-    defaultQuestTileIgnoredColorSetting,
-    defaultQuestTileUnclaimedColorSetting,
-    type QuestTileColorSetting,
-    type QuestTileGradient
-} from "../settings/def";
+import { defaultQuestTileClaimedColorSetting, defaultQuestTileExpiredColorSetting, defaultQuestTileIgnoredColorSetting, defaultQuestTileUnclaimedColorSetting, type QuestTileColorSetting, type QuestTileGradient } from "../settings/def";
 import { rerenderQuests } from "../settings/rerender";
 import { getQuestTileClasses, getQuestTileStyle } from "../utils/questTiles";
 import { q } from "../utils/ui";
-import {
-    ManaButton,
-    type ManaSelectOption,
-    SettingsCard,
-    SettingsColorPicker,
-    SettingsDescription,
-    SettingsHeader,
-    SettingsRow,
-    SettingsRowItem,
-    SettingsSelect,
-    SettingsSubheader
-} from "./shared";
+import { ManaButton, type ManaSelectOption, SettingsCard, SettingsColorPicker, SettingsDescription, SettingsHeader, SettingsRow, SettingsRowItem, SettingsSelect, SettingsSubheader } from "./shared";
 
 const QuestTile = findComponentByCodeLazy(".rowIndex,trackGuildAndChannelMetadata") as React.ComponentType<{
     className?: string;
@@ -44,18 +25,18 @@ const gradientOptions = [
     { label: "Intense Restyle Gradient", value: "intense" },
     { label: "Default Restyle Gradient", value: "default" },
     { label: "Subtle Black Gradient", value: "black" },
-    { label: "No Gradient", value: "hide" }
-] as const satisfies readonly { label: string; value: QuestTileGradient }[];
+    { label: "No Gradient", value: "hide" },
+] as const satisfies readonly { label: string, value: QuestTileGradient; }[];
 
 const gradientManaOptions: ManaSelectOption[] = gradientOptions.map(({ label, value }) => ({
     id: value,
     label,
-    value
+    value,
 }));
 
 const preloadManaOptions: ManaSelectOption[] = [
     { id: "true", label: "Load All Quest Assets On Page Load", value: "true" },
-    { id: "false", label: "Load Quest Assets During Page Scroll", value: "false" }
+    { id: "false", label: "Load Quest Assets During Page Scroll", value: "false" },
 ];
 
 type QuestTileColorKey =
@@ -74,23 +55,23 @@ const colorOptions = [
     {
         key: "questTileUnclaimedColor",
         label: "Unclaimed",
-        defaultValue: defaultQuestTileUnclaimedColorSetting
+        defaultValue: defaultQuestTileUnclaimedColorSetting,
     },
     {
         key: "questTileClaimedColor",
         label: "Claimed",
-        defaultValue: defaultQuestTileClaimedColorSetting
+        defaultValue: defaultQuestTileClaimedColorSetting,
     },
     {
         key: "questTileIgnoredColor",
         label: "Ignored",
-        defaultValue: defaultQuestTileIgnoredColorSetting
+        defaultValue: defaultQuestTileIgnoredColorSetting,
     },
     {
         key: "questTileExpiredColor",
         label: "Expired",
-        defaultValue: defaultQuestTileExpiredColorSetting
-    }
+        defaultValue: defaultQuestTileExpiredColorSetting,
+    },
 ] as const satisfies readonly QuestTileColorOption[];
 
 const defaultPreviewColorKey: QuestTileColorKey = "questTileUnclaimedColor";
@@ -100,13 +81,10 @@ function getRandomQuest(): Quest | null {
     return quests.length > 0 ? quests[Math.floor(Math.random() * quests.length)] : null;
 }
 
-function cloneDummyQuest(
-    quest: Quest,
-    dummyColor: QuestTileColorSetting
-): Quest & { dummyColor: QuestTileColorSetting } {
+function cloneDummyQuest(quest: Quest, dummyColor: QuestTileColorSetting): Quest & { dummyColor: QuestTileColorSetting; } {
     return {
         ...structuredClone(quest),
-        dummyColor
+        dummyColor,
     };
 }
 
@@ -119,10 +97,10 @@ function stopDummyQuestInteraction(event: SyntheticEvent): void {
 function DummyQuestTile({
     disabled,
     dummyQuest,
-    dummyGradient
+    dummyGradient,
 }: {
     disabled?: boolean;
-    dummyQuest: Quest & { dummyColor: QuestTileColorSetting };
+    dummyQuest: Quest & { dummyColor: QuestTileColorSetting; };
     dummyGradient: QuestTileGradient;
 }): JSX.Element {
     const blockerRef = useRef<HTMLDivElement>(null);
@@ -144,7 +122,7 @@ function DummyQuestTile({
             "mouseup",
             "pointercancel",
             "pointerdown",
-            "pointerup"
+            "pointerup",
         ];
 
         function stopEvent(event: Event) {
@@ -180,7 +158,10 @@ function DummyQuestTile({
             onPointerDownCapture={stopDummyQuestInteraction}
             onPointerUpCapture={stopDummyQuestInteraction}
         >
-            <QuestTile className={classes} quest={dummyQuest} />
+            <QuestTile
+                className={classes}
+                quest={dummyQuest}
+            />
         </div>
     );
 }
@@ -188,7 +169,7 @@ function DummyQuestTile({
 function DummyQuestPreview({
     disabled,
     dummyColor,
-    dummyGradient
+    dummyGradient,
 }: {
     disabled?: boolean;
     dummyColor: QuestTileColorSetting;
@@ -197,13 +178,19 @@ function DummyQuestPreview({
     const sourceQuest = useStateFromStores([QuestStore], getRandomQuest);
 
     const dummyQuest = useMemo(
-        () => (sourceQuest ? cloneDummyQuest(sourceQuest, dummyColor) : null),
+        () => sourceQuest ? cloneDummyQuest(sourceQuest, dummyColor) : null,
         [dummyColor, sourceQuest]
     );
 
     if (!dummyQuest) return null;
 
-    return <DummyQuestTile disabled={disabled} dummyQuest={dummyQuest} dummyGradient={dummyGradient} />;
+    return (
+        <DummyQuestTile
+            disabled={disabled}
+            dummyQuest={dummyQuest}
+            dummyGradient={dummyGradient}
+        />
+    );
 }
 
 export function QuestTilesSetting(): JSX.Element {
@@ -214,7 +201,7 @@ export function QuestTilesSetting(): JSX.Element {
         "questTileIgnoredColor",
         "questTileExpiredColor",
         "questTileGradient",
-        "questTilePreload"
+        "questTilePreload",
     ]);
 
     const [previewColorKey, setPreviewColorKey] = useState<QuestTileColorKey>(defaultPreviewColorKey);
@@ -232,14 +219,14 @@ export function QuestTilesSetting(): JSX.Element {
 
         updateColor(key, {
             enabled: setting.enabled,
-            color: value
+            color: value,
         });
     }
 
     function updateColorEnabled(key: QuestTileColorKey, setting: QuestTileColorSetting, enabled: boolean): void {
         updateColor(key, {
             ...setting,
-            enabled
+            enabled,
         });
     }
 
@@ -275,10 +262,9 @@ export function QuestTilesSetting(): JSX.Element {
                         onSelectionChange={updateGradient}
                         tooltip={{
                             position: "top",
-                            text:
-                                "Intense and Default use the selected tile color in the asset gradient." +
-                                "\n\nSubtle Black keeps a darker neutral gradient for contrast." +
-                                "\n\nNo Gradient removes the asset gradient, which can make some Quest artwork harder to read."
+                            text: "Intense and Default use the selected tile color in the asset gradient."
+                                + "\n\nSubtle Black keeps a darker neutral gradient for contrast."
+                                + "\n\nNo Gradient removes the asset gradient, which can make some Quest artwork harder to read."
                         }}
                     />
                 </SettingsRowItem>
@@ -294,9 +280,8 @@ export function QuestTilesSetting(): JSX.Element {
                         onSelectionChange={updatePreload}
                         tooltip={{
                             position: "top",
-                            text:
-                                "Loading all assets when the Quests page opens reduces layout shifting while scrolling." +
-                                "\n\nLoading during page scroll is closer to Discord's default behavior and may use less work up front."
+                            text: "Loading all assets when the Quests page opens reduces layout shifting while scrolling."
+                                + "\n\nLoading during page scroll is closer to Discord's default behavior and may use less work up front."
                         }}
                     />
                 </SettingsRowItem>
@@ -314,10 +299,7 @@ export function QuestTilesSetting(): JSX.Element {
                             >
                                 <SettingsColorPicker
                                     label={`${label}:`}
-                                    className={[
-                                        "quest-tile-color-picker",
-                                        setting.enabled ? "" : "disabled-color-picker"
-                                    ].filter(Boolean)}
+                                    className={["quest-tile-color-picker", setting.enabled ? "" : "disabled-color-picker"].filter(Boolean)}
                                     color={setting.color}
                                     disabled={disabled || !setting.enabled}
                                     onChange={value => updateColorValue(key, setting, value)}

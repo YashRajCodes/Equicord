@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { generateTextCss } from "@components/BaseText";
 import { generateMarginCss } from "@components/margins";
@@ -31,7 +31,7 @@ export interface Style {
     dom: HTMLStyleElement | null;
 }
 
-export const styleMap = (window.VencordStyles ??= new Map());
+export const styleMap = window.VencordStyles ??= new Map();
 
 export const vencordRootNode = document.createElement("vencord-root");
 /**
@@ -54,19 +54,18 @@ export function initStyles() {
     const osValuesNode = createAndAppendStyle("vencord-os-theme-values", coreStyleRootNode);
     createAndAppendStyle("vencord-text", coreStyleRootNode).textContent = generateTextCss();
     const rendererCssNode = createAndAppendStyle("vencord-css-core", coreStyleRootNode);
-    const vesktopCssNode =
-        IS_VESKTOP || IS_EQUIBOP ? createAndAppendStyle("vesktop-css-core", coreStyleRootNode) : null;
+    const vesktopCssNode = (IS_VESKTOP || IS_EQUIBOP) ? createAndAppendStyle("vesktop-css-core", coreStyleRootNode) : null;
     createAndAppendStyle("vencord-margins", coreStyleRootNode).textContent = generateMarginCss();
 
-    VencordNative.native.getRendererCss().then(css => (rendererCssNode.textContent = css));
+    VencordNative.native.getRendererCss().then(css => rendererCssNode.textContent = css);
     if (IS_DEV) {
         VencordNative.native.onRendererCssUpdate(newCss => {
             rendererCssNode.textContent = newCss;
         });
     }
 
-    if ((IS_VESKTOP && VesktopNative.app.getRendererCss) || (IS_EQUIBOP && VesktopNative.app.getRendererCss)) {
-        VesktopNative.app.getRendererCss().then(css => (vesktopCssNode!.textContent = css));
+    if (IS_VESKTOP && VesktopNative.app.getRendererCss || IS_EQUIBOP && VesktopNative.app.getRendererCss) {
+        VesktopNative.app.getRendererCss().then(css => vesktopCssNode!.textContent = css);
         VesktopNative.app.onRendererCssUpdate(newCss => {
             vesktopCssNode!.textContent = newCss;
         });
@@ -81,13 +80,9 @@ export function initStyles() {
     });
 }
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
-        document.documentElement.append(vencordRootNode);
-    },
-    { once: true }
-);
+document.addEventListener("DOMContentLoaded", () => {
+    document.documentElement.append(vencordRootNode);
+}, { once: true });
 
 export function requireStyle(name: string) {
     const style = styleMap.get(name);
@@ -108,7 +103,8 @@ export function requireStyle(name: string) {
 export function enableStyle(name: string) {
     const style = requireStyle(name);
 
-    if (style.dom?.isConnected) return false;
+    if (style.dom?.isConnected)
+        return false;
 
     if (!style.dom) {
         style.dom = document.createElement("style");
@@ -127,7 +123,8 @@ export function enableStyle(name: string) {
  */
 export function disableStyle(name: string) {
     const style = requireStyle(name);
-    if (!style.dom?.isConnected) return false;
+    if (!style.dom?.isConnected)
+        return false;
 
     style.dom.remove();
     style.dom = null;
@@ -139,7 +136,7 @@ export function disableStyle(name: string) {
  * @returns `true` in most cases, may return `false` in some edge cases
  * @see {@link enableStyle} for info on getting the name of an imported style
  */
-export const toggleStyle = (name: string) => (isStyleEnabled(name) ? disableStyle(name) : enableStyle(name));
+export const toggleStyle = (name: string) => isStyleEnabled(name) ? disableStyle(name) : enableStyle(name);
 
 /**
  * @param name The name of the style
@@ -177,7 +174,8 @@ export const isStyleEnabled = (name: string) => requireStyle(name).dom?.isConnec
 export const setStyleClassNames = (name: string, classNames: Record<string, string>, recompile = true) => {
     const style = requireStyle(name);
     style.classNames = classNames;
-    if (recompile && isStyleEnabled(style.name)) compileStyle(style);
+    if (recompile && isStyleEnabled(style.name))
+        compileStyle(style);
 };
 
 /**
@@ -189,8 +187,9 @@ export const setStyleClassNames = (name: string, classNames: Record<string, stri
 export const compileStyle = (style: Style) => {
     if (!style.dom) throw new Error("Style has no DOM element");
 
-    style.dom.textContent = style.source.replace(/\[--(\w+)\]/g, (match, name) => {
-        const className = style.classNames[name];
-        return className ? classNameToSelector(className) : match;
-    });
+    style.dom.textContent = style.source
+        .replace(/\[--(\w+)\]/g, (match, name) => {
+            const className = style.classNames[name];
+            return className ? classNameToSelector(className) : match;
+        });
 };

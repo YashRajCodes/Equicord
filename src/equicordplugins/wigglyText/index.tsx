@@ -4,12 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { ReactNode } from "react";
-
 import { definePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
+import { ReactNode } from "react";
 
 import ExampleWiggle from "./ui/components/ExampleWiggle";
 
@@ -32,11 +31,11 @@ const dirMap = {
 const classMap = [
     {
         chars: ["<", ">"],
-        className: "wiggle-inner-x"
+        className: "wiggle-inner-x",
     },
     {
         chars: ["^", "^"],
-        className: "wiggle-inner-y"
+        className: "wiggle-inner-y",
     },
     {
         chars: [")", "("],
@@ -118,18 +117,11 @@ export default definePlugin({
     settings,
     settingsAboutComponent: () => (
         <BaseText>
-            You can make text wiggle with the following:
-            <br />
+            You can make text wiggle with the following:<br />
             <ul className="wiggle-example">
-                <li>
-                    <ExampleWiggle wiggle="x">left and right</ExampleWiggle> by typing <code>&lt;~text~&gt;</code>
-                </li>
-                <li>
-                    <ExampleWiggle wiggle="y">up and down</ExampleWiggle> by typing <code>^~text~^</code>
-                </li>
-                <li>
-                    <ExampleWiggle wiggle="xy">in a circle</ExampleWiggle> by typing <code>)~text~(</code>
-                </li>
+                <li><ExampleWiggle wiggle="x">left and right</ExampleWiggle> by typing <code>&lt;~text~&gt;</code></li>
+                <li><ExampleWiggle wiggle="y">up and down</ExampleWiggle> by typing <code>^~text~^</code></li>
+                <li><ExampleWiggle wiggle="xy">in a circle</ExampleWiggle> by typing <code>)~text~(</code></li>
             </ul>
         </BaseText>
     ),
@@ -139,22 +131,22 @@ export default definePlugin({
             find: "AUTO_MODERATION_SYSTEM_MESSAGE_RULES:",
             replacement: {
                 match: /staticRouteLink:\{order:(\i\.\i\.order)/,
-                replace: "wiggly:$self.wigglyRule($1),$&"
-            }
+                replace: "wiggly:$self.wigglyRule($1),$&",
+            },
         },
         {
             find: 'before:"@silent"',
             replacement: [
                 {
                     match: /staticRouteLink:{type:/,
-                    replace: 'wiggly:{type:"inlineObject"},$&'
+                    replace: 'wiggly:{type:"inlineObject"},$&',
                 },
                 {
                     match: /case"roleMention":/,
                     replace: '$&case "wiggly":'
                 }
             ]
-        }
+        },
     ],
 
     wigglyRule: (order: number) => ({
@@ -162,19 +154,22 @@ export default definePlugin({
         requiredFirstCharacters: ["<~", "^~", ")~"],
         match(source: string) {
             return classMap
-                .map(({ chars }) => source.match(new RegExp(`^(\\${chars[0]})~([\\s\\S]+?)~(\\${chars[1]})(?!_)`)))
+                .map(({ chars }) => source.match(
+                    new RegExp(`^(\\${chars[0]})~([\\s\\S]+?)~(\\${chars[1]})(?!_)`)
+                ))
                 .find(x => x !== null);
         },
         parse(capture: RegExpMatchArray, transform: (...args: any[]) => any, state: any) {
-            const className =
-                classMap.find(({ chars }) => chars[0] === capture[1] && chars[1] === capture[3])?.className ?? "";
+            const className = classMap
+                .find(({ chars }) => chars[0] === capture[1] && chars[1] === capture[3])?.className
+                ?? "";
 
             return {
                 content: transform(capture[2], state),
                 className
             };
         },
-        react(data: { content: any[]; className: string }, output: (...args: any[]) => ReactNode[]) {
+        react(data: { content: any[]; className: string; }, output: (...args: any[]) => ReactNode[]) {
             let offset = 0;
             const traverse = (raw: any) => {
                 const children = !Array.isArray(raw) ? [raw] : raw;
@@ -190,21 +185,22 @@ export default definePlugin({
                                 <span
                                     className={`wiggle-inner ${data.className}`}
                                     style={{
-                                        animationDelay: `${(offset++ * 25) % 1200}ms`
+                                        animationDelay: `${((offset++) * 25) % 1200}ms`,
                                     }}
                                 >
                                     {x}
                                 </span>
                             </span>
                         ));
-                    } else if (child?.props?.children) child.props.children = traverse(child.props.children);
+                    } else if (child?.props?.children)
+                        child.props.children = traverse(child.props.children);
                 }
 
                 return modified ? children : raw;
             };
 
             return traverse(output(data.content));
-        }
+        },
     }),
 
     start: () => {

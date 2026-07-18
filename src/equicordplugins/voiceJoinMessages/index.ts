@@ -4,24 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Message, User } from "@vencord/discord-types";
-import { findByCodeLazy } from "@webpack";
-
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { humanFriendlyJoin } from "@utils/text";
 import definePlugin, { OptionType } from "@utils/types";
-import {
-    ChannelStore,
-    FluxDispatcher,
-    MessageActions,
-    MessageStore,
-    PermissionsBits,
-    PermissionStore,
-    RelationshipStore,
-    SelectedChannelStore,
-    UserStore
-} from "@webpack/common";
+import { Message, User } from "@vencord/discord-types";
+import { findByCodeLazy } from "@webpack";
+import { ChannelStore, FluxDispatcher, MessageActions, MessageStore, PermissionsBits, PermissionStore, RelationshipStore, SelectedChannelStore, UserStore } from "@webpack/common";
 
 const createBotMessage = findByCodeLazy('username:"Clyde"');
 
@@ -33,14 +22,12 @@ const settings = definePluginSettings({
     },
     friendDirectMessagesShowMembers: {
         type: OptionType.BOOLEAN,
-        description:
-            "Show a list of other members in the voice channel when recieving a DM notification of your friend joining a voice channel",
+        description: "Show a list of other members in the voice channel when recieving a DM notification of your friend joining a voice channel",
         default: true
     },
     friendDirectMessagesShowMemberCount: {
         type: OptionType.BOOLEAN,
-        description:
-            "Show the count of other members in the voice channel when recieving a DM notification of your friend joining a voice channel",
+        description: "Show the count of other members in the voice channel when recieving a DM notification of your friend joining a voice channel",
         default: false
     },
     friendDirectMessagesSelf: {
@@ -67,7 +54,7 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Do not send messages about blocked users joining/leaving/moving voice channels",
         default: true
-    }
+    },
 });
 
 interface VoiceState {
@@ -91,9 +78,7 @@ function sendVoiceStatusMessage(channelId: string, content: string, userId: stri
     message.author = UserStore.getUser(userId);
     // If we try to send a message into an unloaded channel, the client-sided messages get overwritten when the channel gets loaded
     // This might be messy but It Works:tm:
-    const messagesLoaded: Promise<any> = MessageStore.hasPresent(channelId)
-        ? new Promise<void>(r => r())
-        : MessageActions.fetchMessages({ channelId });
+    const messagesLoaded: Promise<any> = MessageStore.hasPresent(channelId) ? new Promise<void>(r => r()) : MessageActions.fetchMessages({ channelId });
     messagesLoaded.then(() => {
         FluxDispatcher.dispatch({
             type: "MESSAGE_CREATE",
@@ -109,17 +94,9 @@ function sendVoiceStatusMessage(channelId: string, content: string, userId: stri
 
 function isFriendAllowlisted(friendId: string) {
     if (!RelationshipStore.isFriend(friendId)) return false;
-    const ignoreList = settings.store.ignoredFriends
-        .split(",")
-        .join(" ")
-        .split(" ")
-        .filter(i => i.length > 0);
+    const ignoreList = settings.store.ignoredFriends.split(",").join(" ").split(" ").filter(i => i.length > 0);
     if (ignoreList.includes(friendId)) return false;
-    const allowList = settings.store.allowedFriends
-        .split(",")
-        .join(" ")
-        .split(" ")
-        .filter(i => i.length > 0);
+    const allowList = settings.store.allowedFriends.split(",").join(" ").split(" ").filter(i => i.length > 0);
     if (allowList.join(" ").length < 1) return true;
     return allowList.includes(friendId);
 }
@@ -138,7 +115,7 @@ export default definePlugin({
     authors: [Devs.Sqaaakoi, Devs.thororen],
     settings,
     flux: {
-        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[] }) {
+        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
             const clientUserId = UserStore.getCurrentUser().id;
             for (const state of voiceStates) {
                 // mmmm hacky workaround
@@ -153,22 +130,13 @@ export default definePlugin({
                 if (oldChannelId === channelId) continue;
 
                 // Friend joined a voice channel
-                if (
-                    settings.store.friendDirectMessages &&
-                    !oldChannelId &&
-                    channelId &&
-                    userId !== clientUserId &&
-                    isFriendAllowlisted(userId)
-                ) {
+                if (settings.store.friendDirectMessages && (!oldChannelId && channelId) && userId !== clientUserId && isFriendAllowlisted(userId)) {
                     const channel = ChannelStore.getChannel(channelId);
                     if (!channel || !PermissionStore.can(PermissionsBits.VIEW_CHANNEL, channel)) continue;
 
                     const selfInChannel = SelectedChannelStore.getVoiceChannelId() === channelId;
                     let memberListContent = "";
-                    if (
-                        settings.store.friendDirectMessagesShowMembers ||
-                        settings.store.friendDirectMessagesShowMemberCount
-                    ) {
+                    if (settings.store.friendDirectMessagesShowMembers || settings.store.friendDirectMessagesShowMemberCount) {
                         const users = Object.values<any>(voiceStates)
                             .filter(vs => vs.channelId === channelId)
                             .map(vs => UserStore.getUser(vs.userId))
@@ -187,14 +155,9 @@ export default definePlugin({
                         }
                     }
                     const dmChannelId = ChannelStore.getDMFromUserId(userId);
-                    if (dmChannelId && (selfInChannel ? settings.store.friendDirectMessagesSelf : true))
-                        sendVoiceStatusMessage(
-                            dmChannelId,
-                            `Joined voice channel <#${channelId}>${memberListContent}`,
-                            userId
-                        );
+                    if (dmChannelId && (selfInChannel ? settings.store.friendDirectMessagesSelf : true)) sendVoiceStatusMessage(dmChannelId, `Joined voice channel <#${channelId}>${memberListContent}`, userId);
                 }
             }
-        }
-    }
+        },
+    },
 });

@@ -43,8 +43,8 @@ export async function uploadGifCollections(showToast = true): Promise<void> {
         const [file] = await DiscordNative.fileManager.openFiles({
             filters: [
                 { name: "Gif Collections", extensions: ["json"] },
-                { name: "all", extensions: ["*"] }
-            ]
+                { name: "all", extensions: ["*"] },
+            ],
         });
 
         if (file) {
@@ -70,16 +70,14 @@ export async function uploadGifCollections(showToast = true): Promise<void> {
     }
 }
 
-const toastSuccess = () =>
-    Toasts.show({
-        type: Toasts.Type.SUCCESS,
-        message: "Collections imported successfully.",
-        id: Toasts.genId()
-    });
+const toastSuccess = () => Toasts.show({
+    type: Toasts.Type.SUCCESS,
+    message: "Collections imported successfully.",
+    id: Toasts.genId(),
+});
 
-const toastFailure = (err: unknown) =>
-    Toasts.show({
-        type: Toasts.Type.FAILURE,
-        message: `Failed to import collections: ${String(err)}`,
-        id: Toasts.genId()
-    });
+const toastFailure = (err: unknown) => Toasts.show({
+    type: Toasts.Type.FAILURE,
+    message: `Failed to import collections: ${String(err)}`,
+    id: Toasts.genId(),
+});

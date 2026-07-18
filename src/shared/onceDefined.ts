@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import type { LiteralUnion } from "type-fest";
 
@@ -28,13 +28,12 @@ import type { LiteralUnion } from "type-fest";
  * @example onceDefined(window, "webpackChunkdiscord_app", wpInstance => wpInstance.push(...));
  */
 export function onceDefined<T extends object, P extends LiteralUnion<keyof T, PropertyKey>>(
-    target: T,
-    property: P,
-    callback: (v: P extends keyof T ? T[P] : any) => void
+    target: T, property: P, callback: (v: P extends keyof T ? T[P] : any) => void
 ): void {
     const propertyAsAny = property as any;
 
-    if (property in target) return void callback(target[propertyAsAny]);
+    if (property in target)
+        return void callback(target[propertyAsAny]);
 
     Object.defineProperty(target, property, {
         set(v) {

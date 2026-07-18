@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { unzipSync } from "fflate";
-
 import { PluginNative } from "@utils/types";
 import { saveFile } from "@utils/web";
+import { unzipSync } from "fflate";
 
 const Native = VencordNative?.pluginHelpers?.ZipPreview as PluginNative<typeof import("./native")> | undefined;
 
@@ -67,9 +66,9 @@ export interface ZipPreviewResult {
 }
 
 export type ZipPreviewCacheState =
-    | { status: "pending"; promise: Promise<ZipPreviewResult> }
-    | { status: "resolved"; result: ZipPreviewResult }
-    | { status: "rejected"; message: string };
+    | { status: "pending"; promise: Promise<ZipPreviewResult>; }
+    | { status: "resolved"; result: ZipPreviewResult; }
+    | { status: "rejected"; message: string; };
 
 interface NativeFetchResult {
     success: boolean;
@@ -198,12 +197,10 @@ function isValidDiscordAttachmentPath(path: string): boolean {
     if (path.includes("\\") || path.includes("..") || path.startsWith("/") || path.startsWith("//")) return false;
 
     const parts = path.split("/");
-    return (
-        parts.length >= 3 &&
-        /^\d+$/.test(parts[0]) &&
-        /^\d+$/.test(parts[1]) &&
-        parts.slice(2).every(part => part.length > 0)
-    );
+    return parts.length >= 3
+        && /^\d+$/.test(parts[0])
+        && /^\d+$/.test(parts[1])
+        && parts.slice(2).every(part => part.length > 0);
 }
 
 function parseZipBuffer(buffer: ArrayBuffer): ZipPreviewResult {

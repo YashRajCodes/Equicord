@@ -13,7 +13,7 @@ export const bounds = {
     top: 0,
     left: 0,
     right: -1,
-    bottom: -1
+    bottom: -1,
 };
 
 export function resetBounds() {
@@ -51,7 +51,8 @@ export const CropTool: ToolDefinition = {
             } else {
                 canvas.style.cursor = "nwse-resize";
             }
-        } else if (dist(Mouse.x, Mouse.y, bounds.right, bounds.top) < 30) {
+        }
+        else if (dist(Mouse.x, Mouse.y, bounds.right, bounds.top) < 30) {
             if (Mouse.down) {
                 bounds.right = Mouse.x;
                 bounds.top = Mouse.y;
@@ -59,7 +60,8 @@ export const CropTool: ToolDefinition = {
             } else {
                 canvas.style.cursor = "nesw-resize";
             }
-        } else if (dist(Mouse.x, Mouse.y, bounds.left, bounds.bottom) < 30) {
+        }
+        else if (dist(Mouse.x, Mouse.y, bounds.left, bounds.bottom) < 30) {
             if (Mouse.down) {
                 bounds.left = Mouse.x;
                 bounds.bottom = Mouse.y;
@@ -67,7 +69,8 @@ export const CropTool: ToolDefinition = {
             } else {
                 canvas.style.cursor = "nesw-resize";
             }
-        } else if (dist(Mouse.x, Mouse.y, bounds.right, bounds.bottom) < 30) {
+        }
+        else if (dist(Mouse.x, Mouse.y, bounds.right, bounds.bottom) < 30) {
             if (Mouse.down) {
                 bounds.right = Mouse.x;
                 bounds.bottom = Mouse.y;
@@ -144,5 +147,5 @@ export const CropTool: ToolDefinition = {
 
         Mouse.event.off("move", this.onMouseMoveCallback);
         Mouse.event.off("up", this.onMouseUpCallback);
-    }
+    },
 };

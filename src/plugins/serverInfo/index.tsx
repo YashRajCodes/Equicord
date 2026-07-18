@@ -4,20 +4,25 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Guild } from "@vencord/discord-types";
-
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
+import { Guild } from "@vencord/discord-types";
 import { Menu } from "@webpack/common";
 
 import { openGuildInfoModal } from "./GuildInfoModal";
 
-const Patch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild }) => {
+const Patch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild; }) => {
     const group = findGroupChildrenByChildId("privacy", children);
 
-    group?.push(<Menu.MenuItem id="vc-server-info" label="Server Info" action={() => openGuildInfoModal(guild)} />);
+    group?.push(
+        <Menu.MenuItem
+            id="vc-server-info"
+            label="Server Info"
+            action={() => openGuildInfoModal(guild)}
+        />
+    );
 };
 
 export const settings = definePluginSettings({
@@ -36,7 +41,7 @@ export const settings = definePluginSettings({
             },
             {
                 label: "Dont Sort",
-                value: "none"
+                value: "none",
             }
         ]
     }

@@ -14,26 +14,25 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { Channel, Message } from "@vencord/discord-types";
-import type { ComponentType, MouseEventHandler } from "react";
+*/
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Logger } from "@utils/Logger";
 import { IconComponent } from "@utils/types";
+import { Channel, Message } from "@vencord/discord-types";
+import type { ComponentType, MouseEventHandler } from "react";
 
 import { useSettings } from "./Settings";
 
 const logger = new Logger("MessagePopover");
 
 export interface MessagePopoverButtonItem {
-    key?: string;
-    label: string;
-    icon: ComponentType<any>;
-    message: Message;
-    channel: Channel;
-    onClick?: MouseEventHandler<HTMLButtonElement>;
+    key?: string,
+    label: string,
+    icon: ComponentType<any>,
+    message: Message,
+    channel: Channel,
+    onClick?: MouseEventHandler<HTMLButtonElement>,
     onContextMenu?: MouseEventHandler<HTMLButtonElement>;
 }
 
@@ -53,7 +52,11 @@ export const MessagePopoverButtonMap = new Map<string, MessagePopoverButtonData>
  * The icon argument is used only for Settings UI. Your render function must still return an icon,
  * and it can be different from this one.
  */
-export function addMessagePopoverButton(identifier: string, render: MessagePopoverButtonFactory, icon: IconComponent) {
+export function addMessagePopoverButton(
+    identifier: string,
+    render: MessagePopoverButtonFactory,
+    icon: IconComponent
+) {
     MessagePopoverButtonMap.set(identifier, { render, icon });
 }
 
@@ -61,7 +64,7 @@ export function removeMessagePopoverButton(identifier: string) {
     MessagePopoverButtonMap.delete(identifier);
 }
 
-function VencordPopoverButtons(props: { Component: React.ComponentType<MessagePopoverButtonItem>; message: Message }) {
+function VencordPopoverButtons(props: { Component: React.ComponentType<MessagePopoverButtonItem>, message: Message; }) {
     const { Component, message } = props;
 
     const { messagePopoverButtons } = useSettings(["uiElements.messagePopoverButtons.*"]).uiElements;
@@ -88,6 +91,9 @@ function VencordPopoverButtons(props: { Component: React.ComponentType<MessagePo
     return <>{elements}</>;
 }
 
-export function _buildPopoverElements(Component: React.ComponentType<MessagePopoverButtonItem>, message: Message) {
+export function _buildPopoverElements(
+    Component: React.ComponentType<MessagePopoverButtonItem>,
+    message: Message
+) {
     return <VencordPopoverButtons Component={Component} message={message} />;
 }

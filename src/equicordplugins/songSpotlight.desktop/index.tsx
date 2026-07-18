@@ -5,6 +5,7 @@
  */
 
 import "./style.css";
+
 import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -28,22 +29,22 @@ export default definePlugin({
             find: ".MUTUAL_GUILDS})),",
             replacement: {
                 match: /(\i).push\({text.{0,50}.ACTIVITY\}\);/,
-                replace: '$&$1.push({text:"Song Spotlight",section:"SONG_SPOTLIGHT"});'
-            }
+                replace: '$&$1.push({text:"Song Spotlight",section:"SONG_SPOTLIGHT"});',
+            },
         },
         {
             find: ".hasUnsavedChanges()&&",
             replacement: {
                 match: /({user:(\i),.{0,80}return (\i===))/,
-                replace: '$1"SONG_SPOTLIGHT"?$self.renderWidgetSongs({user:$2}):$3'
-            }
-        }
+                replace: '$1"SONG_SPOTLIGHT"?$self.renderWidgetSongs({user:$2}):$3',
+            },
+        },
     ],
 
     flux: {
         CONNECTION_OPEN: () => {
             useSongStore.getState().$refresh();
-        }
+        },
     },
     start() {
         useSongStore.getState().$refresh();
@@ -52,7 +53,7 @@ export default definePlugin({
 
     renderProfileCollection: {
         render: ProfileSongs,
-        priority: 0
+        priority: 0,
     },
-    renderWidgetSongs: ErrorBoundary.wrap(WidgetSongs, { noop: true })
+    renderWidgetSongs: ErrorBoundary.wrap(WidgetSongs, { noop: true }),
 });

@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
@@ -25,9 +26,9 @@ export default definePlugin({
             find: 'before:"@silent"',
             replacement: {
                 match: /mention:{type:/,
-                replace: 'magnet:{type:"inlineObject"},$&'
+                replace: "magnet:{type:\"inlineObject\"},$&",
             }
-        }
+        },
     ],
     magnetLink: (order: number) => ({
         order,
@@ -37,11 +38,10 @@ export default definePlugin({
         },
         parse(matchedContent: RegExpExecArray, _, parseProps: Record<string, any>) {
             // Don't run when typing/editing message
-            if (!parseProps.messageId || parseProps.isInsideOfLink)
-                return {
-                    type: "text",
-                    content: matchedContent[0]
-                };
+            if (!parseProps.messageId || parseProps.isInsideOfLink) return {
+                type: "text",
+                content: matchedContent[0]
+            };
 
             const magnetLink = matchedContent[0];
             let filename = "unknown filename";
@@ -62,14 +62,12 @@ export default definePlugin({
             return { type: "magnet", filename, magnetLink };
         },
         react({ magnetLink, filename }) {
-            return (
-                <a href={magnetLink} className="vc-magnet-link interactive">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M15 12h-4v3h4zM5 12H1v3h4zM0 8a8 8 0 1 1 16 0v8h-6V8a2 2 0 1 0-4 0v8H0z"></path>
-                    </svg>
-                    {filename}
-                </a>
-            );
+            return <a href={magnetLink} className="vc-magnet-link interactive">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M15 12h-4v3h4zM5 12H1v3h4zM0 8a8 8 0 1 1 16 0v8h-6V8a2 2 0 1 0-4 0v8H0z"></path>
+                </svg>
+                {filename}
+            </a>;
         }
     })
 });

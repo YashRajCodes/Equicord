@@ -14,16 +14,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { FluxStore } from "@vencord/discord-types";
-import { ChannelType, RelationshipType } from "@vencord/discord-types/enums";
-import { findStoreLazy } from "@webpack";
+*/
 
 import * as DataStore from "@api/DataStore";
 import { popNotice, showNotice } from "@api/Notices";
 import { showNotification } from "@api/Notifications";
 import { getUniqueUsername, openUserProfile } from "@utils/discord";
+import { FluxStore } from "@vencord/discord-types";
+import { ChannelType, RelationshipType } from "@vencord/discord-types/enums";
+import { findStoreLazy } from "@webpack";
 import { ChannelStore, GuildMemberStore, GuildStore, RelationshipStore, UserStore, UserUtils } from "@webpack/common";
 
 import settings from "./settings";
@@ -48,29 +47,26 @@ const groupsKey = () => `relationship-notifier-groups-${UserStore.getCurrentUser
 const friendsKey = () => `relationship-notifier-friends-${UserStore.getCurrentUser().id}`;
 
 async function runMigrations() {
-    DataStore.delMany([
-        "relationship-notifier-guilds",
-        "relationship-notifier-groups",
-        "relationship-notifier-friends"
-    ]);
+    DataStore.delMany(["relationship-notifier-guilds", "relationship-notifier-groups", "relationship-notifier-friends"]);
 }
 
 export async function syncAndRunChecks() {
     await runMigrations();
     if (UserStore.getCurrentUser() == null) return;
 
-    const [oldGuilds, oldGroups, oldFriends] = (await DataStore.getMany([guildsKey(), groupsKey(), friendsKey()])) as [
-        Map<string, SimpleGuild> | undefined,
-        Map<string, SimpleGroupChannel> | undefined,
-        Record<"friends" | "requests", string[]> | undefined
-    ];
+    const [oldGuilds, oldGroups, oldFriends] = await DataStore.getMany([
+        guildsKey(),
+        groupsKey(),
+        friendsKey()
+    ]) as [Map<string, SimpleGuild> | undefined, Map<string, SimpleGroupChannel> | undefined, Record<"friends" | "requests", string[]> | undefined];
 
     await Promise.all([syncGuilds(), syncGroups(), syncFriends()]);
 
     if (settings.store.offlineRemovals) {
         if (settings.store.groups && oldGroups?.size) {
             for (const [id, group] of oldGroups) {
-                if (!groups.has(id)) notify(`You are no longer in the group ${group.name}.`, group.iconURL);
+                if (!groups.has(id))
+                    notify(`You are no longer in the group ${group.name}.`, group.iconURL);
             }
         }
 
@@ -99,11 +95,8 @@ export async function syncAndRunChecks() {
             for (const id of oldFriends.requests) {
                 if (
                     friends.requests.includes(id) ||
-                    [RelationshipType.FRIEND, RelationshipType.BLOCKED, RelationshipType.OUTGOING_REQUEST].includes(
-                        RelationshipStore.getRelationshipType(id)
-                    )
-                )
-                    continue;
+                    [RelationshipType.FRIEND, RelationshipType.BLOCKED, RelationshipType.OUTGOING_REQUEST].includes(RelationshipStore.getRelationshipType(id))
+                ) continue;
 
                 const user = await UserUtils.getUser(id).catch(() => void 0);
                 if (user)
@@ -118,7 +111,8 @@ export async function syncAndRunChecks() {
 }
 
 export function notify(text: string, icon?: string, onClick?: () => void) {
-    if (settings.store.notices) showNotice(text, "OK", () => popNotice());
+    if (settings.store.notices)
+        showNotice(text, "OK", () => popNotice());
 
     showNotification({
         title: "Relationship Notifier",

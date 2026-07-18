@@ -4,20 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { Logger } from "@utils/Logger";
 import type { Channel } from "@vencord/discord-types";
 import { ChannelType } from "@vencord/discord-types/enums";
-
-import { Logger } from "@utils/Logger";
-import {
-    ChannelStore,
-    GuildChannelStore,
-    GuildStore,
-    PermissionsBits,
-    PermissionStore,
-    RestAPI,
-    showToast,
-    Toasts
-} from "@webpack/common";
+import { ChannelStore, GuildChannelStore, GuildStore, PermissionsBits, PermissionStore, RestAPI, showToast, Toasts } from "@webpack/common";
 
 const logger = new Logger("Dragify");
 
@@ -50,8 +40,8 @@ function normalizeInviteCacheEntry(invite: {
     return {
         code: invite.code,
         expiresAt: invite.expires_at ? Date.parse(invite.expires_at) : null,
-        maxUses: invite.max_uses === 0 ? null : (invite.max_uses ?? null),
-        uses: invite.uses ?? null
+        maxUses: invite.max_uses === 0 ? null : invite.max_uses ?? null,
+        uses: invite.uses ?? null,
     };
 }
 
@@ -79,9 +69,11 @@ function resolveInviteChannel(guildId: string, currentChannel: Channel): Channel
     if (currentChannel.guild_id === guildId && canCreateInvite(currentChannel)) return currentChannel;
 
     const guild = GuildStore.getGuild(guildId);
-    const preferredIds = [guild?.systemChannelId, guild?.rulesChannelId, guild?.publicUpdatesChannelId].filter(
-        Boolean
-    ) as string[];
+    const preferredIds = [
+        guild?.systemChannelId,
+        guild?.rulesChannelId,
+        guild?.publicUpdatesChannelId,
+    ].filter(Boolean) as string[];
 
     for (const id of preferredIds) {
         const channel = ChannelStore.getChannel(id);
@@ -97,17 +89,15 @@ function resolveInviteChannel(guildId: string, currentChannel: Channel): Channel
         appendInviteCandidate(candidatesById, entry && "channel" in entry ? entry.channel : entry);
     }
 
-    return (
-        [...candidatesById.values()]
-            .filter(channel => channel.guild_id === guildId)
-            .sort((a, b) => {
-                const pa = typeof a.position === "number" ? a.position : 0;
-                const pb = typeof b.position === "number" ? b.position : 0;
-                if (pa === pb) return a.id.localeCompare(b.id);
-                return pa - pb;
-            })
-            .find(canCreateInvite) ?? null
-    );
+    return [...candidatesById.values()]
+        .filter(channel => channel.guild_id === guildId)
+        .sort((a, b) => {
+            const pa = typeof a.position === "number" ? a.position : 0;
+            const pb = typeof b.position === "number" ? b.position : 0;
+            if (pa === pb) return a.id.localeCompare(b.id);
+            return pa - pb;
+        })
+        .find(canCreateInvite) ?? null;
 }
 
 async function fetchReusableInvite(guildId: string, inviteChannelId: string) {
@@ -121,7 +111,7 @@ async function fetchReusableInvite(guildId: string, inviteChannelId: string) {
         const now = Date.now();
         const invite = body.find(inv => {
             const expiresAt = inv.expires_at ? Date.parse(inv.expires_at) : null;
-            const maxUses = inv.max_uses === 0 ? null : (inv.max_uses ?? null);
+            const maxUses = inv.max_uses === 0 ? null : inv.max_uses ?? null;
             const uses = inv.uses ?? null;
             const notExpired = expiresAt === null || expiresAt > now;
             const usesLeft = maxUses === null || uses === null || uses < maxUses;
@@ -142,11 +132,7 @@ function getInviteUrl(code: string) {
     return `https://discord.gg/${code}`;
 }
 
-export async function createInvite(
-    guildId: string,
-    currentChannel: Channel,
-    settings: InviteSettings
-): Promise<string | null> {
+export async function createInvite(guildId: string, currentChannel: Channel, settings: InviteSettings): Promise<string | null> {
     const inviteChannel = resolveInviteChannel(guildId, currentChannel);
     if (!inviteChannel) {
         showToast("No channel available for invites.", Toasts.Type.FAILURE);
@@ -158,8 +144,10 @@ export async function createInvite(
         if (reused.ok) return getInviteUrl(reused.code);
 
         showToast(
-            reused.reason === "missing" ? "No reusable invite available." : "Unable to reuse invite.",
-            Toasts.Type.FAILURE
+            reused.reason === "missing"
+                ? "No reusable invite available."
+                : "Unable to reuse invite.",
+            Toasts.Type.FAILURE,
         );
         return null;
     }
@@ -173,18 +161,18 @@ export async function createInvite(
                 max_age: maxAge,
                 max_uses: maxUses,
                 temporary: settings.inviteTemporaryMembership,
-                unique: true
-            }
+                unique: true,
+            },
         });
 
-        const code = typeof body === "object" && body ? (body as { code?: string }).code : null;
+        const code = typeof body === "object" && body ? (body as { code?: string; }).code : null;
         if (!code) throw new Error("Invite response missing code");
 
         inviteCache.set(guildId, {
             code,
             expiresAt: maxAge > 0 ? Date.now() + maxAge * 1000 : null,
             maxUses: maxUses === 0 ? null : maxUses,
-            uses: 0
+            uses: 0,
         });
         showToast("Invite created.", Toasts.Type.SUCCESS);
         return getInviteUrl(code);

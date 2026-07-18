@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 export const ASAR_FILE = IS_VESKTOP ? "vesktop.asar" : IS_EQUIBOP ? "equibop.asar" : "desktop.asar";
 
@@ -28,16 +28,13 @@ export function serializeErrors(func: (...args: any[]) => any) {
         } catch (e: any) {
             return {
                 ok: false,
-                error:
-                    e instanceof Error
-                        ? {
-                              // prototypes get lost, so turn error into plain object
-                              ...e,
-                              message: e.message,
-                              name: e.name,
-                              stack: e.stack
-                          }
-                        : e
+                error: e instanceof Error ? {
+                    // prototypes get lost, so turn error into plain object
+                    ...e,
+                    message: e.message,
+                    name: e.name,
+                    stack: e.stack
+                } : e
             };
         }
     };

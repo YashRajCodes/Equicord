@@ -14,13 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import "./iconStyles.css";
-import type { JSX, PropsWithChildren } from "react";
 
 import { getIntlMessage } from "@utils/discord";
 import { classes } from "@utils/misc";
+import type { JSX, PropsWithChildren } from "react";
 
 interface BaseIconProps extends IconProps {
     viewBox: string;
@@ -28,14 +28,7 @@ interface BaseIconProps extends IconProps {
 
 type IconProps = JSX.IntrinsicElements["svg"];
 
-function Icon({
-    height = 24,
-    width = 24,
-    className,
-    children,
-    viewBox,
-    ...svgProps
-}: PropsWithChildren<BaseIconProps>) {
+function Icon({ height = 24, width = 24, className, children, viewBox, ...svgProps }: PropsWithChildren<BaseIconProps>) {
     return (
         <svg
             className={classes(className, "vc-icon")}
@@ -55,12 +48,14 @@ function Icon({
  */
 export function LinkIcon({ height = 24, width = 24, className }: IconProps) {
     return (
-        <Icon height={height} width={width} className={classes(className, "vc-link-icon")} viewBox="0 0 24 24">
+        <Icon
+            height={height}
+            width={width}
+            className={classes(className, "vc-link-icon")}
+            viewBox="0 0 24 24"
+        >
             <g fill="none" fillRule="evenodd">
-                <path
-                    fill="currentColor"
-                    d="M10.59 13.41c.41.39.41 1.03 0 1.42-.39.39-1.03.39-1.42 0a5.003 5.003 0 0 1 0-7.07l3.54-3.54a5.003 5.003 0 0 1 7.07 0 5.003 5.003 0 0 1 0 7.07l-1.49 1.49c.01-.82-.12-1.64-.4-2.42l.47-.48a2.982 2.982 0 0 0 0-4.24 2.982 2.982 0 0 0-4.24 0l-3.53 3.53a2.982 2.982 0 0 0 0 4.24zm2.82-4.24c.39-.39 1.03-.39 1.42 0a5.003 5.003 0 0 1 0 7.07l-3.54 3.54a5.003 5.003 0 0 1-7.07 0 5.003 5.003 0 0 1 0-7.07l1.49-1.49c-.01.82.12 1.64.4 2.43l-.47.47a2.982 2.982 0 0 0 0 4.24 2.982 2.982 0 0 0 4.24 0l3.53-3.53a2.982 2.982 0 0 0 0-4.24.973.973 0 0 1 0-1.42z"
-                />
+                <path fill="currentColor" d="M10.59 13.41c.41.39.41 1.03 0 1.42-.39.39-1.03.39-1.42 0a5.003 5.003 0 0 1 0-7.07l3.54-3.54a5.003 5.003 0 0 1 7.07 0 5.003 5.003 0 0 1 0 7.07l-1.49 1.49c.01-.82-.12-1.64-.4-2.42l.47-.48a2.982 2.982 0 0 0 0-4.24 2.982 2.982 0 0 0-4.24 0l-3.53 3.53a2.982 2.982 0 0 0 0 4.24zm2.82-4.24c.39-.39 1.03-.39 1.42 0a5.003 5.003 0 0 1 0 7.07l-3.54 3.54a5.003 5.003 0 0 1-7.07 0 5.003 5.003 0 0 1 0-7.07l1.49-1.49c-.01.82.12 1.64.4 2.43l-.47.47a2.982 2.982 0 0 0 0 4.24 2.982 2.982 0 0 0 4.24 0l3.53-3.53a2.982 2.982 0 0 0 0-4.24.973.973 0 0 1 0-1.42z" />
                 <rect width={width} height={height} />
             </g>
         </Icon>
@@ -72,7 +67,11 @@ export function LinkIcon({ height = 24, width = 24, className }: IconProps) {
  */
 export function CopyIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-copy-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-copy-icon")}
+            viewBox="0 0 24 24"
+        >
             <g fill="currentColor">
                 <path d="M3 16a1 1 0 0 1-1-1v-5a8 8 0 0 1 8-8h5a1 1 0 0 1 1 1v.5a.5.5 0 0 1-.5.5H10a6 6 0 0 0-6 6v5.5a.5.5 0 0 1-.5.5H3Z" />
                 <path d="M6 18a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-4h-3a5 5 0 0 1-5-5V6h-4a4 4 0 0 0-4 4v8Z" />
@@ -87,7 +86,11 @@ export function CopyIcon(props: IconProps) {
  */
 export function CopyIdIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-copy-id-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-copy-id-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 d="M15.3 14.48c-.46.45-1.08.67-1.86.67h-1.39V9.2h1.39c.78 0 1.4.22 1.86.67.46.45.68 1.22.68 2.31 0 1.1-.22 1.86-.68 2.31Z"
@@ -107,38 +110,40 @@ export function CopyIdIcon(props: IconProps) {
  */
 export function OpenExternalIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-open-external-icon")} viewBox="0 0 24 24">
-            <path
-                fill="currentColor"
-                d="M15 2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0V4.41l-4.3 4.3a1 1 0 1 1-1.4-1.42L19.58 3H16a1 1 0 0 1-1-1Z"
-            />
-            <path
-                fill="currentColor"
-                d="M5 2a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-6a1 1 0 1 0-2 0v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h6a1 1 0 1 0 0-2H5Z"
-            />
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-open-external-icon")}
+            viewBox="0 0 24 24"
+        >
+            <path fill="currentColor" d="M15 2a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0V4.41l-4.3 4.3a1 1 0 1 1-1.4-1.42L19.58 3H16a1 1 0 0 1-1-1Z" />
+            <path fill="currentColor" d="M5 2a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-6a1 1 0 1 0-2 0v6a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h6a1 1 0 1 0 0-2H5Z" />
         </Icon>
     );
 }
 
 export function ImageIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-image-icon")} viewBox="0 0 24 24">
-            <path
-                fill="currentColor"
-                d="M21,19V5c0,-1.1 -0.9,-2 -2,-2H5c-1.1,0 -2,0.9 -2,2v14c0,1.1 0.9,2 2,2h14c1.1,0 2,-0.9 2,-2zM8.5,13.5l2.5,3.01L14.5,12l4.5,6H5l3.5,-4.5z"
-            />
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-image-icon")}
+            viewBox="0 0 24 24"
+        >
+            <path fill="currentColor" d="M21,19V5c0,-1.1 -0.9,-2 -2,-2H5c-1.1,0 -2,0.9 -2,2v14c0,1.1 0.9,2 2,2h14c1.1,0 2,-0.9 2,-2zM8.5,13.5l2.5,3.01L14.5,12l4.5,6H5l3.5,-4.5z" />
         </Icon>
     );
 }
 
 export function InfoIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-info-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-info-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 fillRule="evenodd"
-                d="M23 12a11 11 0 1 1-22 0 11 11 0 0 1 22 0Zm-9.5-4.75a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Zm-.77 3.96a1 1 0 1 0-1.96-.42l-1.04 4.86a2.77 2.77 0 0 0 4.31 2.83l.24-.17a1 1 0 1 0-1.16-1.62l-.24.17a.77.77 0 0 1-1.2-.79l1.05-4.86Z"
-                clipRule="evenodd"
+                d="M23 12a11 11 0 1 1-22 0 11 11 0 0 1 22 0Zm-9.5-4.75a1.25 1.25 0 1 1-2.5 0 1.25 1.25 0 0 1 2.5 0Zm-.77 3.96a1 1 0 1 0-1.96-.42l-1.04 4.86a2.77 2.77 0 0 0 4.31 2.83l.24-.17a1 1 0 1 0-1.16-1.62l-.24.17a.77.77 0 0 1-1.2-.79l1.05-4.86Z" clipRule="evenodd"
             />
         </Icon>
     );
@@ -146,7 +151,12 @@ export function InfoIcon(props: IconProps) {
 
 export function WarningIcon({ height = 32, width = 32, className }: IconProps) {
     return (
-        <Icon height={height} width={width} className={classes(className, "vc-warning-icon")} viewBox="0 0 24 24">
+        <Icon
+            height={height}
+            width={width}
+            className={classes(className, "vc-warning-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 fillRule="evenodd"
@@ -180,7 +190,11 @@ export function OwnerCrownIcon(props: IconProps) {
  */
 export function ScreenshareIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-screenshare-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-screenshare-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 d="M2 4.5C2 3.397 2.897 2.5 4 2.5H20C21.103 2.5 22 3.397 22 4.5V15.5C22 16.604 21.103 17.5 20 17.5H13V19.5H17V21.5H7V19.5H11V17.5H4C2.897 17.5 2 16.604 2 15.5V4.5ZM13.2 14.3375V11.6C9.864 11.6 7.668 12.6625 6 15C6.672 11.6625 8.532 8.3375 13.2 7.6625V5L18 9.6625L13.2 14.3375Z"
@@ -191,48 +205,48 @@ export function ScreenshareIcon(props: IconProps) {
 
 export function ImageVisible(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-image-visible")} viewBox="0 0 24 24">
-            <path
-                fill="currentColor"
-                d="M5 21q-.825 0-1.413-.587Q3 19.825 3 19V5q0-.825.587-1.413Q4.175 3 5 3h14q.825 0 1.413.587Q21 4.175 21 5v14q0 .825-.587 1.413Q19.825 21 19 21Zm0-2h14V5H5v14Zm1-2h12l-3.75-5-3 4L9 13Zm-1 2V5v14Z"
-            />
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-image-visible")}
+            viewBox="0 0 24 24"
+        >
+            <path fill="currentColor" d="M5 21q-.825 0-1.413-.587Q3 19.825 3 19V5q0-.825.587-1.413Q4.175 3 5 3h14q.825 0 1.413.587Q21 4.175 21 5v14q0 .825-.587 1.413Q19.825 21 19 21Zm0-2h14V5H5v14Zm1-2h12l-3.75-5-3 4L9 13Zm-1 2V5v14Z" />
         </Icon>
     );
 }
 
 export function ImageInvisible(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-image-invisible")} viewBox="0 0 24 24">
-            <path
-                fill="currentColor"
-                d="m21 18.15-2-2V5H7.85l-2-2H19q.825 0 1.413.587Q21 4.175 21 5Zm-1.2 4.45L18.2 21H5q-.825 0-1.413-.587Q3 19.825 3 19V5.8L1.4 4.2l1.4-1.4 18.4 18.4ZM6 17l3-4 2.25 3 .825-1.1L5 7.825V19h11.175l-2-2Zm7.425-6.425ZM10.6 13.4Z"
-            />
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-image-invisible")}
+            viewBox="0 0 24 24"
+        >
+            <path fill="currentColor" d="m21 18.15-2-2V5H7.85l-2-2H19q.825 0 1.413.587Q21 4.175 21 5Zm-1.2 4.45L18.2 21H5q-.825 0-1.413-.587Q3 19.825 3 19V5.8L1.4 4.2l1.4-1.4 18.4 18.4ZM6 17l3-4 2.25 3 .825-1.1L5 7.825V19h11.175l-2-2Zm7.425-6.425ZM10.6 13.4Z" />
         </Icon>
     );
 }
 
 export function Microphone(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-microphone")} viewBox="0 0 24 24">
-            <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M14.99 11C14.99 12.66 13.66 14 12 14C10.34 14 9 12.66 9 11V5C9 3.34 10.34 2 12 2C13.66 2 15 3.34 15 5L14.99 11ZM12 16.1C14.76 16.1 17.3 14 17.3 11H19C19 14.42 16.28 17.24 13 17.72V21H11V17.72C7.72 17.23 5 14.41 5 11H6.7C6.7 14 9.24 16.1 12 16.1ZM12 4C11.2 4 11 4.66667 11 5V11C11 11.3333 11.2 12 12 12C12.8 12 13 11.3333 13 11V5C13 4.66667 12.8 4 12 4Z"
-                fill="currentColor"
-            />
-            <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M14.99 11C14.99 12.66 13.66 14 12 14C10.34 14 9 12.66 9 11V5C9 3.34 10.34 2 12 2C13.66 2 15 3.34 15 5L14.99 11ZM12 16.1C14.76 16.1 17.3 14 17.3 11H19C19 14.42 16.28 17.24 13 17.72V22H11V17.72C7.72 17.23 5 14.41 5 11H6.7C6.7 14 9.24 16.1 12 16.1Z"
-                fill="currentColor"
-            />
-        </Icon>
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-microphone")}
+            viewBox="0 0 24 24"
+        >
+            <path fillRule="evenodd" clipRule="evenodd" d="M14.99 11C14.99 12.66 13.66 14 12 14C10.34 14 9 12.66 9 11V5C9 3.34 10.34 2 12 2C13.66 2 15 3.34 15 5L14.99 11ZM12 16.1C14.76 16.1 17.3 14 17.3 11H19C19 14.42 16.28 17.24 13 17.72V21H11V17.72C7.72 17.23 5 14.41 5 11H6.7C6.7 14 9.24 16.1 12 16.1ZM12 4C11.2 4 11 4.66667 11 5V11C11 11.3333 11.2 12 12 12C12.8 12 13 11.3333 13 11V5C13 4.66667 12.8 4 12 4Z" fill="currentColor" />
+            <path fillRule="evenodd" clipRule="evenodd" d="M14.99 11C14.99 12.66 13.66 14 12 14C10.34 14 9 12.66 9 11V5C9 3.34 10.34 2 12 2C13.66 2 15 3.34 15 5L14.99 11ZM12 16.1C14.76 16.1 17.3 14 17.3 11H19C19 14.42 16.28 17.24 13 17.72V22H11V17.72C7.72 17.23 5 14.41 5 11H6.7C6.7 14 9.24 16.1 12 16.1Z" fill="currentColor" />
+        </Icon >
     );
 }
 
 export function CogWheel(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-cog-wheel")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-cog-wheel")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 fillRule="evenodd"
@@ -245,7 +259,11 @@ export function CogWheel(props: IconProps) {
 
 export function ReplyIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-reply-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-reply-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 d="M10 8.26667V4L3 11.4667L10 18.9333V14.56C15 14.56 18.5 16.2667 21 20C20 14.6667 17 9.33333 10 8.26667Z"
@@ -256,8 +274,15 @@ export function ReplyIcon(props: IconProps) {
 
 export function DeleteIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-delete-icon")} viewBox="0 0 24 24">
-            <path fill="currentColor" d="M15 3.999V2H9V3.999H3V5.999H21V3.999H15Z" />
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-delete-icon")}
+            viewBox="0 0 24 24"
+        >
+            <path
+                fill="currentColor"
+                d="M15 3.999V2H9V3.999H3V5.999H21V3.999H15Z"
+            />
             <path
                 fill="currentColor"
                 d="M5 6.99902V18.999C5 20.101 5.897 20.999 7 20.999H17C18.103 20.999 19 20.101 19 18.999V6.99902H5ZM11 17H9V11H11V17ZM15 17H13V11H15V17Z"
@@ -271,7 +296,11 @@ export function DeleteIcon(props: IconProps) {
  */
 export function PluginIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-plugin-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-plugin-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7s2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"
@@ -282,7 +311,11 @@ export function PluginIcon(props: IconProps) {
 
 export function PlusIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-plus-icon")} viewBox="0 0 18 18">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-plus-icon")}
+            viewBox="0 0 18 18"
+        >
             <polygon
                 fillRule="nonzero"
                 fill="currentColor"
@@ -294,8 +327,15 @@ export function PlusIcon(props: IconProps) {
 
 export function NoEntrySignIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-no-entry-sign-icon")} viewBox="0 0 24 24">
-            <path d="M0 0h24v24H0z" fill="none" />
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-no-entry-sign-icon")}
+            viewBox="0 0 24 24"
+        >
+            <path
+                d="M0 0h24v24H0z"
+                fill="none"
+            />
             <path
                 fill="currentColor"
                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"
@@ -343,7 +383,11 @@ export function ResetIcon(props: IconProps) {
 
 export function SafetyIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-safety-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-safety-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 fillRule="evenodd"
@@ -351,12 +395,17 @@ export function SafetyIcon(props: IconProps) {
                 d="M4.27 5.22A2.66 2.66 0 0 0 3 7.5v2.3c0 5.6 3.3 10.68 8.42 12.95.37.17.79.17 1.16 0A14.18 14.18 0 0 0 21 9.78V7.5c0-.93-.48-1.78-1.27-2.27l-6.17-3.76a3 3 0 0 0-3.12 0L4.27 5.22ZM6 7.68l6-3.66V12H6.22C6.08 11.28 6 10.54 6 9.78v-2.1Zm6 12.01V12h5.78A11.19 11.19 0 0 1 12 19.7Z"
             />
         </Icon>
+
     );
 }
 
 export function NotesIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-notes-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-notes-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 d="M8 3C7.44771 3 7 3.44772 7 4V5C7 5.55228 7.44772 6 8 6H16C16.5523 6 17 5.55228 17 5V4C17 3.44772 16.5523 3 16 3H15.1245C14.7288 3 14.3535 2.82424 14.1002 2.52025L13.3668 1.64018C13.0288 1.23454 12.528 1 12 1C11.472 1 10.9712 1.23454 10.6332 1.64018L9.8998 2.52025C9.64647 2.82424 9.27121 3 8.8755 3H8Z"
@@ -373,7 +422,11 @@ export function NotesIcon(props: IconProps) {
 
 export function IDIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-id-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-id-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 d="M15.3 14.48c-.46.45-1.08.67-1.86.67h-1.39V9.2h1.39c.78 0 1.4.22 1.86.67.46.45.68 1.22.68 2.31 0 1.1-.22 1.86-.68 2.31Z"
@@ -390,7 +443,11 @@ export function IDIcon(props: IconProps) {
 
 export function FolderIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-folder-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-folder-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 d="M2 5a3 3 0 0 1 3-3h3.93a2 2 0 0 1 1.66.9L12 5h7a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5Z"
@@ -401,7 +458,11 @@ export function FolderIcon(props: IconProps) {
 
 export function LogIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-log-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-log-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 fillRule="evenodd"
@@ -414,7 +475,11 @@ export function LogIcon(props: IconProps) {
 
 export function RestartIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-restart-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-restart-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 d="M4 12a8 8 0 0 1 14.93-4H15a1 1 0 1 0 0 2h6a1 1 0 0 0 1-1V3a1 1 0 1 0-2 0v3a9.98 9.98 0 0 0-18 6 10 10 0 0 0 16.29 7.78 1 1 0 0 0-1.26-1.56A8 8 0 0 1 4 12Z"
@@ -425,7 +490,11 @@ export function RestartIcon(props: IconProps) {
 
 export function PaintbrushIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-paintbrush-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-paintbrush-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 fillRule="evenodd"
@@ -438,7 +507,11 @@ export function PaintbrushIcon(props: IconProps) {
 
 export function PencilIcon(props: IconProps) {
     return (
-        <Icon {...props} className={classes(props.className, "vc-pencil-icon")} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            className={classes(props.className, "vc-pencil-icon")}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill="currentColor"
                 d="m13.96 5.46 4.58 4.58a1 1 0 0 0 1.42 0l1.38-1.38a2 2 0 0 0 0-2.82l-3.18-3.18a2 2 0 0 0-2.82 0l-1.38 1.38a1 1 0 0 0 0 1.42ZM2.11 20.16l.73-4.22a3 3 0 0 1 .83-1.61l7.87-7.87a1 1 0 0 1 1.42 0l4.58 4.58a1 1 0 0 1 0 1.42l-7.87 7.87a3 3 0 0 1-1.6.83l-4.23.73a1.5 1.5 0 0 1-1.73-1.73Z"
@@ -449,7 +522,10 @@ export function PencilIcon(props: IconProps) {
 
 export function GithubIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="-3 -3 30 30">
+        <Icon
+            {...props}
+            viewBox="-3 -3 30 30"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.385.6.11.82-.26.82-.577v-2.17c-3.338.726-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.757-1.333-1.757-1.09-.745.083-.73.083-.73 1.205.084 1.84 1.237 1.84 1.237 1.07 1.835 2.807 1.305 3.492.998.108-.775.42-1.305.763-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.467-2.38 1.235-3.22-.123-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.3 1.23.957-.266 1.98-.398 3-.403 1.02.005 2.043.137 3 .403 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.24 2.873.118 3.176.77.84 1.233 1.91 1.233 3.22 0 4.61-2.803 5.625-5.475 5.92.43.37.823 1.102.823 2.222v3.293c0 .32.218.694.825.577C20.565 21.797 24 17.298 24 12c0-6.63-5.37-12-12-12z"
@@ -460,7 +536,10 @@ export function GithubIcon(props: IconProps) {
 
 export function WebsiteIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zM4 12c0-.899.156-1.762.431-2.569L6 11l2 2v2l2 2 1 1v1.931C7.061 19.436 4 16.072 4 12zm14.33 4.873C17.677 16.347 16.687 16 16 16v-1a2 2 0 0 0-2-2h-4v-3a2 2 0 0 0 2-2V7h1a2 2 0 0 0 2-2v-.411C17.928 5.778 20 8.65 20 12a7.947 7.947 0 0 1-1.67 4.873z"
@@ -474,20 +553,21 @@ export function WebsiteIcon(props: IconProps) {
  */
 export function PlaceholderIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
-            <path
-                fill={props.fill || "currentColor"}
-                fillRule="evenodd"
-                d="M5 2a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3H5Zm6.81 7c-.54 0-1 .26-1.23.61A1 1 0 0 1 8.92 8.5 3.49 3.49 0 0 1 11.82 7c1.81 0 3.43 1.38 3.43 3.25 0 1.45-.98 2.61-2.27 3.06a1 1 0 0 1-1.96.37l-.19-1a1 1 0 0 1 .98-1.18c.87 0 1.44-.63 1.44-1.25S12.68 9 11.81 9ZM13 16a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm7-10.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM18.5 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM7 18.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM5.5 7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"
-                clipRule="evenodd"
-            />
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
+            <path fill={props.fill || "currentColor"} fillRule="evenodd" d="M5 2a3 3 0 0 0-3 3v14a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3V5a3 3 0 0 0-3-3H5Zm6.81 7c-.54 0-1 .26-1.23.61A1 1 0 0 1 8.92 8.5 3.49 3.49 0 0 1 11.82 7c1.81 0 3.43 1.38 3.43 3.25 0 1.45-.98 2.61-2.27 3.06a1 1 0 0 1-1.96.37l-.19-1a1 1 0 0 1 .98-1.18c.87 0 1.44-.63 1.44-1.25S12.68 9 11.81 9ZM13 16a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm7-10.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM18.5 20a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3ZM7 18.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM5.5 7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" clipRule="evenodd" />
         </Icon>
     );
 }
 
 export function MainSettingsIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M10.56 1.1c-.46.05-.7.53-.64.98.18 1.16-.19 2.2-.98 2.53-.8.33-1.79-.15-2.49-1.1-.27-.36-.78-.52-1.14-.24-.77.59-1.45 1.27-2.04 2.04-.28.36-.12.87.24 1.14.96.7 1.43 1.7 1.1 2.49-.33.8-1.37 1.16-2.53.98-.45-.07-.93.18-.99.64a11.1 11.1 0 0 0 0 2.88c.06.46.54.7.99.64 1.16-.18 2.2.19 2.53.98.33.8-.14 1.79-1.1 2.49-.36.27-.52.78-.24 1.14.59.77 1.27 1.45 2.04 2.04.36.28.87.12 1.14-.24.7-.95 1.7-1.43 2.49-1.1.8.33 1.16 1.37.98 2.53-.07.45.18.93.64.99a11.1 11.1 0 0 0 2.88 0c.46-.06.7-.54.64-.99-.18-1.16.19-2.2.98-2.53.8-.33 1.79.14 2.49 1.1.27.36.78.52 1.14.24.77-.59 1.45-1.27 2.04-2.04.28-.36.12-.87-.24-1.14-.96-.7-1.43-1.7-1.1-2.49.33-.8 1.37-1.16 2.53-.98.45.07.93-.18.99-.64a11.1 11.1 0 0 0 0-2.88c-.06-.46-.54-.7-.99-.64-1.16.18-2.2-.19-2.53-.98-.33-.8.14-1.79 1.1-2.49.36-.27.52-.78.24-1.14a11.07 11.07 0 0 0-2.04-2.04c-.36-.28-.87-.12-1.14.24-.7.96-1.7 1.43-2.49 1.1-.8-.33-1.16-1.37-.98-2.53.07-.45-.18-.93-.64-.99a11.1 11.1 0 0 0-2.88 0ZM16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"
@@ -498,7 +578,10 @@ export function MainSettingsIcon(props: IconProps) {
 
 export function PluginsIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M18.559 12.8227C17.7884 13.4957 16.6663 13.3616 15.9404 12.641C14.7975 11.5063 11.4931 8.21104 11.4931 8.21104C10.897 7.63087 10.897 6.44662 11.4931 5.85464C12.319 5.03435 13.6053 3.75146 13.6053 3.75146C13.9641 3.39195 14.456 3.18972 14.9653 3.18886L18.3363 3.18425L19.5255 2L22.5 4.96048L21.3108 6.14473L21.3021 9.50878C21.2992 10.0164 21.0967 10.5026 20.735 10.8613C20.735 10.8613 19.5718 11.9384 18.559 12.8227ZM15.2315 13.9548L13.4954 15.8273C14.0972 16.4265 14.0972 16.9113 13.64 17.6997L11.3976 20.2485C11.0359 20.6081 10.5469 20.8103 10.0347 20.8111L6.66378 20.8158L5.47455 22L2.5 19.0395L3.68927 17.8553L3.70082 14.4912C3.70082 13.9836 3.90338 13.4974 4.26507 13.1387L6.37153 11.0404C6.96759 10.4485 8.15685 10.4485 8.73844 11.0404L8.74424 11.0465L10.5295 9.26998L11.7188 10.4542L9.93347 12.2305L12.3119 14.599L14.0972 12.8227L15.2315 13.9548Z"
@@ -509,7 +592,10 @@ export function PluginsIcon(props: IconProps) {
 
 export function CloudIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M16.8333 19H5.16667C3.16667 19 1.5 17.3333 1.5 15.3333C1.5 13.4 2.96667 11.8667 4.83333 11.6667V11.3333C4.83333 7.86667 7.7 5 11.1667 5C14.0333 5 16.5667 6.93333 17.3 9.66667C19.7 9.86667 21.5 11.8667 21.5 14.3333C21.5 16.9333 19.4333 19 16.8333 19Z"
@@ -520,7 +606,10 @@ export function CloudIcon(props: IconProps) {
 
 export function BackupRestoreIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M21 2.01232C21.2652 2.01232 21.5196 2.11757 21.7071 2.30492C21.8946 2.49226 22 2.74636 22 3.0113V9.00521C22 9.27015 21.8946 9.52425 21.7071 9.7116C21.5196 9.89894 21.2652 10.0042 21 10.0042H15C14.7348 10.0042 14.4804 9.89894 14.2929 9.7116C14.1054 9.52425 14 9.27015 14 9.00521C14 8.74026 14.1054 8.48617 14.2929 8.29882C14.4804 8.11147 14.7348 8.00622 15 8.00622H18.93C18.352 7.00597 17.5638 6.14275 16.6198 5.47602C15.6758 4.80929 14.5983 4.35488 13.4616 4.1441C12.3249 3.93332 11.1559 3.97117 10.0353 4.25505C8.91459 4.53892 7.86883 5.06208 6.97 5.78848C6.76313 5.9554 6.49836 6.03338 6.23393 6.00528C5.96951 5.97718 5.72709 5.84529 5.56 5.63863C5.39291 5.43197 5.31485 5.16747 5.34298 4.90331C5.37111 4.63916 5.50313 4.39698 5.71 4.23006C6.7542 3.38308 7.959 2.7557 9.25204 2.38561C10.5451 2.01552 11.8996 1.91037 13.2344 2.07646C14.5691 2.24255 15.8565 2.67646 17.0191 3.35212C18.1818 4.02778 19.1957 4.93125 20 6.00826V3.0113C20 2.74636 20.1054 2.49226 20.2929 2.30492C20.4804 2.11757 20.7348 2.01232 21 2.01232ZM3 21.992C2.73478 21.992 2.48043 21.8867 2.29289 21.6994C2.10536 21.5121 2 21.258 2 20.993V14.9991C2 14.7342 2.10536 14.4801 2.29289 14.2927C2.48043 14.1054 2.73478 14.0001 3 14.0001H9C9.26522 14.0001 9.51957 14.1054 9.70711 14.2927C9.89464 14.4801 10 14.7342 10 14.9991C10 15.2641 9.89464 15.5182 9.70711 15.7055C9.51957 15.8928 9.26522 15.9981 9 15.9981H5.07C5.64801 16.9983 6.43617 17.8616 7.3802 18.5283C8.32424 19.195 9.40171 19.6494 10.5384 19.8602C11.6751 20.071 12.8441 20.0331 13.9647 19.7493C15.0854 19.4654 16.1312 18.9422 17.03 18.2158C17.1324 18.1332 17.2502 18.0715 17.3764 18.0343C17.5027 17.9971 17.6351 17.9851 17.7661 17.999C17.897 18.013 18.0239 18.0525 18.1395 18.1154C18.2552 18.1783 18.3573 18.2634 18.44 18.3657C18.5227 18.468 18.5845 18.5856 18.6217 18.7118C18.659 18.8379 18.6709 18.9702 18.657 19.101C18.6431 19.2318 18.6035 19.3586 18.5405 19.4741C18.4776 19.5896 18.3924 19.6916 18.29 19.7743C17.2452 20.6199 16.0403 21.2461 14.7475 21.6154C13.4547 21.9847 12.1005 22.0895 10.7662 21.9235C9.43181 21.7574 8.14476 21.324 6.98212 20.6491C5.81947 19.9743 4.80518 19.0719 4 17.9961V20.993C4 21.258 3.89464 21.5121 3.70711 21.6994C3.51957 21.8867 3.26522 21.992 3 21.992Z"
@@ -531,7 +620,10 @@ export function BackupRestoreIcon(props: IconProps) {
 
 export function UpdaterIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M12 2C12.2652 2 12.5196 2.10536 12.7071 2.29289C12.8946 2.48043 13 2.73478 13 3V13.59L16.3 10.29C16.3904 10.186 16.5013 10.1018 16.6258 10.0427C16.7503 9.98362 16.8856 9.95088 17.0234 9.94656C17.1611 9.94224 17.2982 9.96644 17.4261 10.0176C17.5541 10.0688 17.6701 10.1459 17.7668 10.244C17.8635 10.3421 17.939 10.4592 17.9883 10.5878C18.0377 10.7165 18.0599 10.8539 18.0537 10.9916C18.0474 11.1292 18.0127 11.2641 17.9519 11.3877C17.891 11.5114 17.8053 11.6211 17.7 11.71L12.7 16.71C12.5131 16.8932 12.2618 16.9959 12 16.9959C11.7382 16.9959 11.4869 16.8932 11.3 16.71L6.3 11.71C6.19474 11.6211 6.10898 11.5114 6.04812 11.3877C5.98726 11.2641 5.95261 11.1292 5.94634 10.9916C5.94007 10.8539 5.96231 10.7165 6.01167 10.5878C6.06104 10.4592 6.13646 10.3421 6.2332 10.244C6.32994 10.1459 6.44592 10.0688 6.57385 10.0176C6.70179 9.96644 6.83892 9.94224 6.97665 9.94656C7.11438 9.95088 7.24972 9.98362 7.3742 10.0427C7.49868 10.1018 7.6096 10.186 7.7 10.29L11 13.59V3C11 2.73478 11.1054 2.48043 11.2929 2.29289C11.4804 2.10536 11.7348 2 12 2ZM3 20C2.73478 20 2.48043 20.1054 2.29289 20.2929C2.10536 20.4804 2 20.7348 2 21C2 21.2652 2.10536 21.5196 2.29289 21.7071C2.48043 21.8946 2.73478 22 3 22H21C21.2652 22 21.5196 21.8946 21.7071 21.7071C21.8946 21.5196 22 21.2652 22 21C22 20.7348 21.8946 20.4804 21.7071 20.2929C21.5196 20.1054 21.2652 20 21 20H3Z"
@@ -542,7 +634,10 @@ export function UpdaterIcon(props: IconProps) {
 
 export function PatchHelperIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M7.79997 15.7699C8.49996 16.1999 8.99997 16.9099 8.99997 17.7299V20.9999C8.99997 21.2651 9.10533 21.5195 9.29286 21.707C9.48039 21.8945 9.73476 21.9999 9.99996 21.9999H14C14.2652 21.9999 14.5196 21.8945 14.7071 21.707C14.8946 21.5195 15 21.2651 15 20.9999V17.7299C15 16.9099 15.5 16.1999 16.2 15.7699C17.357 15.0536 18.3137 14.056 18.9812 12.8701C19.6486 11.6842 20.0048 10.3487 20.0168 8.98795C20.0288 7.62724 19.6961 6.28564 19.0497 5.08819C18.4032 3.89074 17.4642 2.87647 16.32 2.13989C15.72 1.74989 15 2.22989 15 2.93989V8.91988C15 9.18511 14.8946 9.43945 14.7071 9.62701C14.5196 9.81454 14.2652 9.9199 14 9.9199H9.99996C9.73476 9.9199 9.48039 9.81454 9.29286 9.62701C9.10533 9.43945 8.99997 9.18511 8.99997 8.91988V2.93989C8.99997 2.22989 8.27997 1.74989 7.67997 2.13989C6.53577 2.87647 5.59671 3.89074 4.9503 5.08819C4.30386 6.28564 3.97113 7.62724 3.9831 8.98795C3.9951 10.3487 4.35138 11.6842 5.01879 12.8701C5.6862 14.056 6.64299 15.0536 7.79997 15.7699Z"
@@ -553,7 +648,10 @@ export function PatchHelperIcon(props: IconProps) {
 
 export function VesktopSettingsIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M18.157.056a1.224 1.224 0 0 0-.709.628c-.105.229-.114.305-.115 1.081v.836l-.351.176a5.545 5.545 0 0 0-.586.342l-.233.167-.543-.311c-.899-.515-.944-.535-1.293-.539-.562-.004-1.018.352-1.17.917-.07.262-.021.567.138.858.151.28.21.325 1.02.794l.606.35v1.38l-.606.35c-.81.469-.869.514-1.02.793-.16.291-.208.597-.137.859.151.564.607.92 1.17.916.347-.004.393-.023 1.289-.537l.54-.308.313.21c.172.116.438.262.588.325l.275.114v.85c.001.793.009.87.115 1.098a1.19 1.19 0 0 0 1.969.282c.269-.307.292-.412.292-1.37v-.869l.315-.148c.173-.081.435-.228.582-.325l.266-.177.706.4c.796.45 1.029.523 1.408.438.882-.198 1.235-1.287.635-1.96-.085-.097-.457-.348-.827-.56l-.67-.385V5.359l.67-.386c.37-.212.742-.463.827-.56.6-.672.247-1.762-.635-1.96-.38-.084-.612-.012-1.405.437l-.7.397-.235-.18a3.792 3.792 0 0 0-.586-.344l-.35-.163v-.848c0-.935-.023-1.044-.292-1.35a1.2 1.2 0 0 0-1.26-.346M4.007 1.25a4.15 4.15 0 0 0-1.21.44c-.354.207-1.102.955-1.309 1.309-.199.34-.374.837-.441 1.252-.07.434-.07 10.426 0 10.86.127.792.42 1.343 1.039 1.963.477.478.81.697 1.317.874.59.204.818.216 4.125.217h3.163v2.42l-1.975.014c-2.202.015-2.148.008-2.5.362-.255.253-.346.474-.346.84s.09.587.345.84c.376.376-.09.348 5.688.348 5.75 0 5.309.025 5.67-.327a1.1 1.1 0 0 0 .362-.86c.002-.367-.09-.586-.344-.84-.353-.355-.3-.348-2.5-.363l-1.976-.014v-2.42h3.164c3.306-.001 3.535-.013 4.124-.217.508-.177.84-.396 1.318-.874.882-.882 1.113-1.57 1.082-3.213-.018-.956-.047-1.068-.364-1.384-.253-.255-.474-.346-.84-.346s-.586.091-.84.346c-.317.316-.343.42-.372 1.47-.023.846-.036.966-.13 1.14a1.22 1.22 0 0 1-.597.553c-.217.098-.276.098-7.757.098-7.48 0-7.54 0-7.757-.098a1.153 1.153 0 0 1-.612-.602l-.114-.242V9.68c.001-5.041.003-5.119.1-5.333.122-.27.3-.462.553-.599.19-.103.242-.104 2.958-.128 3.08-.027 2.927-.01 3.288-.372.255-.254.345-.474.345-.84s-.09-.587-.345-.84c-.364-.365-.204-.347-3.288-.355-1.52-.004-2.881.012-3.024.036m15.047 3.693c.207.108.452.361.57.59.143.278.143.755 0 1.028-.285.54-1.08.81-1.636.556a1.357 1.357 0 0 1-.59-.625c-.107-.255-.092-.7.032-.956.121-.251.46-.568.69-.645.213-.073.755-.043.934.052"
@@ -564,7 +662,10 @@ export function VesktopSettingsIcon(props: IconProps) {
 
 export function EyeIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M15.56 11.77c.2-.1.44.02.44.23a4 4 0 1 1-4-4c.21 0 .33.25.23.44a2.5 2.5 0 0 0 3.32 3.32Z"
@@ -581,7 +682,10 @@ export function EyeIcon(props: IconProps) {
 
 export function ColorPaletteIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M12.37 9.04c.25-.26.73-.2 1.06.13L15 10.7c.33.33.39.8.13 1.06L4.92 21.84c-.27.26-.74.2-1.07-.13l-1.56-1.54c-.33-.32-.39-.8-.13-1.05l10.2-10.08ZM16.09 5.16c.25-.26.73-.2 1.06.13l1.56 1.54c.33.32.39.8.13 1.05l-2.1 2.08c-.26.25-.74.2-1.07-.13l-1.56-1.54c-.33-.33-.38-.8-.13-1.05l2.1-2.08ZM17.48 14.36a.56.56 0 0 1 1.04 0l.85 2.27 2.27.85c.48.18.48.86 0 1.04l-2.27.85-.85 2.27a.56.56 0 0 1-1.04 0l-.85-2.27-2.27-.85a.56.56 0 0 1 0-1.04l2.27-.85.85-2.27ZM7.6 2.32a.5.5 0 0 1 .94 0L9.17 4l1.66.62a.5.5 0 0 1 0 .93l-1.66.63-.63 1.66a.5.5 0 0 1-.93 0l-.63-1.66-1.66-.63a.5.5 0 0 1 0-.93l1.66-.62.63-1.67Z"
@@ -592,7 +696,10 @@ export function ColorPaletteIcon(props: IconProps) {
 
 export function MagnifyingGlassIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 clipRule="evenodd"
                 fillRule="evenodd"
@@ -605,7 +712,10 @@ export function MagnifyingGlassIcon(props: IconProps) {
 
 export function CloudDownloadIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M6.5 20Q4.22 20 2.61 18.43 1 16.85 1 14.58 1 12.63 2.17 11.1 3.35 9.57 5.25 9.15 5.83 7.13 7.39 5.75 8.95 4.38 11 4.08V12.15L9.4 10.6L8 12L12 16L16 12L14.6 10.6L13 12.15V4.08Q15.58 4.43 17.29 6.39 19 8.35 19 11 20.73 11.2 21.86 12.5 23 13.78 23 15.5 23 17.38 21.69 18.69 20.38 20 18.5 20Z"
@@ -616,7 +726,10 @@ export function CloudDownloadIcon(props: IconProps) {
 
 export function CloudUploadIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M11 20H6.5Q4.22 20 2.61 18.43 1 16.85 1 14.58 1 12.63 2.17 11.1 3.35 9.57 5.25 9.15 5.88 6.85 7.75 5.43 9.63 4 12 4 14.93 4 16.96 6.04 19 8.07 19 11 20.73 11.2 21.86 12.5 23 13.78 23 15.5 23 17.38 21.69 18.69 20.38 20 18.5 20H13V12.85L14.6 14.4L16 13L12 9L8 13L9.4 14.4L11 12.85Z"
@@ -627,7 +740,10 @@ export function CloudUploadIcon(props: IconProps) {
 
 export function ClockIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fillRule="evenodd"
                 clipRule="evenodd"
@@ -640,7 +756,10 @@ export function ClockIcon(props: IconProps) {
 
 export function ChevronSmallDownIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M5.3 9.3a1 1 0 0 1 1.4 0l5.3 5.29 5.3-5.3a1 1 0 1 1 1.4 1.42l-6 6a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.42Z"
@@ -651,7 +770,10 @@ export function ChevronSmallDownIcon(props: IconProps) {
 
 export function ChevronSmallUpIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M5.3 14.7a1 1 0 0 0 1.4 0l5.3-5.29 5.3 5.3a1 1 0 1 0 1.4-1.42l-6-6a1 1 0 0 0-1.4 0l-6 6a1 1 0 0 0 0 1.42Z"
@@ -662,7 +784,10 @@ export function ChevronSmallUpIcon(props: IconProps) {
 
 export function DownArrow(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M5.3 9.3a1 1 0 0 1 1.4 0l5.3 5.29 5.3-5.3a1 1 0 1 1 1.4 1.42l-6 6a1 1 0 0 1-1.4 0l-6-6a1 1 0 0 1 0-1.42Z"
@@ -673,7 +798,10 @@ export function DownArrow(props: IconProps) {
 
 export function RightArrow(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M9.3 5.3a1 1 0 0 0 0 1.4l5.29 5.3-5.3 5.3a1 1 0 1 0 1.42 1.4l6-6a1 1 0 0 0 0-1.4l-6-6a1 1 0 0 0-1.42 0Z"
@@ -684,7 +812,10 @@ export function RightArrow(props: IconProps) {
 
 export const QrCodeIcon = (props?: any) => {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M4 6c0-1.1.9-2 2-2h3a1 1 0 0 0 0-2H6a4 4 0 0 0-4 4v3a1 1 0 0 0 2 0V6ZM4 18c0 1.1.9 2 2 2h3a1 1 0 1 1 0 2H6a4 4 0 0 1-4-4v-3a1 1 0 1 1 2 0v3ZM20 6a2 2 0 0 0-2-2h-3a1 1 0 1 1 0-2h3a4 4 0 0 1 4 4v3a1 1 0 1 1-2 0V6Z"
@@ -701,7 +832,10 @@ export const QrCodeIcon = (props?: any) => {
 
 export const ComponentsIcon = (props?: any) => {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M3 15.5V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v.5a.5.5 0 0 1-.5.5H17a4 4 0 0 0-4 4v4.5a.5.5 0 0 1-.5.5h-9a.5.5 0 0 1-.5-.5ZM12.5 18H2a1 1 0 1 0 0 2h10.48c.33 0 .57-.3.54-.63A4.08 4.08 0 0 1 13 19v-.5a.5.5 0 0 0-.5-.5Z"
@@ -718,7 +852,10 @@ export const ComponentsIcon = (props?: any) => {
 
 export const LogsIcon = (props?: any) => {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fillRule="evenodd"
                 clipRule="evenodd"
@@ -731,7 +868,10 @@ export const LogsIcon = (props?: any) => {
 
 export const BookmarkIcon = (props?: any) => {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v16a1 1 0 0 1-1.67.74l-5.66-5.13a1 1 0 0 0-1.34 0l-5.66 5.13A1 1 0 0 1 4 20.99V5Z"
@@ -742,7 +882,10 @@ export const BookmarkIcon = (props?: any) => {
 
 export function RobotIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M7.89 13.46a1 1 0 0 1-1.78-.9L7 13l-.9-.45.01-.01.01-.02a2.24 2.24 0 0 1 .14-.23c.1-.14.23-.31.4-.5.37-.36.98-.79 1.84-.79.86 0 1.47.43 1.83.8a3.28 3.28 0 0 1 .55.72v.02h.01v.01L10 13l.9-.45a1 1 0 0 1-1.79.9 1.28 1.28 0 0 0-.19-.25c-.14-.13-.28-.2-.42-.2-.14 0-.28.07-.42.2a1.28 1.28 0 0 0-.19.25ZM13.55 13.9a1 1 0 0 0 1.34-.44c0-.02.02-.04.04-.06.03-.05.08-.13.15-.2.14-.13.28-.2.42-.2.14 0 .28.07.42.2a1.28 1.28 0 0 1 .19.25 1 1 0 0 0 1.78-.9L17 13l.9-.45-.01-.01-.01-.02a2.1 2.1 0 0 0-.14-.23 3.28 3.28 0 0 0-.4-.5c-.37-.36-.98-.79-1.84-.79-.86 0-1.47.43-1.83.8a3.28 3.28 0 0 0-.55.72v.02h-.01v.01L14 13l-.9-.45a1 1 0 0 0 .45 1.34Z"
@@ -759,7 +902,10 @@ export function RobotIcon(props: IconProps) {
 
 export function HeadphonesIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M12 3a9 9 0 0 0-8.95 10h1.87a5 5 0 0 1 4.1 2.13l1.37 1.97a3.1 3.1 0 0 1-.17 3.78 2.85 2.85 0 0 1-3.55.74 11 11 0 1 1 10.66 0c-1.27.71-2.73.23-3.55-.74a3.1 3.1 0 0 1-.17-3.78l1.38-1.97a5 5 0 0 1 4.1-2.13h1.86A9 9 0 0 0 12 3Z"
@@ -770,7 +916,10 @@ export function HeadphonesIcon(props: IconProps) {
 
 export function ShieldIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M17.05 8.76a4.7 4.7 0 0 1-1.29-.88c-.36-.33-.7-.73-.88-1.13-.33-.73-.16-.77-1.08-.77h-3.64c-.91 0-.74.04-1.08.77a4.94 4.94 0 0 1-2.17 2.01c-.74.33-.85.14-.86.82 0 .88-.22 3.34 1.78 5.19a13.68 13.68 0 0 0 3.98 2.47c.09.03.08.04.17.04.09 0 .08 0 .17-.04.76-.25 2.67-1.25 3.98-2.47 2-1.85 1.78-4.3 1.78-5.19-.01-.68-.12-.49-.86-.82Z"
@@ -785,8 +934,16 @@ export function ShieldIcon(props: IconProps) {
 
 export function CircleQuestionIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="10" fill="transparent" />
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
+            <circle
+                cx="12"
+                cy="12"
+                r="10"
+                fill="transparent"
+            />
             <path
                 fill={props.fill || "currentColor"}
                 fillRule="evenodd"
@@ -799,7 +956,10 @@ export function CircleQuestionIcon(props: IconProps) {
 
 export function AttachmentIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M10.57 4.01a6.97 6.97 0 0 1 9.86 0l.54.55a6.99 6.99 0 0 1 0 9.88l-7.26 7.27a1 1 0 0 1-1.42-1.42l7.27-7.26a4.99 4.99 0 0 0 0-7.06L19 5.43a4.97 4.97 0 0 0-7.02 0l-8.02 8.02a3.24 3.24 0 1 0 4.58 4.58l6.24-6.24a1.12 1.12 0 0 0-1.58-1.58l-3.5 3.5a1 1 0 0 1-1.42-1.42l3.5-3.5a3.12 3.12 0 1 1 4.42 4.42l-6.24 6.24a5.24 5.24 0 0 1-7.42-7.42l8.02-8.02Z"
@@ -810,7 +970,10 @@ export function AttachmentIcon(props: IconProps) {
 
 export function StickerIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 fillRule="evenodd"
@@ -827,7 +990,10 @@ export function StickerIcon(props: IconProps) {
 
 export function GifIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 fillRule="evenodd"
@@ -840,7 +1006,10 @@ export function GifIcon(props: IconProps) {
 
 export function VideoIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M4 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h11a3 3 0 0 0 3-3v-2.12a1 1 0 0 0 .55.9l3 1.5a1 1 0 0 0 1.45-.9V7.62a1 1 0 0 0-1.45-.9l-3 1.5a1 1 0 0 0-.55.9V7a3 3 0 0 0-3-3H4Z"
@@ -851,7 +1020,10 @@ export function VideoIcon(props: IconProps) {
 
 export function CreditCardIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 fillRule="evenodd"
@@ -864,7 +1036,10 @@ export function CreditCardIcon(props: IconProps) {
 
 export function AppsIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M2.06 7.61c-.25.95.31 1.92 1.26 2.18l4.3 1.15c.94.25 1.91-.31 2.17-1.26l1.15-4.3c.25-.94-.31-1.91-1.26-2.17l-4.3-1.15c-.94-.25-1.91.31-2.17 1.26l-1.15 4.3ZM12.98 7.87a2 2 0 0 0 1.75 2.95H20a2 2 0 0 0 1.76-2.95l-2.63-4.83a2 2 0 0 0-3.51 0l-2.63 4.83ZM5.86 13.27a.89.89 0 0 1 1.28 0l.75.77a.9.9 0 0 0 .54.26l1.06.12c.5.06.85.52.8 1.02l-.13 1.08c-.02.2.03.42.14.6l.56.92c.27.43.14 1-.28 1.26l-.9.58a.92.92 0 0 0-.37.48l-.36 1.02a.9.9 0 0 1-1.15.57l-1-.36a.89.89 0 0 0-.6 0l-1 .36a.9.9 0 0 1-1.15-.57l-.36-1.02a.92.92 0 0 0-.37-.48l-.9-.58a.93.93 0 0 1-.28-1.26l.56-.93c.11-.17.16-.38.14-.59l-.12-1.08c-.06-.5.3-.96.8-1.02l1.05-.12a.9.9 0 0 0 .54-.26l.75-.77ZM18.52 13.71a1.1 1.1 0 0 0-2.04 0l-.46 1.24c-.19.5-.57.88-1.07 1.07l-1.24.46a1.1 1.1 0 0 0 0 2.04l1.24.46c.5.19.88.57 1.07 1.07l.46 1.24c.35.95 1.7.95 2.04 0l.46-1.24c.19-.5.57-.88 1.07-1.07l1.24-.46a1.1 1.1 0 0 0 0-2.04l-1.24-.46a1.8 1.8 0 0 1-1.07-1.07l-.46-1.24Z"
@@ -875,7 +1050,10 @@ export function AppsIcon(props: IconProps) {
 
 export function VencordIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 610 586">
+        <Icon
+            {...props}
+            viewBox="0 0 610 586"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M240.875458,322.015472 C239.579453,327.095581 238.283447,332.175720 236.910065,337.652496 C223.109085,338.982452 209.390930,340.007935 195.660019,340.816925 C186.376282,341.363861 177.070068,341.981476 167.782318,341.869720 C159.888062,341.774780 156.266205,335.406860 152.836319,329.539215 C139.268463,306.328217 125.797729,283.059875 112.405266,259.747162 C107.852547,251.822067 103.636757,243.703415 99.365936,235.132172 C112.918289,208.185944 126.142929,181.660477 139.931274,155.431335 C145.930435,144.019333 140.456161,132.696594 130.697876,127.808655 C98.693672,111.777679 66.725327,95.672440 34.875256,79.338280 C26.783905,75.188660 19.107172,73.213310 10.972735,78.739143 C10.486573,79.069405 9.676579,78.922958 9.017271,78.998337 C6.577906,75.680458 4.138540,72.362564 1.349587,69.022339 C1.000000,64.975456 1.000000,60.950912 1.347918,56.440510 C5.256115,53.635960 8.676971,51.058758 12.403757,49.048798 C22.176937,43.777843 32.027573,38.642818 41.950962,33.659988 C54.691505,27.262581 67.373085,20.706268 80.392570,14.921761 C87.964279,11.557677 94.672966,14.098548 99.087044,21.305969 C102.969276,27.644970 106.085487,34.453621 109.530113,41.060017 C117.961426,57.230301 126.336914,73.429932 134.829407,89.568001 C142.870880,104.848999 151.082397,120.040489 159.129547,135.318527 C170.354034,156.628906 181.473862,177.994400 192.701797,199.302948 C193.960358,201.691467 195.629410,203.863708 197.569595,206.845505 C198.843307,204.772537 199.820374,203.634079 200.308548,202.314713 C203.531113,193.605270 206.942612,184.949921 209.740707,176.102432 C216.129395,155.901627 222.188904,135.596802 228.405060,115.341263 C233.800217,97.761017 238.865036,80.068565 244.733490,62.647228 C251.671890,42.049618 254.225037,19.924837 266.000000,1.000000 C270.689240,1.000000 275.378510,1.000000 280.533875,1.000001 C284.008881,2.317548 286.914490,4.003310 290.046539,4.881639 C298.485748,7.248262 307.021515,9.270583 315.534973,11.972240 C315.222260,13.626742 314.799835,14.720258 314.578583,15.853061 C309.679688,40.938194 304.663849,66.001755 299.986359,91.128265 C297.935760,102.143555 303.122192,112.135971 312.523438,114.862137 C320.461365,117.163963 328.738342,118.296577 336.865234,119.946686 C335.125977,127.173126 333.700195,134.493088 331.578644,141.605499 C327.790344,154.305618 323.582092,166.880508 318.912354,179.694824 C302.841492,175.203064 287.440918,170.410294 271.955994,165.907654 C266.594330,164.348618 260.947906,162.274200 255.563660,162.602341 C244.753159,163.261169 240.035583,170.989502 237.151398,180.770218 C226.571045,216.649841 216.121368,252.584671 204.495575,288.130157 C200.504532,300.332703 208.235657,312.647186 218.410660,315.335754 C225.960159,317.330566 233.391495,319.772644 240.875458,322.015472z"
@@ -906,7 +1084,10 @@ export function VencordIcon(props: IconProps) {
 
 export function GameControllerIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 fillRule="evenodd"
@@ -919,7 +1100,10 @@ export function GameControllerIcon(props: IconProps) {
 
 export function HammerAndChiselIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M2 20.59V19.4a1 1 0 0 1 .3-.7l2.4-2.42a1 1 0 0 1 .71-.29H6l9-9-.85-.85a1 1 0 0 1-.23-.34l-1.49-3.73a.5.5 0 0 1 .65-.65l3.73 1.5a1 1 0 0 1 .34.22l.64.64a1 1 0 0 1 1.42 0l1 1a1 1 0 0 1 0 1.42l1.58 1.58a1 1 0 0 1 0 1.42l-1.58 1.58a1 1 0 0 1-1.42 0L17 9l-9 9v.59a1 1 0 0 1-.3.7l-2.4 2.42a1 1 0 0 1-.71.29H3.4a1 1 0 0 1-.7-.3l-.42-.4a1 1 0 0 1-.29-.71Z"
@@ -934,7 +1118,10 @@ export function HammerAndChiselIcon(props: IconProps) {
 
 export function EquicordIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 442.07 442.46">
+        <Icon
+            {...props}
+            viewBox="0 0 442.07 442.46"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M220.7,442.46c-58.95,0-114.37-22.96-156.06-64.64C22.96,336.14,0,280.71,0,221.76S22.96,107.39,64.64,65.7C106.33,24.02,161.75,1.06,220.7,1.06s114.37,22.96,156.06,64.64,64.64,97.11,64.64,156.06-22.96,114.37-64.64,156.06c-41.68,41.68-97.11,64.64-156.06,64.64ZM220.7,78.65c-78.61,0-142.56,63.95-142.56,142.56s63.95,142.56,142.56,142.56,142.56-63.95,142.56-142.56-63.95-142.56-142.56-142.56Z"
@@ -954,7 +1141,10 @@ export function EquicordIcon(props: IconProps) {
 
 export function UserIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M12 10a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM11.53 11A9.53 9.53 0 0 0 2 20.53c0 .81.66 1.47 1.47 1.47h.22c.24 0 .44-.17.5-.4.29-1.12.84-2.17 1.32-2.91.14-.21.43-.1.4.15l-.26 2.61c-.02.3.2.55.5.55h11.7a.5.5 0 0 0 .5-.55l-.27-2.6c-.02-.26.27-.37.41-.16.48.74 1.03 1.8 1.32 2.9.06.24.26.41.5.41h.22c.81 0 1.47-.66 1.47-1.47A9.53 9.53 0 0 0 12.47 11h-.94Z"
@@ -965,7 +1155,10 @@ export function UserIcon(props: IconProps) {
 
 export function PencilSparkleIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M6.3 2.55a.85.85 0 0 0-1.6 0l-.35.97a1.4 1.4 0 0 1-.83.83l-.97.35a.85.85 0 0 0 0 1.6l.97.35c.38.15.68.45.83.83l.35.97a.85.85 0 0 0 1.6 0l.35-.97c.15-.38.45-.68.83-.83l.97-.35a.85.85 0 0 0 0-1.6l-.97-.35a1.4 1.4 0 0 1-.83-.83l-.35-.97ZM13.96 5.46l4.58 4.58a1 1 0 0 0 1.42 0l1.38-1.38a2 2 0 0 0 0-2.82l-3.18-3.18a2 2 0 0 0-2.82 0l-1.38 1.38a1 1 0 0 0 0 1.42ZM2.11 20.16l.73-4.22a3 3 0 0 1 .83-1.61l7.87-7.87a1 1 0 0 1 1.42 0l4.58 4.58a1 1 0 0 1 0 1.42l-7.87 7.87a3 3 0 0 1-1.6.83l-4.23.73a1.5 1.5 0 0 1-1.73-1.73ZM18.48 15.71a1.1 1.1 0 0 1 2.04 0l.46 1.24c.19.5.57.88 1.07 1.07l1.24.46c.95.35.95 1.7 0 2.04l-1.24.46c-.5.19-.88.57-1.07 1.07l-.46 1.24a1.1 1.1 0 0 1-2.04 0l-.46-1.24a1.8 1.8 0 0 0-1.07-1.07l-1.24-.46a1.1 1.1 0 0 1 0-2.04l1.24-.46c.5-.19.88-.57 1.07-1.07l.46-1.24Z"
@@ -976,7 +1169,10 @@ export function PencilSparkleIcon(props: IconProps) {
 
 export function HammerIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M1.23 21.13a1 1 0 0 1 0-1.41l7.48-7.47c.2-.2.51-.2.7 0l2.13 2.12c.2.2.2.5 0 .7l-7.48 7.48a1 1 0 0 1-1.41 0l-1.42-1.42ZM7.76 7.76l8.48 8.49a2 2 0 0 0 2.83 0l3.54-3.54a2 2 0 0 0 0-2.83l-2.94-2.94.65-.66a1 1 0 0 0 0-1.4l-1.41-1.42a1 1 0 0 0-1.41 0l-.66.65-2.72-2.71a2 2 0 0 0-2.83 0L7.76 4.93a2 2 0 0 0 0 2.83Z"
@@ -987,7 +1183,10 @@ export function HammerIcon(props: IconProps) {
 
 export function AchievementsIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 d="M13.76 4.97a1 1 0 0 1-.73-1.21l.5-2a1 1 0 1 1 1.94.48l-.5 2a1 1 0 0 1-1.21.73ZM19.2 3.8a1 1 0 0 1 0 1.4l-1.5 1.5a1 1 0 1 1-1.4-1.4l1.5-1.5a1 1 0 0 1 1.4 0ZM7.46 11.05 9.6 8.2a3 3 0 0 1 4.8 0l2.14 2.85-.83.83a1 1 0 0 1-1.42 0l-.17-.17a3 3 0 0 0-4.24 0l-.17.17a1 1 0 0 1-1.42 0l-.83-.83ZM6.25 12.67 2.4 17.8A2 2 0 0 0 4 21h16a2 2 0 0 0 1.6-3.2l-3.85-5.13-.63.62a3 3 0 0 1-4.24 0l-.17-.17a1 1 0 0 0-1.42 0l-.17.17a3 3 0 0 1-4.24 0l-.63-.62ZM4.8 5.2a1 1 0 0 1 1.4-1.4l1.5 1.5a1 1 0 0 1-1.4 1.4L4.8 5.2ZM21.97 8.26a1 1 0 0 1-.73 1.21l-2 .5a1 1 0 1 1-.48-1.94l2-.5a1 1 0 0 1 1.21.73ZM2.76 9.47a1 1 0 1 1 .48-1.94l2 .5a1 1 0 1 1-.48 1.94l-2-.5ZM10.97 3.76a1 1 0 0 1-1.94.48l-.5-2a1 1 0 1 1 1.94-.48l.5 2Z"
@@ -998,7 +1197,10 @@ export function AchievementsIcon(props: IconProps) {
 
 export function SkullIcon(props: IconProps) {
     return (
-        <Icon {...props} viewBox="0 0 24 24">
+        <Icon
+            {...props}
+            viewBox="0 0 24 24"
+        >
             <path
                 fill={props.fill || "currentColor"}
                 fillRule="evenodd"

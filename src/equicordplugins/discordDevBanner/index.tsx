@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
@@ -31,9 +32,9 @@ export default definePlugin({
                 {
                     match: /children:\[.{0,80}#{intl::uyrfYF::raw}.{0,50}\{\}\)\]/,
                     replace: "children:$self.makeDevBanner()"
-                }
+                },
             ]
         }
     ],
-    makeDevBanner
+    makeDevBanner,
 });

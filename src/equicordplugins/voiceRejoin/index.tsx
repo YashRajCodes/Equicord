@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { VoiceState } from "@vencord/discord-types";
-
 import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
+import { VoiceState } from "@vencord/discord-types";
 import { ChannelStore, FluxDispatcher, UserStore, VoiceStateStore } from "@webpack/common";
 
 const DATASTORE_KEY = "VCLastVoiceChannel";
@@ -23,14 +22,14 @@ const settings = definePluginSettings({
         description: "Set Delay before rejoining voice channel.",
         markers: makeRange(1, 10, 1),
         default: 2,
-        stickToMarkers: true
+        stickToMarkers: true,
     },
     rejoinTimeout: {
         type: OptionType.SLIDER,
         description: "Don't attempt to rejoin after this many seconds have passed since disconnecting.",
         markers: makeRange(5, 120, 5),
         default: 30,
-        stickToMarkers: true
+        stickToMarkers: true,
     },
     preventReconnectIfCallEnded: {
         type: OptionType.SELECT,
@@ -39,13 +38,13 @@ const settings = definePluginSettings({
             { label: "None", value: "none", default: false },
             { label: "DMs only", value: "dms", default: false },
             { label: "Servers only", value: "servers", default: false },
-            { label: "DMs and Servers", value: "both", default: true }
-        ]
+            { label: "DMs and Servers", value: "both", default: true },
+        ],
     },
     applyOnlyToDms: {
         type: OptionType.BOOLEAN,
         description: "Only apply to DMs.",
-        default: false
+        default: false,
     }
 });
 
@@ -57,7 +56,7 @@ export default definePlugin({
     settings,
 
     flux: {
-        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[] }) {
+        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
             const currentUser = UserStore.getCurrentUser();
             if (!currentUser) return;
 
@@ -69,16 +68,15 @@ export default definePlugin({
                 const saved = {
                     guildId: myState.guildId ?? null,
                     channelId: myState.channelId,
-                    timestamp: Date.now()
+                    timestamp: Date.now(),
                 };
                 void Promise.all([
                     DataStore.set(DATASTORE_KEY, saved),
                     DataStore.set(DATASTORE_SESSION_KEY, true)
                 ]).catch(err => logger.error("Failed to persist last voice channel", err));
             } else {
-                void DataStore.set(DATASTORE_SESSION_KEY, false).catch(err =>
-                    logger.error("Failed to persist voice session state", err)
-                );
+                void DataStore.set(DATASTORE_SESSION_KEY, false)
+                    .catch(err => logger.error("Failed to persist voice session state", err));
             }
         },
 
@@ -131,11 +129,10 @@ export default definePlugin({
                             (preventionMode === "servers" && !isDM);
 
                         if (shouldPrevent) {
-                            const connectedUsers = VoiceStateStore.getVoiceStatesForChannel(saved.channelId) as Record<
-                                string,
-                                VoiceState
-                            >;
-                            const othersInCall = Object.values(connectedUsers).filter(vs => vs.userId !== myUserId);
+                            const connectedUsers = VoiceStateStore.getVoiceStatesForChannel(saved.channelId) as Record<string, VoiceState>;
+                            const othersInCall = Object.values(connectedUsers).filter(
+                                vs => vs.userId !== myUserId
+                            );
 
                             if (othersInCall.length === 0) {
                                 await DataStore.set(DATASTORE_SESSION_KEY, false);
@@ -152,7 +149,7 @@ export default definePlugin({
                     FluxDispatcher.dispatch({
                         type: "VOICE_CHANNEL_SELECT",
                         guildId: saved.guildId,
-                        channelId: saved.channelId
+                        channelId: saved.channelId,
                     });
 
                     await DataStore.set(DATASTORE_SESSION_KEY, true);
@@ -160,6 +157,6 @@ export default definePlugin({
                     logger.error("Failed to run voice rejoin", err);
                 }
             }, settings.store.rejoinDelay * 1000);
-        }
-    }
+        },
+    },
 });

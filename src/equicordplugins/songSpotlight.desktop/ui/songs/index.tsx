@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderInfoEntry, RenderInfoEntryBased, RenderSongInfo } from "@song-spotlight/api/handlers";
-import { Song as SongType } from "@song-spotlight/api/structs";
-import { isListLayout, sid } from "@song-spotlight/api/util";
-
 import { BaseText } from "@components/BaseText";
 import { Flex } from "@components/Flex";
 import { LinkIcon } from "@components/Icons";
@@ -23,12 +19,15 @@ import {
     OverlayClasses,
     PlayButton,
     PuzzlePieceIcon,
-    TrashIcon
+    TrashIcon,
 } from "@equicordplugins/songSpotlight.desktop/ui/common";
 import AudioPlayer from "@equicordplugins/songSpotlight.desktop/ui/components/AudioPlayer";
 import ProgressCircle from "@equicordplugins/songSpotlight.desktop/ui/components/ProgressCircle";
 import ServiceIcon from "@equicordplugins/songSpotlight.desktop/ui/components/ServiceIcon";
 import { openSettingsModal } from "@equicordplugins/songSpotlight.desktop/ui/settings";
+import { RenderInfoEntry, RenderInfoEntryBased, RenderSongInfo } from "@song-spotlight/api/handlers";
+import { Song as SongType } from "@song-spotlight/api/structs";
+import { isListLayout, sid } from "@song-spotlight/api/util";
 import { copyWithToast } from "@utils/discord";
 import { classes } from "@utils/misc";
 import {
@@ -98,8 +97,7 @@ function SongEntry({ entry, number, isLoaded, isPlaying, big, onClick }: SongEnt
                             }}
                         />
                     </Menu.Menu>
-                ))
-            }
+                ))}
             onClick={onClick}
         >
             <Flex
@@ -110,9 +108,7 @@ function SongEntry({ entry, number, isLoaded, isPlaying, big, onClick }: SongEnt
                 data-playing={isPlaying}
             >
                 <Flex alignItems="center" justifyContent="center" gap={0} className={cl("song-entry-number")}>
-                    <BaseText size={baseSize} weight="medium">
-                        {number}
-                    </BaseText>
+                    <BaseText size={baseSize} weight="medium">{number}</BaseText>
                 </Flex>
                 <Flex flexDirection="column" justifyContent="center" gap={0}>
                     <Flex alignItems="center" gap="6px">
@@ -140,28 +136,25 @@ interface SongInfoProps {
 function SongInfo({ owned, song, render, big }: SongInfoProps) {
     const [playing, setPlaying] = useState<number | undefined>(undefined);
     const [loaded, setLoaded] = useState(new Set<number>());
-    const setLoadedAudio = useCallback(
-        (index: number, state: boolean) => {
-            if (state) loaded.add(index);
-            else loaded.delete(index);
-            setLoaded(new Set(loaded));
-        },
-        [loaded]
-    );
+    const setLoadedAudio = useCallback((index: number, state: boolean) => {
+        if (state) loaded.add(index);
+        else loaded.delete(index);
+        setLoaded(new Set(loaded));
+    }, [loaded]);
 
-    const audios = useMemo(() => (render.form === "single" ? [render.single] : render.list), [render]);
+    const audios = useMemo(() => render.form === "single" ? [render.single] : render.list, [render]);
     const audioRef = useRef<HTMLAudioElement>(undefined);
     const playingRef = useRef<RenderInfoEntry>(undefined);
     playingRef.current = playing !== undefined ? audios[playing] : undefined;
 
     const duration = useMemo(
         () =>
-            render.form === "single"
-                ? render.single.audio?.duration
-                : playing !== undefined
-                  ? render.list[playing].audio?.duration
-                  : undefined,
-        [playing, render]
+            render.form === "single" ?
+                render.single.audio?.duration :
+                playing !== undefined ?
+                    render.list[playing].audio?.duration :
+                    undefined,
+        [playing, render],
     );
 
     const baseSize = big ? "md" : "sm";
@@ -195,60 +188,68 @@ function SongInfo({ owned, song, render, big }: SongInfoProps) {
                                                 icon={LinkIcon}
                                                 action={() => copyWithToast(render.link)}
                                             />
-                                            {!owned ? (
-                                                <Menu.MenuItem
-                                                    id="steal-song"
-                                                    label="Steal song"
-                                                    icon={PuzzlePieceIcon}
-                                                    action={() => {
-                                                        const self = useSongStore.getState().self?.data ?? [];
-                                                        if (self.length >= apiConstants.songLimit) {
-                                                            return showToast("You don't have enough space!");
-                                                        }
-                                                        if (self.find(x => sid(x) === sid(song))) {
-                                                            return showToast("You already have this song added!");
-                                                        }
+                                            {!owned
+                                                ? (
+                                                    <Menu.MenuItem
+                                                        id="steal-song"
+                                                        label="Steal song"
+                                                        icon={PuzzlePieceIcon}
+                                                        action={() => {
+                                                            const self = useSongStore.getState().self?.data ?? [];
+                                                            if (self.length >= apiConstants.songLimit) {
+                                                                return showToast("You don't have enough space!");
+                                                            }
+                                                            if (self.find(x => sid(x) === sid(song))) {
+                                                                return showToast("You already have this song added!");
+                                                            }
 
-                                                        openSettingsModal([...self, song]);
-                                                    }}
-                                                />
-                                            ) : (
-                                                <Menu.MenuItem
-                                                    id="remove-song"
-                                                    color="danger"
-                                                    label="Remove song"
-                                                    icon={TrashIcon}
-                                                    action={() => {
-                                                        const self = useSongStore.getState().self?.data ?? [];
+                                                            openSettingsModal([...self, song]);
+                                                        }}
+                                                    />
+                                                )
+                                                : (
+                                                    <Menu.MenuItem
+                                                        id="remove-song"
+                                                        color="danger"
+                                                        label="Remove song"
+                                                        icon={TrashIcon}
+                                                        action={() => {
+                                                            const self = useSongStore.getState().self?.data ?? [];
 
-                                                        const i = self.findIndex(x => sid(x) === sid(song));
-                                                        if (i === -1) {
-                                                            return showToast("You... don't have this song added?");
-                                                        }
+                                                            const i = self.findIndex(x => sid(x) === sid(song));
+                                                            if (i === -1) {
+                                                                return showToast("You... don't have this song added?");
+                                                            }
 
-                                                        openSettingsModal(self.toSpliced(i, 1));
-                                                    }}
-                                                />
-                                            )}
+                                                            openSettingsModal(self.toSpliced(i, 1));
+                                                        }}
+                                                    />
+                                                )}
                                         </Menu.Menu>
-                                    ))
-                                }
+                                    ))}
                                 justifyContent="center"
                                 alignItems="center"
                                 gap={0}
                                 className={cl("song-cover")}
                             >
                                 <Link href={render.link} style={{ display: "contents" }}>
-                                    {render.thumbnailUrl ? (
-                                        <img src={render.thumbnailUrl} alt={render.label} />
-                                    ) : (
-                                        <ImageBrokenIcon className={cl("icon")} />
-                                    )}
+                                    {render.thumbnailUrl
+                                        ? <img src={render.thumbnailUrl} alt={render.label} />
+                                        : (
+                                            <ImageBrokenIcon
+                                                className={cl("icon")}
+                                            />
+                                        )}
                                 </Link>
                             </Flex>
                         )}
                     </Tooltip>
-                    <Flex flexDirection="column" justifyContent="center" gap={0} className={cl("clamped")}>
+                    <Flex
+                        flexDirection="column"
+                        justifyContent="center"
+                        gap={0}
+                        className={cl("clamped")}
+                    >
                         <Flex alignItems="center" gap="6px">
                             <BaseText size={baseSize} weight="semibold" className={cl("clamped")} title={render.label}>
                                 {render.label}
@@ -345,11 +346,11 @@ export default function Song({ owned, song, index, big }: SongInfoContainerProps
                 OverlayClasses.overlay,
                 CardClasses.card,
                 cl("song-container", {
-                    "list-song-container": isListLayout(song, render || undefined)
-                })
+                    "list-song-container": isListLayout(song, render || undefined),
+                }),
             )}
             style={{
-                ["--index" as any]: index.toString()
+                ["--index" as any]: index.toString(),
             }}
         >
             {render && <SongInfo owned={owned} song={song} render={render} big={big} />}

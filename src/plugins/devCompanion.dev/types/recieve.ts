@@ -7,32 +7,32 @@
 // should be the same types as ./server/types/send.ts in the companion
 export type SearchData =
     | {
-          extractType: "id";
-          idOrSearch: number;
-      }
+        extractType: "id";
+        idOrSearch: number;
+    }
     | (
-          | {
-                extractType: "search";
-                /**
-                 * stringified regex
-                 */
-                idOrSearch: string;
-                findType: "regex";
-            }
-          | {
-                extractType: "search";
-                idOrSearch: string;
-                findType: "string";
-            }
-      );
+        | {
+            extractType: "search";
+            /**
+             * stringified regex
+             */
+            idOrSearch: string;
+            findType: "regex";
+        }
+        | {
+            extractType: "search";
+            idOrSearch: string;
+            findType: "string";
+        }
+    );
 
 export type FindOrSearchData =
     | (SearchData & {
-          usePatched: boolean | null;
-      })
+        usePatched: boolean | null;
+    })
     | ({
-          extractType: "find";
-      } & _PrefixKeys<_CapitalizeKeys<FindData>, "find">);
+        extractType: "find";
+    } & _PrefixKeys<_CapitalizeKeys<FindData>, "find">);
 
 export type AnyFindType =
     `find${"Component" | "ByProps" | "CssClasses" | "Store" | "ByCode" | "ModuleId" | "ComponentByCode" | ""}${"Lazy" | ""}`;
@@ -62,18 +62,8 @@ export type FindData = {
     args: FindNode[];
 };
 
-export type IncomingMessage =
-    | DisablePlugin
-    | RawId
-    | DiffPatch
-    | Reload
-    | ExtractModule
-    | TestPatch
-    | TestFind
-    | AllModules
-    | I18nLookup
-    | Version;
-export type FullIncomingMessage = IncomingMessage & { nonce: number };
+export type IncomingMessage = DisablePlugin | RawId | DiffPatch | Reload | ExtractModule | TestPatch | TestFind | AllModules | I18nLookup | Version;
+export type FullIncomingMessage = IncomingMessage & { nonce: number; };
 
 export type DisablePlugin = {
     type: "disable";
@@ -131,16 +121,16 @@ export type TestPatch = {
     type: "testPatch";
     data: (
         | {
-              findType: "string";
-              find: string;
-          }
+            findType: "string";
+            find: string;
+        }
         | {
-              findType: "regex";
-              /**
-               * stringified regex
-               */
-              find: string;
-          }
+            findType: "regex";
+            /**
+             * stringified regex
+             */
+            find: string;
+        }
     ) & {
         replacement: {
             match: StringNode | RegexNode;
@@ -159,11 +149,14 @@ export type AllModules = {
     data: null;
 };
 
-type _PrefixKeys<T extends Record<string, any>, P extends string> = string extends P
+type _PrefixKeys<
+    T extends Record<string, any>,
+    P extends string,
+> = string extends P
     ? never
     : {
-          [K in keyof T as K extends string ? `${P}${K}` : never]: T[K];
-      };
+        [K in keyof T as K extends string ? `${P}${K}` : never]: T[K];
+    };
 
 type _CapitalizeKeys<T extends Record<string, any>> = {
     [K in keyof T as K extends string ? Capitalize<K> : never]: T[K];

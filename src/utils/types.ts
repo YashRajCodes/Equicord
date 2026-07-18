@@ -14,11 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import type { Command, FluxEvents } from "@vencord/discord-types";
-import type { ReactNode } from "react";
-import type { LiteralUnion } from "type-fest";
+*/
 
 import { AudioProcessor } from "@api/AudioPlayer";
 import type { ProfileBadge } from "@api/Badges";
@@ -35,6 +31,9 @@ import type { NicknameIconFactory } from "@api/NicknameIcons";
 import { ProfileCollectionData } from "@api/ProfileCollections";
 import { ProfileSectionData } from "@api/ProfileSections";
 import type { UserAreaButtonData } from "@api/UserArea";
+import type { Command, FluxEvents } from "@vencord/discord-types";
+import type { ReactNode } from "react";
+import type { LiteralUnion } from "type-fest";
 
 // exists to export default definePlugin({...})
 export default function definePlugin<P extends PluginDef>(p: P & Record<PropertyKey, any>) {
@@ -73,7 +72,7 @@ export const PluginTags = [
     "Voice"
 ] as const;
 
-export type PluginTag = (typeof PluginTags)[number];
+export type PluginTag = typeof PluginTags[number];
 
 export type ReplaceFn = (match: string, ...groups: string[]) => string;
 
@@ -130,7 +129,7 @@ export interface Plugin extends PluginDef {
 }
 
 export type IconComponent = (props: IconProps & Record<string, any>) => ReactNode;
-export type IconProps = { height?: number | string; width?: number | string; className?: string };
+export type IconProps = { height?: number | string; width?: number | string; className?: string; };
 export interface PluginDef {
     name: string;
     description: string;
@@ -150,7 +149,7 @@ export interface PluginDef {
      * These will automatically be enabled and loaded before your plugin
      * Generally these will be API plugins
      */
-    dependencies?: string[];
+    dependencies?: string[],
     /**
      * Whether this plugin is required and forcefully enabled
      */
@@ -171,7 +170,7 @@ export interface PluginDef {
      * When to call the start() method
      * @default StartAt.WebpackReady
      */
-    startAt?: StartAt;
+    startAt?: StartAt,
     /**
      * Which parts of the plugin can be tested by the reporter. Defaults to all parts
      */
@@ -229,8 +228,8 @@ export interface PluginDef {
     renderMemberListDecorator?: MemberListDecoratorFactory;
 
     /*
-     * Custom apis added by Equicord and were placed here for quicker identification rather then mixing them in
-     */
+    * Custom apis added by Equicord and were placed here for quicker identification rather then mixing them in
+    */
     renderNicknameIcon?: NicknameIconFactory;
     headerBarButton?: HeaderBarButtonData;
     audioProcessor?: AudioProcessor;
@@ -279,9 +278,8 @@ export const enum OptionType {
 
 export type SettingsDefinition = Record<string, PluginSettingDef>;
 export type SettingsChecks<D extends SettingsDefinition> = {
-    [K in keyof D]?: D[K] extends PluginSettingComponentDef
-        ? IsDisabledOrHidden<DefinedSettings<D>>
-        : IsDisabledOrHidden<DefinedSettings<D>> & IsValid<PluginSettingType<D[K]>, DefinedSettings<D>>;
+    [K in keyof D]?: D[K] extends PluginSettingComponentDef ? IsDisabledOrHidden<DefinedSettings<D>> :
+    (IsDisabledOrHidden<DefinedSettings<D>> & IsValid<PluginSettingType<D[K]>, DefinedSettings<D>>);
 };
 
 export type PluginSettingDef =
@@ -380,10 +378,7 @@ export interface PluginSettingSliderDef extends PluginSettingDefCommon {
     stickToMarkers?: boolean;
 }
 
-export interface PluginSettingComponentDef extends Omit<
-    PluginSettingDefCommon,
-    "description" | "placeholder" | "displayName"
-> {
+export interface PluginSettingComponentDef extends Omit<PluginSettingDefCommon, "description" | "placeholder" | "displayName"> {
     type: OptionType.COMPONENT;
     component: (props: PluginSettingComponentProps) => ReactNode | Promise<ReactNode>;
     default?: any;
@@ -402,35 +397,19 @@ export interface PluginSettingComponentProps {
 }
 
 /** Maps a `PluginSettingDef` to its value type */
-type PluginSettingType<O extends PluginSettingDef> = O extends PluginSettingStringDef
-    ? string
-    : O extends PluginSettingNumberDef
-      ? number
-      : O extends PluginSettingBigIntDef
-        ? BigInt
-        : O extends PluginSettingBooleanDef
-          ? boolean
-          : O extends PluginSettingSelectDef
-            ? O["options"][number]["value"]
-            : O extends PluginSettingSliderDef
-              ? number
-              : O extends PluginSettingComponentDef
-                ? O extends { default: infer Default }
-                    ? Default
-                    : any
-                : O extends PluginSettingCustomDef
-                  ? O extends { default: infer Default }
-                      ? Default
-                      : any
-                  : never;
+type PluginSettingType<O extends PluginSettingDef> = O extends PluginSettingStringDef ? string :
+    O extends PluginSettingNumberDef ? number :
+    O extends PluginSettingBigIntDef ? BigInt :
+    O extends PluginSettingBooleanDef ? boolean :
+    O extends PluginSettingSelectDef ? O["options"][number]["value"] :
+    O extends PluginSettingSliderDef ? number :
+    O extends PluginSettingComponentDef ? O extends { default: infer Default; } ? Default : any :
+    O extends PluginSettingCustomDef ? O extends { default: infer Default; } ? Default : any :
+    never;
 
-type PluginSettingDefaultType<O extends PluginSettingDef> = O extends PluginSettingSelectDef
-    ? O["options"] extends { default?: boolean }[]
-        ? O["options"][number]["value"]
-        : undefined
-    : O extends { default: infer T }
-      ? T
-      : undefined;
+type PluginSettingDefaultType<O extends PluginSettingDef> = O extends PluginSettingSelectDef ? (
+    O["options"] extends { default?: boolean; }[] ? O["options"][number]["value"] : undefined
+) : O extends { default: infer T; } ? T : undefined;
 
 type SettingsStore<D extends SettingsDefinition> = {
     [K in keyof D]: PluginSettingType<D[K]> | PluginSettingDefaultType<D[K]>;
@@ -451,9 +430,7 @@ export interface DefinedSettings<
      * React hook for getting the settings for this plugin
      * @param filter optional filter to avoid rerenders for irrelevant settings
      */
-    use<F extends Extract<keyof Def | keyof PrivateSettings, string>>(
-        filter?: F[]
-    ): Pick<SettingsStore<Def> & PrivateSettings, F>;
+    use<F extends Extract<keyof Def | keyof PrivateSettings, string>>(filter?: F[]): Pick<SettingsStore<Def> & PrivateSettings, F>;
     /**
      * Name of the plugin these settings belong to,
      * will be an empty string until plugin is initialized
@@ -465,17 +442,13 @@ export interface DefinedSettings<
 
 export type PartialExcept<T, R extends keyof T> = Partial<T> & Required<Pick<T, R>>;
 
-export type IpcRes<V = any> = { ok: true; value: V } | { ok: false; error: any };
+export type IpcRes<V = any> = { ok: true; value: V; } | { ok: false, error: any; };
 
-export type PluginNative<
-    PluginExports extends Record<string, (event: Electron.IpcMainInvokeEvent, ...args: any[]) => any>
-> = {
-    [key in keyof PluginExports]: PluginExports[key] extends (
-        event: Electron.IpcMainInvokeEvent,
-        ...args: infer Args
-    ) => infer Return
-        ? (...args: Args) => Return extends Promise<any> ? Return : Promise<Return>
-        : never;
+export type PluginNative<PluginExports extends Record<string, (event: Electron.IpcMainInvokeEvent, ...args: any[]) => any>> = {
+    [key in keyof PluginExports]:
+    PluginExports[key] extends (event: Electron.IpcMainInvokeEvent, ...args: infer Args) => infer Return
+    ? (...args: Args) => Return extends Promise<any> ? Return : Promise<Return>
+    : never;
 };
 
-export type AllOrNothing<T> = T | { [K in keyof T]?: never };
+export type AllOrNothing<T> = T | { [K in keyof T]?: never; };

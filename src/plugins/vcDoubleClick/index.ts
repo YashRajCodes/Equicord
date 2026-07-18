@@ -14,19 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 import { ChannelRouter, ChannelStore, SelectedChannelStore } from "@webpack/common";
 
-const timers = {} as Record<
-    string,
-    {
-        timeout?: NodeJS.Timeout;
-        i: number;
-    }
->;
+const timers = {} as Record<string, {
+    timeout?: NodeJS.Timeout;
+    i: number;
+}>;
 
 export default definePlugin({
     name: "VoiceChatDoubleClick",
@@ -47,8 +44,8 @@ export default definePlugin({
             replacement: [
                 {
                     match: /onClick:\(\)=>\{this.handleClick\(\)/g,
-                    replace: "onClick:()=>{$self.schedule(()=>{this.handleClick()},this)"
-                }
+                    replace: "onClick:()=>{$self.schedule(()=>{this.handleClick()},this)",
+                },
             ]
         },
         {
@@ -56,8 +53,8 @@ export default definePlugin({
             find: 'className:"channelMention",children:[null!=',
             replacement: {
                 match: /onClick:(\i)(?=,.{0,30}className:"channelMention".+?(\i)\.inContent)/,
-                replace: (_, onClick, props) =>
-                    "" + `onClick:(vcDoubleClickEvt)=>$self.shouldRunOnClick(vcDoubleClickEvt,${props})&&${onClick}()`
+                replace: (_, onClick, props) => ""
+                    + `onClick:(vcDoubleClickEvt)=>$self.shouldRunOnClick(vcDoubleClickEvt,${props})&&${onClick}()`,
             }
         },
         // Voice channels in the active now section
@@ -72,7 +69,7 @@ export default definePlugin({
         }
     ],
 
-    goToChannel(props: { id?: string } | undefined) {
+    goToChannel(props: { id?: string; } | undefined) {
         const { id } = props ?? {};
         if (!id) return console.error("No channel id found");
         ChannelRouter.transitionToChannel(id);

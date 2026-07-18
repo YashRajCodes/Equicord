@@ -14,13 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { dirname, join } from "path";
-
-import electron, { app, BrowserWindowConstructorOptions, Menu } from "electron";
+*/
 
 import { onceDefined } from "@shared/onceDefined";
+import electron, { app, BrowserWindowConstructorOptions, Menu } from "electron";
+import { dirname, join } from "path";
 
 import { RendererSettings } from "./settings";
 import { patchTrayMenu } from "./trayMenu";
@@ -63,6 +61,7 @@ if (!IS_VANILLA) {
         require("./patchWin32Updater");
     }
     if (process.platform === "win32") {
+
         if (settings.winCtrlQ) {
             const originalBuild = Menu.buildFromTemplate;
             Menu.buildFromTemplate = function (template) {
@@ -90,15 +89,7 @@ if (!IS_VANILLA) {
                 return;
             }
 
-            const {
-                frameless,
-                mainWindowFrameless,
-                winNativeTitleBar,
-                disableMinSize,
-                transparent,
-                macosVibrancyStyle,
-                windowsMaterial
-            } = settings;
+            const { frameless, mainWindowFrameless, winNativeTitleBar, disableMinSize, transparent, macosVibrancyStyle, windowsMaterial } = settings;
 
             const original = options.webPreferences.preload;
             const isMainWindow = options.title === "Discord";
@@ -139,7 +130,7 @@ if (!IS_VANILLA) {
 
             if (disableMinSize) {
                 // Disable the Electron call entirely so that Discord can't dynamically change the size
-                this.setMinimumSize = (_width: number, _height: number) => {};
+                this.setMinimumSize = (_width: number, _height: number) => { };
             }
         }
     }

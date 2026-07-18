@@ -5,12 +5,12 @@
  */
 
 import "./styles.css";
-import type { ReactElement } from "react";
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { StartAt } from "@utils/types";
 import { React } from "@webpack/common";
+import type { ReactElement } from "react";
 
 import { BlockDisplayType, ColorType, regex, RenderType, replaceRegexp, settings } from "./constants";
 
@@ -64,9 +64,9 @@ export default definePlugin({
             group: true,
             replacement: {
                 match: /roleMention:{type:/,
-                replace: 'color:{type:"inlineObject"},$&'
+                replace: "color:{type:\"inlineObject\"},$&",
             }
-        }
+        },
     ],
     start() {
         const amount = settings.store.enableShortHexCodes ? "{1,2}" : "{2}";
@@ -90,20 +90,16 @@ export default definePlugin({
             match(content: string) {
                 return matchAllRegExp.exec(content);
             },
-            parse(
-                matchedContent: RegExpExecArray,
-                _,
-                parseProps: Record<string, any>
-            ): ParsedColorInfo | { type: "text"; content: string } {
+            parse(matchedContent: RegExpExecArray, _, parseProps: Record<string, any>):
+                ParsedColorInfo | ({ type: "text", content: string; }) {
                 // This check makes sure that it doesn't try to parse color
                 // When typing/editing message
                 //
                 // Discord doesn't know how to deal with color and crashes
-                if (!parseProps.messageId || parseProps.isInsideOfLink)
-                    return {
-                        type: "text",
-                        content: matchedContent[0]
-                    };
+                if (!parseProps.messageId || parseProps.isInsideOfLink) return {
+                    type: "text",
+                    content: matchedContent[0]
+                };
 
                 const content = matchedContent[0];
                 try {
@@ -123,66 +119,47 @@ export default definePlugin({
                     };
                 }
             },
-            react: ErrorBoundary.wrap(
-                ({ text, colorType, color }: ParsedColorInfo) => {
-                    if (settings.store.renderType === RenderType.FOREGROUND) {
-                        return <span style={{ color: color }}>{text}</span>;
-                    }
-                    const styles = {
-                        "--color": color
-                    } as React.CSSProperties;
-
-                    if (settings.store.renderType === RenderType.BACKGROUND) {
-                        const isDark = isColorDark(color, colorType);
-                        const className = `vc-color-bg ${!isDark ? "vc-color-bg-invert" : ""}`;
-                        return (
-                            <span className={className} style={styles}>
-                                {text}
-                            </span>
-                        );
-                    }
-
-                    // Only block display left
-                    const margin = "2px";
-
-                    switch (settings.store.blockView) {
-                        case BlockDisplayType.LEFT:
-                            styles.marginRight = margin;
-                            return (
-                                <>
-                                    <span className="vc-color-block" style={styles} />
-                                    {text}
-                                </>
-                            );
-
-                        case BlockDisplayType.RIGHT:
-                            styles.marginLeft = margin;
-                            return (
-                                <>
-                                    {text}
-                                    <span className="vc-color-block" style={styles} />
-                                </>
-                            );
-
-                        case BlockDisplayType.BOTH:
-                            styles.marginLeft = margin;
-                            styles.marginRight = margin;
-                            return (
-                                <>
-                                    <span className="vc-color-block" style={styles} />
-                                    {text}
-                                    <span className="vc-color-block" style={styles} />
-                                </>
-                            );
-                    }
-                },
-                {
-                    fallback: data => {
-                        const child = data.children as ReactElement<any>;
-                        return <>{child.props?.text}</>;
-                    }
+            react: ErrorBoundary.wrap(({ text, colorType, color }: ParsedColorInfo) => {
+                if (settings.store.renderType === RenderType.FOREGROUND) {
+                    return <span style={{ color: color }}>{text}</span>;
                 }
-            )
+                const styles = {
+                    "--color": color
+                } as React.CSSProperties;
+
+                if (settings.store.renderType === RenderType.BACKGROUND) {
+                    const isDark = isColorDark(color, colorType);
+                    const className = `vc-color-bg ${!isDark ? "vc-color-bg-invert" : ""}`;
+                    return <span className={className} style={styles}>{text}</span>;
+                }
+
+                // Only block display left
+                const margin = "2px";
+
+                switch (settings.store.blockView) {
+                    case BlockDisplayType.LEFT:
+                        styles.marginRight = margin;
+                        return <><span className="vc-color-block" style={styles} />{text}</>;
+
+                    case BlockDisplayType.RIGHT:
+                        styles.marginLeft = margin;
+                        return <>{text}<span className="vc-color-block" style={styles} /></>;
+
+                    case BlockDisplayType.BOTH:
+                        styles.marginLeft = margin;
+                        styles.marginRight = margin;
+                        return <>
+                            <span className="vc-color-block" style={styles} />
+                            {text}
+                            <span className="vc-color-block" style={styles} />
+                        </>;
+                }
+            }, {
+                fallback: data => {
+                    const child = data.children as ReactElement<any>;
+                    return <>{child.props?.text}</>;
+                }
+            })
         };
     }
 });
@@ -203,10 +180,7 @@ const isColorDark = (color: string, type: ColorType): boolean => {
         case ColorType.HEX: {
             color = color.substring(1);
             if (color.length === 3) {
-                color = color
-                    .split("")
-                    .flatMap(v => [v, v])
-                    .join("");
+                color = color.split("").flatMap(v => [v, v]).join("");
             }
 
             const rgb = parseInt(color, 16);
@@ -220,7 +194,7 @@ const isColorDark = (color: string, type: ColorType): boolean => {
         case ColorType.HSL: {
             const match = color.match(/\d+/g)!;
             const lightness = +match[2];
-            return lightness < (border / 255) * 100;
+            return lightness < (border / 255 * 100);
         }
     }
 };
@@ -236,15 +210,13 @@ const getColorType = (color: string): ColorType => {
 };
 
 function parseColor(str: string, type: ColorType): string {
-    str = str
-        .toLowerCase()
-        .trim()
-        .replaceAll(/(\s|,)+/g, " ");
+    str = str.toLowerCase().trim().replaceAll(/(\s|,)+/g, " ");
     switch (type) {
         case ColorType.RGB:
             return str;
         case ColorType.RGBA:
-            if (!str.includes("/")) return str.replaceAll(replaceRegexp(/\f(?=\s*?\))/.source), "/$&");
+            if (!str.includes("/"))
+                return str.replaceAll(replaceRegexp(/\f(?=\s*?\))/.source), "/$&");
             return str;
         case ColorType.HEX:
             return str[0] === "#" ? str : `#${str}`;

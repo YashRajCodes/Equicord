@@ -25,7 +25,8 @@ function tokenizeMessage(text: string): string[] {
         }
 
         // handle mentions: <@id>, <@!id>, <@&id>, <#id>
-        if ((text[i] === "<" && text[i + 1] === "@") || (text[i] === "<" && text[i + 1] === "#")) {
+        if (text[i] === "<" && text[i + 1] === "@" ||
+            (text[i] === "<" && text[i + 1] === "#")) {
             const endIndex = text.indexOf(">", i);
             if (endIndex !== -1) {
                 tokens.push(text.slice(i, endIndex + 1));

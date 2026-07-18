@@ -14,18 +14,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 declare module "~plugins" {
     const plugins: Record<string, import("./utils/types").Plugin>;
     export default plugins;
-    export const PluginMeta: Record<
-        string,
-        {
-            folderName: string;
-            userPlugin: boolean;
-        }
-    >;
+    export const PluginMeta: Record<string, {
+        folderName: string;
+        userPlugin: boolean;
+    }>;
     export const ExcludedPlugins: Record<string, "web" | "discordDesktop" | "vesktop" | "equibop" | "desktop" | "dev">;
 }
 

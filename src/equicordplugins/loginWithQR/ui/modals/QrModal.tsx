@@ -4,23 +4,27 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findByPropsLazy } from "@webpack";
-import jsQR, { QRCode } from "jsqr";
-import { MutableRefObject, ReactElement } from "react";
-
 import { BaseText } from "@components/BaseText";
 import { QrCodeIcon } from "@components/Icons";
 import { wrapTab } from "@components/settings";
 import loginWithQR from "@equicordplugins/loginWithQR";
 import { images } from "@equicordplugins/loginWithQR/images";
-import { RestAPI, useEffect, useRef, useState } from "@webpack/common";
+import { findByPropsLazy } from "@webpack";
+import {
+    RestAPI,
+    useEffect,
+    useRef,
+    useState,
+} from "@webpack/common";
+import jsQR, { QRCode } from "jsqr";
+import { MutableRefObject, ReactElement } from "react";
 
 import { cl, Spinner, SpinnerTypes } from "..";
 import openVerifyModal from "./VerifyModal";
 
 enum LoginStateType {
     Idle,
-    Loading
+    Loading,
 }
 
 interface Preview {
@@ -29,12 +33,15 @@ interface Preview {
         width: number;
         height: number;
     };
-    crosses?: { x: number; y: number; rot: number; size: number }[];
+    crosses?: { x: number; y: number; rot: number; size: number; }[];
 }
 
 interface QrModalProps {
     exit: (err: string | null) => void;
-    setPreview: (media: HTMLImageElement | HTMLVideoElement | null, location?: QRCode["location"]) => Promise<void>;
+    setPreview: (
+        media: HTMLImageElement | HTMLVideoElement | null,
+        location?: QRCode["location"]
+    ) => Promise<void>;
 }
 type QrModalPropsRef = MutableRefObject<QrModalProps>;
 
@@ -51,25 +58,31 @@ const limitSize = (width: number, height: number) => {
 const { getVideoDeviceId } = findByPropsLazy("getVideoDeviceId");
 
 const tokenRegex = /^https:\/\/discord\.com\/ra\/([\w-]+)$/;
-const verifyUrl = async (token: string, { current: modalProps }: QrModalPropsRef) => {
+const verifyUrl = async (
+    token: string,
+    { current: modalProps }: QrModalPropsRef
+) => {
     // yay
     let handshake: string | null = null;
     try {
         const res = await RestAPI.post({
             url: "/users/@me/remote-auth",
-            body: { fingerprint: token }
+            body: { fingerprint: token },
         });
         if (res.ok && res.status === 200) handshake = res.body?.handshake_token;
-    } catch {}
+    } catch { }
 
     modalProps.setPreview(null);
-    openVerifyModal(handshake, () => {
-        modalProps.exit(null);
-        RestAPI.post({
-            url: "/users/@me/remote-auth/cancel",
-            body: { handshake_token: handshake }
-        });
-    });
+    openVerifyModal(
+        handshake,
+        () => {
+            modalProps.exit(null);
+            RestAPI.post({
+                url: "/users/@me/remote-auth/cancel",
+                body: { handshake_token: handshake },
+            });
+        },
+    );
 };
 
 const handleProcessImage = (file: File, modalPropsRef: QrModalPropsRef) => {
@@ -93,14 +106,23 @@ const handleProcessImage = (file: File, modalPropsRef: QrModalPropsRef) => {
             const ctx = canvas.getContext("2d")!;
             ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-            const { data, width, height } = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const { data, width, height } = ctx.getImageData(
+                0,
+                0,
+                canvas.width,
+                canvas.height
+            );
             const code = jsQR(data, width, height);
 
             const token = code?.data.match(tokenRegex)?.[1];
             if (token)
                 modalProps
                     .setPreview(img, code.location)
-                    .then(() => verifyUrl(token, modalPropsRef).catch(e => modalProps.exit(e?.message)));
+                    .then(() =>
+                        verifyUrl(token, modalPropsRef).catch(e =>
+                            modalProps.exit(e?.message)
+                        )
+                    );
             else modalProps.exit(null);
 
             canvas.remove();
@@ -138,7 +160,9 @@ function QrModal() {
 
                 let source: ReactElement;
                 if (media instanceof HTMLImageElement)
-                    source = <img src={media.src} style={{ width: "100%", height: "100%" }} />;
+                    source = (
+                        <img src={media.src} style={{ width: "100%", height: "100%" }} />
+                    );
                 else
                     source = (
                         <video
@@ -161,17 +185,27 @@ function QrModal() {
                 else {
                     const combinations = [
                         [location.topLeftCorner, location.bottomRightCorner],
-                        [location.topRightCorner, location.bottomLeftCorner]
+                        [location.topRightCorner, location.bottomLeftCorner],
                     ];
 
                     const crossSize =
                         (Math.sqrt(
-                            Math.abs(location.topLeftCorner.x - location.topRightCorner.x) ** 2 +
-                                Math.abs(location.topLeftCorner.y - location.topRightCorner.y) ** 2
+                            Math.abs(location.topLeftCorner.x - location.topRightCorner.x) **
+                            2 +
+                            Math.abs(
+                                location.topLeftCorner.y - location.topRightCorner.y
+                            ) **
+                            2
                         ) +
                             Math.sqrt(
-                                Math.abs(location.topRightCorner.x - location.bottomRightCorner.x) ** 2 +
-                                    Math.abs(location.topRightCorner.y - location.bottomRightCorner.y) ** 2
+                                Math.abs(
+                                    location.topRightCorner.x - location.bottomRightCorner.x
+                                ) **
+                                2 +
+                                Math.abs(
+                                    location.topRightCorner.y - location.bottomRightCorner.y
+                                ) **
+                                2
                             )) /
                         3 /
                         media.height;
@@ -183,14 +217,15 @@ function QrModal() {
                             const opposite = combination[1 - i];
 
                             const rot =
-                                (Math.atan2(opposite.y - current.y, opposite.x - current.x) - Math.PI / 4) *
+                                (Math.atan2(opposite.y - current.y, opposite.x - current.x) -
+                                    Math.PI / 4) *
                                 (180 / Math.PI);
 
                             crosses.push({
                                 x: (current.x / media.width) * 100,
                                 y: (current.y / media.height) * 100,
                                 rot,
-                                size: Math.min(crossSize * size.height, 7)
+                                size: Math.min(crossSize * size.height, 7),
                             });
                         }
                     }
@@ -198,7 +233,7 @@ function QrModal() {
                     setPreview({ source, size, crosses });
                     setTimeout(res, 500 + 300 + 300);
                 }
-            })
+            }),
     });
 
     useEffect(() => {
@@ -221,7 +256,10 @@ function QrModal() {
                         setState(LoginStateType.Loading);
 
                         const token = text.match(tokenRegex)?.[1];
-                        if (token) verifyUrl(token, modalProps).catch(e => modalProps.current.exit(e?.message));
+                        if (token)
+                            verifyUrl(token, modalProps).catch(e =>
+                                modalProps.current.exit(e?.message)
+                            );
                         else modalProps.current.exit(null);
                     });
                     break;
@@ -229,7 +267,8 @@ function QrModal() {
             }
         };
 
-        if (state === LoginStateType.Idle) document.addEventListener("paste", callback);
+        if (state === LoginStateType.Idle)
+            document.addEventListener("paste", callback);
         return () => document.removeEventListener("paste", callback);
     }, [state]);
 
@@ -241,9 +280,15 @@ function QrModal() {
                     preview?.source && "modal-filepaste-preview",
                     preview?.crosses && "modal-filepaste-crosses"
                 )}
-                onClick={() => state === LoginStateType.Idle && inputRef.current?.click()}
-                onDragEnter={e => e.currentTarget.classList.add(cl("modal-filepaste-drop"))}
-                onDragLeave={e => e.currentTarget.classList.remove(cl("modal-filepaste-drop"))}
+                onClick={() =>
+                    state === LoginStateType.Idle && inputRef.current?.click()
+                }
+                onDragEnter={e =>
+                    e.currentTarget.classList.add(cl("modal-filepaste-drop"))
+                }
+                onDragLeave={e =>
+                    e.currentTarget.classList.remove(cl("modal-filepaste-drop"))
+                }
                 onDrop={e => {
                     e.preventDefault();
                     e.currentTarget.classList.remove(cl("modal-filepaste-drop"));
@@ -262,9 +307,9 @@ function QrModal() {
                 style={
                     preview?.size
                         ? {
-                              width: `${preview.size.width}rem`,
-                              height: `${preview.size.height}rem`
-                          }
+                            width: `${preview.size.width}rem`,
+                            height: `${preview.size.height}rem`,
+                        }
                         : {}
                 }
             >
@@ -278,11 +323,15 @@ function QrModal() {
                                 ? Math.max(preview.crosses[0].size * 0.9, 1)
                                 : undefined,
                             ["--offset-x" as any]: preview.crosses
-                                ? `${-(preview.crosses.reduce((i, { x }) => i + x, 0) / preview.crosses.length - 50)}%`
+                                ? `${-(preview.crosses.reduce((i, { x }) => i + x, 0) /
+                                    preview.crosses.length -
+                                    50)}%`
                                 : undefined,
                             ["--offset-y" as any]: preview.crosses
-                                ? `${-(preview.crosses.reduce((i, { y }) => i + y, 0) / preview.crosses.length - 50)}%`
-                                : undefined
+                                ? `${-(preview.crosses.reduce((i, { y }) => i + y, 0) /
+                                    preview.crosses.length -
+                                    50)}%`
+                                : undefined,
                         }}
                         className={cl(preview?.crosses && "preview-crosses")}
                     >
@@ -295,7 +344,7 @@ function QrModal() {
                                     left: `${x}%`,
                                     top: `${y}%`,
                                     ["--size" as any]: `${size}rem`,
-                                    ["--rot" as any]: `${rot}deg`
+                                    ["--rot" as any]: `${rot}deg`,
                                 }}
                             >
                                 <img src={images.cross} draggable={false} />

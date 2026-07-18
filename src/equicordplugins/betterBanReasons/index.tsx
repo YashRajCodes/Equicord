@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { definePluginSettings } from "@api/Settings";
 import { Heading } from "@components/Heading";
 import { DeleteIcon, PlusIcon } from "@components/Icons";
@@ -28,7 +29,7 @@ const DELETE_DURATION_OPTIONS = [
     { label: "Previous 12 hours", value: 43200 },
     { label: "Previous 24 hours", value: 86400 },
     { label: "Previous 3 days", value: 259200 },
-    { label: "Previous 7 days", value: 604800 }
+    { label: "Previous 7 days", value: 604800 },
 ];
 
 function normalizeReason(r: BanReason | string): BanReason {
@@ -54,7 +55,7 @@ function ReasonsComponent() {
                 <div key={i} className={cl("reason-wrapper")}>
                     <TextInput
                         value={r.text}
-                        onChange={v => update(reasons.map((x, j) => (j === i ? { ...x, text: v } : x)))}
+                        onChange={v => update(reasons.map((x, j) => j === i ? { ...x, text: v } : x))}
                         placeholder="Reason"
                     />
                     <Button
@@ -67,20 +68,12 @@ function ReasonsComponent() {
                         <DeleteIcon />
                     </Button>
                     <div className={cl("duration-row")}>
-                        <span className="vc-text-base vc-text-sm vc-text-normal vc-text-defaultColor vc-plugins-setting-description">
-                            Message Auto-delete duration
-                        </span>
+                        <span className="vc-text-base vc-text-sm vc-text-normal vc-text-defaultColor vc-plugins-setting-description">Message Auto-delete duration</span>
                         <Select
                             options={DELETE_DURATION_OPTIONS}
-                            select={v =>
-                                update(
-                                    reasons.map((x, j) =>
-                                        j === i ? { ...x, deleteSeconds: v === null ? undefined : v } : x
-                                    )
-                                )
-                            }
+                            select={v => update(reasons.map((x, j) => j === i ? { ...x, deleteSeconds: v === null ? undefined : v } : x))}
                             isSelected={v => (v ?? null) === (r.deleteSeconds ?? null)}
-                            serialize={v => (v == null ? "default" : String(v))}
+                            serialize={v => v == null ? "default" : String(v)}
                         />
                     </div>
                 </div>
@@ -104,19 +97,17 @@ const settings = definePluginSettings({
         description: "Your custom reasons",
         type: OptionType.COMPONENT,
         default: [] as BanReason[],
-        component: ReasonsComponent
+        component: ReasonsComponent,
     },
     isTextInputDefault: {
         type: OptionType.BOOLEAN,
-        description:
-            'Shows a text input instead of a select menu by default. (Equivalent to clicking the "Other" option)'
+        description: 'Shows a text input instead of a select menu by default. (Equivalent to clicking the "Other" option)'
     }
 });
 
 export default definePlugin({
     name: "BetterBanReasons",
-    description:
-        "Create custom reasons to use in the Discord ban modal, and/or show a text input by default instead of the options.",
+    description: "Create custom reasons to use in the Discord ban modal, and/or show a text input by default instead of the options.",
     tags: ["Appearance", "Customisation"],
     authors: [Devs.Inbestigator, EquicordDevs.yonn2222],
 
@@ -146,12 +137,15 @@ export default definePlugin({
         }
     ],
 
-    getReasons(defaults: { name: string; value: string }[]) {
+    getReasons(defaults: { name: string; value: string; }[]) {
         const stored = getStoredReasons().filter(r => r.text.trim());
-        return [...stored.map(r => ({ name: r.text, value: r.text })), ...defaults];
+        return [
+            ...stored.map(r => ({ name: r.text, value: r.text })),
+            ...defaults,
+        ];
     },
 
-    getDefaultState: () => (settings.store.isTextInputDefault ? 1 : 0),
+    getDefaultState: () => settings.store.isTextInputDefault ? 1 : 0,
 
     captureDeleteState(hook: (initial: number) => [number, (v: number) => void], initial: number) {
         const result = hook(initial);
@@ -166,5 +160,5 @@ export default definePlugin({
         }
     },
 
-    settings
+    settings,
 });

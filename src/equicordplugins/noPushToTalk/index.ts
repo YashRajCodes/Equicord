@@ -27,8 +27,8 @@ export default definePlugin({
                 {
                     match: /canUseVoiceActivity\(\)\{return \i\}/,
                     replace: "canUseVoiceActivity(){return true}"
-                }
+                },
             ]
         }
-    ]
+    ],
 });

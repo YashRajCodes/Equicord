@@ -14,11 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { findByCodeLazy, findLazy } from "@webpack";
+*/
 
 import { PluginNative } from "@utils/types";
+import { findByCodeLazy, findLazy } from "@webpack";
 import { ChannelStore, moment, UserStore } from "@webpack/common";
 
 import { DBMessageStatus } from "../db";
@@ -36,16 +35,14 @@ export function getGuildIdByChannel(channel_id: string) {
 }
 
 export const isGhostPinged = (message?: LoggedMessageJSON) => {
-    return message?.ghostPinged || (message?.deleted && hasPingged(message));
+    return message?.ghostPinged || message?.deleted && hasPingged(message);
+
 };
 
-export const hasPingged = (message?: LoggedMessageJSON | { mention_everyone: boolean; mentions: any[] }) => {
-    return (
-        message &&
-        !!(
-            message.mention_everyone ||
-            message.mentions?.find(m => (typeof m === "string" ? m : m.id) === UserStore.getCurrentUser().id)
-        )
+export const hasPingged = (message?: LoggedMessageJSON | { mention_everyone: boolean, mentions: any[]; }) => {
+    return message && !!(
+        message.mention_everyone ||
+        message.mentions?.find(m => (typeof m === "string" ? m : m.id) === UserStore.getCurrentUser().id)
     );
 };
 
@@ -57,7 +54,7 @@ export const getMessageStatus = (message: LoggedMessageJSON) => {
     throw new Error("Unknown message status");
 };
 
-export const discordIdToDate = (id: string) => new Date(parseInt(id) / 4194304 + DISCORD_EPOCH);
+export const discordIdToDate = (id: string) => new Date((parseInt(id) / 4194304) + DISCORD_EPOCH);
 
 export const sortMessagesByDate = (timestampA: string, timestampB: string) => {
     // very expensive
@@ -79,7 +76,8 @@ export const sortMessagesByDate = (timestampA: string, timestampB: string) => {
 export function findLastIndex<T>(array: T[], predicate: (e: T, t: number, n: T[]) => boolean) {
     let l = array.length;
     while (l--) {
-        if (predicate(array[l], l, array)) return l;
+        if (predicate(array[l], l, array))
+            return l;
     }
     return -1;
 }
@@ -95,7 +93,7 @@ export const mapTimestamp = (m: any) => {
     return m;
 };
 
-export const messageJsonToMessageClass = memoize((log: { message: LoggedMessageJSON }) => {
+export const messageJsonToMessageClass = memoize((log: { message: LoggedMessageJSON; }) => {
     // console.time("message populate");
     if (!log?.message) return null;
 
@@ -106,18 +104,22 @@ export const messageJsonToMessageClass = memoize((log: { message: LoggedMessageJ
     if (editHistory && editHistory.length > 0) {
         message.editHistory = editHistory;
     }
-    if (message.editedTimestamp) message.editedTimestamp = getTimestamp(message.editedTimestamp);
+    if (message.editedTimestamp)
+        message.editedTimestamp = getTimestamp(message.editedTimestamp);
 
-    if (message.firstEditTimestamp) message.firstEditTimestamp = getTimestamp(message.firstEditTimestamp);
+    if (message.firstEditTimestamp)
+        message.firstEditTimestamp = getTimestamp(message.firstEditTimestamp);
 
     message.author = UserStore.getUser(message.author.id) ?? new AuthorClass(message.author);
     message.author.nick = message.author.globalName ?? message.author.username;
 
     message.embeds = message.embeds.map(e => sanitizeEmbed(message.channel_id, message.id, e));
 
-    if (message.poll) message.poll.expiry = moment(message.poll.expiry);
+    if (message.poll)
+        message.poll.expiry = moment(message.poll.expiry);
 
-    if (message.messageSnapshots) message.messageSnapshots.map(m => mapTimestamp(m.message));
+    if (message.messageSnapshots)
+        message.messageSnapshots.map(m => mapTimestamp(m.message));
 
     // console.timeEnd("message populate");
     return message;
@@ -139,39 +141,36 @@ export async function doesBlobUrlExist(url: string) {
 export function getNative(): PluginNative<typeof import("../native")> {
     if (IS_WEB) {
         const Native = {
-            writeLogs: async () => {},
+            writeLogs: async () => { },
             getDefaultNativeImageDir: async () => DEFAULT_IMAGE_CACHE_DIR,
             getDefaultNativeDataDir: async () => "",
             getDefaultAttachmentFileExtensions: async () => DEFAULT_ATTACHMENT_FILE_EXTENSIONS,
-            updateAllowedExtensions: async () => {},
-            deleteFileNative: async () => {},
+            updateAllowedExtensions: async () => { },
+            deleteFileNative: async () => { },
             chooseDir: async (x: string) => "",
-            getSettings: async () => ({
-                imageCacheDir: DEFAULT_IMAGE_CACHE_DIR,
-                logsDir: "",
-                attachmentFileExtensions: DEFAULT_ATTACHMENT_FILE_EXTENSIONS
-            }),
-            init: async () => {},
-            initDirs: async () => {},
+            getSettings: async () => ({ imageCacheDir: DEFAULT_IMAGE_CACHE_DIR, logsDir: "", attachmentFileExtensions: DEFAULT_ATTACHMENT_FILE_EXTENSIONS }),
+            init: async () => { },
+            initDirs: async () => { },
             getImageNative: async (x: string) => new Uint8Array(0),
             getNativeSavedImages: async () => new Map(),
-            messageLoggerEnhancedUniqueIdThingyIdkMan: async () => {},
-            showItemInFolder: async () => {},
-            writeImageNative: async () => {},
+            messageLoggerEnhancedUniqueIdThingyIdkMan: async () => { },
+            showItemInFolder: async () => { },
+            writeImageNative: async () => { },
             chooseFile: async () => "",
             downloadAttachment: async () => ({ error: "web", path: null }),
             startNativeLogExport: async () => "" as any,
-            finishNativeLogExport: async () => {},
-            writeNativeLogChunk: async () => {},
+            finishNativeLogExport: async () => { },
+            writeNativeLogChunk: async () => { },
             startNativeLogImport: async () => "" as any,
             readNativeLogChunk: async () => null,
-            closeNativeLogImport: async () => {}
+            closeNativeLogImport: async () => { }
         } satisfies PluginNative<typeof import("../native")>;
 
         return Native;
+
     }
 
-    return Object.values(VencordNative.pluginHelpers).find(
-        m => m.messageLoggerEnhancedUniqueIdThingyIdkMan
-    ) as PluginNative<typeof import("../native")>;
+    return Object.values(VencordNative.pluginHelpers)
+        .find(m => m.messageLoggerEnhancedUniqueIdThingyIdkMan) as PluginNative<typeof import("../native")>;
+
 }

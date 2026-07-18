@@ -4,9 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findByPropsLazy } from "@webpack";
-
 import { classNameFactory } from "@utils/css";
+import { findByPropsLazy } from "@webpack";
 
 import type { QuestButtonDisplayMode, QuestButtonIndicatorMode } from "../settings/def";
 
@@ -26,7 +25,7 @@ export function decimalToRGB(decimal: number): RGB {
     return {
         r: (decimal >> 16) & 0xff,
         g: (decimal >> 8) & 0xff,
-        b: decimal & 0xff
+        b: decimal & 0xff,
     };
 }
 
@@ -34,7 +33,7 @@ export function adjustRGB(rgb: RGB, shift: number): RGB {
     return {
         r: Math.max(0, Math.min(255, rgb.r + shift)),
         g: Math.max(0, Math.min(255, rgb.g + shift)),
-        b: Math.max(0, Math.min(255, rgb.b + shift))
+        b: Math.max(0, Math.min(255, rgb.b + shift)),
     };
 }
 
@@ -68,7 +67,7 @@ function getBadgeSize(value: string, negative: boolean): number {
         return 21;
     }
 
-    return 21 + (numChars - 2) * 8 - subtract;
+    return (21 + (numChars - 2) * 8) - subtract;
 }
 
 export function formatLowerBadge(value: number, maxDigits: number = 4): [string, number] {
@@ -91,7 +90,9 @@ export function formatLowerBadge(value: number, maxDigits: number = 4): [string,
 
     if (absValue < 1000) {
         if (maxDigits === 1) {
-            const formatted = absValue < 100 ? (isNegative ? "<-9" : "9+") : isNegative ? "<-99" : "99+";
+            const formatted = absValue < 100
+                ? (isNegative ? "<-9" : "9+")
+                : (isNegative ? "<-99" : "99+");
 
             return [formatted, getBadgeSize(formatted, isNegative)];
         }
@@ -153,5 +154,5 @@ const AlertsModule = findByPropsLazy("show", "close", "confirm");
 export const Alerts: AlertsType = {
     show: options => AlertsModule.show(options),
     close: () => AlertsModule.close(),
-    confirm: options => AlertsModule.confirm(options)
+    confirm: options => AlertsModule.confirm(options),
 };

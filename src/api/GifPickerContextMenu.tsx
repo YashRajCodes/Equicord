@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { ReactNode } from "react";
-
 import { Logger } from "@utils/Logger";
 import { ContextMenuApi, FluxDispatcher, Menu, React } from "@webpack/common";
+import type { ReactNode } from "react";
 
 const logger = new Logger("GifPickerContextMenu");
 
@@ -56,7 +55,7 @@ export function _openGifPickerContextMenu(e: React.MouseEvent, instance) {
     ContextMenuApi.openContextMenu(e, () => <GifPickerContextMenuRoot items={items} />);
 }
 
-function GifPickerContextMenuRoot({ items }: { items: React.ReactNode[] }) {
+function GifPickerContextMenuRoot({ items }: { items: React.ReactNode[]; }) {
     return (
         <Menu.Menu
             navId="gif-picker-context"

@@ -37,5 +37,5 @@ export default definePlugin({
                 replace: "$&return false;"
             }
         }
-    ]
+    ],
 });

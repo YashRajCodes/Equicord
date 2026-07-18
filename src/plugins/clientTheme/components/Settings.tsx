@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findByCodeLazy, findStoreLazy } from "@webpack";
-
 import { ErrorCard } from "@components/ErrorCard";
 import { HeadingPrimary, HeadingSecondary } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
@@ -13,6 +11,7 @@ import { relativeLuminance } from "@plugins/clientTheme/utils/colorUtils";
 import { createOrUpdateThemeColorVars } from "@plugins/clientTheme/utils/styleUtils";
 import { classNameFactory } from "@utils/css";
 import { Margins } from "@utils/margins";
+import { findByCodeLazy, findStoreLazy } from "@webpack";
 import { Button, ColorPicker, ThemeStore, useStateFromStores } from "@webpack/common";
 
 import { settings } from "..";
@@ -23,26 +22,10 @@ const NitroThemeStore = findStoreLazy("ClientThemesBackgroundStore");
 const cl = classNameFactory("vc-clientTheme-");
 
 const colorPresets = [
-    "#1E1514",
-    "#172019",
-    "#13171B",
-    "#1C1C28",
-    "#402D2D",
-    "#3A483D",
-    "#344242",
-    "#313D4B",
-    "#2D2F47",
-    "#322B42",
-    "#3C2E42",
-    "#422938",
-    "#b6908f",
-    "#bfa088",
-    "#d3c77d",
-    "#86ac86",
-    "#88aab3",
-    "#8693b5",
-    "#8a89ba",
-    "#ad94bb"
+    "#1E1514", "#172019", "#13171B", "#1C1C28", "#402D2D",
+    "#3A483D", "#344242", "#313D4B", "#2D2F47", "#322B42",
+    "#3C2E42", "#422938", "#b6908f", "#bfa088", "#d3c77d",
+    "#86ac86", "#88aab3", "#8693b5", "#8a89ba", "#ad94bb",
 ];
 
 function onPickColor(color: number) {
@@ -68,7 +51,7 @@ export function ThemeSettingsComponent() {
     let contrastWarning = false;
     let fixableContrast = true;
 
-    if ((isLightTheme && selectedLuminance < 0.26) || (!isLightTheme && selectedLuminance > 0.12)) {
+    if ((isLightTheme && selectedLuminance < 0.26) || !isLightTheme && selectedLuminance > 0.12) {
         contrastWarning = true;
     }
 
@@ -96,33 +79,27 @@ export function ThemeSettingsComponent() {
                     suggestedColors={colorPresets}
                 />
             </div>
-            {(contrastWarning || nitroThemeEnabled) && (
-                <>
-                    <ErrorCard className={Margins.top8}>
-                        <HeadingPrimary>Your theme won't look good!</HeadingPrimary>
+            {(contrastWarning || nitroThemeEnabled) && (<>
+                <ErrorCard className={Margins.top8}>
+                    <HeadingPrimary>Your theme won't look good!</HeadingPrimary>
 
-                        {contrastWarning && <Paragraph>{">"} Selected color won't contrast well with text</Paragraph>}
-                        {nitroThemeEnabled && <Paragraph>{">"} Nitro themes aren't supported</Paragraph>}
+                    {contrastWarning && <Paragraph>{">"} Selected color won't contrast well with text</Paragraph>}
+                    {nitroThemeEnabled && <Paragraph>{">"} Nitro themes aren't supported</Paragraph>}
 
-                        <div className={cl("buttons-container")}>
-                            {contrastWarning && fixableContrast && (
-                                <Button onClick={() => setDiscordTheme(oppositeTheme)} color={Button.Colors.RED}>
-                                    Switch to {oppositeTheme} mode
-                                </Button>
-                            )}
-                            {nitroThemeEnabled && (
-                                <Button onClick={() => setDiscordTheme(currentTheme)} color={Button.Colors.RED}>
-                                    Disable Nitro Theme
-                                </Button>
-                            )}
-                        </div>
-                    </ErrorCard>
-                </>
-            )}
+                    <div className={cl("buttons-container")}>
+                        {(contrastWarning && fixableContrast) && <Button onClick={() => setDiscordTheme(oppositeTheme)} color={Button.Colors.RED}>Switch to {oppositeTheme} mode</Button>}
+                        {(nitroThemeEnabled) && <Button onClick={() => setDiscordTheme(currentTheme)} color={Button.Colors.RED}>Disable Nitro Theme</Button>}
+                    </div>
+                </ErrorCard>
+            </>)}
         </div>
     );
 }
 
 export function ResetThemeColorComponent() {
-    return <Button onClick={() => onPickColor(0x313338)}>Reset Theme Color</Button>;
+    return (
+        <Button onClick={() => onPickColor(0x313338)}>
+            Reset Theme Color
+        </Button>
+    );
 }

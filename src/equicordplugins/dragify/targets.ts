@@ -6,15 +6,9 @@
 
 import type { Channel, User } from "@vencord/discord-types";
 
-import {
-    extractChannelFromUrl,
-    extractChannelPath,
-    extractSnowflakeFromString,
-    extractUserFromAvatar,
-    extractUserFromProfile
-} from "./utils";
+import { extractChannelFromUrl, extractChannelPath, extractSnowflakeFromString, extractUserFromAvatar, extractUserFromProfile } from "./utils";
 
-export type ChannelTarget = { id: string; guildId?: string };
+export type ChannelTarget = { id: string; guildId?: string; };
 
 export type ResolvedDragTarget = {
     hasAttachment: boolean;
@@ -31,13 +25,13 @@ export type ResolvedDragTarget = {
 };
 
 type InspectionContext = {
-    ChannelStore: { getChannel(id: string): Channel | null | undefined };
-    UserStore: { getUser(id: string): User | null | undefined };
+    ChannelStore: { getChannel(id: string): Channel | null | undefined; };
+    UserStore: { getUser(id: string): User | null | undefined; };
     getDmRecipientId(channel?: Channel | null): string | null;
 };
 
-const messageInputSelector = '[data-slate-editor],[role="textbox"],[contenteditable="true"],[aria-label^="Message "]';
-const chatBodySelector = '[role="log"],[data-list-id^="chat-messages"]';
+const messageInputSelector = "[data-slate-editor],[role=\"textbox\"],[contenteditable=\"true\"],[aria-label^=\"Message \"]";
+const chatBodySelector = "[role=\"log\"],[data-list-id^=\"chat-messages\"]";
 
 function collectEventElements(event: DragEvent): HTMLElement[] {
     const seen = new Set<HTMLElement>();
@@ -83,14 +77,13 @@ function resolveChannelTarget(element: HTMLElement): ChannelTarget | null {
     const channelIdAttr = element.getAttribute("data-channel-id") ?? element.getAttribute("data-item-id") ?? "";
     const threadIdAttr = element.getAttribute("data-thread-id") ?? "";
     const href = element.getAttribute("href") ?? "";
-    const isChannelContext =
-        /(channel|thread|private|forum)/i.test(listId) || /(channel|thread|private|forum)/i.test(rawId);
+    const isChannelContext = /(channel|thread|private|forum)/i.test(listId) || /(channel|thread|private|forum)/i.test(rawId);
 
     const pathMatch = extractChannelPath(href);
     if (pathMatch?.channelId) {
         return {
             id: pathMatch.channelId,
-            guildId: pathMatch.guildId === "@me" ? undefined : pathMatch.guildId
+            guildId: pathMatch.guildId === "@me" ? undefined : pathMatch.guildId,
         };
     }
 
@@ -98,21 +91,21 @@ function resolveChannelTarget(element: HTMLElement): ChannelTarget | null {
     if (fullMatch?.channelId) {
         return {
             id: fullMatch.channelId,
-            guildId: fullMatch.guildId === "@me" ? undefined : fullMatch.guildId
+            guildId: fullMatch.guildId === "@me" ? undefined : fullMatch.guildId,
         };
     }
 
     const candidate = isChannelContext
-        ? (extractSnowflakeFromString(threadIdAttr) ??
-          extractSnowflakeFromString(channelIdAttr) ??
-          extractSnowflakeFromString(rawId) ??
-          extractSnowflakeFromString(listId))
+        ? (extractSnowflakeFromString(threadIdAttr)
+            ?? extractSnowflakeFromString(channelIdAttr)
+            ?? extractSnowflakeFromString(rawId)
+            ?? extractSnowflakeFromString(listId))
         : null;
     if (!candidate) return null;
 
     return {
         id: candidate,
-        guildId: extractSnowflakeFromString(element.getAttribute("data-guild-id") ?? "") ?? undefined
+        guildId: extractSnowflakeFromString(element.getAttribute("data-guild-id") ?? "") ?? undefined,
     };
 }
 
@@ -126,11 +119,9 @@ function resolveGuildId(element: HTMLElement): string | null {
     const candidate = parts[parts.length - 1] ?? rawId;
     if (/^\d{17,20}$/.test(candidate)) return candidate;
 
-    return (
-        extractSnowflakeFromString(rawId) ??
-        extractSnowflakeFromString(listId ?? "") ??
-        extractSnowflakeFromString(element.getAttribute("data-guild-id") ?? "")
-    );
+    return extractSnowflakeFromString(rawId)
+        ?? extractSnowflakeFromString(listId ?? "")
+        ?? extractSnowflakeFromString(element.getAttribute("data-guild-id") ?? "");
 }
 
 function resolveUserId(element: HTMLElement, context: InspectionContext): string | null {
@@ -199,31 +190,29 @@ function inspectElements(elements: HTMLElement[], context: InspectionContext): R
         avatarUserId: null,
         authorId: null,
         channel: null,
-        guildId: null
+        guildId: null,
     };
 
     for (const element of collectAncestors(elements)) {
         resolved.hasMessageInput ||= element.matches(messageInputSelector);
         resolved.hasChatBody ||= element.matches(chatBodySelector);
         resolved.hasDragifyUser ||= element.getAttribute("data-dragify-user") != null;
-        resolved.hasUserMarker ||=
-            element.getAttribute("data-user-id") != null || element.getAttribute("data-userid") != null;
+        resolved.hasUserMarker ||= element.getAttribute("data-user-id") != null || element.getAttribute("data-userid") != null;
         resolved.authorId ??= extractSnowflakeFromString(element.getAttribute("data-author-id") ?? "");
 
         const href = element.getAttribute("href") ?? "";
         const src = element.getAttribute("src") ?? "";
         const style = element.style?.backgroundImage ?? "";
         const dataAttachment =
-            element.getAttribute("data-attachment-id") ??
-            element.getAttribute("data-attachment-type") ??
-            element.getAttribute("data-attachment-item-id") ??
-            "";
+            element.getAttribute("data-attachment-id")
+            ?? element.getAttribute("data-attachment-type")
+            ?? element.getAttribute("data-attachment-item-id")
+            ?? "";
         const combined = `${href} ${src} ${style}`;
-        resolved.hasAttachment ||=
-            Boolean(dataAttachment) ||
-            /(?:cdn|media)\.discordapp\.(?:com|net)\/attachments\//i.test(combined) ||
-            /discord\.com\/attachments\//i.test(combined) ||
-            /cdn\.discordapp\.com\/ephemeral-attachments\//i.test(combined);
+        resolved.hasAttachment ||= Boolean(dataAttachment)
+            || /(?:cdn|media)\.discordapp\.(?:com|net)\/attachments\//i.test(combined)
+            || /discord\.com\/attachments\//i.test(combined)
+            || /cdn\.discordapp\.com\/ephemeral-attachments\//i.test(combined);
 
         resolved.userId ??= resolveUserId(element, context);
         resolved.avatarUserId ??= resolveAvatarUserId(element);

@@ -14,18 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { findComponentByCodeLazy } from "@webpack";
+*/
 
 import { useSettings } from "@api/Settings";
 import { authorizeCloud, deauthorizeCloud } from "@api/SettingsSync/cloudSetup";
-import {
-    deleteCloudSettings,
-    eraseAllCloudData,
-    getCloudSettings,
-    putCloudSettings
-} from "@api/SettingsSync/cloudSync";
+import { deleteCloudSettings, eraseAllCloudData, getCloudSettings, putCloudSettings } from "@api/SettingsSync/cloudSync";
 import { Button } from "@components/Button";
 import { CheckedTextInput } from "@components/CheckedTextInput";
 import { Divider } from "@components/Divider";
@@ -40,6 +33,7 @@ import { SettingsTab, wrapTab } from "@components/settings/tabs/BaseTab";
 import { localStorage } from "@utils/localStorage";
 import { Margins } from "@utils/margins";
 import { useForceUpdater } from "@utils/react";
+import { findComponentByCodeLazy } from "@webpack";
 import { Alerts, SearchableSelect, Select, useState } from "@webpack/common";
 
 const ICON_STYLE: React.CSSProperties = { width: 20, height: 20, borderRadius: 4, verticalAlign: "middle" };
@@ -99,14 +93,13 @@ function CloudTab() {
         <SettingsTab>
             <Heading className={Margins.top16}>Cloud Integration</Heading>
             <Paragraph className={Margins.bottom16}>
-                Equicord's cloud integration allows you to sync your settings across multiple devices and Discord
-                installations. Your data is securely stored and can be easily restored at any time.
+                Equicord's cloud integration allows you to sync your settings across multiple devices and Discord installations. Your data is securely stored and can be easily restored at any time.
             </Paragraph>
 
             <Notice.Info className={Margins.bottom16}>
-                We use our own <Link href="https://github.com/Equicord/Equicloud">Equicloud backend</Link> with enhanced
-                features. View our <Link href="https://equicord.org/cloud/policy">privacy policy</Link> to see what we
-                store and how we use your data. Equicloud is BSD 3.0 licensed, so you can self-host if preferred.
+                We use our own <Link href="https://github.com/Equicord/Equicloud">Equicloud backend</Link> with enhanced features.
+                View our <Link href="https://equicord.org/cloud/policy">privacy policy</Link> to see what we store and how we use your data.
+                Equicloud is BSD 3.0 licensed, so you can self-host if preferred.
             </Notice.Info>
 
             <FormSwitch
@@ -114,8 +107,10 @@ function CloudTab() {
                 description="Connect to the cloud backend for settings synchronization. This will request authorization if you haven't set up cloud integration yet."
                 value={isAuthenticated}
                 onChange={v => {
-                    if (v) authorizeCloud();
-                    else cloud.authenticated = v;
+                    if (v)
+                        authorizeCloud();
+                    else
+                        cloud.authenticated = v;
                 }}
                 hideBorder
             />
@@ -124,8 +119,7 @@ function CloudTab() {
 
             <Heading className={Margins.top20}>Cloud Backend</Heading>
             <Paragraph className={Margins.bottom16}>
-                Choose which cloud backend to use for storing your settings. You can switch between Equicord's and
-                Vencord's cloud services, or use a self-hosted instance.
+                Choose which cloud backend to use for storing your settings. You can switch between Equicord's and Vencord's cloud services, or use a self-hosted instance.
             </Paragraph>
 
             <div className={Margins.bottom8}>
@@ -134,7 +128,7 @@ function CloudTab() {
                     value={cloudBackendOptions.find(o => o.value === cloud.url)?.value}
                     onChange={v => changeUrl(v)}
                     closeOnSelect={true}
-                    renderOptionPrefix={o => (o?.value?.includes("equicord") ? <EquicordIcon /> : <VencordIcon />)}
+                    renderOptionPrefix={o => o?.value?.includes("equicord") ? <EquicordIcon /> : <VencordIcon />}
                 />
             </div>
 
@@ -170,17 +164,14 @@ function CloudTab() {
 
             <Heading className={Margins.top20}>Settings Sync</Heading>
             <Paragraph className={Margins.bottom16}>
-                Synchronize your Equicord settings to the cloud. This makes it easy to keep your configuration
-                consistent across multiple devices without manual import/export.
+                Synchronize your Equicord settings to the cloud. This makes it easy to keep your configuration consistent across multiple devices without manual import/export.
             </Paragraph>
 
             <FormSwitch
                 title="Enable Settings Sync"
                 description="When enabled, your settings can be synced to and from the cloud. Use the actions below to manually sync."
                 value={cloud.settingsSync}
-                onChange={v => {
-                    cloud.settingsSync = v;
-                }}
+                onChange={v => { cloud.settingsSync = v; }}
                 disabled={!isAuthenticated}
                 hideBorder
             />
@@ -189,8 +180,7 @@ function CloudTab() {
 
             <Heading className={Margins.top20}>Sync Rules for This Device</Heading>
             <Paragraph className={Margins.bottom16}>
-                This setting controls how settings move between <strong>this device</strong> and the cloud. You can let
-                changes flow both ways, or choose one place to be the main source of truth.
+                This setting controls how settings move between <strong>this device</strong> and the cloud. You can let changes flow both ways, or choose one place to be the main source of truth.
             </Paragraph>
 
             <Select
@@ -205,13 +195,21 @@ function CloudTab() {
             />
 
             <Flex gap="8px" className={Margins.top16}>
-                <Button style={{ flex: 1 }} disabled={!syncEnabled} onClick={() => putCloudSettings(true)}>
+                <Button
+                    style={{ flex: 1 }}
+                    disabled={!syncEnabled}
+                    onClick={() => putCloudSettings(true)}
+                >
                     <Flex gap="8px" alignItems="center">
                         <CloudUploadIcon />
                         Sync to Cloud
                     </Flex>
                 </Button>
-                <Button style={{ flex: 1 }} disabled={!syncEnabled} onClick={() => getCloudSettings(true, true)}>
+                <Button
+                    style={{ flex: 1 }}
+                    disabled={!syncEnabled}
+                    onClick={() => getCloudSettings(true, true)}
+                >
                     <Flex gap="8px" alignItems="center">
                         <CloudDownloadIcon />
                         Sync from Cloud
@@ -229,8 +227,7 @@ function CloudTab() {
 
             <Heading className={Margins.top20}>Danger Zone</Heading>
             <Paragraph className={Margins.bottom16}>
-                Permanently delete all your data from the cloud. This action cannot be undone and will remove all synced
-                settings and any other data stored on the cloud backend.
+                Permanently delete all your data from the cloud. This action cannot be undone and will remove all synced settings and any other data stored on the cloud backend.
             </Paragraph>
 
             <Flex gap="8px">
@@ -249,16 +246,14 @@ function CloudTab() {
                     variant="dangerSecondary"
                     size="medium"
                     disabled={!isAuthenticated}
-                    onClick={() =>
-                        Alerts.show({
-                            title: "Delete Cloud Account",
-                            body: "Are you sure you want to permanently delete your cloud account and all associated data? This action cannot be undone.",
-                            onConfirm: eraseAllCloudData,
-                            confirmText: "Delete Account",
-                            confirmColor: "vc-cloud-erase-data-danger-btn",
-                            cancelText: "Cancel"
-                        })
-                    }
+                    onClick={() => Alerts.show({
+                        title: "Delete Cloud Account",
+                        body: "Are you sure you want to permanently delete your cloud account and all associated data? This action cannot be undone.",
+                        onConfirm: eraseAllCloudData,
+                        confirmText: "Delete Account",
+                        confirmColor: "vc-cloud-erase-data-danger-btn",
+                        cancelText: "Cancel"
+                    })}
                 >
                     <Flex gap="8px" alignItems="center">
                         <SkullIcon />

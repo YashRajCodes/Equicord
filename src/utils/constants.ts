@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 export const REACT_GLOBAL = "Vencord.Webpack.Common.React";
 
@@ -632,7 +632,7 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     koish1: {
         name: "koish1",
         id: 291089948709486593n,
-        badge: false
+        badge: false,
     },
     thororen: {
         name: "thororen",
@@ -648,11 +648,11 @@ export const Devs = /* #__PURE__*/ Object.freeze({
     },
     u32: {
         name: "u32",
-        id: 1063237286818488351n
+        id: 1063237286818488351n,
     },
     prism: {
         name: "prism",
-        id: 390884143749136386n
+        id: 390884143749136386n,
     },
     creations: {
         name: "creations",
@@ -1397,24 +1397,22 @@ export const EquicordDevs = Object.freeze({
     lucabeyer: {
         name: "luca.beyer",
         id: 405090676771127317n
-    }
+    },
 } satisfies Record<string, Dev>);
 
 // iife so #__PURE__ works correctly
 export const VencordDevsById = /* #__PURE__*/ (() =>
-    Object.freeze(
-        Object.fromEntries(
-            Object.entries(Devs)
-                .filter(d => d[1].id !== 0n)
-                .map(([_, v]) => [v.id, v] as const)
-        )
-    ))() as Record<string, Dev>;
+    Object.freeze(Object.fromEntries(
+        Object.entries(Devs)
+            .filter(d => d[1].id !== 0n)
+            .map(([_, v]) => [v.id, v] as const)
+    ))
+)() as Record<string, Dev>;
 
 export const EquicordDevsById = /* #__PURE__*/ (() =>
-    Object.freeze(
-        Object.fromEntries(
-            Object.entries(EquicordDevs)
-                .filter(d => d[1].id !== 0n)
-                .map(([_, v]) => [v.id, v] as const)
-        )
-    ))() as Record<string, Dev>;
+    Object.freeze(Object.fromEntries(
+        Object.entries(EquicordDevs)
+            .filter(d => d[1].id !== 0n)
+            .map(([_, v]) => [v.id, v] as const)
+    ))
+)() as Record<string, Dev>;

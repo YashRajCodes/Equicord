@@ -14,13 +14,7 @@ import { useEffect, useRef, useState } from "@webpack/common";
 
 import { logger, themeRequest } from "./ThemeTab";
 
-export const LikesComponent = ({
-    themeId,
-    likedThemes: initialLikedThemes
-}: {
-    themeId: Theme["id"];
-    likedThemes: ThemeLikeProps | undefined;
-}) => {
+export const LikesComponent = ({ themeId, likedThemes: initialLikedThemes }: { themeId: Theme["id"], likedThemes: ThemeLikeProps | undefined; }) => {
     const [likesCount, setLikesCount] = useState(0);
     const [likedThemes, setLikedThemes] = useState(initialLikedThemes);
     const debounce = useRef(false);
@@ -31,13 +25,13 @@ export const LikesComponent = ({
     }, [likedThemes, themeId]);
 
     function getThemeLikes(themeId: Theme["id"]): number {
-        const themeLike = likedThemes?.likes.find(like => like.themeId === (themeId as unknown as Number));
+        const themeLike = likedThemes?.likes.find(like => like.themeId === themeId as unknown as Number);
         return themeLike ? themeLike.likes : 0;
     }
 
     const handleLikeClick = async (themeId: Theme["id"]) => {
         if (!isAuthorized()) return;
-        const theme = likedThemes?.likes.find(like => like.themeId === (themeId as unknown as Number));
+        const theme = likedThemes?.likes.find(like => like.themeId === themeId as unknown as Number);
         const hasLiked: boolean = theme?.hasLiked ?? false;
         const endpoint = hasLiked ? "/likes/remove" : "/likes/add";
         const token = await DataStore.get("ThemeLibrary_uniqueToken");
@@ -52,11 +46,11 @@ export const LikesComponent = ({
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
+                    "Authorization": `Bearer ${token}`,
                 },
                 body: JSON.stringify({
-                    themeId: themeId
-                })
+                    themeId: themeId,
+                }),
             });
 
             if (!response.ok) return logger.error("Couldnt update likes, response not ok");
@@ -66,8 +60,8 @@ export const LikesComponent = ({
                     const token = await DataStore.get("ThemeLibrary_uniqueToken");
                     const response = await themeRequest("/likes/get", {
                         headers: {
-                            Authorization: `Bearer ${token}`
-                        }
+                            "Authorization": `Bearer ${token}`,
+                        },
                     });
                     const data = await response.json();
                     setLikedThemes(data);
@@ -83,13 +77,10 @@ export const LikesComponent = ({
         debounce.current = false;
     };
 
-    const hasLiked =
-        likedThemes?.likes.some(like => like.themeId === (themeId as unknown as Number) && like?.hasLiked === true) ??
-        false;
+    const hasLiked = likedThemes?.likes.some(like => like.themeId === themeId as unknown as Number && like?.hasLiked === true) ?? false;
 
     return (
-        <Button
-            onClick={() => handleLikeClick(themeId)}
+        <Button onClick={() => handleLikeClick(themeId)}
             variant="secondary"
             size="medium"
             disabled={themeId === "preview"}

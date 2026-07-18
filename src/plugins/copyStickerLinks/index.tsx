@@ -14,9 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { Message, Sticker } from "@vencord/discord-types";
+*/
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { isPluginEnabled } from "@api/PluginManager";
@@ -24,6 +22,7 @@ import ExpressionClonerPlugin from "@plugins/expressionCloner";
 import { Devs } from "@utils/constants";
 import { copyWithToast } from "@utils/discord";
 import definePlugin from "@utils/types";
+import { Message, Sticker } from "@vencord/discord-types";
 import { Menu, React, StickersStore } from "@webpack/common";
 
 const StickerExt = [, "png", "png", "json", "gif"] as const;
@@ -62,25 +61,19 @@ function buildMenuItem(sticker: PartialSticker, addBottomSeparator: boolean) {
 
 const messageContextMenuPatch: NavContextMenuPatchCallback = (
     children,
-    {
-        favoriteableId,
-        favoriteableType,
-        message
-    }: { favoriteableId: string; favoriteableType: string; message: Message }
+    { favoriteableId, favoriteableType, message }: { favoriteableId: string; favoriteableType: string; message: Message; }
 ) => {
     if (!favoriteableId || favoriteableType !== "sticker") return;
 
     const sticker = message.stickerItems.find(s => s.id === favoriteableId);
     if (!sticker?.format_type) return;
 
-    const idx = children.findIndex(
-        c => Array.isArray(c) && findGroupChildrenByChildId("vc-copy-sticker-url", c) != null
-    );
+    const idx = children.findIndex(c => Array.isArray(c) && findGroupChildrenByChildId("vc-copy-sticker-url", c) != null);
 
     children.splice(idx, 0, buildMenuItem(sticker, idx !== -1));
 };
 
-const expressionPickerPatch: NavContextMenuPatchCallback = (children, props: { target: HTMLElement }) => {
+const expressionPickerPatch: NavContextMenuPatchCallback = (children, props: { target: HTMLElement; }) => {
     const id = props?.target?.dataset?.id;
     if (!id) return;
     if (props.target.className?.includes("lottieCanvas")) return;
@@ -97,7 +90,7 @@ export default definePlugin({
     tags: ["Emotes", "Utility"],
     authors: [Devs.Ven, Devs.Byeoon],
     contextMenus: {
-        message: messageContextMenuPatch,
+        "message": messageContextMenuPatch,
         "expression-picker": expressionPickerPatch
     }
 });

@@ -14,16 +14,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { RenderModalProps } from "@vencord/discord-types";
+*/
 
 import { Heading } from "@components/Heading";
+import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, openModal, React, TextInput } from "@webpack/common";
 
 import { buildEmbed, decrypt } from "../index";
 
-export function DecModal(props: RenderModalProps & { message: any }) {
+export function DecModal(props: RenderModalProps & { message: any; }) {
     const encryptedMessage: string = props?.message?.content;
     const [password, setPassword] = React.useState("password");
 
@@ -55,7 +54,10 @@ export function DecModal(props: RenderModalProps & { message: any }) {
             <Heading style={{ marginTop: "10px" }}>Message with Encryption</Heading>
             <TextInput defaultValue={encryptedMessage} disabled={true}></TextInput>
             <Heading style={{ marginTop: "10px" }}>Password</Heading>
-            <TextInput style={{ marginBottom: "20px" }} onChange={setPassword} />
+            <TextInput
+                style={{ marginBottom: "20px" }}
+                onChange={setPassword}
+            />
         </Modal>
     );
 }

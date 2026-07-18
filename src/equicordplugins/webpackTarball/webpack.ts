@@ -7,14 +7,10 @@
 export async function protectWebpack<T>(webpack: any[], body: () => Promise<T>): Promise<T> {
     const prev_m = Object.getOwnPropertyDescriptor(Function.prototype, "m")!;
     Object.defineProperty(Function.prototype, "m", {
-        get() {
-            throw "get require.m";
-        },
-        set() {
-            throw "set require.m";
-        },
+        get() { throw "get require.m"; },
+        set() { throw "set require.m"; },
         enumerable: true,
-        configurable: true
+        configurable: true,
     });
 
     try {
@@ -24,12 +20,10 @@ export async function protectWebpack<T>(webpack: any[], body: () => Promise<T>):
     }
 }
 
-export function getLoadedChunks(wreq): { [chunkId: string | symbol]: 0 | undefined } {
+export function getLoadedChunks(wreq): { [chunkId: string | symbol]: 0 | undefined; } {
     const { o } = wreq;
     try {
-        wreq.o = (a: any) => {
-            throw a;
-        };
+        wreq.o = (a: any) => { throw a; };
         wreq.f.j();
     } catch (e: any) {
         return e;
@@ -39,15 +33,13 @@ export function getLoadedChunks(wreq): { [chunkId: string | symbol]: 0 | undefin
     throw new Error("getLoadedChunks failed");
 }
 
-export function getChunkPaths(wreq): { [chunkId: string]: string } {
+export function getChunkPaths(wreq): { [chunkId: string]: string; } {
     const sym = Symbol("getChunkPaths");
     try {
         Object.defineProperty(Object.prototype, sym, {
-            get() {
-                throw this;
-            },
-            set() {},
-            configurable: true
+            get() { throw this; },
+            set() { },
+            configurable: true,
         });
         wreq.u(sym);
     } catch (e: any) {
@@ -59,16 +51,14 @@ export function getChunkPaths(wreq): { [chunkId: string]: string } {
     throw new Error("getChunkPaths failed");
 }
 
-export async function forceLoadAll(wreq, on_chunk: (id: string) => void = () => {}) {
+export async function forceLoadAll(wreq, on_chunk: (id: string) => void = () => { }) {
     const chunks = getChunkPaths(wreq);
     const loaded = getLoadedChunks(wreq);
     const ids = Object.keys(chunks).filter(id => loaded[id] !== 0);
-    await Promise.all(
-        ids.map(async id => {
-            try {
-                await wreq.e(id as any);
-            } catch {}
-            on_chunk(id);
-        })
-    );
+    await Promise.all(ids.map(async id => {
+        try {
+            await wreq.e(id as any);
+        } catch { }
+        on_chunk(id);
+    }));
 }

@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import type { PluginNative } from "@utils/types";
 import type { Quest, User } from "@vencord/discord-types";
 import { QuestTaskType } from "@vencord/discord-types/enums";
 import { findByCodeLazy, findLazy } from "@webpack";
-
-import type { PluginNative } from "@utils/types";
 import { FluxDispatcher, QuestStore, RestAPI, showToast, Toasts, UserStore } from "@webpack/common";
 
 import { getCurrentUserId, getQuestifySettings } from "../settings/access";
@@ -19,21 +18,14 @@ import { rerenderQuests } from "../settings/rerender";
 import { AuthorizedAppsStore } from "./fetching";
 import { normalizeQuestName } from "./filtering";
 import { QL } from "./logging";
-import {
-    getQuestStatus,
-    getQuestStoredProgress,
-    isVideoQuestTask,
-    QuestStatus,
-    QuestTask,
-    refreshQuest
-} from "./questState";
+import { getQuestStatus, getQuestStoredProgress, isVideoQuestTask, QuestStatus, QuestTask, refreshQuest } from "./questState";
 import { hasInjectedDesktopVideoCompatibility } from "./questTiles";
 
 type QuestEnrollResult =
-    | { type: "success" }
-    | { type: "captcha_failed" }
-    | { type: "unknown_error" }
-    | { type: "previous_in_flight_request" };
+    | { type: "success"; }
+    | { type: "captcha_failed"; }
+    | { type: "unknown_error"; }
+    | { type: "previous_in_flight_request"; };
 
 interface QuestEnrollmentMetadata {
     questContent: unknown;
@@ -76,7 +68,7 @@ export enum QuestCompletionState {
     Completing = "COMPLETING",
     Queued = "QUEUED",
     Accepted = "ACCEPTED",
-    Unenrolled = "UNENROLLED"
+    Unenrolled = "UNENROLLED",
 }
 
 type QuestCompletionStateTuple = [text: string | null, state: QuestCompletionState];
@@ -89,10 +81,7 @@ interface QuestRewardItem {
     };
 }
 
-const reportVideoProgress = findByCodeLazy(".QUESTS_VIDEO_PROGRESS(") as (
-    questId: string,
-    progress: number
-) => Promise<void>;
+const reportVideoProgress = findByCodeLazy(".QUESTS_VIDEO_PROGRESS(") as (questId: string, progress: number) => Promise<void>;
 const sendHeartbeat = findByCodeLazy(".QUESTS_HEARTBEAT(") as (options: {
     questId: string;
     streamKey?: string;
@@ -100,14 +89,8 @@ const sendHeartbeat = findByCodeLazy(".QUESTS_HEARTBEAT(") as (options: {
     terminal?: boolean;
     executableFingerprint?: unknown;
 }) => Promise<void>;
-const getApplicationProxyTicket = findByCodeLazy("APPLICATION_PROXY_TICKET", "body.ticket") as (
-    applicationId: string,
-    channelId?: string
-) => Promise<string>;
-export const enrollInQuest = findByCodeLazy('type:"QUESTS_ENROLL_BEGIN",') as (
-    questId: string,
-    options: QuestEnrollmentMetadata
-) => Promise<QuestEnrollResult>;
+const getApplicationProxyTicket = findByCodeLazy("APPLICATION_PROXY_TICKET", "body.ticket") as (applicationId: string, channelId?: string) => Promise<string>;
+export const enrollInQuest = findByCodeLazy('type:"QUESTS_ENROLL_BEGIN",') as (questId: string, options: QuestEnrollmentMetadata) => Promise<QuestEnrollResult>;
 const getQuestOrbQuantity = findByCodeLazy("premiumOrbQuantity??", "orbQuantity") as (
     config: Quest["config"],
     user: User | null | undefined
@@ -115,13 +98,7 @@ const getQuestOrbQuantity = findByCodeLazy("premiumOrbQuantity??", "orbQuantity"
 const QuestCTA = findLazy(m => !!m?.START_QUEST && !!m?.ACCEPT_QUEST) as QuestCTAConstants;
 
 function resolveQuestCTA(taskType?: QuestTaskType): string | undefined {
-    return !taskType
-        ? undefined
-        : [QuestTaskType.ACHIEVEMENT_IN_ACTIVITY, QuestTaskType.PLAY_ACTIVITY, QuestTaskType.WATCH_VIDEO].includes(
-                taskType
-            )
-          ? QuestCTA.START_QUEST
-          : QuestCTA.ACCEPT_QUEST;
+    return !taskType ? undefined : [QuestTaskType.ACHIEVEMENT_IN_ACTIVITY, QuestTaskType.PLAY_ACTIVITY, QuestTaskType.WATCH_VIDEO].includes(taskType) ? QuestCTA.START_QUEST : QuestCTA.ACCEPT_QUEST;
 }
 
 async function getActivityReferrer(appId: string): Promise<string | undefined> {
@@ -182,17 +159,17 @@ export interface AutoCompleteStopOptions {
 }
 
 type HeartbeatDispatchResult =
-    | { type: "success"; userStatus: Quest["userStatus"] }
-    | { type: "failure"; error: unknown }
-    | { type: "timeout" };
+    | { type: "success"; userStatus: Quest["userStatus"]; }
+    | { type: "failure"; error: unknown; }
+    | { type: "timeout"; };
 
 interface AutoCompleteQuestTarget {
     raw: number;
     adjusted: number;
 }
 
-type PlayHeartbeatResult = { progress: number | null; completed: boolean };
-type HeartbeatDispatchWaiter = { promise: Promise<HeartbeatDispatchResult>; cancel: () => void };
+type PlayHeartbeatResult = { progress: number | null; completed: boolean; };
+type HeartbeatDispatchWaiter = { promise: Promise<HeartbeatDispatchResult>; cancel: () => void; };
 
 interface VideoProgressReportOptions {
     attempts?: number;
@@ -244,10 +221,10 @@ export function setHeartbeatStackTracePatchSucceeded(): void {
     heartbeatStackTracePatchSucceeded = true;
 }
 
-export function getStackTracePatchesSucceeded(): { videoProgress: boolean; heartbeat: boolean } {
+export function getStackTracePatchesSucceeded(): { videoProgress: boolean; heartbeat: boolean; } {
     return {
         videoProgress: videoProgressStackTracePatchSucceeded,
-        heartbeat: heartbeatStackTracePatchSucceeded
+        heartbeat: heartbeatStackTracePatchSucceeded,
     };
 }
 
@@ -294,11 +271,7 @@ export function getAutoCompleteQuestTarget(task: QuestTask): AutoCompleteQuestTa
 
     return {
         raw,
-        adjusted: Math.max(
-            0,
-            raw -
-                (isVideoQuestTask(task.type) && getQuestifySettings().completeVideoQuestsQuicker ? videoQuestLeeway : 0)
-        )
+        adjusted: Math.max(0, raw - (isVideoQuestTask(task.type) && getQuestifySettings().completeVideoQuestsQuicker ? videoQuestLeeway : 0)),
     };
 }
 
@@ -347,7 +320,7 @@ function isAutoCompleteQuestTaskEnabled(quest: Quest, task: QuestTask): boolean 
     return compatible && enabled && getQuestAutoCompleteKind(task) != null;
 }
 
-function resolveAutoCompleteQuest(quest: Quest): { task: QuestTask; kind: AutoCompleteQuestKind } | null {
+function resolveAutoCompleteQuest(quest: Quest): { task: QuestTask; kind: AutoCompleteQuestKind; } | null {
     for (const task of getAutoCompleteQuestTasks(quest)) {
         const kind = getQuestAutoCompleteKind(task);
 
@@ -382,11 +355,15 @@ function updateResumeState(questIDs: string[] = getResumeQuestIds()): void {
 
     getQuestifySettings().resumeQuestIDs[userId] = {
         timestamp: Date.now(),
-        questIDs
+        questIDs,
     };
 }
 
-function createAutoCompleteEntry(quest: Quest, task: QuestTask, kind: AutoCompleteQuestKind): AutoCompleteEntry {
+function createAutoCompleteEntry(
+    quest: Quest,
+    task: QuestTask,
+    kind: AutoCompleteQuestKind,
+): AutoCompleteEntry {
     return {
         questId: quest.id,
         questName: normalizeQuestName(quest),
@@ -396,7 +373,7 @@ function createAutoCompleteEntry(quest: Quest, task: QuestTask, kind: AutoComple
         progress: getQuestStoredProgress(quest, task),
         abortController: new AbortController(),
         progressInterval: null,
-        rerenderInterval: null
+        rerenderInterval: null,
     };
 }
 
@@ -436,9 +413,7 @@ function isQuestQueuedForResume(questId: string): boolean {
     const userId = getCurrentUserId();
     const resumeState = userId ? getQuestifySettings().resumeQuestIDs[userId] : null;
 
-    return Boolean(
-        resumeState && !isResumeStateExpired(resumeState.timestamp) && resumeState.questIDs.includes(questId)
-    );
+    return Boolean(resumeState && !isResumeStateExpired(resumeState.timestamp) && resumeState.questIDs.includes(questId));
 }
 
 function getQueuedAutoCompletePosition(questId: string): number | null {
@@ -464,10 +439,9 @@ export function getQuestCompletionState(quest: Quest, options: QuestButtonTextOp
     const target = getAutoCompleteQuestTarget(task).adjusted;
     const enrolledAt = quest.userStatus?.enrolledAt ? new Date(quest.userStatus.enrolledAt) : null;
     const storedProgress = activeEntry?.progress ?? getQuestStoredProgress(quest, task) ?? 0;
-    const elapsedProgress =
-        !activeEntry && enrolledAt && isVideoQuestTask(task.type) && getQuestifySettings().completeVideoQuestsQuicker
-            ? Math.max(0, (Date.now() - enrolledAt.getTime()) / 1000)
-            : 0;
+    const elapsedProgress = !activeEntry && enrolledAt && isVideoQuestTask(task.type) && getQuestifySettings().completeVideoQuestsQuicker
+        ? Math.max(0, (Date.now() - enrolledAt.getTime()) / 1000)
+        : 0;
     const progress = Math.min(target, Math.max(storedProgress, elapsedProgress));
     const timeRemaining = Math.max(0, target - progress);
     const formattedTime = formatQuestTime(timeRemaining, options.prepositional);
@@ -493,14 +467,15 @@ export function getQuestCompletionState(quest: Quest, options: QuestButtonTextOp
         const meaningfulProgress = progress >= 1;
 
         return [
-            immediate
-                ? "Complete Now"
-                : `${meaningfulProgress ? "Resume" : "Complete"} (${formatQuestTime(timeRemaining)})`,
-            QuestCompletionState.Accepted
+            immediate ? "Complete Now" : `${meaningfulProgress ? "Resume" : "Complete"} (${formatQuestTime(timeRemaining)})`,
+            QuestCompletionState.Accepted,
         ];
     }
 
-    return [immediate ? "Complete Now" : `Complete (${formatQuestTime(target)})`, QuestCompletionState.Unenrolled];
+    return [
+        immediate ? "Complete Now" : `Complete (${formatQuestTime(target)})`,
+        QuestCompletionState.Unenrolled,
+    ];
 }
 
 export function getQuestButtonProps(args: QuestButtonPropsArgs): QuestButtonPatchProps | null {
@@ -545,8 +520,8 @@ export function getQuestButtonProps(args: QuestButtonPropsArgs): QuestButtonPatc
 export function getQuestPanelSubtitleText(quest: Quest): string | null {
     quest = refreshQuest(quest);
 
-    const questCompleted =
-        Boolean(quest.userStatus?.completedAt) && getQuestStatus(quest, getIgnoredQuestIDs()) === QuestStatus.Unclaimed;
+    const questCompleted = Boolean(quest.userStatus?.completedAt)
+        && getQuestStatus(quest, getIgnoredQuestIDs()) === QuestStatus.Unclaimed;
     const [completingText] = getQuestCompletionState(quest, { prepositional: true });
     const completedText = questCompleted ? "Completed" : null;
     const statusText = completedText ?? completingText;
@@ -598,12 +573,7 @@ export function setQuestAutoCompleteProgress(questOrId: Quest | string, progress
     return true;
 }
 
-async function waitUntilEnrolled(
-    quest: Quest,
-    entry: AutoCompleteEntry,
-    timeout: number = 60000,
-    interval: number = 500
-): Promise<Quest | null> {
+async function waitUntilEnrolled(quest: Quest, entry: AutoCompleteEntry, timeout: number = 60000, interval: number = 500): Promise<Quest | null> {
     const startedAt = Date.now();
 
     quest = refreshQuest(quest);
@@ -616,7 +586,7 @@ async function waitUntilEnrolled(
         return null;
     }
 
-    while (isEntryActive(entry) && !quest.userStatus?.enrolledAt && Date.now() - startedAt < timeout) {
+    while (isEntryActive(entry) && !quest.userStatus?.enrolledAt && (Date.now() - startedAt) < timeout) {
         await sleep(interval, entry.abortController.signal);
         quest = refreshQuest(quest);
     }
@@ -629,12 +599,7 @@ async function waitUntilEnrolled(
     return null;
 }
 
-async function reportVideoQuestProgress(
-    quest: Quest,
-    entry: AutoCompleteEntry,
-    progress: number,
-    options: VideoProgressReportOptions = {}
-): Promise<boolean> {
+async function reportVideoQuestProgress(quest: Quest, entry: AutoCompleteEntry, progress: number, options: VideoProgressReportOptions = {}): Promise<boolean> {
     quest = refreshQuest(quest);
 
     const attempts = options.attempts ?? 1;
@@ -655,24 +620,10 @@ async function reportVideoQuestProgress(
             await reportVideoProgress(quest.id, progress);
             setQuestAutoCompleteProgress(quest, displayProgress);
 
-            QL.info("AUTO_COMPLETE_VIDEO_PROGRESS_REPORTED", {
-                questId: quest.id,
-                questName: entry.questName,
-                progress,
-                displayProgress,
-                attempt,
-                attempts
-            });
+            QL.info("AUTO_COMPLETE_VIDEO_PROGRESS_REPORTED", { questId: quest.id, questName: entry.questName, progress, displayProgress, attempt, attempts });
             return true;
         } catch (error) {
-            QL.error("AUTO_COMPLETE_VIDEO_PROGRESS_FAILED", {
-                questId: quest.id,
-                questName: entry.questName,
-                progress,
-                attempt,
-                attempts,
-                error
-            });
+            QL.error("AUTO_COMPLETE_VIDEO_PROGRESS_FAILED", { questId: quest.id, questName: entry.questName, progress, attempt, attempts, error });
 
             if (attempt < attempts) {
                 await sleep(delay, entry.abortController.signal);
@@ -685,7 +636,7 @@ async function reportVideoQuestProgress(
 
 function waitForHeartbeatDispatchResult(questId: string, timeoutMs: number): HeartbeatDispatchWaiter {
     let settled = false;
-    let cleanup = () => {};
+    let cleanup = () => { };
     const promise = new Promise<HeartbeatDispatchResult>(resolve => {
         const successEvent = "QUESTS_SEND_HEARTBEAT_SUCCESS";
         const failureEvent = "QUESTS_SEND_HEARTBEAT_FAILURE";
@@ -705,7 +656,7 @@ function waitForHeartbeatDispatchResult(questId: string, timeoutMs: number): Hea
             FluxDispatcher.unsubscribe(failureEvent, onFailure);
         };
 
-        function onSuccess(data: { questId?: string; userStatus?: Quest["userStatus"] }) {
+        function onSuccess(data: { questId?: string; userStatus?: Quest["userStatus"]; }) {
             if (data.questId !== questId) {
                 return;
             }
@@ -714,7 +665,7 @@ function waitForHeartbeatDispatchResult(questId: string, timeoutMs: number): Hea
             resolve({ type: "success", userStatus: data.userStatus ?? null });
         }
 
-        function onFailure(data: { questId?: string; error?: unknown }) {
+        function onFailure(data: { questId?: string; error?: unknown; }) {
             if (data.questId !== questId) {
                 return;
             }
@@ -738,7 +689,7 @@ async function reportPlayQuestProgress(
     quest: Quest,
     entry: AutoCompleteEntry,
     terminal: boolean,
-    options: { attempts?: number; delay?: number; timeout?: number; applicationId?: string; streamKey?: string } = {}
+    options: { attempts?: number; delay?: number; timeout?: number; applicationId?: string; streamKey?: string; } = {},
 ): Promise<PlayHeartbeatResult> {
     quest = refreshQuest(quest);
 
@@ -765,7 +716,7 @@ async function reportPlayQuestProgress(
                     questId: quest.id,
                     streamKey: options.streamKey,
                     applicationId,
-                    terminal
+                    terminal,
                 });
             } catch (error) {
                 dispatchWaiter.cancel();
@@ -775,48 +726,23 @@ async function reportPlayQuestProgress(
             const dispatchResult = await dispatchWaiter.promise;
 
             if (dispatchResult.type === "failure") {
-                QL.error("AUTO_COMPLETE_PLAY_HEARTBEAT_FAILURE", {
-                    questId: quest.id,
-                    questName: entry.questName,
-                    attempt,
-                    attempts,
-                    error: dispatchResult.error
-                });
+                QL.error("AUTO_COMPLETE_PLAY_HEARTBEAT_FAILURE", { questId: quest.id, questName: entry.questName, attempt, attempts, error: dispatchResult.error });
             } else if (dispatchResult.type === "timeout") {
-                QL.warn("AUTO_COMPLETE_PLAY_HEARTBEAT_TIMEOUT", {
-                    questId: quest.id,
-                    questName: entry.questName,
-                    attempt,
-                    attempts,
-                    timeout
-                });
+                QL.warn("AUTO_COMPLETE_PLAY_HEARTBEAT_TIMEOUT", { questId: quest.id, questName: entry.questName, attempt, attempts, timeout });
             } else {
                 const updatedQuest = refreshQuest(quest);
-                const progress =
-                    getPlayProgressValue(dispatchResult.userStatus, entry.task) ??
-                    getQuestStoredProgress(updatedQuest, entry.task) ??
-                    0;
+                const progress = getPlayProgressValue(dispatchResult.userStatus, entry.task)
+                    ?? getQuestStoredProgress(updatedQuest, entry.task)
+                    ?? 0;
                 const completed = !!dispatchResult.userStatus?.completedAt || !!updatedQuest.userStatus?.completedAt;
 
                 setQuestAutoCompleteProgress(quest, terminal ? progress : Math.max(progress, entry.progress ?? 0));
-                QL.info("AUTO_COMPLETE_PLAY_HEARTBEAT_SENT", {
-                    questId: quest.id,
-                    questName: entry.questName,
-                    progress,
-                    target: entry.task.target,
-                    terminal
-                });
+                QL.info("AUTO_COMPLETE_PLAY_HEARTBEAT_SENT", { questId: quest.id, questName: entry.questName, progress, target: entry.task.target, terminal });
 
                 return { progress, completed };
             }
         } catch (error) {
-            QL.error("AUTO_COMPLETE_PLAY_HEARTBEAT_ERROR", {
-                questId: quest.id,
-                questName: entry.questName,
-                attempt,
-                attempts,
-                error
-            });
+            QL.error("AUTO_COMPLETE_PLAY_HEARTBEAT_ERROR", { questId: quest.id, questName: entry.questName, attempt, attempts, error });
         }
 
         if (attempt < attempts) {
@@ -840,12 +766,8 @@ function startRerenderInterval(entry: AutoCompleteEntry): void {
     }, 1000);
 }
 
-async function runVideoQuest(
-    quest: Quest,
-    entry: AutoCompleteEntry,
-    target: AutoCompleteQuestTarget
-): Promise<boolean> {
-    quest = (await waitUntilEnrolled(quest, entry, 60000, 500)) ?? quest;
+async function runVideoQuest(quest: Quest, entry: AutoCompleteEntry, target: AutoCompleteQuestTarget): Promise<boolean> {
+    quest = await waitUntilEnrolled(quest, entry, 60000, 500) ?? quest;
 
     if (!isEntryActive(entry) || !quest.userStatus?.enrolledAt) {
         return false;
@@ -875,18 +797,12 @@ async function runVideoQuest(
     QL.info("AUTO_COMPLETE_VIDEO_STARTED", { questId: quest.id, questName: entry.questName, timeRemaining, target });
 
     if (timeRemaining <= 0) {
-        return reportVideoQuestProgress(quest, entry, Math.min(reportTarget, maximumPlaybackTimestamp), {
-            attempts: 3,
-            displayProgress: completionTarget
-        });
+        return reportVideoQuestProgress(quest, entry, Math.min(reportTarget, maximumPlaybackTimestamp), { attempts: 3, displayProgress: completionTarget });
     }
 
     if (reportedProgress > 0) {
         const initialReport = clampFloat(Math.min(reportTarget, reportedProgress));
-        const reported = await reportVideoQuestProgress(quest, entry, initialReport, {
-            attempts: 3,
-            displayProgress: displayedProgress
-        });
+        const reported = await reportVideoQuestProgress(quest, entry, initialReport, { attempts: 3, displayProgress: displayedProgress });
 
         if (!reported || !isEntryActive(entry)) {
             return false;
@@ -908,20 +824,9 @@ async function runVideoQuest(
         maximumPlaybackTimestamp = Math.max(maximumPlaybackTimestamp, Math.floor(reportedProgress));
         setQuestAutoCompleteProgress(quest, displayedProgress);
 
-        if (
-            hasReportedInitialProgress &&
-            reportedProgress >= nextReportThreshold &&
-            displayedProgress < completionTarget
-        ) {
-            const progressToReport = clampFloat(
-                Math.min(
-                    reportTarget,
-                    nextReportThreshold + randomBetween(0, Math.max(0, reportedProgress - nextReportThreshold))
-                )
-            );
-            const reported = await reportVideoQuestProgress(quest, entry, progressToReport, {
-                displayProgress: displayedProgress
-            });
+        if (hasReportedInitialProgress && reportedProgress >= nextReportThreshold && displayedProgress < completionTarget) {
+            const progressToReport = clampFloat(Math.min(reportTarget, nextReportThreshold + randomBetween(0, Math.max(0, reportedProgress - nextReportThreshold))));
+            const reported = await reportVideoQuestProgress(quest, entry, progressToReport, { displayProgress: displayedProgress });
 
             if (!reported) {
                 return false;
@@ -931,17 +836,11 @@ async function runVideoQuest(
         }
     }
 
-    return (
-        isEntryActive(entry) &&
-        reportVideoQuestProgress(quest, entry, Math.min(reportTarget, maximumPlaybackTimestamp), {
-            attempts: 3,
-            displayProgress: completionTarget
-        })
-    );
+    return isEntryActive(entry) && reportVideoQuestProgress(quest, entry, Math.min(reportTarget, maximumPlaybackTimestamp), { attempts: 3, displayProgress: completionTarget });
 }
 
 async function runPlayQuest(quest: Quest, entry: AutoCompleteEntry, target: AutoCompleteQuestTarget): Promise<boolean> {
-    quest = (await waitUntilEnrolled(quest, entry, 60000, 500)) ?? quest;
+    quest = await waitUntilEnrolled(quest, entry, 60000, 500) ?? quest;
 
     if (!isEntryActive(entry) || !quest.userStatus?.enrolledAt) {
         return false;
@@ -963,12 +862,7 @@ async function runPlayQuest(quest: Quest, entry: AutoCompleteEntry, target: Auto
         setQuestAutoCompleteProgress(entry.questId, Math.min(questTarget, entry.progress + 1));
     }, 1000);
 
-    QL.info("AUTO_COMPLETE_PLAY_STARTED", {
-        questId: quest.id,
-        questName: entry.questName,
-        remaining: Math.max(0, questTarget - initialProgress),
-        target
-    });
+    QL.info("AUTO_COMPLETE_PLAY_STARTED", { questId: quest.id, questName: entry.questName, remaining: Math.max(0, questTarget - initialProgress), target });
 
     let heartbeat = await reportPlayQuestProgress(quest, entry, false, { attempts: 3, delay: 2500 });
 
@@ -983,10 +877,7 @@ async function runPlayQuest(quest: Quest, entry: AutoCompleteEntry, target: Auto
         }
 
         const remainingMs = Math.max(0, (questTarget - heartbeat.progress) * 1000);
-        await sleep(
-            remainingMs <= maximumHeartbeatDurationMs ? remainingMs + heartbeatBufferMs : maximumHeartbeatDurationMs,
-            entry.abortController.signal
-        );
+        await sleep(remainingMs <= maximumHeartbeatDurationMs ? remainingMs + heartbeatBufferMs : maximumHeartbeatDurationMs, entry.abortController.signal);
         heartbeat = await reportPlayQuestProgress(quest, entry, false, { attempts: 3, delay: 2500 });
 
         if (heartbeat.progress === null) {
@@ -997,12 +888,8 @@ async function runPlayQuest(quest: Quest, entry: AutoCompleteEntry, target: Auto
     return false;
 }
 
-async function runAchievementQuest(
-    quest: Quest,
-    entry: AutoCompleteEntry,
-    target: AutoCompleteQuestTarget
-): Promise<boolean> {
-    quest = (await waitUntilEnrolled(quest, entry, 60000, 500)) ?? quest;
+async function runAchievementQuest(quest: Quest, entry: AutoCompleteEntry, target: AutoCompleteQuestTarget): Promise<boolean> {
+    quest = await waitUntilEnrolled(quest, entry, 60000, 500) ?? quest;
 
     if (!isEntryActive(entry) || !quest.userStatus?.enrolledAt) {
         return false;
@@ -1027,7 +914,7 @@ async function runAchievementQuest(
     try {
         const response = await RestAPI.post({
             url: `/oauth2/authorize?client_id=${appId}&response_type=code&scope=identify%20applications.entitlements&state=`,
-            body: { authorize: true }
+            body: { authorize: true },
         });
         const location = response?.body?.location;
 
@@ -1042,13 +929,7 @@ async function runAchievementQuest(
         return false;
     }
 
-    const result = await QuestifyNative.complete(
-        appId,
-        authCode,
-        target.adjusted,
-        quest.id,
-        await getActivityReferrer(appId)
-    );
+    const result = await QuestifyNative.complete(appId, authCode, target.adjusted, quest.id, await getActivityReferrer(appId));
     const success = result.success === true;
 
     setQuestAutoCompleteProgress(quest, success ? target.adjusted : 0);
@@ -1064,11 +945,7 @@ async function runAchievementQuest(
     }
 
     if (!success) {
-        QL.error("AUTO_COMPLETE_ACHIEVEMENT_FAILED", {
-            questId: quest.id,
-            questName: entry.questName,
-            error: result.error
-        });
+        QL.error("AUTO_COMPLETE_ACHIEVEMENT_FAILED", { questId: quest.id, questName: entry.questName, error: result.error });
     }
 
     return success;
@@ -1082,7 +959,7 @@ async function runAutoCompleteQuest(quest: Quest, entry: AutoCompleteEntry): Pro
         questName: entry.questName,
         kind: entry.kind,
         taskType: entry.task.type,
-        target
+        target,
     });
 
     switch (entry.kind) {
@@ -1139,11 +1016,7 @@ async function runEntry(quest: Quest, entry: AutoCompleteEntry): Promise<void> {
 }
 
 function runNextQueuedQuest(): void {
-    if (
-        suppressQueueDrain ||
-        getQuestifySettings().autoCompleteQuestsSimultaneously ||
-        hasRunningQueuedAutoComplete()
-    ) {
+    if (suppressQueueDrain || getQuestifySettings().autoCompleteQuestsSimultaneously || hasRunningQueuedAutoComplete()) {
         return;
     }
 
@@ -1213,7 +1086,7 @@ export function processQuestForAutoComplete(quest: Quest, options: AutoCompleteS
         questName,
         source,
         mode: getQuestifySettings().autoCompleteQuestsSimultaneously ? "simultaneous" : "queue",
-        taskType: entry.task.type
+        taskType: entry.task.type,
     });
 
     return true;
@@ -1324,7 +1197,7 @@ export function resumeInterruptedAutoCompletes(): void {
     QL.info("AUTO_COMPLETE_RESUME_INTERRUPTED", {
         userId,
         timestamp: resumeState.timestamp,
-        questIDs: resumeQuestIds
+        questIDs: resumeQuestIds,
     });
 
     const resumedQuestIds = new Set<string>();
@@ -1342,7 +1215,7 @@ export function resumeInterruptedAutoCompletes(): void {
     if (droppedQuestIds.length > 0) {
         QL.warn("AUTO_COMPLETE_RESUME_DROPPED_QUESTS", {
             userId,
-            questIDs: droppedQuestIds
+            questIDs: droppedQuestIds,
         });
     }
 }

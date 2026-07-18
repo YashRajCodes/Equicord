@@ -14,9 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { findCssClassesLazy } from "@webpack";
+*/
 
 import { Button } from "@components/Button";
 import { Heading } from "@components/Heading";
@@ -24,6 +22,7 @@ import { cl, Native, settings } from "@equicordplugins/messageLoggerEnhanced/ind
 import { DEFAULT_IMAGE_CACHE_DIR } from "@equicordplugins/messageLoggerEnhanced/utils/constants";
 import { copyWithToast } from "@utils/discord";
 import { classes } from "@utils/misc";
+import { findCssClassesLazy } from "@webpack";
 import { Toasts } from "@webpack/common";
 
 const inputClasses = findCssClassesLazy("input", "inputWrapper", "editable") as Record<string, string>;
@@ -35,7 +34,10 @@ function createDirSelector(settingKey: "logsDir" | "imageCacheDir", successMessa
         return (
             <section>
                 <Heading tag="h5">{option.description}</Heading>
-                <SelectFolderInput settingsKey={settingKey} successMessage={successMessage} />
+                <SelectFolderInput
+                    settingsKey={settingKey}
+                    successMessage={successMessage}
+                />
             </section>
         );
     };
@@ -45,8 +47,8 @@ export const ImageCacheDir = createDirSelector("imageCacheDir", "Successfully up
 export const LogsDir = createDirSelector("logsDir", "Successfully updated Logs Dir");
 
 interface Props {
-    settingsKey: "imageCacheDir" | "logsDir";
-    successMessage: string;
+    settingsKey: "imageCacheDir" | "logsDir",
+    successMessage: string,
 }
 
 export function SelectFolderInput({ settingsKey, successMessage }: Props) {
@@ -82,9 +84,14 @@ export function SelectFolderInput({ settingsKey, successMessage }: Props) {
             <div onClick={() => copyWithToast(path)} className={cl("folder-upload-input")}>
                 {path == null || path === DEFAULT_IMAGE_CACHE_DIR ? "Choose Folder" : getDirName(path)}
             </div>
-            <Button className={cl("folder-upload-button")} size="small" onClick={onFolderSelect}>
+            <Button
+                className={cl("folder-upload-button")}
+                size="small"
+                onClick={onFolderSelect}
+            >
                 Browse
             </Button>
-        </div>
+        </div >
     );
+
 }

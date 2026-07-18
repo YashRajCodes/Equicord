@@ -18,10 +18,10 @@
     height: 1rem !important;
 }
 
-span[class*="botTagCozy"][data-moreTags-darkFg="true"] > svg > path {
+span[class*="botTagCozy"][data-moreTags-darkFg="true"]>svg>path {
     fill: #000;
 }
 
-span[class*="botTagCozy"][data-moreTags-darkFg="false"] > svg > path {
+span[class*="botTagCozy"][data-moreTags-darkFg="false"]>svg>path {
     fill: #fff;
 }

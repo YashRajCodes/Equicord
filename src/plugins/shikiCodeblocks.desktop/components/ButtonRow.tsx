@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { cl } from "@plugins/shikiCodeblocks.desktop/utils/misc";
 
@@ -26,16 +26,14 @@ export interface ButtonRowProps {
 }
 
 export function ButtonRow({ content, theme }: ButtonRowProps) {
-    return (
-        <div className={cl("btns")}>
-            <CopyButton
-                content={content}
-                className={cl("btn")}
-                style={{
-                    backgroundColor: theme.accentBgColor,
-                    color: theme.accentFgColor
-                }}
-            />
-        </div>
-    );
+    return <div className={cl("btns")}>
+        <CopyButton
+            content={content}
+            className={cl("btn")}
+            style={{
+                backgroundColor: theme.accentBgColor,
+                color: theme.accentFgColor,
+            }}
+        />
+    </div>;
 }

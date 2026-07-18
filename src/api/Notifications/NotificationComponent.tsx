@@ -14,9 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import "./styles.css";
+
 import { useSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { classes } from "@utils/misc";
@@ -24,117 +25,109 @@ import { React, useEffect, useRef, useState } from "@webpack/common";
 
 import { NotificationData } from "./Notifications";
 
-export default ErrorBoundary.wrap(
-    function NotificationComponent({
-        title,
-        body,
-        richBody,
-        color,
-        icon,
-        onClick,
-        onClose,
-        image,
-        permanent,
-        className,
-        dismissOnClick
-    }: NotificationData & { className?: string }) {
-        const { timeout, position } = useSettings(["notifications.timeout", "notifications.position"]).notifications;
+export default ErrorBoundary.wrap(function NotificationComponent({
+    title,
+    body,
+    richBody,
+    color,
+    icon,
+    onClick,
+    onClose,
+    image,
+    permanent,
+    className,
+    dismissOnClick
+}: NotificationData & { className?: string; }) {
+    const { timeout, position } = useSettings(["notifications.timeout", "notifications.position"]).notifications;
 
-        const [isHover, setIsHover] = useState(false);
-        const [elapsed, setElapsed] = useState(0);
+    const [isHover, setIsHover] = useState(false);
+    const [elapsed, setElapsed] = useState(0);
 
-        const start = useRef(Date.now());
-        const pause = useRef<number | null>(null);
+    const start = useRef(Date.now());
+    const pause = useRef<number | null>(null);
 
-        useEffect(() => {
-            if (timeout === 0 || permanent) return;
+    useEffect(() => {
+        if (timeout === 0 || permanent) return;
 
-            if (isHover) {
-                if (pause.current === null) pause.current = Date.now();
-                return;
+        if (isHover) {
+            if (pause.current === null) pause.current = Date.now();
+            return;
+        }
+
+        if (pause.current !== null) {
+            const pausedFor = Date.now() - pause.current;
+            start.current += pausedFor;
+            pause.current = null;
+        }
+
+        const intervalId = setInterval(() => {
+            const elapsedNow = Date.now() - start.current;
+            if (elapsedNow >= timeout) {
+                onClose!();
+            } else {
+                setElapsed(elapsedNow);
             }
+        }, 10);
 
-            if (pause.current !== null) {
-                const pausedFor = Date.now() - pause.current;
-                start.current += pausedFor;
-                pause.current = null;
-            }
+        return () => clearInterval(intervalId);
+    }, [timeout, isHover, permanent]);
 
-            const intervalId = setInterval(() => {
-                const elapsedNow = Date.now() - start.current;
-                if (elapsedNow >= timeout) {
+    const timeoutProgress = elapsed / timeout;
+
+    return (
+        <button
+            className={classes("vc-notification-root", className)}
+            style={position === "bottom-right" ? { bottom: "1rem" } : { top: "3rem" }}
+            onClick={() => {
+                onClick?.();
+                if (dismissOnClick !== false)
                     onClose!();
-                } else {
-                    setElapsed(elapsedNow);
-                }
-            }, 10);
-
-            return () => clearInterval(intervalId);
-        }, [timeout, isHover, permanent]);
-
-        const timeoutProgress = elapsed / timeout;
-
-        return (
-            <button
-                className={classes("vc-notification-root", className)}
-                style={position === "bottom-right" ? { bottom: "1rem" } : { top: "3rem" }}
-                onClick={() => {
-                    onClick?.();
-                    if (dismissOnClick !== false) onClose!();
-                }}
-                onContextMenu={e => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onClose!();
-                }}
-                onMouseEnter={() => setIsHover(true)}
-                onMouseLeave={() => setIsHover(false)}
-            >
-                <div className="vc-notification">
-                    {icon && <img className="vc-notification-icon" src={icon} alt="" />}
-                    <div className="vc-notification-content">
-                        <div className="vc-notification-header">
-                            <h2 className="vc-notification-title">{title}</h2>
-                            <button
-                                className="vc-notification-close-btn"
-                                onClick={e => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    onClose!();
-                                }}
+            }}
+            onContextMenu={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClose!();
+            }}
+            onMouseEnter={() => setIsHover(true)}
+            onMouseLeave={() => setIsHover(false)}
+        >
+            <div className="vc-notification">
+                {icon && <img className="vc-notification-icon" src={icon} alt="" />}
+                <div className="vc-notification-content">
+                    <div className="vc-notification-header">
+                        <h2 className="vc-notification-title">{title}</h2>
+                        <button
+                            className="vc-notification-close-btn"
+                            onClick={e => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                onClose!();
+                            }}
+                        >
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                role="img"
+                                aria-labelledby="vc-notification-dismiss-title"
                             >
-                                <svg
-                                    width="24"
-                                    height="24"
-                                    viewBox="0 0 24 24"
-                                    role="img"
-                                    aria-labelledby="vc-notification-dismiss-title"
-                                >
-                                    <title id="vc-notification-dismiss-title">Dismiss Notification</title>
-                                    <path
-                                        fill="currentColor"
-                                        d="M18.4 4L12 10.4L5.6 4L4 5.6L10.4 12L4 18.4L5.6 20L12 13.6L18.4 20L20 18.4L13.6 12L20 5.6L18.4 4Z"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                        {richBody ?? <p className="vc-notification-p">{body}</p>}
+                                <title id="vc-notification-dismiss-title">Dismiss Notification</title>
+                                <path fill="currentColor" d="M18.4 4L12 10.4L5.6 4L4 5.6L10.4 12L4 18.4L5.6 20L12 13.6L18.4 20L20 18.4L13.6 12L20 5.6L18.4 4Z" />
+                            </svg>
+                        </button>
                     </div>
+                    {richBody ?? <p className="vc-notification-p">{body}</p>}
                 </div>
-                {image && <img className="vc-notification-img" src={image} alt="" />}
-                {timeout !== 0 && !permanent && (
-                    <div
-                        className="vc-notification-progressbar"
-                        style={{
-                            width: `${(1 - timeoutProgress) * 100}%`,
-                            backgroundColor: color || "var(--brand-500)"
-                        }}
-                    />
-                )}
-            </button>
-        );
-    },
-    {
-        onError: ({ props }) => props.onClose!()
-    }
-);
+            </div>
+            {image && <img className="vc-notification-img" src={image} alt="" />}
+            {timeout !== 0 && !permanent && (
+                <div
+                    className="vc-notification-progressbar"
+                    style={{ width: `${(1 - timeoutProgress) * 100}%`, backgroundColor: color || "var(--brand-500)" }}
+                />
+            )}
+        </button>
+    );
+}, {
+    onError: ({ props }) => props.onClose!()
+});

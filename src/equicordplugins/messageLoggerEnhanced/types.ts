@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Message, MessageAttachment, MessageJSON } from "@vencord/discord-types";
 
@@ -27,7 +27,7 @@ export interface LoggedAttachment extends MessageAttachment {
     oldProxyUrl?: string;
 }
 
-export type RefrencedMessage = LoggedMessageJSON & { message_id: string };
+export type RefrencedMessage = LoggedMessageJSON & { message_id: string; };
 export interface LoggedMessageJSON extends Omit<LoggedMessage, "timestamp"> {
     mention_everyone?: string;
     guildId?: string;
@@ -125,9 +125,9 @@ export type LoggedMessageIds = {
     editedMessages: Record<string, string[]>;
 };
 
-export type MessageRecord = { message: LoggedMessageJSON };
+export type MessageRecord = { message: LoggedMessageJSON; };
 
-export type LoggedMessages = LoggedMessageIds & { [message_id: string]: { message?: LoggedMessageJSON } };
+export type LoggedMessages = LoggedMessageIds & { [message_id: string]: { message?: LoggedMessageJSON; }; };
 
 export type GitValue = {
     value: any;

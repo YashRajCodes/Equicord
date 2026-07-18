@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findCssClassesLazy } from "@webpack";
-
 import { settings } from "@equicordplugins/musicControls/settings";
 import { TidalLrcStore } from "@equicordplugins/musicControls/tidal/lyrics/providers/store";
 import { EnhancedLyric } from "@equicordplugins/musicControls/tidal/lyrics/types";
 import { TidalStore } from "@equicordplugins/musicControls/tidal/TidalStore";
 import { classNameFactory } from "@utils/css";
+import { findCssClassesLazy } from "@webpack";
 import { React, useEffect, useState, useStateFromStores } from "@webpack/common";
 
 export const scrollClasses = findCssClassesLazy("auto", "customTheme");
@@ -19,7 +18,7 @@ export const cl = classNameFactory("eq-tidal-lyrics-");
 
 export function NoteSvg(className: string) {
     return (
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 480 720" fill="currentColor" className={className}>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -960 480 720" fill="currentColor" className={className} >
             <path d="m160,-240 q -66,0 -113,-47 -47,-47 -47,-113 0,-66 47,-113 47,-47 113,-47 23,0 42.5,5.5 19.5,5.5 37.5,16.5 v -422 h 240 v 160 H 320 v 400 q 0,66 -47,113 -47,47 -113,47 z" />
         </svg>
     );
@@ -27,17 +26,18 @@ export function NoteSvg(className: string) {
 
 const calculateIndexes = (lyrics: EnhancedLyric[], position: number, delay: number) => {
     const posInSec = position / 1000;
-    const currentIndex = lyrics.findIndex(l => l.time - delay / 1000 > posInSec && l.time < posInSec + 8) - 1;
+    const currentIndex = lyrics.findIndex(l => l.time - (delay / 1000) > posInSec && l.time < posInSec + 8) - 1;
     const nextLyric = lyrics.findIndex(l => l.time >= posInSec);
     return [currentIndex, nextLyric];
 };
 
-export function useLyrics({ scroll = true }: { scroll?: boolean } = {}) {
-    const [track, storePosition, isPlaying] = useStateFromStores([TidalStore], () => [
-        TidalStore.track,
-        TidalStore.mPosition,
-        TidalStore.isPlaying
-    ]);
+export function useLyrics({ scroll = true }: { scroll?: boolean; } = {}) {
+    const [track, storePosition, isPlaying] = useStateFromStores(
+        [TidalStore], () => [
+            TidalStore.track,
+            TidalStore.mPosition,
+            TidalStore.isPlaying,
+        ]);
     const lyrics = useStateFromStores([TidalLrcStore], () => TidalLrcStore.lyrics);
 
     const { lyricDelay } = settings.use(["lyricDelay"]);

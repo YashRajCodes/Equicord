@@ -14,26 +14,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { RenderModalProps } from "@vencord/discord-types";
-import { KeyboardEvent } from "react";
+*/
 
 import { TextButton } from "@components/Button";
 import { Heading } from "@components/Heading";
 import { SessionInfo } from "@plugins/betterSessions/types";
 import { getDefaultName, savedSessionsCache, saveSessionsToDataStore } from "@plugins/betterSessions/utils";
+import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, React, TextInput } from "@webpack/common";
+import { KeyboardEvent } from "react";
 
-export function RenameModal({
-    props,
-    session,
-    state
-}: {
-    props: RenderModalProps;
-    session: SessionInfo["session"];
-    state: [string, React.Dispatch<React.SetStateAction<string>>];
-}) {
+export function RenameModal({ props, session, state }: { props: RenderModalProps, session: SessionInfo["session"], state: [string, React.Dispatch<React.SetStateAction<string>>]; }) {
     const [title, setTitle] = state;
     const [value, setValue] = React.useState(savedSessionsCache.get(session.id_hash)?.name ?? "");
 

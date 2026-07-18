@@ -18,15 +18,15 @@ const settings = definePluginSettings({
     isEnabled: {
         description: "Enable automatic restart after idle",
         type: OptionType.BOOLEAN,
-        default: true
+        default: true,
     },
     idleMinutes: {
         description: "Minutes of inactivity before restarting (when not in VC)",
         type: OptionType.SLIDER,
         markers: [5, 10, 15, 30, 60, 120],
         default: 30,
-        stickToMarkers: false
-    }
+        stickToMarkers: false,
+    },
 });
 
 function onActivity() {
@@ -35,8 +35,7 @@ function onActivity() {
 
 export default definePlugin({
     name: "IdleAutoRestart",
-    description:
-        "Automatically restarts the client after being idle for a configurable amount of time, but avoids restarting while you are in VC.",
+    description: "Automatically restarts the client after being idle for a configurable amount of time, but avoids restarting while you are in VC.",
     tags: ["Utility"],
     authors: [EquicordDevs.SteelTech],
     settings,
@@ -83,5 +82,5 @@ export default definePlugin({
         document.removeEventListener("keydown", onActivity);
         document.removeEventListener("mousedown", onActivity);
         document.removeEventListener("wheel", onActivity);
-    }
+    },
 });

@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { definePluginSettings, migratePluginSetting } from "@api/Settings";
 import { Card } from "@components/Card";
 import { HeadingSecondary, HeadingTertiary } from "@components/Heading";
@@ -41,17 +42,14 @@ const loadFontStyle = (url: string) => {
 
 async function searchGoogleFonts(query: string) {
     try {
-        const response = await fetch(
-            "https://fonts.google.com/$rpc/fonts.fe.catalog.actions.metadata.MetadataService/FontSearch",
-            {
-                method: "POST",
-                headers: {
-                    "content-type": "application/json+protobuf",
-                    "x-user-agent": "grpc-web-javascript/0.1"
-                },
-                body: JSON.stringify([[query, null, null, null, null, null, 1], [5], null, 16])
-            }
-        );
+        const response = await fetch("https://fonts.google.com/$rpc/fonts.fe.catalog.actions.metadata.MetadataService/FontSearch", {
+            method: "POST",
+            headers: {
+                "content-type": "application/json+protobuf",
+                "x-user-agent": "grpc-web-javascript/0.1"
+            },
+            body: JSON.stringify([[query, null, null, null, null, null, 1], [5], null, 16])
+        });
 
         const data = await response.json();
         if (!data?.[1]) return [];
@@ -62,9 +60,7 @@ async function searchGoogleFonts(query: string) {
             category: fontData[3],
             variants: fontData[6].map((variant: any[]) => ({
                 axes: variant[0].map(([tag, min, max]: [string, number, number]) => ({
-                    tag,
-                    min,
-                    max
+                    tag, min, max
                 }))
             }))
         }));
@@ -74,7 +70,8 @@ async function searchGoogleFonts(query: string) {
     }
 }
 
-const preloadFont = (family: string) => loadFontStyle(createGoogleFontUrl(family, ":wght@400;700"));
+const preloadFont = (family: string) =>
+    loadFontStyle(createGoogleFontUrl(family, ":wght@400;700"));
 
 let styleElement: HTMLStyleElement | null = null;
 
@@ -105,18 +102,15 @@ const applyFont = async (fontFamily: string) => {
     }
 };
 
-function GoogleFontSearch({ onSelect }: { onSelect: (font: GoogleFontMetadata) => void }) {
+function GoogleFontSearch({ onSelect }: { onSelect: (font: GoogleFontMetadata) => void; }) {
     const [query, setQuery] = React.useState("");
     const [results, setResults] = React.useState<GoogleFontMetadata[]>([]);
     const [loading, setLoading] = React.useState(false);
     const previewStyles = React.useRef<HTMLStyleElement[]>([]);
 
-    React.useEffect(
-        () => () => {
-            previewStyles.current.forEach(style => style.remove());
-        },
-        []
-    );
+    React.useEffect(() => () => {
+        previewStyles.current.forEach(style => style.remove());
+    }, []);
 
     const debouncedSearch = debounce(async (value: string) => {
         setLoading(true);
@@ -143,7 +137,12 @@ function GoogleFontSearch({ onSelect }: { onSelect: (font: GoogleFontMetadata) =
             <HeadingSecondary>Search Google Fonts</HeadingSecondary>
             <Paragraph className={Margins.bottom8}>Click on any font to apply it.</Paragraph>
 
-            <TextInput value={query} onChange={e => handleSearch(e)} placeholder="Search fonts..." disabled={loading} />
+            <TextInput
+                value={query}
+                onChange={e => handleSearch(e)}
+                placeholder="Search fonts..."
+                disabled={loading}
+            />
 
             {results.length > 0 && (
                 <div className={classes(Margins.top8, "eq-googlefonts-results")}>

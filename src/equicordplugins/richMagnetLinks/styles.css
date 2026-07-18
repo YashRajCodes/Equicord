@@ -10,10 +10,8 @@ a.vc-magnet-link {
     flex-direction: row;
     align-items: center;
     width: max-content;
-
-    &:hover {
-        text-decoration: none;
-    }
+    
+    &:hover { text-decoration: none }
 }
 
 a.vc-magnet-link svg {

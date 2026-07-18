@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { JSX } from "react";
-
 import { Divider } from "@components/Divider";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Heading } from "@components/Heading";
@@ -13,6 +11,7 @@ import { Paragraph } from "@components/Paragraph";
 import { settings } from "@equicordplugins/channelTabs/util";
 import { IS_MAC } from "@utils/constants";
 import { Button, React, Text, useEffect, useRef, useState } from "@webpack/common";
+import { JSX } from "react";
 
 interface KeybindInputProps {
     label: string;
@@ -184,8 +183,7 @@ export function KeybindSettings(): JSX.Element {
             <div className="channelTabs-keybind-settings">
                 <Heading>Keyboard Shortcuts</Heading>
                 <Paragraph>
-                    Click a button and press your desired key combination. Modifiers like CTRL, SHIFT, and ALT are
-                    supported.
+                    Click a button and press your desired key combination. Modifiers like CTRL, SHIFT, and ALT are supported.
                 </Paragraph>
 
                 <KeybindInput
@@ -217,7 +215,10 @@ export function KeybindSettings(): JSX.Element {
                 />
 
                 <div style={{ marginTop: "16px" }}>
-                    <Button color={Button.Colors.RED} onClick={handleResetAll}>
+                    <Button
+                        color={Button.Colors.RED}
+                        onClick={handleResetAll}
+                    >
                         Reset All to Defaults
                     </Button>
                 </div>

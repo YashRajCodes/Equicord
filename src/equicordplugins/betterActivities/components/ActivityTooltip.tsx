@@ -15,7 +15,12 @@ export function ActivityTooltip({ activity, application, user }: Readonly<Activi
     return (
         <ErrorBoundary>
             <div className={cl("activity-tooltip")}>
-                <ActivityView activity={activity} user={user} application={application} currentUser={currentUser} />
+                <ActivityView
+                    activity={activity}
+                    user={user}
+                    application={application}
+                    currentUser={currentUser}
+                />
             </div>
         </ErrorBoundary>
     );

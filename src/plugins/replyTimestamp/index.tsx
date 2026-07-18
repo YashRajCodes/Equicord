@@ -5,14 +5,14 @@
  */
 
 import "./style.css";
-import type { Message } from "@vencord/discord-types";
-import { findCssClassesLazy } from "@webpack";
-import type { HTMLAttributes } from "react";
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import type { Message } from "@vencord/discord-types";
+import { findCssClassesLazy } from "@webpack";
 import { DateUtils, Timestamp } from "@webpack/common";
+import type { HTMLAttributes } from "react";
 
 const MessageClasses = findCssClassesLazy("separator", "latin24CompactTimeStamp");
 
@@ -23,18 +23,16 @@ function Sep(props: HTMLAttributes<HTMLElement>) {
 const enum ReferencedMessageState {
     LOADED = 0,
     NOT_LOADED = 1,
-    DELETED = 2
+    DELETED = 2,
 }
 
-type ReferencedMessage =
-    | { state: ReferencedMessageState.LOADED; message: Message }
-    | { state: ReferencedMessageState.NOT_LOADED | ReferencedMessageState.DELETED };
+type ReferencedMessage = { state: ReferencedMessageState.LOADED; message: Message; } | { state: ReferencedMessageState.NOT_LOADED | ReferencedMessageState.DELETED; };
 
 function ReplyTimestamp({
     referencedMessage,
-    baseMessage
+    baseMessage,
 }: {
-    referencedMessage: ReferencedMessage;
+    referencedMessage: ReferencedMessage,
     baseMessage: Message;
 }) {
     if (referencedMessage.state !== ReferencedMessageState.LOADED) return null;
@@ -50,7 +48,8 @@ function ReplyTimestamp({
             <Sep>[</Sep>
             {DateUtils.isSameDay(refTimestamp, baseTimestamp)
                 ? DateUtils.dateFormat(refTimestamp, "LT")
-                : DateUtils.calendarFormat(refTimestamp)}
+                : DateUtils.calendarFormat(refTimestamp)
+            }
             <Sep>]</Sep>
         </Timestamp>
     );
@@ -73,5 +72,5 @@ export default definePlugin({
         }
     ],
 
-    ReplyTimestamp: ErrorBoundary.wrap(ReplyTimestamp, { noop: true })
+    ReplyTimestamp: ErrorBoundary.wrap(ReplyTimestamp, { noop: true }),
 });

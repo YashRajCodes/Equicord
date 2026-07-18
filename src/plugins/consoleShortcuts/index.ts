@@ -14,11 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import * as Webpack from "@webpack";
-import { extract, filters, findAll, findModuleId, search } from "@webpack";
-import type { ComponentType } from "react";
+*/
 
 import { loadLazyChunks } from "@debug/loadLazyChunks";
 import { Devs } from "@utils/constants";
@@ -29,7 +25,10 @@ import { sleep } from "@utils/misc";
 import { relaunch } from "@utils/native";
 import { canonicalizeMatch, canonicalizeReplace, canonicalizeReplacement } from "@utils/patches";
 import definePlugin, { PluginNative, StartAt } from "@utils/types";
+import * as Webpack from "@webpack";
+import { extract, filters, findAll, findModuleId, search } from "@webpack";
 import * as Common from "@webpack/common";
+import type { ComponentType } from "react";
 
 const DESKTOP_ONLY = (f: string) => () => {
     throw new Error(`'${f}' is Discord Desktop only.`);
@@ -44,15 +43,17 @@ const switchBranch = (branch: string) => () => {
     VesktopNative.app.relaunch();
 };
 
-const define: typeof Object.defineProperty = (obj, prop, desc) => {
-    if (Object.hasOwn(desc, "value")) desc.writable = true;
+const define: typeof Object.defineProperty =
+    (obj, prop, desc) => {
+        if (Object.hasOwn(desc, "value"))
+            desc.writable = true;
 
-    return Object.defineProperty(obj, prop, {
-        configurable: true,
-        enumerable: true,
-        ...desc
-    });
-};
+        return Object.defineProperty(obj, prop, {
+            configurable: true,
+            enumerable: true,
+            ...desc
+        });
+    };
 
 function makeShortcuts() {
     function newFindWrapper(filterFactory: (...props: any[]) => Webpack.FilterFn, topLevelOnly = false) {
@@ -66,17 +67,12 @@ function makeShortcuts() {
 
             const result = (() => {
                 switch (matches.length) {
-                    case 0:
-                        return null;
-                    case 1:
-                        return matches[0];
+                    case 0: return null;
+                    case 1: return matches[0];
                     default:
                         const uniqueMatches = [...new Set(matches)];
                         if (uniqueMatches.length > 1)
-                            console.warn(
-                                `Warning: This filter matches ${uniqueMatches.length} exports. Make it more specific!\n`,
-                                uniqueMatches
-                            );
+                            console.warn(`Warning: This filter matches ${uniqueMatches.length} exports. Make it more specific!\n`, uniqueMatches);
 
                         return matches[0];
                 }
@@ -96,7 +92,7 @@ function makeShortcuts() {
             let store: unknown;
             try {
                 store = findStore(storeName);
-            } catch {}
+            } catch { }
             if (store) cache.set(cacheKey, store);
             return store;
         };
@@ -141,10 +137,9 @@ function makeShortcuts() {
         runtimeHashMessageKey,
         fakeRender: (component: ComponentType, props: any) => {
             const prevWin = fakeRenderWin?.deref();
-            const win =
-                prevWin?.closed === false
-                    ? prevWin
-                    : window.open("about:blank", "Fake Render", "popup,width=500,height=500")!;
+            const win = prevWin?.closed === false
+                ? prevWin
+                : window.open("about:blank", "Fake Render", "popup,width=500,height=500")!;
             fakeRenderWin = new WeakRef(win);
             win.focus();
 
@@ -154,16 +149,16 @@ function makeShortcuts() {
             if (!win.prepared) {
                 win.prepared = true;
 
-                [...document.querySelectorAll("style"), ...document.querySelectorAll("link[rel=stylesheet]")].forEach(
-                    s => {
-                        const n = s.cloneNode(true) as HTMLStyleElement | HTMLLinkElement;
+                [...document.querySelectorAll("style"), ...document.querySelectorAll("link[rel=stylesheet]")].forEach(s => {
+                    const n = s.cloneNode(true) as HTMLStyleElement | HTMLLinkElement;
 
-                        if (s.parentElement?.tagName === "HEAD") doc.head.append(n);
-                        else if (n.id?.startsWith("vencord-") || n.id?.startsWith("vcd-"))
-                            doc.documentElement.append(n);
-                        else doc.body.append(n);
-                    }
-                );
+                    if (s.parentElement?.tagName === "HEAD")
+                        doc.head.append(n);
+                    else if (n.id?.startsWith("vencord-") || n.id?.startsWith("vcd-"))
+                        doc.documentElement.append(n);
+                    else
+                        doc.body.append(n);
+                });
             }
 
             const root = Common.createRoot(doc.body.appendChild(document.createElement("div")));
@@ -172,7 +167,7 @@ function makeShortcuts() {
             doc.addEventListener("close", () => root.unmount(), { once: true });
         },
 
-        preEnable: (plugin: string) => ((Vencord.Settings.plugins[plugin] ??= { enabled: true }).enabled = true),
+        preEnable: (plugin: string) => (Vencord.Settings.plugins[plugin] ??= { enabled: true }).enabled = true,
 
         channel: { getter: () => getCurrentChannel(), preload: false },
         channelId: { getter: () => Common.SelectedChannelStore.getChannelId(), preload: false },
@@ -180,10 +175,7 @@ function makeShortcuts() {
         guildId: { getter: () => Common.SelectedGuildStore.getGuildId(), preload: false },
         me: { getter: () => Common.UserStore.getCurrentUser(), preload: false },
         meId: { getter: () => Common.UserStore.getCurrentUser().id, preload: false },
-        messages: {
-            getter: () => Common.MessageStore.getMessages(Common.SelectedChannelStore.getChannelId()),
-            preload: false
-        },
+        messages: { getter: () => Common.MessageStore.getMessages(Common.SelectedChannelStore.getChannelId()), preload: false },
         openModal: { getter: () => Common.openModal },
         openModalLazy: { getter: () => Common.openModalLazy },
 
@@ -194,17 +186,15 @@ function makeShortcuts() {
             Common.FluxDispatcher.dispatch({
                 type: "EXPERIMENT_OVERRIDE_BUCKET",
                 experimentId: id,
-                experimentBucket: bucket
+                experimentBucket: bucket,
             });
         },
         switchBranch,
-        ...(IS_EQUIBOP
-            ? {
-                  equibopStable: switchBranch("stable"),
-                  equibopCanary: switchBranch("canary"),
-                  equibopPtb: switchBranch("ptb")
-              }
-            : {})
+        ...IS_EQUIBOP ? {
+            equibopStable: switchBranch("stable"),
+            equibopCanary: switchBranch("canary"),
+            equibopPtb: switchBranch("ptb"),
+        } : {},
     };
 }
 
@@ -263,8 +253,7 @@ export default definePlugin({
             replacement: [
                 {
                     match: /\i&&this\.initializeIfNeeded\(\)/,
-                    replace:
-                        "$&,Reflect.defineProperty(this,Symbol.toStringTag,{value:this.getName(),configurable:!0,writable:!0,enumerable:!1})"
+                    replace: "$&,Reflect.defineProperty(this,Symbol.toStringTag,{value:this.getName(),configurable:!0,writable:!0,enumerable:!1})"
                 }
             ]
         }
@@ -308,7 +297,7 @@ export default definePlugin({
 
             try {
                 loadAndCacheShortcut(key, val, forceLoad);
-            } catch {} // swallow not found errors in DEV
+            } catch { } // swallow not found errors in DEV
         }
     },
 

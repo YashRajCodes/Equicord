@@ -76,7 +76,10 @@ function isFenceLine(line: string) {
 }
 
 function canBeTableLine(line: string) {
-    return line.trim() !== "" && !isIndentedCodeLine(line) && !isFenceLine(line) && hasTableDelimiter(line);
+    return line.trim() !== ""
+        && !isIndentedCodeLine(line)
+        && !isFenceLine(line)
+        && hasTableDelimiter(line);
 }
 
 function stripOuterPipes(line: string) {
@@ -93,7 +96,8 @@ function stripOuterPipes(line: string) {
 function hasOuterTablePipes(line: string) {
     const trimmed = line.trim();
 
-    return (trimmed.startsWith("|") || trimmed.startsWith("\\|")) && (trimmed.endsWith("|") || trimmed.endsWith("\\|"));
+    return (trimmed.startsWith("|") || trimmed.startsWith("\\|"))
+        && (trimmed.endsWith("|") || trimmed.endsWith("\\|"));
 }
 
 export function splitTableRow(line: string) {
@@ -144,7 +148,7 @@ function parseSeparator(line: string): SeparatorParseResult | null {
     if (alignments.some(alignment => alignment === undefined)) return null;
 
     return {
-        alignments: alignments as TableAlignment[]
+        alignments: alignments as TableAlignment[],
     };
 }
 
@@ -178,7 +182,9 @@ function canContinueTableAt(lines: string[], lineIndex: number, fenced?: boolean
     const line = lines[lineIndex];
     if (!canBeTableLine(line) || parseSeparator(line)) return false;
 
-    return lineIndex >= lines.length - 1 || fenced?.[lineIndex + 1] || !parseSeparator(lines[lineIndex + 1]);
+    return lineIndex >= lines.length - 1
+        || fenced?.[lineIndex + 1]
+        || !parseSeparator(lines[lineIndex + 1]);
 }
 
 function getFenceMask(lines: string[]) {
@@ -282,9 +288,9 @@ function parseTableAtLine(lines: string[], lineIndex: number, fenced?: boolean[]
             alignments: separator.alignments,
             rows,
             startLine: lineIndex,
-            endLine: cursor - 1
+            endLine: cursor - 1,
         },
-        nextLineIndex: cursor
+        nextLineIndex: cursor,
     };
 }
 
@@ -298,12 +304,7 @@ function parseLooseRowsAtLine(lines: string[], lineIndex: number, fenced?: boole
 
     if (width < 3) return null;
 
-    while (
-        cursor < lines.length &&
-        !fenced?.[cursor] &&
-        canBeTableLine(lines[cursor]) &&
-        hasOuterTablePipes(lines[cursor])
-    ) {
+    while (cursor < lines.length && !fenced?.[cursor] && canBeTableLine(lines[cursor]) && hasOuterTablePipes(lines[cursor])) {
         const cells = splitTableRow(lines[cursor]);
         if (cells.length < 3) break;
 
@@ -319,9 +320,9 @@ function parseLooseRowsAtLine(lines: string[], lineIndex: number, fenced?: boole
             alignments: Array.from({ length: width }, () => null),
             rows,
             startLine: lineIndex,
-            endLine: cursor - 1
+            endLine: cursor - 1,
         },
-        nextLineIndex: cursor
+        nextLineIndex: cursor,
     };
 }
 
@@ -333,7 +334,7 @@ function stripLineEnding(line: string) {
 }
 
 function sourceLines(markdown: string) {
-    const lines: Array<{ raw: string; text: string }> = [];
+    const lines: Array<{ raw: string; text: string; }> = [];
     let start = 0;
 
     for (let i = 0; i < markdown.length; i++) {
@@ -342,7 +343,7 @@ function sourceLines(markdown: string) {
         const raw = markdown.slice(start, i + 1);
         lines.push({
             raw,
-            text: stripLineEnding(raw)
+            text: stripLineEnding(raw),
         });
         start = i + 1;
     }
@@ -351,32 +352,29 @@ function sourceLines(markdown: string) {
         const raw = markdown.slice(start);
         lines.push({
             raw,
-            text: stripLineEnding(raw)
+            text: stripLineEnding(raw),
         });
     }
 
     return lines;
 }
 
-function rawTableBlock(lines: Array<{ raw: string }>, nextLineIndex: number) {
+function rawTableBlock(lines: Array<{ raw: string; }>, nextLineIndex: number) {
     return lines
         .slice(0, nextLineIndex)
-        .map((line, index) => (index === nextLineIndex - 1 ? stripLineEnding(line.raw) : line.raw))
+        .map((line, index) => index === nextLineIndex - 1 ? stripLineEnding(line.raw) : line.raw)
         .join("");
 }
 
 export function parseMarkdownTableBlock(markdown: string): MarkdownTableBlock | null {
     const lines = sourceLines(markdown);
-    const parsed = parseTableAtLine(
-        lines.map(line => line.text),
-        0
-    );
+    const parsed = parseTableAtLine(lines.map(line => line.text), 0);
 
     if (!parsed) return null;
 
     return {
         raw: rawTableBlock(lines, parsed.nextLineIndex),
-        table: parsed.table
+        table: parsed.table,
     };
 }
 
@@ -386,8 +384,7 @@ export function parseMarkdownTableMatch(markdown: string): MarkdownTableMatch | 
     const fenced = getFenceMask(textLines);
 
     for (let lineIndex = 0; lineIndex < textLines.length - 1; lineIndex++) {
-        const parsed =
-            parseTableAtLine(textLines, lineIndex, fenced) ?? parseLooseRowsAtLine(textLines, lineIndex, fenced);
+        const parsed = parseTableAtLine(textLines, lineIndex, fenced) ?? parseLooseRowsAtLine(textLines, lineIndex, fenced);
         if (!parsed) continue;
 
         const leadingMarkdown = lines
@@ -400,7 +397,7 @@ export function parseMarkdownTableMatch(markdown: string): MarkdownTableMatch | 
             raw: `${leadingMarkdown}${tableRaw}`,
             leadingMarkdown,
             tableRaw,
-            table: parsed.table
+            table: parsed.table,
         };
     }
 

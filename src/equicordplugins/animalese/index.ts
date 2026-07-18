@@ -14,29 +14,29 @@ const settings = definePluginSettings({
         type: OptionType.SLIDER,
         description: "Volume of the animalese sound",
         default: 0.5,
-        markers: [0, 0.1, 0.25, 0.5, 0.6, 0.75, 1]
+        markers: [0, 0.1, 0.25, 0.5, 0.6, 0.75, 1],
     },
     speed: {
         type: OptionType.SLIDER,
         description: "Speed of the animalese sound",
         default: 1,
-        markers: [0.5, 0.75, 1, 1.25, 1.5]
+        markers: [0.5, 0.75, 1, 1.25, 1.5],
     },
     pitch: {
         type: OptionType.SLIDER,
         description: "Pitch multiplier",
         default: 1,
-        markers: [0.75, 0.8, 0.85, 1, 1.15, 1.25, 1.35, 1.5]
+        markers: [0.75, 0.8, 0.85, 1, 1.15, 1.25, 1.35, 1.5],
     },
     messageLengthLimit: {
         type: OptionType.NUMBER,
         description: "Maximum length of message to process",
-        default: 50
+        default: 50,
     },
     processOwnMessages: {
         type: OptionType.BOOLEAN,
         description: "Enable to yap your own messages too",
-        default: true
+        default: true,
     },
     soundQuality: {
         type: OptionType.SELECT,
@@ -66,7 +66,10 @@ const settings = definePluginSettings({
 let audioContext: AudioContext | null = null;
 
 // better than my old hardcoded garbage
-const highSounds = Array.from({ length: 30 }, (_, i) => `sound${String(i + 1).padStart(2, "0")}.wav`);
+const highSounds = Array.from(
+    { length: 30 },
+    (_, i) => `sound${String(i + 1).padStart(2, "0")}.wav`
+);
 const soundBuffers: Record<string, AudioBuffer> = {};
 
 const BASE_URL_HIGH = "https://raw.githubusercontent.com/Equicord/Equibored/main/sounds/animalese";
@@ -76,7 +79,9 @@ async function initSoundBuffers() {
     const quality = settings.store.soundQuality;
     for (const file of highSounds) {
         const nameWithoutExt = file.replace(".wav", "");
-        soundBuffers[nameWithoutExt] = await loadSound(`${BASE_URL_HIGH}/${quality}/${file}`);
+        soundBuffers[nameWithoutExt] = await loadSound(
+            `${BASE_URL_HIGH}/${quality}/${file}`
+        );
     }
 }
 
@@ -102,7 +107,10 @@ async function generateAnimalese(text: string): Promise<AudioBuffer | null> {
         } else if (char === "t" && text_lower[i + 1] === "h") {
             soundIndices.push("sound28");
             i++;
-        } else if (char === "h" && (text_lower[i - 1] === "s" || text_lower[i - 1] === "t")) {
+        } else if (
+            char === "h" &&
+            (text_lower[i - 1] === "s" || text_lower[i - 1] === "t")
+        ) {
             continue;
         } else if (char === "," || char === "?") {
             soundIndices.push("sound30");
@@ -122,7 +130,11 @@ async function generateAnimalese(text: string): Promise<AudioBuffer | null> {
     const totalDuration = soundIndices.length * 0.1;
     const frameCount = Math.max(1, Math.floor(audioContext.sampleRate * totalDuration));
 
-    const outputBuffer = audioContext.createBuffer(1, frameCount, audioContext.sampleRate);
+    const outputBuffer = audioContext.createBuffer(
+        1,
+        frameCount,
+        audioContext.sampleRate
+    );
     const outputData = outputBuffer.getChannelData(0);
 
     let offset = 0;
@@ -134,11 +146,12 @@ async function generateAnimalese(text: string): Promise<AudioBuffer | null> {
         if (!buffer) continue;
 
         const variation = 0.15;
-        let pitchShift = 2.8 * settings.store.pitch + Math.random() * variation;
+        let pitchShift = (2.8 * settings.store.pitch) + (Math.random() * variation);
 
         const isQuestion = text_lower.endsWith("?");
         if (isQuestion && i >= soundIndices.length * 0.8) {
-            const progress = (i - soundIndices.length * 0.8) / (soundIndices.length * 0.2);
+            const progress =
+                (i - soundIndices.length * 0.8) / (soundIndices.length * 0.2);
             pitchShift += progress * 0.1 + 0.1;
         }
 
@@ -195,11 +208,11 @@ export default definePlugin({
             const processOwnMessages = settings.store.processOwnMessages ?? true;
 
             if (
-                urlPattern.test(message.content) ||
-                message.content.length > maxLength ||
-                (!processOwnMessages && String(message.author.id) === String(UserStore.getCurrentUser().id))
-            )
-                return;
+                urlPattern.test(message.content)
+                || message.content.length > maxLength
+                || !processOwnMessages
+                && String(message.author.id) === String(UserStore.getCurrentUser().id)
+            ) return;
 
             try {
                 const buffer = await generateAnimalese(message.content);
@@ -222,5 +235,5 @@ export default definePlugin({
             audioContext.close();
             audioContext = null;
         }
-    }
+    },
 });

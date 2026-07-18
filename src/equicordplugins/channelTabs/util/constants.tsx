@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { JSX } from "react";
-
 import { definePluginSettings } from "@api/Settings";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
@@ -14,6 +12,7 @@ import { KeybindSettings } from "@equicordplugins/channelTabs/components/Keybind
 import { Logger } from "@utils/Logger";
 import { makeRange, OptionType } from "@utils/types";
 import { SearchableSelect, useState } from "@webpack/common";
+import { JSX } from "react";
 
 interface DynamicDropdownSettingOption {
     label: string;
@@ -26,43 +25,21 @@ function AnimationSettings(): JSX.Element {
         { label: "Tab Hover Effects (lift + scale)", value: "hover", selected: settings.store.animationHover },
         { label: "Selected Tab Lift Animation", value: "selection", selected: settings.store.animationSelection },
         { label: "Tab Drag & Drop (ghost + reorder)", value: "drag-drop", selected: settings.store.animationDragDrop },
-        {
-            label: "Tab Enter/Exit Slides (creation + closing)",
-            value: "enter-exit",
-            selected: settings.store.animationEnterExit
-        },
-        {
-            label: "Icon Pop on Selection (icon scale-up)",
-            value: "icon-pop",
-            selected: settings.store.animationIconPop
-        },
+        { label: "Tab Enter/Exit Slides (creation + closing)", value: "enter-exit", selected: settings.store.animationEnterExit },
+        { label: "Icon Pop on Selection (icon scale-up)", value: "icon-pop", selected: settings.store.animationIconPop },
         { label: "Close Button Rotation", value: "close-rotation", selected: settings.store.animationCloseRotation },
         { label: "Plus Button Pulse", value: "plus-pulse", selected: settings.store.animationPlusPulse },
         { label: "Mention Badge Glow", value: "mention-glow", selected: settings.store.animationMentionGlow },
         { label: "Compact Mode Expansion", value: "compact-expand", selected: settings.store.animationCompactExpand },
-        {
-            label: "Selected Tab Blue Border",
-            value: "selected-border",
-            selected: settings.store.animationSelectedBorder
-        },
-        {
-            label: "Selected Tab Background Color",
-            value: "selected-background",
-            selected: settings.store.animationSelectedBackground
-        },
+        { label: "Selected Tab Blue Border", value: "selected-border", selected: settings.store.animationSelectedBorder },
+        { label: "Selected Tab Background Color", value: "selected-background", selected: settings.store.animationSelectedBackground },
         { label: "Tab Shadow Effects", value: "tab-shadows", selected: settings.store.animationTabShadows },
-        {
-            label: "Tab Repositioning (smooth position changes)",
-            value: "tab-positioning",
-            selected: settings.store.animationTabPositioning
-        },
+        { label: "Tab Repositioning (smooth position changes)", value: "tab-positioning", selected: settings.store.animationTabPositioning },
         { label: "Resize Handle Fade", value: "resize-handle", selected: settings.store.animationResizeHandle },
         { label: "Active Quests Gradient", value: "quests-active", selected: settings.store.animationQuestsActive }
     ];
 
-    const [currentValue, setCurrentValue] = useState(
-        animationOptions.filter(option => option.selected).map(option => option.value)
-    );
+    const [currentValue, setCurrentValue] = useState(animationOptions.filter(option => option.selected).map(option => option.value));
 
     function updateSettingsTruthy(enabledValues: string[]) {
         animationOptions.forEach(option => {
@@ -89,11 +66,10 @@ function AnimationSettings(): JSX.Element {
     }
 
     function handleChange(values: Array<DynamicDropdownSettingOption | string>) {
-        const valueStrings = values.map(v => (typeof v === "string" ? v : v.value));
-        const toggled =
-            valueStrings.length > currentValue.length
-                ? valueStrings.find(v => !currentValue.includes(v))
-                : currentValue.find(v => !valueStrings.includes(v));
+        const valueStrings = values.map(v => typeof v === "string" ? v : v.value);
+        const toggled = valueStrings.length > currentValue.length
+            ? valueStrings.find(v => !currentValue.includes(v))
+            : currentValue.find(v => !valueStrings.includes(v));
 
         if (toggled == null) {
             updateSettingsTruthy(valueStrings);
@@ -146,21 +122,17 @@ export const settings = definePluginSettings({
     onStartup: {
         type: OptionType.SELECT,
         description: "On startup",
-        options: [
-            {
-                label: "Do nothing (open on the friends tab)",
-                value: "nothing",
-                default: true
-            },
-            {
-                label: "Remember tabs from last session",
-                value: "remember"
-            },
-            {
-                label: "Open on a specific set of tabs",
-                value: "preset"
-            }
-        ]
+        options: [{
+            label: "Do nothing (open on the friends tab)",
+            value: "nothing",
+            default: true
+        }, {
+            label: "Remember tabs from last session",
+            value: "remember"
+        }, {
+            label: "Open on a specific set of tabs",
+            value: "preset"
+        }],
     },
     tabSet: {
         component: ChannelTabsPreview,
@@ -232,18 +204,16 @@ export const settings = definePluginSettings({
     },
     enableRapidNavigation: {
         type: OptionType.BOOLEAN,
-        description:
-            "Enable rapid navigation behavior - quickly navigating between channels will replace the current tab instead of creating new ones",
+        description: "Enable rapid navigation behavior - quickly navigating between channels will replace the current tab instead of creating new ones",
         default: false,
         restartNeeded: false
     },
     rapidNavigationThreshold: {
         type: OptionType.SLIDER,
-        description:
-            "Time window (in seconds) for rapid navigation. Within this time, new channels replace the current tab instead of creating new ones.",
+        description: "Time window (in seconds) for rapid navigation. Within this time, new channels replace the current tab instead of creating new ones.",
         markers: [1, 2, 3, 5, 10, 20, 30, 40, 50, 60],
         default: 3,
-        stickToMarkers: false
+        stickToMarkers: false,
     },
     tabBarPosition: {
         type: OptionType.SELECT,
@@ -265,7 +235,7 @@ export const settings = definePluginSettings({
         description: "Number of tabs accessible via number keys (1-9)",
         markers: makeRange(1, 9, 1),
         default: 3,
-        stickToMarkers: true
+        stickToMarkers: true,
     },
     enableCloseTabShortcut: {
         type: OptionType.BOOLEAN,

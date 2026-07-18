@@ -14,9 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { findByCodeLazy } from "@webpack";
+*/
 
 import { definePluginSettings, Settings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -24,6 +22,7 @@ import { getCustomColorString } from "@equicordplugins/customUserColors";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
+import { findByCodeLazy } from "@webpack";
 import { ChannelStore, GuildMemberStore, GuildRoleStore, GuildStore } from "@webpack/common";
 
 const useMessageAuthor = findByCodeLazy('"Result cannot be null because the message is not null"');
@@ -63,7 +62,7 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: false,
         description: "Color chat messages based on the author's role color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     messageSaturation: {
         type: OptionType.SLIDER,
@@ -87,7 +86,7 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(?<=user:(\i),guildId:([^,]+?),.{0,100}?children:\i=>\i)\((\i)\)/,
-                    replace: "({...$3,color:$self.getColorInt($1?.id,$2)})"
+                    replace: "({...$3,color:$self.getColorInt($1?.id,$2)})",
                 }
             ],
             predicate: () => settings.store.chatMentions
@@ -111,7 +110,7 @@ export default definePlugin({
                 {
                     match: /(#{intl::CHANNEL_MEMBERS_A11Y_LABEL}.+}\):null,).{0,100}?(?:—|\\u2014) ",\i\]\}\)\]/,
                     replace: "$1$self.RoleGroupColor(arguments[0])]"
-                }
+                },
             ],
             predicate: () => settings.store.memberList
         },
@@ -121,7 +120,7 @@ export default definePlugin({
                 {
                     match: /children:\[\i," (?:—|\\u2014) ",\i\]/,
                     replace: "children:[$self.RoleGroupColor(arguments[0])]"
-                }
+                },
             ],
             predicate: () => settings.store.memberList
         },
@@ -143,7 +142,7 @@ export default definePlugin({
                 match: /tag:"strong",variant:"text-md\/medium"(?<=onContextMenu:.{0,15}\((\i),(\i),\i\).+?)/,
                 replace: "$&,style:$self.getColorStyle($2?.id,$1?.channel?.id)"
             },
-            predicate: () => settings.store.reactorsList
+            predicate: () => settings.store.reactorsList,
         },
         // Poll Results
         {
@@ -172,8 +171,7 @@ export default definePlugin({
                 if (customColor) return customColor;
             }
 
-            const guildId =
-                ChannelStore.getChannel(channelOrGuildId)?.guild_id ?? GuildStore.getGuild(channelOrGuildId)?.id;
+            const guildId = ChannelStore.getChannel(channelOrGuildId)?.guild_id ?? GuildStore.getGuild(channelOrGuildId)?.id;
             if (guildId == null) return null;
 
             return GuildMemberStore.getMember(guildId, userId)?.colorString ?? null;
@@ -192,11 +190,9 @@ export default definePlugin({
     getColorStyle(userId: string, channelOrGuildId: string) {
         const colorString = this.getColorString(userId, channelOrGuildId);
 
-        return (
-            colorString && {
-                color: colorString
-            }
-        );
+        return colorString && {
+            color: colorString
+        };
     },
 
     useMessageColorsStyle(message: any) {
@@ -223,34 +219,17 @@ export default definePlugin({
         return null;
     },
 
-    RoleGroupColor: ErrorBoundary.wrap(
-        ({
-            id,
-            count,
-            title,
-            guildId,
-            label
-        }: {
-            id: string;
-            count: number;
-            title: string;
-            guildId: string;
-            label: string;
-        }) => {
-            const role = GuildRoleStore.getRole(guildId, id);
+    RoleGroupColor: ErrorBoundary.wrap(({ id, count, title, guildId, label }: { id: string; count: number; title: string; guildId: string; label: string; }) => {
+        const role = GuildRoleStore.getRole(guildId, id);
 
-            return (
-                <span
-                    style={{
-                        color: role?.colorString,
-                        fontWeight: "unset",
-                        letterSpacing: ".05em"
-                    }}
-                >
-                    {title ?? label} &mdash; {count}
-                </span>
-            );
-        },
-        { noop: true }
-    )
+        return (
+            <span style={{
+                color: role?.colorString,
+                fontWeight: "unset",
+                letterSpacing: ".05em"
+            }}>
+                {title ?? label} &mdash; {count}
+            </span>
+        );
+    }, { noop: true })
 });

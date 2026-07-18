@@ -4,33 +4,24 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { Guild } from "@vencord/discord-types";
-import { zipSync } from "fflate";
-
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import type { Guild } from "@vencord/discord-types";
 import { EmojiStore, Menu, StickersStore } from "@webpack/common";
+import { zipSync } from "fflate";
 
 const StickerExt = [, "png", "apng", "json", "gif"] as const;
 
-const Patch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild }) => {
+const Patch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild; }) => {
     // Assuming "privacy" is the correct ID for the group you want to modify.
     const group = findGroupChildrenByChildId("privacy", children);
 
     if (group) {
         group.push(
             <>
-                <Menu.MenuItem
-                    id="emoji.download"
-                    label="Download Emojis"
-                    action={() => zipGuildAssets(guild, "emojis")}
-                ></Menu.MenuItem>
-                <Menu.MenuItem
-                    id="sticker.download"
-                    label="Download Stickers"
-                    action={() => zipGuildAssets(guild, "stickers")}
-                ></Menu.MenuItem>
+                <Menu.MenuItem id="emoji.download" label="Download Emojis" action={() => zipGuildAssets(guild, "emojis")}></Menu.MenuItem>
+                <Menu.MenuItem id="sticker.download" label="Download Stickers" action={() => zipGuildAssets(guild, "stickers")}></Menu.MenuItem>
             </>
         );
     }
@@ -38,7 +29,9 @@ const Patch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild 
 
 async function zipGuildAssets(guild: Guild, type: "emojis" | "stickers") {
     const isEmojis = type === "emojis";
-    const items = isEmojis ? EmojiStore.getGuilds()[guild.id]?.emojis : StickersStore.getStickersByGuildId(guild.id);
+    const items = isEmojis
+        ? EmojiStore.getGuilds()[guild.id]?.emojis
+        : StickersStore.getStickersByGuildId(guild.id);
 
     if (!items) {
         return console.log("Server not found!");
@@ -68,11 +61,7 @@ async function zipGuildAssets(guild: Guild, type: "emojis" | "stickers") {
 
         let response = await fetch(url);
 
-        if (
-            !isEmojis &&
-            e.format_type === 2 &&
-            (!response.ok || response.headers.get("content-type")?.includes("text"))
-        ) {
+        if (!isEmojis && e.format_type === 2 && (!response.ok || response.headers.get("content-type")?.includes("text"))) {
             const gifUrl = `https://${endpoint}/stickers/${e.id}.gif?size=4096&lossless=true`;
             const gifResponse = await fetch(gifUrl);
 

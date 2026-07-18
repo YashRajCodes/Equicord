@@ -4,16 +4,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { parsers } from "@song-spotlight/api/handlers";
-import { Song } from "@song-spotlight/api/structs";
-import { RenderModalProps } from "@vencord/discord-types";
-
 import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
 import { PlusIcon } from "@components/Icons";
 import { cl, logger } from "@equicordplugins/songSpotlight.desktop/lib/utils";
 import { Native } from "@equicordplugins/songSpotlight.desktop/service";
+import { parsers } from "@song-spotlight/api/handlers";
+import { Song } from "@song-spotlight/api/structs";
+import { RenderModalProps } from "@vencord/discord-types";
 import { Clickable, closeModal, Modal, openModal, TextInput, useState } from "@webpack/common";
 
 interface AddSongModalProps {
@@ -96,16 +95,18 @@ export default function AddSong({ onAdd }: AddSongProps) {
         <Clickable
             onClick={() => {
                 const key = openModal(modalProps => (
-                    <AddSongModal modalProps={modalProps} close={() => closeModal(key)} onAdd={onAdd} />
+                    <AddSongModal
+                        modalProps={modalProps}
+                        close={() => closeModal(key)}
+                        onAdd={onAdd}
+                    />
                 ));
             }}
         >
             <Flex alignItems="center" gap="12px" className={cl("editable-song", "add-song")}>
                 <PlusIcon width={28} height={28} className={cl("icon")} />
                 <Flex flexDirection="column" justifyContent="center" gap={0}>
-                    <BaseText size="md" weight="medium">
-                        Add song
-                    </BaseText>
+                    <BaseText size="md" weight="medium">Add song</BaseText>
                 </Flex>
             </Flex>
         </Clickable>

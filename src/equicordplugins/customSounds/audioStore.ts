@@ -46,33 +46,16 @@ async function generateDataURI(buffer: ArrayBuffer, type: string, name: string):
             if (name) {
                 const extension = name.split(".").pop()?.toLowerCase();
                 switch (extension) {
-                    case "ogg":
-                        mimeType = "audio/ogg";
-                        break;
-                    case "mp3":
-                        mimeType = "audio/mpeg";
-                        break;
-                    case "wav":
-                        mimeType = "audio/wav";
-                        break;
+                    case "ogg": mimeType = "audio/ogg"; break;
+                    case "mp3": mimeType = "audio/mpeg"; break;
+                    case "wav": mimeType = "audio/wav"; break;
                     case "m4a":
-                    case "mp4":
-                        mimeType = "audio/mp4";
-                        break;
-                    case "flac":
-                        mimeType = "audio/flac";
-                        break;
-                    case "aac":
-                        mimeType = "audio/aac";
-                        break;
-                    case "webm":
-                        mimeType = "audio/webm";
-                        break;
-                    case "wma":
-                        mimeType = "audio/x-ms-wma";
-                        break;
-                    default:
-                        mimeType = "audio/mpeg";
+                    case "mp4": mimeType = "audio/mp4"; break;
+                    case "flac": mimeType = "audio/flac"; break;
+                    case "aac": mimeType = "audio/aac"; break;
+                    case "webm": mimeType = "audio/webm"; break;
+                    case "wma": mimeType = "audio/x-ms-wma"; break;
+                    default: mimeType = "audio/mpeg";
                 }
             }
         }

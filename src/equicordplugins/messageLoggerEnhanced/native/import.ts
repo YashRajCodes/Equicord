@@ -29,11 +29,7 @@ export async function startNativeLogImport(_event: IpcMainInvokeEvent, defaultPa
     return fileId;
 }
 
-export async function readNativeLogChunk(
-    _event: IpcMainInvokeEvent,
-    fileId: string,
-    size: number = 64 * 1024
-): Promise<string | null> {
+export async function readNativeLogChunk(_event: IpcMainInvokeEvent, fileId: string, size: number = 64 * 1024): Promise<string | null> {
     const fileHandle = activeFiles.get(fileId);
     if (!fileHandle) return null;
 

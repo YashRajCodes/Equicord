@@ -5,7 +5,6 @@
  */
 
 import { proxyLazyWebpack } from "@webpack";
-
 import { Constants, Flux, FluxDispatcher, RestAPI } from "@webpack/common";
 
 import { RefreshedUrlsResponse } from "./types";
@@ -89,7 +88,7 @@ export const SignedUrlsStore = proxyLazyWebpack(() => {
                 url: Constants.Endpoints.ATTACHMENTS_REFRESH_URLS,
                 body: { attachment_urls: batch },
                 retries: 3
-            }).then(({ body }: { body: RefreshedUrlsResponse }) =>
+            }).then(({ body }: { body: RefreshedUrlsResponse; }) =>
                 this._update(body.refreshed_urls.map(({ original, refreshed }) => [original, refreshed!]))
             );
         }

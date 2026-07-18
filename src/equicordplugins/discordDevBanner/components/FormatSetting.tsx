@@ -11,9 +11,7 @@ import { makeDevBanner, settings, settingVariables } from ".";
 
 export function FormatSetting(setValue) {
     const { format } = settings.store;
-    const [state, setState] = useState(
-        format ?? "{buildChannel} {buildNumber} ({buildHash}) | {equicordName} {equicordVersion} ({equicordHash})"
-    );
+    const [state, setState] = useState(format ?? "{buildChannel} {buildNumber} ({buildHash}) | {equicordName} {equicordVersion} ({equicordHash})");
     const [error, setError] = useState<string | null>(null);
 
     function handleChange(newValue) {
@@ -57,7 +55,9 @@ export function FormatSetting(setValue) {
                 }}
             />
 
-            {error && <Paragraph className={"vc-discord-dev-banner-error"}>{error}</Paragraph>}
+            {error && (
+                <Paragraph className={"vc-discord-dev-banner-error"}>{error}</Paragraph>
+            )}
         </section>
     );
 }

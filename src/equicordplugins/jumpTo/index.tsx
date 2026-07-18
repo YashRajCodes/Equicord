@@ -4,21 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Channel, Message, User } from "@vencord/discord-types";
-
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import {
-    ChannelStore,
-    Constants,
-    Menu,
-    NavigationRouter,
-    RestAPI,
-    SelectedChannelStore,
-    SelectedGuildStore,
-    Toasts
-} from "@webpack/common";
+import { Channel, Message, User } from "@vencord/discord-types";
+import { ChannelStore, Constants, Menu, NavigationRouter, RestAPI, SelectedChannelStore, SelectedGuildStore, Toasts } from "@webpack/common";
 
 function jumpToFirstMessage(channelId: string, guildId?: string | null) {
     NavigationRouter.transitionTo(`/channels/${guildId ?? "@me"}/${channelId}/0`);
@@ -68,14 +58,13 @@ async function jumpToUserMessage(channelId: string, guildId: string, userId: str
 
 const ChannelMenuPatch: NavContextMenuPatchCallback = (
     children,
-    { channel, thread }: { channel?: Channel; thread?: Channel }
+    { channel, thread }: { channel?: Channel; thread?: Channel; }
 ) => {
     const selectedId = SelectedChannelStore.getChannelId();
     const selectedChannel = selectedId ? ChannelStore.getChannel(selectedId) : null;
-    const forumChild =
-        channel?.isForumLikeChannel?.() && selectedChannel?.isThread?.() && selectedChannel.parent_id === channel.id
-            ? selectedChannel
-            : null;
+    const forumChild = channel?.isForumLikeChannel?.() && selectedChannel?.isThread?.() && selectedChannel.parent_id === channel.id
+        ? selectedChannel
+        : null;
     const targetChannel = thread ?? forumChild ?? channel;
     if (!targetChannel) return;
 
@@ -93,7 +82,7 @@ const ChannelMenuPatch: NavContextMenuPatchCallback = (
     );
 };
 
-const UserMenuPatch: NavContextMenuPatchCallback = (children, { user, channel }: { user: User; channel?: Channel }) => {
+const UserMenuPatch: NavContextMenuPatchCallback = (children, { user, channel }: { user: User; channel?: Channel; }) => {
     if (!user) return;
     if (!channel || channel.guild_id) return;
     children.push(
@@ -110,7 +99,7 @@ const UserMenuPatch: NavContextMenuPatchCallback = (children, { user, channel }:
     );
 };
 
-const MessageMenuPatch: NavContextMenuPatchCallback = (children, { message }: { message: Message }) => {
+const MessageMenuPatch: NavContextMenuPatchCallback = (children, { message }: { message: Message; }) => {
     if (!message) return;
     const channelId = SelectedChannelStore.getChannelId();
     const guildId = SelectedGuildStore.getGuildId();
@@ -139,6 +128,6 @@ export default definePlugin({
         "gdm-context": ChannelMenuPatch,
         "thread-context": ChannelMenuPatch,
         "user-context": UserMenuPatch,
-        message: MessageMenuPatch
+        "message": MessageMenuPatch
     }
 });

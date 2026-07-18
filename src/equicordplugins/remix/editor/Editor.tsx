@@ -5,7 +5,6 @@
  */
 
 import { findComponentByCodeLazy } from "@webpack";
-
 import { useEffect, useState } from "@webpack/common";
 
 import { Canvas } from "./components/Canvas";
@@ -14,7 +13,7 @@ import { imageToBlob, urlToImage } from "./utils/canvas";
 
 const FileUpload = findComponentByCodeLazy(".currentTarget.files", "lineClamp:1");
 
-export const Editor = (props: { url?: string }) => {
+export const Editor = (props: { url?: string; }) => {
     const [file, setFile] = useState<File | undefined>(undefined);
 
     useEffect(() => {
@@ -29,21 +28,17 @@ export const Editor = (props: { url?: string }) => {
 
     return (
         <div className="vc-remix-editor">
-            {!file && (
-                <FileUpload
-                    filename={undefined}
-                    placeholder="Choose an image"
-                    buttonText="Browse"
-                    filters={[{ name: "Image", extensions: ["png", "jpeg"] }]}
-                    onFileSelect={(file: File) => setFile(file)}
-                />
-            )}
-            {file && (
-                <>
-                    <Toolbar />
-                    <Canvas file={file!} />
-                </>
-            )}
+            {!file && <FileUpload
+                filename={undefined}
+                placeholder="Choose an image"
+                buttonText="Browse"
+                filters={[{ name: "Image", extensions: ["png", "jpeg"] }]}
+                onFileSelect={(file: File) => setFile(file)}
+            />}
+            {file && (<>
+                <Toolbar />
+                <Canvas file={file!} />
+            </>)}
         </div>
     );
 };

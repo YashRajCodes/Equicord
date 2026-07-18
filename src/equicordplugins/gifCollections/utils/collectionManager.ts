@@ -16,8 +16,7 @@ export const DATA_COLLECTION_NAME = "gif-collections-collections";
 
 export let cache_collections: Collection[] = [];
 
-export const getCollections = async (): Promise<Collection[]> =>
-    (await DataStore.get<Collection[]>(DATA_COLLECTION_NAME)) ?? [];
+export const getCollections = async (): Promise<Collection[]> => (await DataStore.get<Collection[]>(DATA_COLLECTION_NAME)) ?? [];
 
 async function saveCollections(collections: Collection[]) {
     cache_collections = collections;
@@ -33,12 +32,7 @@ export async function createCollection(name: string, gifs: Gif[]): Promise<void>
     const fullName = `${settings.store.collectionPrefix}${name}`;
 
     if (collections.some(c => c.name === fullName)) {
-        Toasts.show({
-            message: "That collection already exists",
-            type: Toasts.Type.FAILURE,
-            id: Toasts.genId(),
-            options: { duration: 3000, position: Toasts.Position.BOTTOM }
-        });
+        Toasts.show({ message: "That collection already exists", type: Toasts.Type.FAILURE, id: Toasts.genId(), options: { duration: 3000, position: Toasts.Position.BOTTOM } });
         return;
     }
 
@@ -50,7 +44,7 @@ export async function createCollection(name: string, gifs: Gif[]): Promise<void>
         type: "Category",
         gifs,
         createdAt: Date.now(),
-        lastUpdated: Date.now()
+        lastUpdated: Date.now(),
     });
 
     await saveCollections(collections);
@@ -62,12 +56,7 @@ export async function addToCollection(name: string, gif: Gif): Promise<void> {
     if (!collection) return void logger.warn("Collection not found");
 
     if (settings.store.preventDuplicates && collection.gifs.some(g => g.url === gif.url)) {
-        Toasts.show({
-            message: "This GIF is already in the collection",
-            type: Toasts.Type.FAILURE,
-            id: Toasts.genId(),
-            options: { duration: 3000, position: Toasts.Position.BOTTOM }
-        });
+        Toasts.show({ message: "This GIF is already in the collection", type: Toasts.Type.FAILURE, id: Toasts.genId(), options: { duration: 3000, position: Toasts.Position.BOTTOM } });
         return;
     }
 
@@ -96,9 +85,7 @@ export async function removeFromCollection(id: string): Promise<void> {
     if (!collection) return void logger.warn("Collection not found");
 
     collection.gifs = collection.gifs.filter(g => g.id !== id);
-    const latestGifSrc = collection.gifs.length
-        ? collection.gifs[collection.gifs.length - 1].src
-        : settings.store.defaultEmptyCollectionImage;
+    const latestGifSrc = collection.gifs.length ? collection.gifs[collection.gifs.length - 1].src : settings.store.defaultEmptyCollectionImage;
     collection.src = latestGifSrc;
     collection.format = getFormat(latestGifSrc);
     collection.lastUpdated = Date.now();
@@ -144,7 +131,7 @@ export async function updateGif(gifId: string, updatedGif: Gif): Promise<void> {
     const gifIndex = collection.gifs.findIndex(g => g.id === gifId);
     if (gifIndex === -1) return void logger.warn("Gif not found");
 
-    collection.gifs = collection.gifs.map((g, i) => (i === gifIndex ? updatedGif : g));
+    collection.gifs = collection.gifs.map((g, i) => i === gifIndex ? updatedGif : g);
     collection.lastUpdated = Date.now();
 
     await saveCollections(collections);

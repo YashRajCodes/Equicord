@@ -58,10 +58,7 @@ export async function translate(messageId: string, text: string): Promise<Cached
             return null;
         }
 
-        const translatedText = response.sentences
-            .map(s => s.trans)
-            .filter(Boolean)
-            .join("");
+        const translatedText = response.sentences.map(s => s.trans).filter(Boolean).join("");
         if (!translatedText || translatedText === text) {
             failed.set(messageId, text);
             return null;
@@ -70,7 +67,7 @@ export async function translate(messageId: string, text: string): Promise<Cached
         const entry: CachedTranslation = {
             original: text,
             translated: translatedText,
-            sourceLang: response.src
+            sourceLang: response.src,
         };
         translationCache.set(messageId, entry);
         return entry;

@@ -21,7 +21,7 @@ export default definePlugin({
                 match: /"header",.{0,30}children:\[.*?\{\}\)/,
                 replace: "$&,$self.FriendCodesPanel"
             },
-            noWarn: true
+            noWarn: true,
         }
     ],
 

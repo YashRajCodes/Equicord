@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { User } from "@vencord/discord-types";
-
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { copyToClipboard } from "@utils/clipboard";
 import { EquicordDevs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
+import { User } from "@vencord/discord-types";
 import { Menu, SelectedGuildStore, Toasts, UserProfileStore } from "@webpack/common";
 
 const logger = new Logger("CopyProfileColors");
@@ -71,23 +70,24 @@ function copyProfileColors(userId: string, guildId?: string) {
 
 export function ColorIcon() {
     return (
-        <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-            <path
-                fill="currentColor"
-                d="M17,4H15.82A3,3,0,0,0,13,2H11A3,3,0,0,0,8.18,4H7A3,3,0,0,0,4,7V19a3,3,0,0,0,3,3H17a3,3,0,0,0,3-3V7A3,3,0,0,0,17,4ZM10,5a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1V6H10Zm8,14a1,1,0,0,1-1,1H7a1,1,0,0,1-1-1V7A1,1,0,0,1,7,6H8V7A1,1,0,0,0,9,8h6a1,1,0,0,0,1-1V6h1a1,1,0,0,1,1,1Z"
-            />
+        <svg
+            viewBox="0 0 24 24"
+            width="20"
+            height="20"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <path fill="currentColor" d="M17,4H15.82A3,3,0,0,0,13,2H11A3,3,0,0,0,8.18,4H7A3,3,0,0,0,4,7V19a3,3,0,0,0,3,3H17a3,3,0,0,0,3-3V7A3,3,0,0,0,17,4ZM10,5a1,1,0,0,1,1-1h2a1,1,0,0,1,1,1V6H10Zm8,14a1,1,0,0,1-1,1H7a1,1,0,0,1-1-1V7A1,1,0,0,1,7,6H8V7A1,1,0,0,0,9,8h6a1,1,0,0,0,1-1V6h1a1,1,0,0,1,1,1Z" />
         </svg>
     );
 }
 // spawn in the context menu
-const userContextMenuPatch: NavContextMenuPatchCallback = (
-    children,
-    { user, guildId }: { user?: User; guildId?: string }
-) => {
+const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user, guildId }: { user?: User; guildId?: string; }) => {
     if (!user) return;
 
     const effectiveGuildId = guildId ?? SelectedGuildStore.getGuildId();
-    const guildProfile = effectiveGuildId ? UserProfileStore.getGuildMemberProfile(user.id, effectiveGuildId) : null;
+    const guildProfile = effectiveGuildId
+        ? UserProfileStore.getGuildMemberProfile(user.id, effectiveGuildId)
+        : null;
     const hasGuildColors = guildProfile?.themeColors && guildProfile.themeColors.length >= 2;
 
     children.push(

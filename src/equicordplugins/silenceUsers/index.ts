@@ -14,16 +14,13 @@ const settings = definePluginSettings({
         type: OptionType.STRING,
         description: "Comma-separated Discord user IDs to silence pings and server badges.",
         default: "",
-        restartNeeded: false
-    }
+        restartNeeded: false,
+    },
 });
 
 function getMutedIds(): Set<string> {
     const { mutedUserIds } = settings.store;
-    const ids = mutedUserIds
-        .split(",")
-        .map(id => id.trim())
-        .filter(Boolean);
+    const ids = mutedUserIds.split(",").map(id => id.trim()).filter(Boolean);
     return new Set(ids);
 }
 
@@ -53,13 +50,12 @@ function interceptor(event: any) {
 
             return false;
         }
-    } catch {}
+    } catch { }
 }
 
 export default definePlugin({
     name: "SilenceUsers",
-    description:
-        "Silences @mention pings and server badge counts from specific users. Regular messages and DMs are untouched.",
+    description: "Silences @mention pings and server badge counts from specific users. Regular messages and DMs are untouched.",
     authors: [EquicordDevs.dka],
     tags: ["Notifications"],
     settings,
@@ -70,5 +66,5 @@ export default definePlugin({
         const list = FluxDispatcher._interceptors ?? [];
         const idx = list.indexOf(interceptor);
         if (idx !== -1) list.splice(idx, 1);
-    }
+    },
 });

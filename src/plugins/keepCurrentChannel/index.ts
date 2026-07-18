@@ -14,18 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import * as DataStore from "@api/DataStore";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import {
-    ChannelRouter,
-    ChannelStore,
-    NavigationRouter,
-    SelectedChannelStore,
-    SelectedGuildStore
-} from "@webpack/common";
+import { ChannelRouter, ChannelStore, NavigationRouter, SelectedChannelStore, SelectedGuildStore } from "@webpack/common";
 
 export interface LogoutEvent {
     type: "LOGOUT";

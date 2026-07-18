@@ -4,19 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderModalProps } from "@vencord/discord-types";
-
 import { Button } from "@components/Button";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { classNameFactory } from "@utils/css";
+import { RenderModalProps } from "@vencord/discord-types";
 import { ChannelStore, closeModal, Modal, openModal, showToast, Toasts, useState } from "@webpack/common";
 
-import {
-    clearAllScheduledMessages,
-    getChannelDisplayInfo,
-    getScheduledMessages,
-    removeScheduledMessage
-} from "../utils";
+import { clearAllScheduledMessages, getChannelDisplayInfo, getScheduledMessages, removeScheduledMessage } from "../utils";
 import { CalendarIcon, TimerIcon } from "./Icons";
 
 const cl = classNameFactory("vc-scheduled-msg-");
@@ -58,7 +52,12 @@ function ViewScheduledModalInner({ rootProps, close }: ViewScheduledModalProps) 
     }
 
     return (
-        <Modal {...rootProps} size="md" title="Scheduled Messages" actions={actions}>
+        <Modal
+            {...rootProps}
+            size="md"
+            title="Scheduled Messages"
+            actions={actions}
+        >
             {!messages.length ? (
                 <div className={cl("empty-state")}>
                     <CalendarIcon width={48} height={48} />
@@ -72,15 +71,18 @@ function ViewScheduledModalInner({ rootProps, close }: ViewScheduledModalProps) 
                         if (!channel) return null;
 
                         const isDM = channel.isPrivate();
-                        const displayContent =
-                            msg.content.length > 200 ? msg.content.slice(0, 200) + "..." : msg.content;
+                        const displayContent = msg.content.length > 200
+                            ? msg.content.slice(0, 200) + "..."
+                            : msg.content;
 
                         return (
                             <div key={msg.id} className={cl("message-item")}>
                                 <div className={cl("message-info")}>
                                     <div className={cl("message-header")}>
                                         {avatar && <img src={avatar} className={cl("message-avatar")} alt="" />}
-                                        <span className={cl("message-channel")}>{isDM ? name : `#${name}`}</span>
+                                        <span className={cl("message-channel")}>
+                                            {isDM ? name : `#${name}`}
+                                        </span>
                                     </div>
                                     <div className={cl("message-time")}>
                                         <TimerIcon width={14} height={14} />
@@ -88,7 +90,11 @@ function ViewScheduledModalInner({ rootProps, close }: ViewScheduledModalProps) 
                                     </div>
                                     <div className={cl("message-content")}>{displayContent}</div>
                                 </div>
-                                <Button size="small" variant="dangerPrimary" onClick={() => handleDelete(msg.id)}>
+                                <Button
+                                    size="small"
+                                    variant="dangerPrimary"
+                                    onClick={() => handleDelete(msg.id)}
+                                >
                                     Delete
                                 </Button>
                             </div>
@@ -103,5 +109,7 @@ function ViewScheduledModalInner({ rootProps, close }: ViewScheduledModalProps) 
 export const ViewScheduledModal = ErrorBoundary.wrap(ViewScheduledModalInner, { noop: true });
 
 export function openViewScheduledModal(): void {
-    const key = openModal(props => <ViewScheduledModal rootProps={props} close={() => closeModal(key)} />);
+    const key = openModal(props => (
+        <ViewScheduledModal rootProps={props} close={() => closeModal(key)} />
+    ));
 }

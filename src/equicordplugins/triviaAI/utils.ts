@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Message } from "@vencord/discord-types";
-
 import { sendBotMessage } from "@api/Commands";
 import { insertTextIntoChatInputBox, sendMessage } from "@utils/discord";
 import { Logger } from "@utils/Logger";
+import { Message } from "@vencord/discord-types";
 import { MessageStore, showToast, Toasts, UserStore } from "@webpack/common";
 
 import { settings } from "./settings";
@@ -49,7 +48,7 @@ export async function getPayload(message: Message): Promise<ApiMessage[] | null>
 
         const isOwn = msg.author?.id === currentUserId;
         const isTargetMessage = msg.id === message.id;
-        const role = isOwn && !isTargetMessage && settings.store.treatSelfAsAssistant ? "assistant" : "user";
+        const role = (isOwn && !isTargetMessage && settings.store.treatSelfAsAssistant) ? "assistant" : "user";
 
         let content = parsed;
 
@@ -84,17 +83,13 @@ export async function getPayload(message: Message): Promise<ApiMessage[] | null>
 
     if (!settings.store.sendImagesAsBase64) return payload;
 
-    return Promise.all(
-        payload.map(async msg => {
-            if (typeof msg.content === "string") return msg;
+    return Promise.all(payload.map(async msg => {
+        if (typeof msg.content === "string") return msg;
 
-            const content = await Promise.all(
-                msg.content.map(part => (part.type === "image_url" ? toBase64Image(part) : part))
-            );
+        const content = await Promise.all(msg.content.map(part => part.type === "image_url" ? toBase64Image(part) : part));
 
-            return { ...msg, content: content.filter(part => part !== null) };
-        })
-    );
+        return { ...msg, content: content.filter(part => part !== null) };
+    }));
 }
 
 export function getPreviousMessages(message: Message, count: number): Message[] {
@@ -119,8 +114,8 @@ export function parseMessageContent(message: Message): ContentPayload | null {
             embed.author?.name ? `**${embed.author.name}**` : null,
             embed.rawTitle ? `## ${embed.rawTitle}` : null,
             embed.rawDescription ?? null,
-            ...(embed.fields?.map(f => (f.rawName && f.rawValue ? `**${f.rawName}**: ${f.rawValue}` : null)) ?? []),
-            embed.footer?.text ? `_${embed.footer.text}_` : null
+            ...(embed.fields?.map(f => (f.rawName && f.rawValue) ? `**${f.rawName}**: ${f.rawValue}` : null) ?? []),
+            embed.footer?.text ? `_${embed.footer.text}_` : null,
         ];
 
         parts.forEach(p => {
@@ -143,7 +138,11 @@ export function parseMessageContent(message: Message): ContentPayload | null {
         .forEach(att => imageUrls.add(att.proxy_url ?? att.url));
 
     message.embeds.forEach(embed => {
-        const potentialUrls = [embed.image?.url, embed.thumbnail?.url, ...(embed.images?.map(img => img.url) ?? [])];
+        const potentialUrls = [
+            embed.image?.url,
+            embed.thumbnail?.url,
+            ...(embed.images?.map(img => img.url) ?? [])
+        ];
 
         potentialUrls.forEach(url => {
             if (url) imageUrls.add(url);
@@ -197,9 +196,12 @@ async function toBase64Image(part: ImagePart): Promise<ImagePart | null> {
 export async function handleResponse(message: Message, response: string): Promise<string> {
     switch (settings.store.mode) {
         case "autoreply":
-            sendMessage(message.channel_id, { content: response }, true, {
-                messageReference: { channel_id: message.channel_id, message_id: message.id }
-            });
+            sendMessage(
+                message.channel_id,
+                { content: response },
+                true,
+                { messageReference: { channel_id: message.channel_id, message_id: message.id } }
+            );
             break;
         case "chatbar":
             insertTextIntoChatInputBox(response);
@@ -232,7 +234,7 @@ export async function getResponse(payload: ApiMessage[]): Promise<string> {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${settings.store.apiKey}`
+                "Authorization": `Bearer ${settings.store.apiKey}`
             },
             body: JSON.stringify({
                 model: settings.store.model,
@@ -243,17 +245,14 @@ export async function getResponse(payload: ApiMessage[]): Promise<string> {
                     },
                     ...payload
                 ],
-                max_tokens: settings.store.maxTokens
+                max_tokens: settings.store.maxTokens,
             })
         });
 
         const rawBody = await req.text();
-        const data: { error?: { message?: string }; choices?: { message: { content: string } }[] } = (() => {
-            try {
-                return JSON.parse(rawBody);
-            } catch {
-                return {};
-            }
+        const data: { error?: { message?: string; }, choices?: { message: { content: string; }; }[]; } = (() => {
+            try { return JSON.parse(rawBody); }
+            catch { return {}; }
         })();
 
         if (!req.ok || data.error) {

@@ -14,15 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { Command } from "@vencord/discord-types";
-import { findByPropsLazy } from "@webpack";
+*/
 
 import { ApplicationCommandInputType, findOption, OptionalMessageOption, sendBotMessage } from "@api/Commands";
 import { Devs } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import definePlugin from "@utils/types";
+import { Command } from "@vencord/discord-types";
+import { findByPropsLazy } from "@webpack";
 import { FluxDispatcher, MessageActions, PendingReplyStore } from "@webpack/common";
 
 interface Album {
@@ -91,6 +90,7 @@ function makeCommand(name: string, formatUrl: (track: Track) => string): Command
             ).then(() => {
                 FluxDispatcher.dispatch({ type: "DELETE_PENDING_REPLY", channelId: channel.id });
             });
+
         }
     };
 }

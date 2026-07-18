@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderModalProps } from "@vencord/discord-types";
-
 import * as DataStore from "@api/DataStore";
 import { HeadingSecondary } from "@components/Heading";
 import { Margins } from "@utils/margins";
+import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, SearchableSelect, useEffect, useMemo, useState } from "@webpack/common";
 
 import { DATASTORE_KEY, getSystemTimezone, resolveUserTimezone, settings, timezones } from ".";
@@ -19,15 +18,7 @@ export async function setUserTimezone(userId: string, timezone: string | null) {
     await DataStore.set(DATASTORE_KEY, timezones);
 }
 
-export function SetTimezoneModal({
-    userId,
-    modalProps,
-    database
-}: {
-    userId: string;
-    modalProps: RenderModalProps;
-    database?: boolean;
-}) {
+export function SetTimezoneModal({ userId, modalProps, database }: { userId: string, modalProps: RenderModalProps; database?: boolean; }) {
     const [currentValue, setCurrentValue] = useState<string | null>(null);
 
     useEffect(() => {
@@ -78,9 +69,16 @@ export function SetTimezoneModal({
     }
 
     return (
-        <Modal {...modalProps} size="sm" title="Timezones" actions={actions}>
+        <Modal
+            {...modalProps}
+            size="sm"
+            title="Timezones"
+            actions={actions}
+        >
             <section className={Margins.bottom16}>
-                <HeadingSecondary>Select Timezone</HeadingSecondary>
+                <HeadingSecondary>
+                    Select Timezone
+                </HeadingSecondary>
 
                 <SearchableSelect
                     options={options}

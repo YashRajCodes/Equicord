@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { sid } from "@song-spotlight/api/util";
-import { User } from "@vencord/discord-types";
-
 import { BaseText } from "@components/BaseText";
 import { Flex } from "@components/Flex";
 import { LinkIcon, PencilIcon } from "@components/Icons";
@@ -20,11 +17,13 @@ import {
     CardClasses,
     MoreHorizontalIcon,
     OverlayClasses,
-    Spinner
+    Spinner,
 } from "@equicordplugins/songSpotlight.desktop/ui/common";
 import { openSettingsModal } from "@equicordplugins/songSpotlight.desktop/ui/settings";
+import { sid } from "@song-spotlight/api/util";
 import { copyWithToast } from "@utils/discord";
 import { classes } from "@utils/index";
+import { User } from "@vencord/discord-types";
 import {
     ContextMenuApi,
     FluxDispatcher,
@@ -34,7 +33,7 @@ import {
     useEffect,
     useMemo,
     UserStore,
-    useState
+    useState,
 } from "@webpack/common";
 
 import Song from ".";
@@ -57,10 +56,11 @@ export default function ProfileSongs({ user, isSideBar }: ProfileSongsProps) {
     }, [isAuthorized()]);
 
     const [clamped, setClamped] = useState(true);
-    const clampedData = useMemo(
-        () => data && (clamped ? data.slice(0, profileSongsLimit) : data),
-        [data, clamped, profileSongsLimit]
-    );
+    const clampedData = useMemo(() => data && (clamped ? data.slice(0, profileSongsLimit) : data), [
+        data,
+        clamped,
+        profileSongsLimit,
+    ]);
 
     const owned = UserStore.getCurrentUser().id === userId;
 
@@ -68,7 +68,13 @@ export default function ProfileSongs({ user, isSideBar }: ProfileSongsProps) {
     if (!pending && !clampedData?.[0]) return null;
 
     if (collapseSongList) {
-        return <CollapsedProfileSongs data={data} user={user} isSideBar={isSideBar} />;
+        return (
+            <CollapsedProfileSongs
+                data={data}
+                user={user}
+                isSideBar={isSideBar}
+            />
+        );
     } else if (pending) {
         return <Spinner type={Spinner.Type.WANDERING_CUBES} />;
     }
@@ -78,7 +84,7 @@ export default function ProfileSongs({ user, isSideBar }: ProfileSongsProps) {
             className={classes(
                 isSideBar && OverlayClasses.overlay,
                 isSideBar && CardClasses.card,
-                cl("songs-container", isSideBar && "songs-container-sidebar")
+                cl("songs-container", isSideBar && "songs-container-sidebar"),
             )}
             key="song-spotlight-profile-songs"
         >
@@ -114,20 +120,19 @@ export default function ProfileSongs({ user, isSideBar }: ProfileSongsProps) {
                                             action={() => copyWithToast(JSON.stringify(data))}
                                         />
                                     </Menu.Menu>
-                                ))
-                            }
+                                ))}
                             className={cl("icon", "songs-more")}
                         />
                     )}
                 </Tooltip>
             </Flex>
             <Flex flexDirection="column" gap="6px">
-                {clampedData.map((song, i) => (
-                    <Song owned={owned} song={song} index={i} key={sid(song)} />
-                ))}
+                {clampedData.map((song, i) => <Song owned={owned} song={song} index={i} key={sid(song)} />)}
             </Flex>
             {clamped && data.length > profileSongsLimit && (
-                <Link onClick={() => setClamped(false)}>
+                <Link
+                    onClick={() => setClamped(false)}
+                >
                     <BaseText size="sm" weight="medium" className={cl("sub")} style={{ textAlign: "center" }}>
                         Show {data.length - profileSongsLimit} more
                     </BaseText>

@@ -80,8 +80,8 @@ A comma-separated list of channel IDs to **always** receive notifications from, 
 
 This plugin supports theming and exposes a number of CSS variables to allow you to customize the appearance of notifications.
 
-| CSS Variable                                          | Description                                                                |
-| ----------------------------------------------------- | -------------------------------------------------------------------------- |
+| CSS Variable                                      | Description                                                                |
+| ------------------------------------------------- | -------------------------------------------------------------------------- |
 | `--vc-toast-notifications-background-color`           | Background color of the notification card.                                 |
 | `--vc-toast-notifications-text-color`                 | Default text color inside notifications.                                   |
 | `--vc-toast-notifications-border-radius`              | Border radius of the notification card.                                    |
@@ -105,3 +105,4 @@ This plugin supports theming and exposes a number of CSS variables to allow you 
 | `--vc-toast-notifications-close-button-hover-opacity` | Opacity of the dismiss (X) button on hover.                                |
 | `--vc-toast-notifications-progressbar-height`         | Height of the progress bar shown at the bottom of notifications.           |
 | `--vc-toast-notifications-progressbar-color`          | Color of the progress bar.                                                 |
+

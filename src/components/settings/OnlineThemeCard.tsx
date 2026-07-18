@@ -14,16 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import "./AddonCard.css";
-import type { MouseEventHandler, ReactNode } from "react";
 
 import { Badge } from "@components/Badge";
 import { BaseText } from "@components/BaseText";
 import { Switch } from "@components/settings";
 import { classNameFactory } from "@utils/css";
 import { useRef } from "@webpack/common";
+import type { MouseEventHandler, ReactNode } from "react";
 
 import { EditableText } from "./EditableText";
 import { useTruncatedText } from "./tabs/plugins/components/truncateText";
@@ -63,7 +63,7 @@ export function OnlineThemeCard({
     onMouseEnter,
     onMouseLeave,
     customName,
-    onEditName
+    onEditName,
 }: Props) {
     const titleRef = useRef<HTMLDivElement>(null);
     const titleContainerRef = useRef<HTMLDivElement>(null);
@@ -86,14 +86,8 @@ export function OnlineThemeCard({
                                     const title = titleRef.current!;
                                     const titleContainer = titleContainerRef.current!;
 
-                                    title.style.setProperty(
-                                        "--offset",
-                                        `${titleContainer.clientWidth - title.scrollWidth}px`
-                                    );
-                                    title.style.setProperty(
-                                        "--duration",
-                                        `${Math.max(0.5, (title.scrollWidth - titleContainer.clientWidth) / 7)}s`
-                                    );
+                                    title.style.setProperty("--offset", `${titleContainer.clientWidth - title.scrollWidth}px`);
+                                    title.style.setProperty("--duration", `${Math.max(0.5, (title.scrollWidth - titleContainer.clientWidth) / 7)}s`);
                                 }}
                             >
                                 {onEditName ? (
@@ -119,7 +113,11 @@ export function OnlineThemeCard({
 
                 {infoButton}
 
-                <Switch checked={enabled} onChange={setEnabled} disabled={disabled} />
+                <Switch
+                    checked={enabled}
+                    onChange={setEnabled}
+                    disabled={disabled}
+                />
             </div>
 
             <div

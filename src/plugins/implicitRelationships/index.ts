@@ -14,30 +14,24 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
-import {
-    Constants,
-    FluxDispatcher,
-    GuildStore,
-    RelationshipStore,
-    SnowflakeUtils,
-    UserAffinitiesStore,
-    UserStore
-} from "@webpack/common";
+import { Constants, FluxDispatcher, GuildStore, RelationshipStore, SnowflakeUtils, UserAffinitiesStore, UserStore } from "@webpack/common";
 
-const settings = definePluginSettings({
-    sortByAffinity: {
-        type: OptionType.BOOLEAN,
-        default: true,
-        description: "Whether to sort implicit relationships by their affinity to you.",
-        restartNeeded: true
+const settings = definePluginSettings(
+    {
+        sortByAffinity: {
+            type: OptionType.BOOLEAN,
+            default: true,
+            description: "Whether to sort implicit relationships by their affinity to you.",
+            restartNeeded: true
+        },
     }
-});
+);
 
 export default definePlugin({
     name: "ImplicitRelationships",
@@ -53,7 +47,7 @@ export default definePlugin({
             replacement: {
                 match: /toString\(\)\}\);case (\i\.\i)\.PENDING/,
                 replace: 'toString()});case $1.IMPLICIT:return "Implicit — "+arguments[1];case $1.BLOCKED'
-            }
+            },
         },
         // No friends page
         {
@@ -61,15 +55,14 @@ export default definePlugin({
             replacement: {
                 match: /case (\i\.\i)\.ONLINE:(?=return (\i)\.SECTION_ONLINE)/,
                 replace: "case $1.ONLINE:case $1.IMPLICIT:"
-            }
+            },
         },
         // Sections header
         {
             find: "#{intl::FRIENDS_SECTION_ONLINE}),className:",
             replacement: {
                 match: /,{id:(\i\.\i)\.PENDING,show:.+?className:(\i\.\i)(?=\},\{id:)/,
-                replace: (rest, relationShipTypes, className) =>
-                    `,{id:${relationShipTypes}.IMPLICIT,show:true,className:${className},content:"Implicit"}${rest}`
+                replace: (rest, relationShipTypes, className) => `,{id:${relationShipTypes}.IMPLICIT,show:true,className:${className},content:"Implicit"}${rest}`
             }
         },
         // Sections content
@@ -78,7 +71,7 @@ export default definePlugin({
             replacement: {
                 match: /(?<=case (\i\.\i)\.SUGGESTIONS:return \d+===(\i)\.type)/,
                 replace: ";case $1.IMPLICIT:return $2.type===5"
-            }
+            },
         },
         // Piggyback relationship fetch
         {
@@ -87,7 +80,7 @@ export default definePlugin({
                 match: /(\i\.\i)\.fetchRelationships\(\)/,
                 // This relationship fetch is actually completely useless, but whatevs
                 replace: "$1.fetchRelationships(),$self.fetchImplicitRelationships()"
-            }
+            },
         },
         // Modify sort -- thanks megu for the patch (from sortFriends)
         {
@@ -112,14 +105,14 @@ export default definePlugin({
             replacement: {
                 match: /presences:!!(\i)\.presences/,
                 replace: "$&,nonce:$1.nonce"
-            }
+            },
         },
         {
             find: ".not_found",
             replacement: {
                 match: /notFound:(\i)\.not_found/,
                 replace: "$&,nonce:$1.nonce"
-            }
+            },
         }
     ],
 
@@ -172,7 +165,7 @@ export default definePlugin({
                 guildIds: allGuildIds,
                 userIds: toRequest.slice(i, i + 100),
                 presences: true,
-                nonce: sentNonce
+                nonce: sentNonce,
             });
         }
     },

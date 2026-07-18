@@ -9,7 +9,7 @@ import { TooltipContainer } from "@components/TooltipContainer";
 import { settings } from "@equicordplugins/musicControls/settings";
 import { SpotifyLrcStore } from "@equicordplugins/musicControls/spotify/lyrics/providers/store";
 import { SpotifyStore } from "@equicordplugins/musicControls/spotify/SpotifyStore";
-import { ContextMenuApi, openModal, React, useEffect, useState, useStateFromStores } from "@webpack/common";
+import { ContextMenuApi, openModal,React, useEffect, useState, useStateFromStores } from "@webpack/common";
 
 import { LyricsContextMenu } from "./ctxMenu";
 import { LyricsModal } from "./modal";
@@ -19,7 +19,7 @@ const prevCl = cl("prev");
 const nextCl = cl("next");
 const currentCl = cl("current");
 
-function LyricsDisplay({ scroll = true }: { scroll?: boolean }) {
+function LyricsDisplay({ scroll = true }: { scroll?: boolean; }) {
     const { showMusicNoteOnNoLyrics } = settings.use(["showMusicNoteOnNoLyrics"]);
     const { lyricsInfo, lyricRefs, currLrcIndex } = useLyrics({ scroll });
 
@@ -40,15 +40,16 @@ function LyricsDisplay({ scroll = true }: { scroll?: boolean }) {
             onClick={() => openModal(props => <LyricsModal props={props} />)}
             onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <LyricsContextMenu />)}
         >
-            {currentLyrics ? (
-                currentLyrics.map((line, i) => (
-                    <div ref={lyricRefs[i]} key={i}>
-                        <BaseText size={currLrcIndex === i ? "sm" : "xs"} className={makeClassName(i)}>
-                            {line.text || NoteSvg()}
-                        </BaseText>
-                    </div>
-                ))
-            ) : showMusicNoteOnNoLyrics ? (
+            {currentLyrics ? currentLyrics.map((line, i) => (
+                <div ref={lyricRefs[i]} key={i}>
+                    <BaseText
+                        size={currLrcIndex === i ? "sm" : "xs"}
+                        className={makeClassName(i)}
+                    >
+                        {line.text || NoteSvg()}
+                    </BaseText>
+                </div>
+            )) : showMusicNoteOnNoLyrics ? (
                 <TooltipContainer text="No synced lyrics found">
                     <NoteSvg />
                 </TooltipContainer>
@@ -57,7 +58,7 @@ function LyricsDisplay({ scroll = true }: { scroll?: boolean }) {
     );
 }
 
-export function SpotifyLyrics({ scroll = true }: { scroll?: boolean } = {}) {
+export function SpotifyLyrics({ scroll = true }: { scroll?: boolean; } = {}) {
     SpotifyLrcStore.init();
     const track = useStateFromStores(
         [SpotifyStore],

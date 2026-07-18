@@ -24,15 +24,19 @@ const settings = definePluginSettings({
         description: "Scan a QR code",
         component() {
             if (!plugins.LoginWithQR.started)
-                return <Paragraph>Enable the plugin and restart your client to scan a login QR code</Paragraph>;
+                return (
+                    <Paragraph>
+                        Enable the plugin and restart your client to scan a login QR code
+                    </Paragraph>
+                );
 
             return (
                 <Button size={Button.Sizes.SMALL} onClick={openQrModal}>
                     {getIntlMessage("USER_SETTINGS_SCAN_QR_CODE")}
                 </Button>
             );
-        }
-    }
+        },
+    },
 });
 
 export default definePlugin({
@@ -49,9 +53,9 @@ export default definePlugin({
             find: ".clipboardData&&(",
             replacement: {
                 match: /handleGlobalPaste:(\i)(?=\}\))/,
-                replace: "handleGlobalPaste:(...args)=>!$self.qrModalOpen&&$1(...args)"
-            }
-        }
+                replace: "handleGlobalPaste:(...args)=>!$self.qrModalOpen&&$1(...args)",
+            },
+        },
     ],
 
     qrModalOpen: false,
@@ -69,5 +73,5 @@ export default definePlugin({
     stop() {
         removeFromArray(SettingsPlugin.customEntries, e => e.key === "equicord_login_with_qr");
         unload();
-    }
+    },
 });

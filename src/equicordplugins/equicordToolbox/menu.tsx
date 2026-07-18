@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { ReactNode } from "react";
-
 import { openNotificationLogModal } from "@api/Notifications/notificationLog";
 import { isPluginEnabled, isSettingDisabled, isSettingHidden, plugins } from "@api/PluginManager";
 import { Settings, useSettings } from "@api/Settings";
@@ -14,6 +12,7 @@ import { useAwaiter } from "@utils/react";
 import { wordsFromCamel, wordsToTitle } from "@utils/text";
 import { OptionType, Plugin } from "@utils/types";
 import { Menu, showToast, useMemo, useState } from "@webpack/common";
+import type { ReactNode } from "react";
 
 import { settings } from ".";
 
@@ -26,7 +25,11 @@ function buildPluginMenu() {
     if (!showPluginMenu) return null;
 
     return (
-        <Menu.MenuItem id="plugins" label="Plugins" action={() => openSettingsTabModal(PluginsTab)}>
+        <Menu.MenuItem
+            id="plugins"
+            label="Plugins"
+            action={() => openSettingsTabModal(PluginsTab)}
+        >
             {pluginEntries}
         </Menu.MenuItem>
     );
@@ -39,11 +42,14 @@ export function buildPluginMenuEntries(includeEmpty = false) {
 
     const lowerSearch = search.toLowerCase();
 
-    const sortedPlugins = useMemo(() => Object.values(plugins).sort((a, b) => a.name.localeCompare(b.name)), []);
+    const sortedPlugins = useMemo(() =>
+        Object.values(plugins).sort((a, b) => a.name.localeCompare(b.name)),
+        []
+    );
 
-    const candidates = useMemo(
-        () =>
-            sortedPlugins.filter(p => {
+    const candidates = useMemo(() =>
+        sortedPlugins
+            .filter(p => {
                 if (!isPluginEnabled(p.name)) return false;
                 if (p.name.endsWith("API")) return false;
 
@@ -58,19 +64,24 @@ export function buildPluginMenuEntries(includeEmpty = false) {
             <Menu.MenuControlItem
                 id="plugins-search"
                 control={(props, ref) => (
-                    <Menu.MenuSearchControl {...props} query={search} onChange={setSearch} ref={ref} />
+                    <Menu.MenuSearchControl
+                        {...props}
+                        query={search}
+                        onChange={setSearch}
+                        ref={ref}
+                    />
                 )}
             />
 
             <Menu.MenuSeparator />
 
-            {candidates.map(p => {
-                const options = [] as ReactNode[];
+            {candidates
+                .map(p => {
+                    const options = [] as ReactNode[];
 
-                let hasAnyOption = false;
+                    let hasAnyOption = false;
 
-                if (p.settings)
-                    for (const [key, option] of Object.entries(p.settings.def)) {
+                    if (p.settings) for (const [key, option] of Object.entries(p.settings.def)) {
                         if (isSettingHidden(p.settings, option)) continue;
 
                         hasAnyOption = true;
@@ -130,7 +141,7 @@ export function buildPluginMenuEntries(includeEmpty = false) {
                                                 minValue={option.markers[0]}
                                                 maxValue={option.markers.at(-1)!}
                                                 value={s[key]}
-                                                onChange={v => (s[key] = v)}
+                                                onChange={v => s[key] = v}
                                             />
                                         )}
                                     />
@@ -139,35 +150,47 @@ export function buildPluginMenuEntries(includeEmpty = false) {
                         }
                     }
 
-                const hasVisibleOptions = options.length > 0;
-                const shouldSkip = !hasVisibleOptions && !(includeEmpty && hasAnyOption);
-                if (shouldSkip) return null;
+                    const hasVisibleOptions = options.length > 0;
+                    const shouldSkip = !hasVisibleOptions && !(includeEmpty && hasAnyOption);
+                    if (shouldSkip) return null;
 
-                return (
-                    <Menu.MenuItem id={`${p.name}-menu`} key={p.name} label={p.name} action={() => openPluginModal(p)}>
-                        {hasVisibleOptions && (
-                            <>
-                                <Menu.MenuGroup label={p.name}>{options}</Menu.MenuGroup>
+                    return (
+                        <Menu.MenuItem
+                            id={`${p.name}-menu`}
+                            key={p.name}
+                            label={p.name}
+                            action={() => openPluginModal(p)}
+                        >
+                            {hasVisibleOptions && (
+                                <>
+                                    <Menu.MenuGroup label={p.name}>
+                                        {options}
+                                    </Menu.MenuGroup>
 
-                                <Menu.MenuSeparator />
+                                    <Menu.MenuSeparator />
 
-                                <Menu.MenuItem
-                                    id={`${p.name}-open`}
-                                    label={"Open Settings"}
-                                    action={() => openPluginModal(p)}
-                                />
-                            </>
-                        )}
-                    </Menu.MenuItem>
-                );
-            })}
+                                    <Menu.MenuItem
+                                        id={`${p.name}-open`}
+                                        label={"Open Settings"}
+                                        action={() => openPluginModal(p)}
+                                    />
+                                </>
+                            )}
+                        </Menu.MenuItem>
+                    );
+                })
+            }
         </>
     );
 }
 
 export function buildThemeMenu() {
     return (
-        <Menu.MenuItem id="themes" label="Themes" action={() => openSettingsTabModal(ThemesTab)}>
+        <Menu.MenuItem
+            id="themes"
+            label="Themes"
+            action={() => openSettingsTabModal(ThemesTab)}
+        >
             {buildThemeMenuEntries()}
         </Menu.MenuItem>
     );
@@ -192,7 +215,11 @@ export function buildThemeMenuEntries() {
                 label="Edit QuickCSS"
                 action={() => VencordNative.quickCss.openEditor()}
             />
-            <Menu.MenuItem id="manage-themes" label="Manage Themes" action={() => openSettingsTabModal(ThemesTab)} />
+            <Menu.MenuItem
+                id="manage-themes"
+                label="Manage Themes"
+                action={() => openSettingsTabModal(ThemesTab)}
+            />
             {!!themes?.length && (
                 <Menu.MenuGroup>
                     {themes.map(theme => (
@@ -217,28 +244,33 @@ export function buildThemeMenuEntries() {
 }
 
 function buildCustomPluginEntries() {
-    const pluginEntries = [] as { plugin: Plugin; node: ReactNode }[];
+    const pluginEntries = [] as { plugin: Plugin, node: ReactNode; }[];
 
     for (const plugin of Object.values(plugins)) {
         if (plugin.toolboxActions && isPluginEnabled(plugin.name)) {
-            const entries =
-                typeof plugin.toolboxActions === "function"
-                    ? plugin.toolboxActions()
-                    : Object.entries(plugin.toolboxActions).map(([text, action]) => {
-                          const key = `${plugin.name}-${text}`;
+            const entries = typeof plugin.toolboxActions === "function"
+                ? plugin.toolboxActions()
+                : Object.entries(plugin.toolboxActions).map(([text, action]) => {
+                    const key = `${plugin.name}-${text}`;
 
-                          return <Menu.MenuItem id={key} key={key} label={text} action={action} />;
-                      });
+                    return (
+                        <Menu.MenuItem
+                            id={key}
+                            key={key}
+                            label={text}
+                            action={action}
+                        />
+                    );
+                });
 
-            if (!entries || (Array.isArray(entries) && entries.length === 0)) continue;
+            if (!entries || Array.isArray(entries) && entries.length === 0) continue;
 
             pluginEntries.push({
                 plugin,
-                node: (
+                node:
                     <Menu.MenuGroup label={plugin.name} key={`${plugin.name}-group`}>
                         {entries}
                     </Menu.MenuGroup>
-                )
             });
         }
     }
@@ -247,7 +279,8 @@ function buildCustomPluginEntries() {
     // Otherwise, add submenus for each plugin
     // FIXME: the Slider component has broken styles that overlap with higher context menus
     // https://discord.com/channels/1015060230222131221/1015063227299811479/1440489344631705693
-    if (pluginEntries.length <= 5) return pluginEntries.map(e => e.node);
+    if (pluginEntries.length <= 5)
+        return pluginEntries.map(e => e.node);
 
     const submenuEntries = pluginEntries.map(({ node, plugin }) => (
         <Menu.MenuItem
@@ -265,13 +298,20 @@ function buildCustomPluginEntries() {
 
 export function renderPopout(onClose: () => void) {
     return (
-        <Menu.Menu navId="vc-toolbox" onClose={onClose}>
-            <Menu.MenuItem id="notifications" label="Open Notification Log" action={openNotificationLogModal} />
+        <Menu.Menu
+            navId="vc-toolbox"
+            onClose={onClose}
+        >
+            <Menu.MenuItem
+                id="notifications"
+                label="Open Notification Log"
+                action={openNotificationLogModal}
+            />
 
             {buildThemeMenu()}
             {buildPluginMenu()}
 
             {buildCustomPluginEntries()}
-        </Menu.Menu>
+        </Menu.Menu >
     );
 }

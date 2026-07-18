@@ -133,9 +133,7 @@
     color: var(--cmdpal-text);
     cursor: pointer;
     flex-shrink: 0;
-    transition:
-        color 100ms ease,
-        background 100ms ease;
+    transition: color 100ms ease, background 100ms ease;
 }
 
 .vc-cmdpal-back:hover {
@@ -490,9 +488,7 @@
     color: var(--cmdpal-text-bright);
     outline: none;
     resize: vertical;
-    transition:
-        border-color 100ms ease,
-        background 100ms ease;
+    transition: border-color 100ms ease, background 100ms ease;
 }
 
 .vc-cmdpal-field-input:focus,
@@ -644,10 +640,7 @@
     font-family: var(--font-primary);
     color: var(--cmdpal-text);
     cursor: pointer;
-    transition:
-        border-color 100ms ease,
-        background 100ms ease,
-        color 100ms ease;
+    transition: border-color 100ms ease, background 100ms ease, color 100ms ease;
 }
 
 .vc-cmdpal-chip:hover {
@@ -681,9 +674,7 @@
     border-radius: 9px;
     border: 1px solid var(--cmdpal-hairline);
     background: var(--cmdpal-raised);
-    transition:
-        border-color 100ms ease,
-        background 100ms ease;
+    transition: border-color 100ms ease, background 100ms ease;
 }
 
 .vc-cmdpal-picker-input-focused {

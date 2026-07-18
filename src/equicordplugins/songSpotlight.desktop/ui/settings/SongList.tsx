@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Song, UserData } from "@song-spotlight/api/structs";
-import { sid } from "@song-spotlight/api/util";
-import { DragEvent } from "react";
-
 import { BaseText } from "@components/BaseText";
 import { Flex } from "@components/Flex";
 import { LinkIcon } from "@components/Icons";
@@ -18,6 +14,8 @@ import { useRender } from "@equicordplugins/songSpotlight.desktop/service";
 import { TrashIcon } from "@equicordplugins/songSpotlight.desktop/ui/common";
 import ServiceIcon from "@equicordplugins/songSpotlight.desktop/ui/components/ServiceIcon";
 import AddSong from "@equicordplugins/songSpotlight.desktop/ui/settings/AddSong";
+import { Song, UserData } from "@song-spotlight/api/structs";
+import { sid } from "@song-spotlight/api/util";
 import { copyWithToast } from "@utils/discord";
 import {
     ContextMenuApi,
@@ -28,8 +26,9 @@ import {
     useCallback,
     useMemo,
     useRef,
-    useState
+    useState,
 } from "@webpack/common";
+import { DragEvent } from "react";
 
 interface EditableSongProps {
     index: number;
@@ -46,13 +45,10 @@ function EditableSong({ index, song, insert, setSongRef, onDrag, onDrop, onRemov
     const [dragging, setDragging] = useState(false);
 
     const refCallback = useCallback((div: HTMLAnchorElement | null) => setSongRef(index, div), [index, setSongRef]);
-    const dragCallback = useCallback(
-        (event: DragEvent<HTMLAnchorElement>) => {
-            setDragging(true);
-            onDrag(index, event);
-        },
-        [index, onDrag]
-    );
+    const dragCallback = useCallback((event: DragEvent<HTMLAnchorElement>) => {
+        setDragging(true);
+        onDrag(index, event);
+    }, [index, onDrag]);
     const dragEndCallback = useCallback(() => {
         setDragging(false);
         onDrop(song);
@@ -83,8 +79,7 @@ function EditableSong({ index, song, insert, setSongRef, onDrag, onDrop, onRemov
                             action={() => onRemove(song)}
                         />
                     </Menu.Menu>
-                ))
-            }
+                ))}
             draggable="true"
             data-dragging={dragging}
             data-insert={insert}
@@ -96,36 +91,32 @@ function EditableSong({ index, song, insert, setSongRef, onDrag, onDrop, onRemov
         >
             <Flex alignItems="center" gap="12px" className={cl("editable-song")}>
                 <ServiceIcon width={28} height={28} service={song.service} />
-                {failed ? (
-                    <BaseText size="md" weight="normal" className={cl("errored")}>
-                        Failed to load!
-                    </BaseText>
-                ) : (
-                    <Flex flexDirection="column" justifyContent="center" gap={0}>
-                        <BaseText size="md" weight="medium" className={cl("clamped")}>
-                            {render ? render.label : "..."}
-                        </BaseText>
-                        <BaseText size="sm" weight="normal" className={cl("clamped", "sub")}>
-                            {render ? render.sublabel : "..."}
-                        </BaseText>
-                    </Flex>
-                )}
+                {failed
+                    ? <BaseText size="md" weight="normal" className={cl("errored")}>Failed to load!</BaseText>
+                    : (
+                        <Flex flexDirection="column" justifyContent="center" gap={0}>
+                            <BaseText size="md" weight="medium" className={cl("clamped")}>
+                                {render ? render.label : "..."}
+                            </BaseText>
+                            <BaseText size="sm" weight="normal" className={cl("clamped", "sub")}>
+                                {render ? render.sublabel : "..."}
+                            </BaseText>
+                        </Flex>
+                    )}
             </Flex>
         </Link>
     );
 }
 
-type Editable =
-    | {
-          slot: "song";
-          song: Song;
-          last: boolean;
-      }
-    | {
-          slot: "add" | "empty";
-          song: undefined;
-          last: undefined;
-      };
+type Editable = {
+    slot: "song";
+    song: Song;
+    last: boolean;
+} | {
+    slot: "add" | "empty";
+    song: undefined;
+    last: undefined;
+};
 
 interface SongListProps {
     localData: UserData;
@@ -133,20 +124,23 @@ interface SongListProps {
 }
 
 export default function SongList({ localData, setLocalData }: SongListProps) {
-    const editable = useMemo<Editable[]>(() => {
-        if (!localData) return [];
+    const editable = useMemo<Editable[]>(
+        () => {
+            if (!localData) return [];
 
-        return new Array(apiConstants.songLimit).fill(null).map((_, i) => {
-            if (localData[i]) {
-                return {
-                    slot: "song",
-                    song: localData[i],
-                    last: !localData[i + 1]
-                };
-            } else if (localData[i - 1] || i === 0) return { slot: "add" };
-            else return { slot: "empty" };
-        });
-    }, [localData]);
+            return new Array(apiConstants.songLimit).fill(null).map((_, i) => {
+                if (localData[i]) {
+                    return {
+                        slot: "song",
+                        song: localData[i],
+                        last: !localData[i + 1],
+                    };
+                } else if (localData[i - 1] || i === 0) return { slot: "add" };
+                else return { slot: "empty" };
+            });
+        },
+        [localData],
+    );
 
     const songs = useRef(new Map<number, HTMLAnchorElement>());
     const [insert, setInsert] = useState<number>();
@@ -157,28 +151,23 @@ export default function SongList({ localData, setLocalData }: SongListProps) {
     }, []);
 
     const handleDrag = useCallback((index: number, event: DragEvent<HTMLAnchorElement>) => {
-        const mapped = songs.current
-            .entries()
-            .map(([index, element]) => {
-                const rect = element.getBoundingClientRect();
-                return {
-                    index,
-                    top: rect.top,
-                    bottom: rect.bottom,
-                    size: rect.height
-                };
-            })
-            .toArray()
-            .sort((a, b) => a.index - b.index);
+        const mapped = songs.current.entries().map(([index, element]) => {
+            const rect = element.getBoundingClientRect();
+            return {
+                index,
+                top: rect.top,
+                bottom: rect.bottom,
+                size: rect.height,
+            };
+        }).toArray().sort((a, b) => a.index - b.index);
 
         const last = mapped[mapped.length - 1];
         const spots = [
             ...mapped.map(({ index, top, size }) => ({ spot: index, position: top, size })),
-            { spot: last.index + 1, position: last.bottom, size: last.size }
+            { spot: last.index + 1, position: last.bottom, size: last.size },
         ].filter(({ spot }) => spot !== index && spot !== index + 1);
 
-        let closest: number | undefined,
-            closestDist = Infinity;
+        let closest: number | undefined, closestDist = Infinity;
         for (const { spot, position, size } of spots) {
             const dist = Math.abs(event.clientY - position);
             if (dist < closestDist && dist < size) {
@@ -190,41 +179,35 @@ export default function SongList({ localData, setLocalData }: SongListProps) {
         setInsert(closest);
     }, []);
 
-    const handleDrop = useCallback(
-        (song: Song) => {
-            if (insert === undefined) return;
-            setInsert(undefined);
+    const handleDrop = useCallback((song: Song) => {
+        if (insert === undefined) return;
+        setInsert(undefined);
 
-            const i = localData.indexOf(song);
-            if (i === -1) return;
+        const i = localData.indexOf(song);
+        if (i === -1) return;
 
-            const adjusted = insert > i ? insert - 1 : insert;
-            setLocalData(localData.toSpliced(i, 1).toSpliced(adjusted, 0, song));
-        },
-        [localData, insert]
-    );
+        const adjusted = insert > i ? insert - 1 : insert;
+        setLocalData(localData.toSpliced(i, 1).toSpliced(adjusted, 0, song));
+    }, [localData, insert]);
 
-    const handleAdd = useCallback(
-        (song: Song) => {
-            if (localData.length >= apiConstants.songLimit) return "Not enough space";
-            if (localData.some(x => sid(x) === sid(song))) return "You've already added this song";
+    const handleAdd = useCallback((song: Song) => {
+        if (localData.length >= apiConstants.songLimit) return "Not enough space";
+        if (localData.some(x => sid(x) === sid(song))) return "You've already added this song";
 
-            showToast("Added song!");
-            setLocalData([...localData, song]);
-        },
-        [localData]
-    );
+        showToast("Added song!");
+        setLocalData([
+            ...localData,
+            song,
+        ]);
+    }, [localData]);
 
-    const handleRemove = useCallback(
-        (song: Song) => {
-            const i = localData.indexOf(song);
-            if (i === -1) return;
+    const handleRemove = useCallback((song: Song) => {
+        const i = localData.indexOf(song);
+        if (i === -1) return;
 
-            showToast("Removed song!");
-            setLocalData(localData.toSpliced(i, 1));
-        },
-        [localData]
-    );
+        showToast("Removed song!");
+        setLocalData(localData.toSpliced(i, 1));
+    }, [localData]);
 
     return (
         <Flex flexDirection="column" gap="6px">

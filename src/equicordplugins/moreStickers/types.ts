@@ -13,8 +13,8 @@ export interface CategoryImageProps {
 }
 
 export interface LineSticker {
-    animationUrl: string;
-    fallbackStaticUrl?: string;
+    animationUrl: string,
+    fallbackStaticUrl?: string,
     id: string;
     popupUrl: string;
     soundUrl: string;
@@ -39,7 +39,7 @@ export interface LineStickerPack {
     author: {
         name: string;
         url: string;
-    };
+    },
     id: string;
     mainImage: LineSticker;
     stickers: LineSticker[];
@@ -50,7 +50,7 @@ export interface LineEmojiPack {
     author: {
         name: string;
         url: string;
-    };
+    },
     id: string;
     mainImage: LineSticker;
     stickers: LineEmoji[];
@@ -100,7 +100,7 @@ export enum SettingsTabsKey {
     ADD_STICKER_PACK_URL = "Add from URL",
     ADD_STICKER_PACK_HTML = "Add from HTML",
     ADD_STICKER_PACK_FILE = "Add from File",
-    MISC = "Misc"
+    MISC = "Misc",
 }
 
 export interface SidebarProps {

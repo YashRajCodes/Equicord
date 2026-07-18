@@ -4,34 +4,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderModalProps, type User } from "@vencord/discord-types";
-import { find, findByCode, findByCodeLazy } from "@webpack";
-
 import { BaseText } from "@components/BaseText";
 import { Button } from "@components/Button";
 import { Flex } from "@components/Flex";
 import { InfoIcon } from "@components/Icons";
 import { copyWithToast, openUserProfile } from "@utils/discord";
 import { LazyComponent } from "@utils/react";
-import {
-    Alerts,
-    ChannelStore,
-    closeAllModals,
-    ContextMenuApi,
-    FluxDispatcher,
-    GuildStore,
-    Menu,
-    Modal,
-    NavigationRouter,
-    openModal,
-    React,
-    TabBar,
-    TextInput,
-    Tooltip,
-    useMemo,
-    useRef,
-    useState
-} from "@webpack/common";
+import { RenderModalProps, type User } from "@vencord/discord-types";
+import { find, findByCode, findByCodeLazy } from "@webpack";
+import { Alerts, ChannelStore, closeAllModals, ContextMenuApi, FluxDispatcher, GuildStore, Menu, Modal, NavigationRouter, openModal, React, TabBar, TextInput, Tooltip, useMemo, useRef, useState } from "@webpack/common";
 
 import { DBMessageRecord, deleteMessageIDB, deleteMessagesBulkIDB } from "../db";
 import { cl, clearLogs, settings } from "../index";
@@ -69,9 +50,7 @@ export interface ChildrenAccProops {
 }
 
 const PrivateChannelRecord = findByCodeLazy(".is_message_request_timestamp,");
-const MessagePreview = LazyComponent<MessagePreviewProps>(() =>
-    find(m => m?.type?.toString().includes("previewLinkTarget:") && !m?.type?.toString().includes("HAS_THREAD"))
-);
+const MessagePreview = LazyComponent<MessagePreviewProps>(() => find(m => m?.type?.toString().includes("previewLinkTarget:") && !m?.type?.toString().includes("HAS_THREAD")));
 const ChildrenAccessories = LazyComponent<ChildrenAccProops>(() => findByCode("channelMessageProps:{message:"));
 
 export enum LogTabs {
@@ -92,12 +71,7 @@ export function LogsModal({ modalProps, initalQuery }: Props) {
     const [numDisplayedMessages, setNumDisplayedMessages] = useState(settings.store.messagesToDisplayAtOnceInLogs);
     const contentRef = useRef<HTMLDivElement | null>(null);
 
-    const { messages, total, statusTotal, pending, reset } = useMessages(
-        queryEh,
-        currentTab,
-        sortNewest,
-        numDisplayedMessages
-    );
+    const { messages, total, statusTotal, pending, reset } = useMessages(queryEh, currentTab, sortNewest, numDisplayedMessages);
 
     return (
         <Modal
@@ -116,13 +90,22 @@ export function LogsModal({ modalProps, initalQuery }: Props) {
                             contentRef.current?.firstElementChild?.scrollTo(0, 0);
                         }}
                     >
-                        <TabBar.Item className={cl("modal-tab-bar-item")} id={LogTabs.DELETED}>
+                        <TabBar.Item
+                            className={cl("modal-tab-bar-item")}
+                            id={LogTabs.DELETED}
+                        >
                             Deleted
                         </TabBar.Item>
-                        <TabBar.Item className={cl("modal-tab-bar-item")} id={LogTabs.EDITED}>
+                        <TabBar.Item
+                            className={cl("modal-tab-bar-item")}
+                            id={LogTabs.EDITED}
+                        >
                             Edited
                         </TabBar.Item>
-                        <TabBar.Item className={cl("modal-tab-bar-item")} id={LogTabs.GHOST_PING}>
+                        <TabBar.Item
+                            className={cl("modal-tab-bar-item")}
+                            id={LogTabs.GHOST_PING}
+                        >
                             Ghost Pinged
                         </TabBar.Item>
                     </TabBar>
@@ -148,63 +131,58 @@ export function LogsModal({ modalProps, initalQuery }: Props) {
                     text: "Clear Visible Logs",
                     variant: "critical-secondary",
                     disabled: messages?.length === 0,
-                    onClick: () =>
-                        Alerts.show({
-                            title: "Clear Logs",
-                            body: `Are you sure you want to clear ${messages.length} logs`,
-                            confirmText: "Clear",
-                            confirmVariant: "critical-primary",
-                            cancelText: "Cancel",
-                            onConfirm: async () => {
-                                await deleteMessagesBulkIDB(messages.map(e => e.message_id));
-                                reset();
-                            }
-                        })
+                    onClick: () => Alerts.show({
+                        title: "Clear Logs",
+                        body: `Are you sure you want to clear ${messages.length} logs`,
+                        confirmText: "Clear",
+                        confirmVariant: "critical-primary",
+                        cancelText: "Cancel",
+                        onConfirm: async () => {
+                            await deleteMessagesBulkIDB(messages.map(e => e.message_id));
+                            reset();
+                        }
+                    })
                 },
                 {
                     text: "Clear All Logs",
                     variant: "critical-primary",
-                    onClick: () =>
-                        Alerts.show({
-                            title: "Clear Logs",
-                            body: "Are you sure you want to clear all the logs",
-                            confirmText: "Clear",
-                            confirmVariant: "critical-primary",
-                            cancelText: "Cancel",
-                            onConfirm: async () => {
-                                await clearLogs();
-                                reset();
-                            }
-                        })
+                    onClick: () => Alerts.show({
+                        title: "Clear Logs",
+                        body: "Are you sure you want to clear all the logs",
+                        confirmText: "Clear",
+                        confirmVariant: "critical-primary",
+                        cancelText: "Cancel",
+                        onConfirm: async () => {
+                            await clearLogs();
+                            reset();
+                        }
+                    })
                 }
             ]}
         >
-            <div
-                style={{ opacity: modalProps.transitionState === 1 ? "1" : "0" }}
-                className={`${cl("modal-content-container")} ${cl("modal-root")}`}
-                ref={contentRef}
-            >
-                {modalProps.transitionState === 1 && (
+            <div style={{ opacity: modalProps.transitionState === 1 ? "1" : "0" }} className={`${cl("modal-content-container")} ${cl("modal-root")}`} ref={contentRef}>
+                {
+                    modalProps.transitionState === 1 &&
                     <div>
-                        {messages != null && total === 0 && <EmptyLogs hasQuery={queryEh.length !== 0} reset={reset} />}
+                        {messages != null && total === 0 && (
+                            <EmptyLogs
+                                hasQuery={queryEh.length !== 0}
+                                reset={reset}
+                            />
+                        )}
 
                         {!pending && messages != null && (
                             <LogsContentMemo
                                 visibleMessages={messages}
-                                canLoadMore={
-                                    messages.length < statusTotal &&
-                                    messages.length >= settings.store.messagesToDisplayAtOnceInLogs
-                                }
+                                canLoadMore={messages.length < statusTotal && messages.length >= settings.store.messagesToDisplayAtOnceInLogs}
                                 tab={currentTab}
                                 sortNewest={sortNewest}
                                 reset={reset}
-                                handleLoadMore={() =>
-                                    setNumDisplayedMessages(e => e + settings.store.messagesToDisplayAtOnceInLogs)
-                                }
+                                handleLoadMore={() => setNumDisplayedMessages(e => e + settings.store.messagesToDisplayAtOnceInLogs)}
                             />
                         )}
                     </div>
-                )}
+                }
             </div>
         </Modal>
     );
@@ -220,30 +198,36 @@ interface LogContentProps {
 }
 
 function LogsContent({ visibleMessages, canLoadMore, sortNewest, tab, reset, handleLoadMore }: LogContentProps) {
-    if (visibleMessages.length === 0) return <NoResults tab={tab} />;
+    if (visibleMessages.length === 0)
+        return <NoResults tab={tab} />;
 
     return (
         <div className={cl("modal-content-inner")}>
-            {visibleMessages.map(({ message }, i) => (
-                <LMessage
-                    key={message.id}
-                    log={{ message }}
-                    reset={reset}
-                    isGroupStart={isGroupStart(message, visibleMessages[i - 1]?.message, sortNewest)}
-                />
-            ))}
-            {canLoadMore && (
-                <Button style={{ marginTop: "1rem", width: "100%" }} size="small" onClick={() => handleLoadMore()}>
+            {visibleMessages
+                .map(({ message }, i) => (
+                    <LMessage
+                        key={message.id}
+                        log={{ message }}
+                        reset={reset}
+                        isGroupStart={isGroupStart(message, visibleMessages[i - 1]?.message, sortNewest)}
+                    />
+                ))}
+            {
+                canLoadMore &&
+                <Button
+                    style={{ marginTop: "1rem", width: "100%" }}
+                    size="small" onClick={() => handleLoadMore()}
+                >
                     Load More
                 </Button>
-            )}
+            }
         </div>
     );
 }
 
 const LogsContentMemo = LazyComponent(() => LogsContent);
 
-function NoResults({ tab }: { tab: LogTabs }) {
+function NoResults({ tab }: { tab: LogTabs; }) {
     const generateSuggestedTabs = (tab: LogTabs) => {
         switch (tab) {
             case LogTabs.DELETED:
@@ -271,11 +255,14 @@ function NoResults({ tab }: { tab: LogTabs }) {
     );
 }
 
-function EmptyLogs({ hasQuery, reset: forceUpdate }: { hasQuery: boolean; reset: () => void }) {
+function EmptyLogs({ hasQuery, reset: forceUpdate }: { hasQuery: boolean; reset: () => void; }) {
     return (
         <div className={cl("modal-empty-logs", "modal-content-inner")} style={{ textAlign: "center" }}>
             <Flex flexDirection="column" style={{ position: "relative" }}>
-                <BaseText size="lg">Empty eh</BaseText>
+
+                <BaseText size="lg">
+                    Empty eh
+                </BaseText>
 
                 {!hasQuery && (
                     <>
@@ -291,20 +278,23 @@ function EmptyLogs({ hasQuery, reset: forceUpdate }: { hasQuery: boolean; reset:
                             )}
                         </Tooltip>
 
-                        <Button onClick={() => importLogs().then(() => forceUpdate())}>Import Logs</Button>
+                        <Button onClick={() => importLogs().then(() => forceUpdate())}>
+                            Import Logs
+                        </Button>
                     </>
                 )}
             </Flex>
         </div>
     );
+
 }
 
 interface LMessageProps {
-    log: { message: LoggedMessageJSON };
-    isGroupStart: boolean;
+    log: { message: LoggedMessageJSON; };
+    isGroupStart: boolean,
     reset: () => void;
 }
-function LMessage({ log, isGroupStart, reset }: LMessageProps) {
+function LMessage({ log, isGroupStart, reset, }: LMessageProps) {
     const message = useMemo(() => messageJsonToMessageClass(log), [log]);
 
     if (!message) return null;
@@ -315,20 +305,19 @@ function LMessage({ log, isGroupStart, reset }: LMessageProps) {
     return (
         <div
             onContextMenu={e => {
-                ContextMenuApi.openContextMenu(e, () => (
+                ContextMenuApi.openContextMenu(e, () =>
                     <Menu.Menu
                         navId="message-logger"
                         onClose={() => FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" })}
                         aria-label="Message Logger"
                     >
+
                         <Menu.MenuItem
                             key="jump-to-message"
                             id="jump-to-message"
                             label="Jump To Message"
                             action={() => {
-                                NavigationRouter.transitionTo(
-                                    `/channels/${ChannelStore.getChannel(message.channel_id)?.guild_id ?? "@me"}/${message.channel_id}${message.id ? "/" + message.id : ""}`
-                                );
+                                NavigationRouter.transitionTo(`/channels/${ChannelStore.getChannel(message.channel_id)?.guild_id ?? "@me"}/${message.channel_id}${message.id ? "/" + message.id : ""}`);
                                 closeAllModals();
                             }}
                         />
@@ -370,26 +359,31 @@ function LMessage({ log, isGroupStart, reset }: LMessageProps) {
                             action={() => copyWithToast(message.channel_id)}
                         />
 
-                        {log.message.guildId != null && (
-                            <Menu.MenuItem
-                                key="copy-server-id"
-                                id="copy-server-id"
-                                label="Copy Server ID"
-                                action={() => copyWithToast(log.message.guildId!)}
-                            />
-                        )}
+                        {
+                            log.message.guildId != null
+                            && (
+                                <Menu.MenuItem
+                                    key="copy-server-id"
+                                    id="copy-server-id"
+                                    label="Copy Server ID"
+                                    action={() => copyWithToast(log.message.guildId!)}
+                                />
+                            )
+                        }
 
                         <Menu.MenuItem
                             key="delete-log"
                             id="delete-log"
                             label="Delete Log"
                             color="danger"
-                            action={() => deleteMessageIDB(log.message.id).then(() => reset())}
+                            action={() =>
+                                deleteMessageIDB(log.message.id).then(() => reset())
+                            }
                         />
+
                     </Menu.Menu>
-                ));
-            }}
-        >
+                );
+            }}>
             <MessagePreview
                 className={`${cl("modal-msg-preview")} ${message.deleted ? "messagelogger-deleted" : ""}`}
                 author={message.author}
@@ -401,15 +395,14 @@ function LMessage({ log, isGroupStart, reset }: LMessageProps) {
                 childrenAccessories={
                     <ChildrenAccessories
                         channelMessageProps={{
-                            channel:
-                                ChannelStore.getChannel(message.channel_id) || new PrivateChannelRecord({ id: "" }),
+                            channel: ChannelStore.getChannel(message.channel_id) || new PrivateChannelRecord({ id: "" }),
                             message,
                             compact: false,
                             groupId: "1",
                             id: message.id,
                             isLastItem: false,
                             isHighlight: false,
-                            renderContentOnly: false
+                            renderContentOnly: false,
                         }}
                         hasSpoilerEmbeds={false}
                         isInteracting={false}
@@ -419,36 +412,19 @@ function LMessage({ log, isGroupStart, reset }: LMessageProps) {
                 }
             />
             {settings.store.ShowWhereMessageIsFrom && channel?.isDM() && message?.author && (
-                <span
-                    className={`${cl("modal-from")} ${message.deleted ? cl("modal-from-deleted") : cl("modal-from-edited")}`}
-                >
-                    From {message.author.username}'s DMs
-                </span>
+                <span className={`${cl("modal-from")} ${message.deleted ? cl("modal-from-deleted") : cl("modal-from-edited")}`}>From {message.author.username}'s DMs</span>
             )}
             {settings.store.ShowWhereMessageIsFrom && channel?.isGroupDM() && channel?.name && (
-                <span
-                    className={`${cl("modal-from")} ${message.deleted ? cl("modal-from-deleted") : cl("modal-from-edited")}`}
-                >
-                    From {channel.name} Group DM
-                </span>
+                <span className={`${cl("modal-from")} ${message.deleted ? cl("modal-from-deleted") : cl("modal-from-edited")}`}>From {channel.name} Group DM</span>
             )}
-            {settings.store.ShowWhereMessageIsFrom &&
-                !channel?.isDM() &&
-                !channel?.isGroupDM() &&
-                channel?.name &&
-                guild?.name && (
-                    <span
-                        className={`${cl("modal-from")} ${message.deleted ? cl("modal-from-deleted") : cl("modal-from-edited")}`}
-                    >
-                        From {channel.name} in {guild.name}
-                    </span>
-                )}
+            {settings.store.ShowWhereMessageIsFrom && !channel?.isDM() && !channel?.isGroupDM() && channel?.name && guild?.name && (
+                <span className={`${cl("modal-from")} ${message.deleted ? cl("modal-from-deleted") : cl("modal-from-edited")}`}>From {channel.name} in {guild.name}</span>
+            )}
         </div>
     );
 }
 
-export const openLogModal = (initalQuery?: string) =>
-    openModal(modalProps => <LogsModal modalProps={modalProps} initalQuery={initalQuery} />);
+export const openLogModal = (initalQuery?: string) => openModal(modalProps => <LogsModal modalProps={modalProps} initalQuery={initalQuery} />);
 
 function isGroupStart(
     currentMessage: LoggedMessageJSON | undefined,

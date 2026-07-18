@@ -16,9 +16,9 @@ const channelPathRegex = /\/channels\/(@me|\d{17,20})\/(\d{17,20})/;
 const guildIconRegex = /cdn\.discordapp\.com\/icons\/(\d{17,20})\//;
 
 export type DropEntity =
-    | { kind: "user"; id: string }
-    | { kind: "channel"; id: string; guildId?: string }
-    | { kind: "guild"; id: string };
+    | { kind: "user"; id: string; }
+    | { kind: "channel"; id: string; guildId?: string; }
+    | { kind: "guild"; id: string; };
 
 export interface DragifyPayload {
     id?: string;
@@ -31,16 +31,16 @@ export interface DragifyPayload {
 }
 
 type StoreSet = {
-    ChannelStore: { getChannel(id: string): Channel | null | undefined };
-    GuildStore: { getGuild(id: string): Guild | null | undefined };
-    UserStore: { getUser(id: string): User | null | undefined };
+    ChannelStore: { getChannel(id: string): Channel | null | undefined; };
+    GuildStore: { getGuild(id: string): Guild | null | undefined; };
+    UserStore: { getUser(id: string): User | null | undefined; };
 };
 
 export function tryParseJson<T = Record<string, unknown>>(value: string): T | null {
     if (!value || value.length < 2 || (value[0] !== "{" && value[0] !== "[")) return null;
     try {
         const parsed = JSON.parse(value);
-        return typeof parsed === "object" && parsed ? (parsed as T) : null;
+        return typeof parsed === "object" && parsed ? parsed as T : null;
     } catch {
         return null;
     }
@@ -84,15 +84,10 @@ export async function collectPayloadStrings(dataTransfer: DataTransfer): Promise
     const asyncValues: string[] = [];
     const itemPromises = Array.from(dataTransfer.items ?? [])
         .filter(item => item.kind === "string")
-        .map(
-            item =>
-                new Promise<void>(resolve =>
-                    item.getAsString(val => {
-                        if (val) asyncValues.push(val);
-                        resolve();
-                    })
-                )
-        );
+        .map(item => new Promise<void>(resolve => item.getAsString(val => {
+            if (val) asyncValues.push(val);
+            resolve();
+        })));
     await Promise.all(itemPromises);
     return Array.from(new Set([...sync, ...asyncValues]));
 }
@@ -161,7 +156,9 @@ function parseGuildString(value: string): DropEntity | null {
 export function parseFromStrings(payloads: string[], stores: StoreSet): DropEntity | null {
     if (payloads.length === 0) return null;
 
-    const values = payloads.map(value => value.trim()).filter(Boolean);
+    const values = payloads
+        .map(value => value.trim())
+        .filter(Boolean);
 
     for (const value of values) {
         const parsed = tryParseJson<DragifyPayload>(value);
@@ -195,7 +192,7 @@ export function parseFromStrings(payloads: string[], stores: StoreSet): DropEnti
     return null;
 }
 
-export function extractChannelPath(value: string): { guildId?: string; channelId?: string } | null {
+export function extractChannelPath(value: string): { guildId?: string; channelId?: string; } | null {
     const channelPath = channelPathRegex.exec(value);
     if (!channelPath) return null;
     return {
@@ -204,7 +201,7 @@ export function extractChannelPath(value: string): { guildId?: string; channelId
     };
 }
 
-export function extractChannelFromUrl(value: string): { guildId?: string; channelId?: string } | null {
+export function extractChannelFromUrl(value: string): { guildId?: string; channelId?: string; } | null {
     const channelFromUrl = channelUrlRegex.exec(value);
     if (!channelFromUrl) return null;
     const guildId = channelFromUrl[1] ?? channelFromUrl[2];

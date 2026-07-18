@@ -19,8 +19,7 @@ const settings = definePluginSettings({
     onboarding: {
         type: OptionType.BOOLEAN,
         default: true,
-        description:
-            'Bypass the onboarding requirements ("Making this change will make your server incompatible [...]")',
+        description: 'Bypass the onboarding requirements ("Making this change will make your server incompatible [...]")',
         restartNeeded: true
     }
 });

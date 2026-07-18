@@ -14,12 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { ipcMain } from "electron";
-import PluginNatives from "~pluginNatives";
+*/
 
 import { IpcEvents } from "@shared/IpcEvents";
+import { ipcMain } from "electron";
+
+import PluginNatives from "~pluginNatives";
 
 const PluginIpcMappings = {} as Record<string, Record<string, string>>;
 export type PluginIpcMappings = typeof PluginIpcMappings;
@@ -28,7 +28,7 @@ for (const [plugin, methods] of Object.entries(PluginNatives)) {
     const entries = Object.entries(methods);
     if (!entries.length) continue;
 
-    const mappings = (PluginIpcMappings[plugin] = {});
+    const mappings = PluginIpcMappings[plugin] = {};
 
     for (const [methodName, method] of entries) {
         const key = `VencordPluginNative_${plugin}_${methodName}`;

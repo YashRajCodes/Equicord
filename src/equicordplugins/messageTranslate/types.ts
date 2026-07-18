@@ -9,7 +9,7 @@ import type { Message } from "@vencord/discord-types";
 export interface TranslateResponse {
     src: string;
     confidence: number;
-    sentences: { trans?: string }[];
+    sentences: { trans?: string; }[];
 }
 
 export interface CachedTranslation {
@@ -18,4 +18,4 @@ export interface CachedTranslation {
     sourceLang: string;
 }
 
-export type MessageWithContent = Message & { content: string };
+export type MessageWithContent = Message & { content: string; };

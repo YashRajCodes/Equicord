@@ -31,7 +31,7 @@ let lastThemeCount = 0;
 let skipNextIndexUpdate = false;
 
 const updateCurrentIndex = () => {
-    if (skipNextIndexUpdate) return (skipNextIndexUpdate = false);
+    if (skipNextIndexUpdate) return skipNextIndexUpdate = false;
     currentIndex = findCurrentThemeIndex();
 };
 
@@ -62,13 +62,13 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Include local themes",
         default: true,
-        onChange: refreshThemeList
+        onChange: refreshThemeList,
     },
     includeOnline: {
         type: OptionType.BOOLEAN,
         description: "Include online themes",
         default: true,
-        onChange: refreshThemeList
+        onChange: refreshThemeList,
     },
     sortOrder: {
         type: OptionType.SELECT,
@@ -76,20 +76,20 @@ const settings = definePluginSettings({
         options: [
             { label: "A-Z", value: "alphabetical", default: true },
             { label: "Z-A", value: "reverse" },
-            { label: "Recent", value: "recent" }
+            { label: "Recent", value: "recent" },
         ],
-        onChange: refreshThemeList
+        onChange: refreshThemeList,
     },
     autoRefresh: {
         type: OptionType.BOOLEAN,
         description: "Auto-refresh theme list when changes are detected",
-        default: true
+        default: true,
     },
     showNotifications: {
         type: OptionType.BOOLEAN,
         description: "Show notifications when themes are added/removed",
-        default: true
-    }
+        default: true,
+    },
 });
 
 async function getAllThemes(): Promise<ThemeItem[]> {
@@ -102,7 +102,7 @@ async function getAllThemes(): Promise<ThemeItem[]> {
             themes.push({
                 name: Settings.themeNames?.[fileName] ?? fileName.replace(/\.css$/, ""),
                 id: fileName,
-                type: "local"
+                type: "local",
             });
         });
     }
@@ -120,7 +120,7 @@ async function getAllThemes(): Promise<ThemeItem[]> {
             themes.push({
                 name,
                 id: link,
-                type: "online"
+                type: "online",
             });
         });
     }
@@ -158,7 +158,7 @@ function findCurrentThemeIndex(): number {
     const enabledOnline = Settings.enabledThemeLinks?.[0];
 
     const idx = themeList.findIndex(
-        t => (t.type === "local" && t.id === enabledLocal) || (t.type === "online" && t.id === enabledOnline)
+        t => (t.type === "local" && t.id === enabledLocal) || (t.type === "online" && t.id === enabledOnline),
     );
 
     return ~idx ? idx : 0;
@@ -194,7 +194,7 @@ async function watchForLocalThemeChanges() {
 
     const currentThemes = await VencordNative.themes.getThemesList();
     const currentCount = currentThemes.filter(
-        (t: ThemeFile) => t.fileName.endsWith(".css") && t.fileName !== "source.theme.css"
+        (t: ThemeFile) => t.fileName.endsWith(".css") && t.fileName !== "source.theme.css",
     ).length;
 
     if (lastThemeCount && currentCount !== lastThemeCount) {
@@ -227,7 +227,7 @@ function handleKeyDown(e: KeyboardEvent) {
         ArrowRight: () => switchTheme("next"),
         ArrowLeft: () => switchTheme("prev"),
         ArrowUp: () => toggleCurrentTheme(true),
-        ArrowDown: () => toggleCurrentTheme(false)
+        ArrowDown: () => toggleCurrentTheme(false),
     };
 
     const action = actions[e.key];
@@ -293,5 +293,5 @@ export default definePlugin({
         currentIndex = 0;
         lastThemeCount = 0;
         skipNextIndexUpdate = false;
-    }
+    },
 });

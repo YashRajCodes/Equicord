@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { makeLazy } from "./lazy";
 
@@ -25,6 +25,4 @@ export const shikiWorkerSrc = `https://cdn.jsdelivr.net/npm/@vap/shiki-worker@0.
 export const shikiOnigasmSrc = "https://cdn.jsdelivr.net/npm/@vap/shiki@0.10.3/dist/onig.wasm";
 
 // @ts-expect-error
-export const getStegCloak = /* #__PURE__*/ makeLazy(
-    () => import("https://cdn.jsdelivr.net/npm/stegcloak-dist@1.0.0/index.js")
-);
+export const getStegCloak = /* #__PURE__*/ makeLazy(() => import("https://cdn.jsdelivr.net/npm/stegcloak-dist@1.0.0/index.js"));

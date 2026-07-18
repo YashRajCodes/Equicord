@@ -9,7 +9,7 @@ import { OAuth2AuthorizeModal, showToast, Toasts } from "@webpack/common";
 
 import { settings } from ".";
 
-const databaseTimezones: Record<string, { value: string | null }> = {};
+const databaseTimezones: Record<string, { value: string | null; }> = {};
 const CLIENT_ID = "1377021506810417173";
 
 function getDomain(): string {

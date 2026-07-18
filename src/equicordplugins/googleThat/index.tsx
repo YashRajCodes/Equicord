@@ -20,26 +20,29 @@ function getMessage(opts) {
 
     if (settings.store.hyperlink && !settings.store.embed) {
         return `[${inputOption}](<${queryURL}>)`;
-    } else if (settings.store.hyperlink) {
+    }
+    else if (settings.store.hyperlink) {
         return `[${inputOption}](${queryURL})`;
-    } else if (!settings.store.embed) {
+    }
+    else if (!settings.store.embed) {
         return `<${queryURL}>`;
-    } else {
+    }
+    else {
         return queryURL;
     }
 }
 
 const searchEngines = {
-    Google: "https://www.google.com/search?q=",
-    Bing: "https://www.bing.com/search?q=",
-    Yahoo: "https://search.yahoo.com/search?p=",
-    DuckDuckGo: "https://duckduckgo.com/?q=",
-    Baidu: "https://www.baidu.com/s?wd=",
-    Yandex: "https://yandex.com/search/?text=",
-    Ecosia: "https://www.ecosia.org/search?q=",
-    Ask: "https://www.ask.com/web?q=",
-    AOL: "https://search.aol.com/aol/search?q=",
-    LetMeGoogleThatForYou: "https://letmegooglethat.com/?q="
+    "Google": "https://www.google.com/search?q=",
+    "Bing": "https://www.bing.com/search?q=",
+    "Yahoo": "https://search.yahoo.com/search?p=",
+    "DuckDuckGo": "https://duckduckgo.com/?q=",
+    "Baidu": "https://www.baidu.com/s?wd=",
+    "Yandex": "https://yandex.com/search/?text=",
+    "Ecosia": "https://www.ecosia.org/search?q=",
+    "Ask": "https://www.ask.com/web?q=",
+    "AOL": "https://search.aol.com/aol/search?q=",
+    "LetMeGoogleThatForYou": "https://letmegooglethat.com/?q="
 };
 
 const settings = definePluginSettings({
@@ -86,12 +89,12 @@ export default definePlugin({
                     name: "input",
                     description: "The search query",
                     type: ApplicationCommandOptionType.STRING,
-                    required: true
+                    required: true,
                 }
             ],
             execute: opts => ({
                 content: getMessage(opts)
-            })
+            }),
         }
     ]
 });

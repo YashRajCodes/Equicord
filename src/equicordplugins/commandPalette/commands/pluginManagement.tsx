@@ -4,14 +4,7 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import {
-    isPluginEnabled,
-    pluginRequiresRestart,
-    plugins,
-    startDependenciesRecursive,
-    startPlugin,
-    stopPlugin
-} from "@api/PluginManager";
+import { isPluginEnabled, pluginRequiresRestart, plugins, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { Settings } from "@api/Settings";
 import { openPluginModal } from "@components/settings/tabs/plugins/PluginModal";
 import type { Plugin } from "@utils/types";

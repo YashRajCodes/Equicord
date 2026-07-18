@@ -14,12 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { Channel, User } from "@vencord/discord-types";
-import { JSX } from "react";
+*/
 
 import ErrorBoundary from "@components/ErrorBoundary";
+import { Channel, User } from "@vencord/discord-types";
+import { JSX } from "react";
 
 export type DecoratorProps = {
     type: "guild" | "dm";
@@ -33,7 +32,7 @@ export type DecoratorProps = {
 export type MemberListDecoratorFactory = (props: DecoratorProps) => JSX.Element | null;
 type OnlyIn = "guilds" | "dms";
 
-export const decoratorsFactories = new Map<string, { render: MemberListDecoratorFactory; onlyIn?: OnlyIn }>();
+export const decoratorsFactories = new Map<string, { render: MemberListDecoratorFactory, onlyIn?: OnlyIn; }>();
 
 export function addMemberListDecorator(identifier: string, render: MemberListDecoratorFactory, onlyIn?: OnlyIn) {
     decoratorsFactories.set(identifier, { render, onlyIn });
@@ -44,15 +43,23 @@ export function removeMemberListDecorator(identifier: string) {
 }
 
 export function __getDecorators(props: DecoratorProps, type: "guild" | "dm"): JSX.Element {
-    const decorators = Array.from(decoratorsFactories.entries(), ([key, { render: Decorator, onlyIn }]) => {
-        if ((onlyIn === "guilds" && type !== "guild") || (onlyIn === "dms" && type !== "dm")) return null;
+    const decorators = Array.from(
+        decoratorsFactories.entries(),
+        ([key, { render: Decorator, onlyIn }]) => {
+            if ((onlyIn === "guilds" && type !== "guild") || (onlyIn === "dms" && type !== "dm"))
+                return null;
 
-        return (
-            <ErrorBoundary noop key={key} message={`Failed to render ${key} Member List Decorator`}>
-                <Decorator {...props} type={type} />
-            </ErrorBoundary>
-        );
-    });
+            return (
+                <ErrorBoundary noop key={key} message={`Failed to render ${key} Member List Decorator`}>
+                    <Decorator {...props} type={type} />
+                </ErrorBoundary>
+            );
+        }
+    );
 
-    return <div className="vc-member-list-decorators-wrapper">{decorators}</div>;
+    return (
+        <div className="vc-member-list-decorators-wrapper">
+            {decorators}
+        </div>
+    );
 }

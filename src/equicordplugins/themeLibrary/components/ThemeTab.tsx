@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-import { findCssClassesLazy } from "@webpack";
 
 import * as DataStore from "@api/DataStore";
 import { Settings } from "@api/Settings";
@@ -18,6 +17,7 @@ import { SearchStatus, Theme, ThemeLikeProps } from "@equicordplugins/themeLibra
 import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
+import { findCssClassesLazy } from "@webpack";
 import { Button, React, SearchableSelect, TextInput, useEffect, useState } from "@webpack/common";
 
 import { ThemeCard } from "./ThemeCard";
@@ -43,7 +43,7 @@ export async function themeRequest(path: string, options: RequestInit = {}) {
     return fetch(apiUrl + path, {
         ...options,
         headers: {
-            ...options.headers
+            ...options.headers,
         }
     });
 }
@@ -53,7 +53,7 @@ const SearchTags = {
     [SearchStatus.SNIPPET]: "SNIPPET",
     [SearchStatus.LIKED]: "LIKED",
     [SearchStatus.DARK]: "DARK",
-    [SearchStatus.LIGHT]: "LIGHT"
+    [SearchStatus.LIGHT]: "LIGHT",
 };
 
 function ThemeTab() {
@@ -79,11 +79,7 @@ function ThemeTab() {
         const anyTags = SearchTags[searchValue.status];
         if (anyTags && !tags.has(anyTags?.toLowerCase())) return false;
 
-        if (
-            (enabled && searchValue.status === SearchStatus.DISABLED) ||
-            (!enabled && searchValue.status === SearchStatus.ENABLED)
-        )
-            return false;
+        if ((enabled && searchValue.status === SearchStatus.DISABLED) || (!enabled && searchValue.status === SearchStatus.ENABLED)) return false;
 
         if (!searchValue.value.length) return true;
 
@@ -91,9 +87,7 @@ function ThemeTab() {
         return (
             theme.name?.toLowerCase().includes(v) ||
             theme.description?.toLowerCase().includes(v) ||
-            (Array.isArray(theme.author)
-                ? theme.author.some(author => author.discord_name?.toLowerCase()?.includes(v))
-                : theme.author.discord_name?.toLowerCase()?.includes(v)) ||
+            (Array.isArray(theme.author) ? theme.author.some(author => author.discord_name?.toLowerCase()?.includes(v)) : theme.author.discord_name?.toLowerCase()?.includes(v)) ||
             tags.has(v)
         );
     };
@@ -103,8 +97,8 @@ function ThemeTab() {
             const token = await DataStore.get("ThemeLibrary_uniqueToken");
             const response = await themeRequest("/likes/get", {
                 headers: {
-                    Authorization: `Bearer ${token}`
-                }
+                    "Authorization": `Bearer ${token}`,
+                },
             });
             const data = await response.json();
             return data;
@@ -142,9 +136,7 @@ function ThemeTab() {
             const filteredLikedThemes = likedThemes.filter(x => x.name.includes(searchValue.value));
             setFilteredThemes(filteredLikedThemes);
         } else {
-            const sortedThemes = themes.sort(
-                (a, b) => new Date(b.release_date).getTime() - new Date(a.release_date).getTime()
-            );
+            const sortedThemes = themes.sort((a, b) => new Date(b.release_date).getTime() - new Date(a.release_date).getTime());
             const filteredThemes = sortedThemes.filter(themeFilter);
             setFilteredThemes(filteredThemes);
         }
@@ -163,18 +155,13 @@ function ThemeTab() {
                             height: "70vh",
                             fontSize: "1.5em",
                             color: "var(--text-default)"
-                        }}
-                    >
+                        }}>
                         <p> Getting the latest themes... </p>
-                        <p
-                            style={{
-                                fontSize: ".75em",
-                                color: "var(--text-muted)"
-                            }}
-                        >
-                            {" "}
-                            This won't take long!{" "}
-                        </p>
+                        <p style={{
+                            fontSize: ".75em",
+                            color: "var(--text-muted)"
+                        }}> This won't take long! </p>
+
                     </div>
                 ) : error ? (
                     <ErrorCard>
@@ -187,10 +174,7 @@ function ThemeTab() {
                             <ErrorCard>
                                 <HeadingTertiary>Want your theme removed?</HeadingTertiary>
                                 <Paragraph className={Margins.top8}>
-                                    If you want your theme(s) permanently removed, please open an issue on{" "}
-                                    <a href="https://github.com/Faf4a/plugins/issues/new?labels=removal&projects=&template=request_removal.yml&title=Theme+Removal">
-                                        GitHub <OpenExternalIcon height={16} width={16} />
-                                    </a>
+                                    If you want your theme(s) permanently removed, please open an issue on <a href="https://github.com/Faf4a/plugins/issues/new?labels=removal&projects=&template=request_removal.yml&title=Theme+Removal">GitHub <OpenExternalIcon height={16} width={16} /></a>
                                 </Paragraph>
                                 <Button
                                     onClick={() => {
@@ -201,18 +185,15 @@ function ThemeTab() {
                                     color={Button.Colors.RED}
                                     look={Button.Looks.FILLED}
                                     className={classes(Margins.top16, "vce-warning-button")}
-                                >
-                                    Hide
-                                </Button>
+                                >Hide</Button>
                             </ErrorCard>
                         )}
                         <div className={classes(Margins.bottom8, Margins.top16)}>
                             <HeadingPrimary
                                 style={{
                                     overflowWrap: "break-word",
-                                    marginTop: 8
-                                }}
-                            >
+                                    marginTop: 8,
+                                }}>
                                 {searchValue.status === SearchStatus.LIKED ? "Most Liked" : "Newest Additions"}
                             </HeadingPrimary>
 
@@ -227,20 +208,14 @@ function ThemeTab() {
                                 />
                             ))}
                         </div>
-                        <HeadingPrimary
-                            style={{
-                                overflowWrap: "break-word",
-                                marginTop: 20
-                            }}
-                        >
+                        <HeadingPrimary style={{
+                            overflowWrap: "break-word",
+                            marginTop: 20,
+                        }}>
                             Themes
                         </HeadingPrimary>
                         <div className={classes(Margins.bottom20, "vce-search-grid")}>
-                            <TextInput
-                                value={searchValue.value}
-                                placeholder="Search for a theme..."
-                                onChange={onSearch}
-                            />
+                            <TextInput value={searchValue.value} placeholder="Search for a theme..." onChange={onSearch} />
                             <div className={InputStyles.inputWrapper}>
                                 <SearchableSelect
                                     options={[
@@ -251,7 +226,7 @@ function ThemeTab() {
                                         { label: "Show Dark", value: SearchStatus.DARK },
                                         { label: "Show Light", value: SearchStatus.LIGHT },
                                         { label: "Show Enabled", value: SearchStatus.ENABLED },
-                                        { label: "Show Disabled", value: SearchStatus.DISABLED }
+                                        { label: "Show Disabled", value: SearchStatus.DISABLED },
                                     ]}
                                     // @ts-ignore
                                     value={searchValue.status}
@@ -262,48 +237,33 @@ function ThemeTab() {
                             </div>
                         </div>
                         <div>
-                            {filteredThemes.length ? (
-                                filteredThemes.map((theme: Theme) => (
-                                    <ThemeCard
-                                        key={theme.id}
-                                        theme={theme}
-                                        themeLinks={themeLinks}
-                                        likedThemes={likedThemes}
-                                        setThemeLinks={setThemeLinks}
-                                    />
-                                ))
-                            ) : (
-                                <div
-                                    style={{
-                                        display: "flex",
-                                        flexDirection: "column",
-                                        justifyContent: "center",
-                                        alignItems: "center"
-                                    }}
-                                >
-                                    <p
-                                        style={{
-                                            fontSize: "1em",
-                                            color: "var(--text-default)"
-                                        }}
-                                    >
-                                        {" "}
-                                        No theme found.{" "}
-                                    </p>
-                                    <p
-                                        style={{
-                                            fontSize: ".75em",
-                                            color: "var(--text-muted)"
-                                        }}
-                                    >
-                                        {" "}
-                                        Try narrowing your search down.{" "}
-                                    </p>
-                                </div>
-                            )}
+                            {filteredThemes.length ? filteredThemes.map((theme: Theme) => (
+                                <ThemeCard
+                                    key={theme.id}
+                                    theme={theme}
+                                    themeLinks={themeLinks}
+                                    likedThemes={likedThemes}
+                                    setThemeLinks={setThemeLinks}
+                                />
+                            )) : <div
+                                style={{
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                }}>
+                                <p style={{
+                                    fontSize: "1em",
+                                    color: "var(--text-default)"
+                                }}> No theme found. </p>
+                                <p style={{
+                                    fontSize: ".75em",
+                                    color: "var(--text-muted)"
+                                }}> Try narrowing your search down. </p>
+                            </div>
+                            }
                         </div>
-                    </>
-                )}
+                    </>)}
             </>
         </div>
     );

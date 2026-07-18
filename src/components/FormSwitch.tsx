@@ -5,9 +5,9 @@
  */
 
 import "./FormSwitch.css";
-import type { PropsWithChildren, ReactNode } from "react";
 
 import { classes } from "@utils/misc";
+import type { PropsWithChildren, ReactNode } from "react";
 
 import { Flex } from "./Flex";
 import { Span } from "./Span";
@@ -30,14 +30,8 @@ export function FormSwitch({ onChange, title, value, description, disabled, clas
             <label className={classes("vc-form-switch", className, disabled && "vc-form-switch-disabled")}>
                 <div className="vc-form-switch-text">
                     <Flex flexDirection="column" gap="4px">
-                        <Span size="md" weight="medium" color="text-strong">
-                            {title}
-                        </Span>
-                        {description && (
-                            <Span size="sm" color="text-subtle">
-                                {description}
-                            </Span>
-                        )}
+                        <Span size="md" weight="medium" color="text-strong">{title}</Span>
+                        {description && <Span size="sm" color="text-subtle">{description}</Span>}
                     </Flex>
                 </div>
                 <div className="vc-form-switch-control">

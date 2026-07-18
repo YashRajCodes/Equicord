@@ -4,15 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { NativeSettings } from "@main/settings";
 import { exec, spawn } from "child_process";
+import { BrowserWindow, dialog, shell, WebContentsView } from "electron";
 import { existsSync, readdirSync, readFileSync } from "fs";
 import { mkdir, readdir, readFile, rm } from "fs/promises";
 import { basename, join } from "path";
-
-import { BrowserWindow, dialog, shell, WebContentsView } from "electron";
 import yaml from "yaml-js";
-
-import { NativeSettings } from "@main/settings";
 
 // @ts-ignore fuck off
 import pluginValidateContent from "./misc/pluginValidate.txt"; // i would use HTML but esbuild is being whiny
@@ -21,11 +19,9 @@ import setGitPathContent from "./misc/setGitPath.txt";
 // @ts-ignore fuck off
 import updateValidateContent from "./misc/updateValidate.txt"; // see above
 
-const PLUGIN_META_REGEX =
-    /export default definePlugin\((?:\s|\/(?:\/|\*).*)*{\s*(?:\s|\/(?:\/|\*).*)*name:\s*(?:"|'|`)(.*)(?:"|'|`)(?:\s|\/(?:\/|\*).*)*,(?:\s|\/(?:\/|\*).*)*.+(?:\s|\/(?:\/|\*).*)*description:\s*(?:"|'|`)(.*)(?:"|'|`)(?:\s|\/(?:\/|\*).*)*/;
+const PLUGIN_META_REGEX = /export default definePlugin\((?:\s|\/(?:\/|\*).*)*{\s*(?:\s|\/(?:\/|\*).*)*name:\s*(?:"|'|`)(.*)(?:"|'|`)(?:\s|\/(?:\/|\*).*)*,(?:\s|\/(?:\/|\*).*)*.+(?:\s|\/(?:\/|\*).*)*description:\s*(?:"|'|`)(.*)(?:"|'|`)(?:\s|\/(?:\/|\*).*)*/;
 // if edited, also edit in misc/constants.ts!!!
-const CLONE_LINK_REGEX =
-    /https:\/\/(?:((?:git(?:hub|lab)\.com|git\.(?:[a-zA-Z0-9]|\.)+|codeberg\.org))\/(?!user-attachments)((?:[a-zA-Z0-9]|-)+)\/((?:[a-zA-Z0-9]|-|\.)+)(?:\.git)?|(plugins\.(nin0)\.dev)\/((?:[a-zA-Z0-9]|-|\.)+))(?:\/)?/;
+const CLONE_LINK_REGEX = /https:\/\/(?:((?:git(?:hub|lab)\.com|git\.(?:[a-zA-Z0-9]|\.)+|codeberg\.org))\/(?!user-attachments)((?:[a-zA-Z0-9]|-)+)\/((?:[a-zA-Z0-9]|-|\.)+)(?:\.git)?|(plugins\.(nin0)\.dev)\/((?:[a-zA-Z0-9]|-|\.)+))(?:\/)?/;
 
 const vencordPath = ["desktop", "equibop"].includes(basename(__dirname)) ? join(__dirname, "../") : __dirname;
 
@@ -33,7 +29,7 @@ export async function ensurePluginsDirectory(_: any) {
     if (!IS_DEV) return;
     try {
         await mkdir(join(vencordPath, "../src/userplugins"), { recursive: true });
-    } catch (e) {}
+    } catch(e) { }
 }
 
 export async function rmPlugin(_, name: string): Promise<string> {
@@ -69,14 +65,13 @@ export async function isUpdateAvailableForPlugin(_, name: string): Promise<boole
             async function doStuff() {
                 try {
                     const head = (await readFile(join(pluginDir, ".git/HEAD"), "utf8")).match(/^ref: (.+)/)![1];
-                    const remoteHead = (await readFile(join(pluginDir, ".git/refs/remotes/origin/HEAD"), "utf8")).match(
-                        /^ref: (.+)/
-                    )![1];
+                    const remoteHead = (await readFile(join(pluginDir, ".git/refs/remotes/origin/HEAD"), "utf8")).match(/^ref: (.+)/)![1];
                     const localCommit = await readFile(join(pluginDir, ".git", head), "utf8");
                     const remoteCommit = await readFile(join(pluginDir, ".git", remoteHead), "utf8");
 
                     resolve(localCommit !== remoteCommit);
-                } catch (e) {
+                }
+                catch (e) {
                     resolve(false);
                 }
             }
@@ -90,14 +85,7 @@ export function initPluginInstall(_, link: string, source: string, owner: string
     return new Promise(async (resolve, reject) => {
         const verifiedRegex = link.match(CLONE_LINK_REGEX)!;
         const idpl = source === "plugins.nin0.dev" ? 1 : 0;
-        if (
-            ![4, 7].includes(verifiedRegex.length) ||
-            verifiedRegex[0] !== link ||
-            verifiedRegex[[1, 4][idpl]] !== source ||
-            verifiedRegex[[2, 5][idpl]] !== owner ||
-            verifiedRegex[[3, 6][idpl]] !== repo
-        )
-            return reject("Invalid link");
+        if (![4, 7].includes(verifiedRegex.length) || verifiedRegex[0] !== link || verifiedRegex[[1, 4][idpl]] !== source || verifiedRegex[[2, 5][idpl]] !== owner || verifiedRegex[[3, 6][idpl]] !== repo) return reject("Invalid link");
 
         // Ask for clone
         const cloneDialog = await dialog.showMessageBox({
@@ -161,15 +149,14 @@ export function initPluginInstall(_, link: string, source: string, owner: string
                     win.close();
                     try {
                         await build();
-                    } catch (e) {
+                    }
+                    catch (e) {
                         reject((e as Error).toString());
                     }
-                    resolve(
-                        JSON.stringify({
-                            name: meta.name,
-                            native: meta.usesNative
-                        })
-                    );
+                    resolve(JSON.stringify({
+                        name: meta.name,
+                        native: meta.usesNative
+                    }));
                     break;
                 }
             }
@@ -193,10 +180,7 @@ async function build(): Promise<any> {
     });
 }
 
-async function getPluginMeta(
-    path: string,
-    extra: object = {}
-): Promise<{
+async function getPluginMeta(path: string, extra: object = {}): Promise<{
     name: string;
     description: string;
     usesPreSend: boolean;
@@ -220,9 +204,7 @@ async function getPluginMeta(
         let remoteURL;
         try {
             const remoteC = readFileSync(join(path, ".git/config"), "utf8");
-            remoteURL = remoteC.match(
-                /\[remote "origin"]\s+url = (https:\/\/(?:(?:git(?:hub|lab)\.com|git\.(?:[a-zA-Z0-9]|\.)+|codeberg\.org)\/(?!user-attachments)(?:[a-zA-Z0-9]|-)+\/(?:[a-zA-Z0-9]|-|\.)+(?:\.git)?|(plugins\.(nin0)\.dev)\/((?:[a-zA-Z0-9]|-|\.)+))(?:\/)?)\n/
-            );
+            remoteURL = remoteC.match(/\[remote "origin"]\s+url = (https:\/\/(?:(?:git(?:hub|lab)\.com|git\.(?:[a-zA-Z0-9]|\.)+|codeberg\.org)\/(?!user-attachments)(?:[a-zA-Z0-9]|-)+\/(?:[a-zA-Z0-9]|-|\.)+(?:\.git)?|(plugins\.(nin0)\.dev)\/((?:[a-zA-Z0-9]|-|\.)+))(?:\/)?)\n/);
         } catch {
             remoteURL = null;
         }
@@ -249,6 +231,7 @@ async function getPluginMeta(
             supportChannelID,
             ...extra
         });
+
     });
 }
 
@@ -259,7 +242,8 @@ async function cloneRepo(link: string, repo: string): Promise<void> {
         });
         proc.once("close", async () => {
             if (proc.exitCode !== 0) {
-                if (!existsSync(join(vencordPath, "..", "src", "userplugins", repo))) return reject("Failed to clone");
+                if (!existsSync(join(vencordPath, "..", "src", "userplugins", repo)))
+                    return reject("Failed to clone");
                 const deleteReqDialog = await dialog.showMessageBox({
                     title: "Error",
                     message: "Plugin already exists",
@@ -284,15 +268,7 @@ function generateReviewPluginContent(meta: {
     usesPreSend: boolean;
     usesNative: boolean;
 }): string {
-    const template = pluginValidateContent
-        .replace("%PLUGINNAME%", meta.name.replaceAll("<", "&lt;"))
-        .replace("%PLUGINDESC%", meta.description.replaceAll("<", "&lt;"))
-        .replace(
-            "%WARNINGHIDER%",
-            !meta.usesNative && !meta.usesPreSend ? '[data-useless="warning"] { display: none !important; }' : ""
-        )
-        .replace("%NATIVETSHIDER%", meta.usesNative ? "" : "#native-ts-warning { display: none !important; }")
-        .replace("%PRESENDHIDER%", meta.usesPreSend ? "" : "#pre-send-warning { display: none !important; }");
+    const template = pluginValidateContent.replace("%PLUGINNAME%", meta.name.replaceAll("<", "&lt;")).replace("%PLUGINDESC%", meta.description.replaceAll("<", "&lt;")).replace("%WARNINGHIDER%", !meta.usesNative && !meta.usesPreSend ? "[data-useless=\"warning\"] { display: none !important; }" : "").replace("%NATIVETSHIDER%", meta.usesNative ? "" : "#native-ts-warning { display: none !important; }").replace("%PRESENDHIDER%", meta.usesPreSend ? "" : "#pre-send-warning { display: none !important; }");
     const buf = Buffer.from(template).toString("base64");
     return `data:text/html;base64,${buf}`;
 }
@@ -303,11 +279,7 @@ function generateUpdatePluginContent(meta: {
     remote: string;
     commit: string;
 }): string {
-    const template = updateValidateContent
-        .replace("%PLUGINNAME%", meta.name.replaceAll("<", "&lt;"))
-        .replace("%PLUGINDESC%", meta.description.replaceAll("<", "&lt;"))
-        .replace("%REMOTE%", meta.remote)
-        .replace("%COMMITMESSAGE%", meta.commit.replaceAll("\n", "<br />"));
+    const template = updateValidateContent.replace("%PLUGINNAME%", meta.name.replaceAll("<", "&lt;")).replace("%PLUGINDESC%", meta.description.replaceAll("<", "&lt;")).replace("%REMOTE%", meta.remote).replace("%COMMITMESSAGE%", meta.commit.replaceAll("\n", "<br />"));
     const buf = Buffer.from(template).toString("base64");
     return `data:text/html;base64,${buf}`;
 }
@@ -326,7 +298,9 @@ export async function getUserplugins() {
             .map(({ path, directory }) => getPluginMeta(path, { directory }))
     );
 
-    return plugins.filter(p => p.status === "fulfilled").map(p => p.value);
+    return plugins
+        .filter(p => p.status === "fulfilled")
+        .map(p => p.value);
 }
 
 export async function updatePlugin(_, directory: string) {
@@ -359,32 +333,20 @@ export async function updatePlugin(_, directory: string) {
             });
             win.contentView.addChildView(reView);
 
-            const commitProc = exec(
-                "git log origin/HEAD...HEAD --oneline --pretty=format:%an////////%h////////%H////////%s",
-                {
-                    cwd: pluginDir
-                }
-            );
+            const commitProc = exec("git log origin/HEAD...HEAD --oneline --pretty=format:%an////////%h////////%H////////%s", {
+                cwd: pluginDir
+            });
             let rawOutput = "";
             commitProc.stdout?.on("data", d => {
                 rawOutput += String(d);
             });
             commitProc.once("close", () => {
-                win.loadURL(
-                    generateUpdatePluginContent({
-                        name: pluginMeta.name,
-                        description: pluginMeta.description,
-                        remote: pluginMeta.remote,
-                        commit: rawOutput
-                            .split("\n")
-                            .map(line => line.split("////////"))
-                            .map(
-                                ([user, shortCommit, longCommit, message]) =>
-                                    `${user} (<a href="${pluginMeta.remote.replace("plugins.nin0.dev", "git.nin0.dev/userplugins")}/commit/${longCommit}" style="font-family: monospace;">${shortCommit}</a>) ~ ${message}`
-                            )
-                            .join("\n")
-                    })
-                );
+                win.loadURL(generateUpdatePluginContent({
+                    name: pluginMeta.name,
+                    description: pluginMeta.description,
+                    remote: pluginMeta.remote,
+                    commit: rawOutput.split("\n").map(line => line.split("////////")).map(([user, shortCommit, longCommit, message]) => `${user} (<a href="${pluginMeta.remote.replace("plugins.nin0.dev", "git.nin0.dev/userplugins")}/commit/${longCommit}" style="font-family: monospace;">${shortCommit}</a>) ~ ${message}`).join("\n")
+                }));
                 win.on("page-title-updated", async e => {
                     if (win.webContents.getTitle().startsWith("openLink:")) {
                         await shell.openExternal(win.webContents.getTitle().replace("openLink:", ""));
@@ -401,26 +363,16 @@ export async function updatePlugin(_, directory: string) {
                                     cwd: pluginDir
                                 });
                                 let errored = "";
-                                otherProc.stderr?.on("data", d => {
-                                    if (String(d).includes("Success")) return;
-                                    errored += String(d);
-                                });
+                                otherProc.stderr?.on("data", d => { if (String(d).includes("Success")) return; errored += String(d); });
                                 otherProc.once("close", () => {
-                                    if (errored)
-                                        if (!errored.includes("Success"))
-                                            return reject(
-                                                `Failed to apply the update, chances are you have local changes that conflict with your remote. Git errors:\n\n${errored}`
-                                            );
-                                    build().then(() =>
-                                        resolve(
-                                            JSON.stringify({
-                                                name: pluginMeta.name,
-                                                native: pluginMeta.usesNative
-                                            })
-                                        )
-                                    );
+                                    if (errored) if (!errored.includes("Success")) return reject(`Failed to apply the update, chances are you have local changes that conflict with your remote. Git errors:\n\n${errored}`);
+                                    build().then(() => resolve(JSON.stringify({
+                                        name: pluginMeta.name,
+                                        native: pluginMeta.usesNative
+                                    })));
                                 });
-                            } catch (e) {
+                            }
+                            catch (e) {
                                 reject((e as Error).toString());
                             }
                             break;
@@ -519,12 +471,10 @@ export async function openGitPathModal(_: any) {
         win.webContents.executeJavaScript(`document.querySelector("input").value = ${JSON.stringify(gitPathSet)};`);
     }
 
-    console.log(
-        yaml.load(`
+    console.log(yaml.load(`
     name: test
     items:
       - a
       - b
-    `)
-    );
+    `));
 }

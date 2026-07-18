@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderModalProps } from "@vencord/discord-types";
-import { findByProps, wreq } from "@webpack";
-
 import { definePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
 import { Flex } from "@components/Flex";
@@ -15,7 +12,9 @@ import { Heading } from "@components/Heading";
 import { Devs } from "@utils/constants";
 import { makeLazy } from "@utils/lazy";
 import definePlugin, { OptionType } from "@utils/types";
-import { Button, Modal, openModal, Timestamp, useState } from "@webpack/common";
+import { RenderModalProps } from "@vencord/discord-types";
+import { findByProps, wreq } from "@webpack";
+import { Button, Modal,openModal, Timestamp, useState } from "@webpack/common";
 
 import TarFile from "./tar";
 import * as Webpack from "./webpack";
@@ -25,8 +24,8 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: true,
         description: "Include patched modules",
-        restartNeeded: true
-    }
+        restartNeeded: true,
+    },
 });
 
 export default definePlugin({
@@ -38,9 +37,13 @@ export default definePlugin({
 
     toolboxActions: {
         "Webpack Tarball"() {
-            openModal(props => <TarModal modalProps={props} />);
+            openModal(props => (
+                <TarModal
+                    modalProps={props}
+                />
+            ));
         }
-    }
+    },
 });
 
 export const getBuildNumber = makeLazy(() => {
@@ -65,13 +68,21 @@ async function saveTar(patched: boolean) {
         const patchedSrc = Function.toString.call(module);
         const originalSrc = module.toString();
         if (patched && patchedSrc !== originalSrc)
-            tar.addTextFile(`${root}/${id}.v.js`, `webpack[${JSON.stringify(id)}] = ${patchedSrc}\n`, { mtime });
-        tar.addTextFile(`${root}/${id}.js`, `webpack[${JSON.stringify(id)}] = ${originalSrc}\n`, { mtime });
+            tar.addTextFile(
+                `${root}/${id}.v.js`,
+                `webpack[${JSON.stringify(id)}] = ${patchedSrc}\n`,
+                { mtime },
+            );
+        tar.addTextFile(
+            `${root}/${id}.js`,
+            `webpack[${JSON.stringify(id)}] = ${originalSrc}\n`,
+            { mtime },
+        );
     }
     tar.save(`${root}.tar`);
 }
 
-function TarModal({ modalProps }: { modalProps: RenderModalProps }) {
+function TarModal({ modalProps }: { modalProps: RenderModalProps; }) {
     const webpackRequire = wreq as any;
     const { buildNumber, builtAt } = getBuildNumber();
     const [, rerender] = useState({});
@@ -112,9 +123,14 @@ function TarModal({ modalProps }: { modalProps: RenderModalProps }) {
             </div>
 
             <div style={{ marginTop: "8px", marginBottom: "24px" }}>
-                <Heading>Lazy chunks</Heading>
+                <Heading>
+                    Lazy chunks
+                </Heading>
                 <Flex alignItems="center">
-                    <BaseText size="md" style={{ flexGrow: 1 }}>
+                    <BaseText
+                        size="md"
+                        style={{ flexGrow: 1 }}
+                    >
                         {loaded}/{all}
                         {errored ? ` (${errored} errors)` : null}
                     </BaseText>
@@ -135,7 +151,7 @@ function TarModal({ modalProps }: { modalProps: RenderModalProps }) {
 
             <FormSwitch
                 value={patched}
-                onChange={v => (settings.store.patched = v)}
+                onChange={v => settings.store.patched = v}
                 title={settings.def.patched.description}
                 hideBorder
             />

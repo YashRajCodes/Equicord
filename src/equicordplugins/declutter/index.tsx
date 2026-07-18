@@ -5,6 +5,7 @@
  */
 
 import "./style.css";
+
 import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings, migratePluginSetting } from "@api/Settings";
 import { Divider } from "@components/Divider";
@@ -24,32 +25,32 @@ const cl = classNameFactory("vc-declutter-");
 export const settings = definePluginSettings({
     userProfileHeader: {
         type: OptionType.COMPONENT,
-        component: () => SectionSeparator("User Profile")
+        component: () => SectionSeparator("User Profile"),
     },
     removeAvatarDecoration: {
         type: OptionType.BOOLEAN,
         description: "Remove avatar decorations.",
         default: false,
         disabled: () => isPluginEnabled("Decor"),
-        restartNeeded: true
+        restartNeeded: true,
     },
     removeNameplate: {
         type: OptionType.BOOLEAN,
         description: "Remove nameplates.",
         default: true,
-        restartNeeded: true
+        restartNeeded: true,
     },
     removeProfileEffect: {
         type: OptionType.BOOLEAN,
         description: "Remove profile animation effects on open.",
         default: true,
-        restartNeeded: true
+        restartNeeded: true,
     },
     removeClanTag: {
         type: OptionType.BOOLEAN,
         description: "Remove clan tags.",
         default: true,
-        restartNeeded: true
+        restartNeeded: true,
     },
     alwaysShowUsername: {
         type: OptionType.BOOLEAN,
@@ -67,47 +68,47 @@ export const settings = definePluginSettings({
     },
     friendsListHeader: {
         type: OptionType.COMPONENT,
-        component: () => SectionSeparator("Above Friends/DMs List")
+        component: () => SectionSeparator("Above Friends/DMs List"),
     },
     removeShopAboveDms: {
         type: OptionType.BOOLEAN,
         description: "Remove shops above DMs list.",
         default: false,
-        restartNeeded: true
+        restartNeeded: true,
     },
     removeQuestsAboveDms: {
         type: OptionType.BOOLEAN,
         description: "Remove quests above DMs list.",
         default: false,
-        restartNeeded: true
+        restartNeeded: true,
     },
     miscHeader: {
         type: OptionType.COMPONENT,
-        component: () => SectionSeparator("Misc")
+        component: () => SectionSeparator("Misc"),
     },
     removeServerBoostInfo: {
         type: OptionType.BOOLEAN,
         description: "Remove server boost info above channel list.",
         default: true,
-        restartNeeded: true
+        restartNeeded: true,
     },
     removeBillingSettings: {
         type: OptionType.BOOLEAN,
         description: "Remove billing settings.",
         default: true,
-        restartNeeded: true
+        restartNeeded: true,
     },
     removeGiftButton: {
         type: OptionType.BOOLEAN,
         description: "Remove gift button.",
         default: true,
-        restartNeeded: true
+        restartNeeded: true,
     },
     removeUnavailableEmojiPicker: {
         type: OptionType.BOOLEAN,
         description: "Remove unavailable categories from the emoji picker.",
         default: true,
-        restartNeeded: true
+        restartNeeded: true,
     },
     removeAudioMenus: {
         type: OptionType.BOOLEAN,
@@ -120,22 +121,23 @@ export const settings = definePluginSettings({
         description: "Remove button tooltips.",
         default: false,
         restartNeeded: true
-    }
+    },
 });
 
 function SectionSeparator(title: string) {
     return (
         <div className={cl("section-separator")}>
             <Divider />
-            <HeadingSecondary className={cl("section-title")}>{title}</HeadingSecondary>
+            <HeadingSecondary className={cl("section-title")}>
+                {title}
+            </HeadingSecondary>
         </div>
     );
 }
 
 export default definePlugin({
     name: "Declutter",
-    description:
-        "Cleans up Discord by removing non-essential UI elements like profile effects, shop tabs, boosts, and more.",
+    description: "Cleans up Discord by removing non-essential UI elements like profile effects, shop tabs, boosts, and more.",
     tags: ["Appearance", "Customisation"],
     authors: [EquicordDevs.Leon135, Devs.prism, Devs.Kyuuhachi],
     start() {
@@ -158,7 +160,7 @@ export default definePlugin({
                 match: /(?<=\{avatarDecoration:.{0,40}?)(void 0!==\i\?\i:)\i(?=\)?,canAnimate:)/,
                 replace: "$1null"
             },
-            predicate: () => settings.store.removeAvatarDecoration && !isPluginEnabled(decor.name)
+            predicate: () => settings.store.removeAvatarDecoration && !isPluginEnabled(decor.name),
         },
         {
             // Avatar decoration on dms list
@@ -167,7 +169,7 @@ export default definePlugin({
                 match: /null==\i\|\|\i\?null:\(0,\i\.jsxs?\)\("img",\{className:\i\.\i,src:\i,alt:" ","aria-hidden":!0\}\)/,
                 replace: "null"
             },
-            predicate: () => settings.store.removeAvatarDecoration && !isPluginEnabled(decor.name)
+            predicate: () => settings.store.removeAvatarDecoration && !isPluginEnabled(decor.name),
         },
         // User Area
         {
@@ -176,19 +178,19 @@ export default definePlugin({
                 {
                     match: /((\i)=\i\?\.avatarDecoration,\i=)\(0,\i\.\i\)\(\2\)/,
                     replace: "$1null",
-                    predicate: () => settings.store.removeAvatarDecoration && !isPluginEnabled(decor.name)
+                    predicate: () => settings.store.removeAvatarDecoration && !isPluginEnabled(decor.name),
                 },
                 {
                     match: /(iconForeground:null!=\i\?\i\.\i:void 0,nameplate:)\i/g,
                     replace: "$1null",
-                    predicate: () => settings.store.removeNameplate
+                    predicate: () => settings.store.removeNameplate,
                 },
                 {
                     match: /let\{ref:\i,speaking:\i,voiceDb:/,
                     replace: "arguments[0].nameplate=null;$&",
-                    predicate: () => settings.store.removeNameplate
+                    predicate: () => settings.store.removeNameplate,
                 }
-            ]
+            ],
         },
         {
             // Nameplate
@@ -197,7 +199,7 @@ export default definePlugin({
                 match: /function \i\((\i)\)\{(?=let.{1,5}\{nameplate:\i,)/,
                 replace: '$&if($1.placement!=="preview"&&$1.placement!=="mini_preview")return null;'
             },
-            predicate: () => settings.store.removeNameplate
+            predicate: () => settings.store.removeNameplate,
         },
         {
             // Profile banner animation effect
@@ -206,7 +208,7 @@ export default definePlugin({
                 match: /\i=function\((\i)\)\{(?=.{0,50}\.useReducedMotion\))/,
                 replace: "$&if(!$1.shopPreview)return null;"
             },
-            predicate: () => settings.store.removeProfileEffect
+            predicate: () => settings.store.removeProfileEffect,
         },
         {
             // Clan tag
@@ -215,7 +217,7 @@ export default definePlugin({
                 match: /(?<=\.profile\?\.badge.{0,50}\i\)\{)/,
                 replace: "return false;"
             },
-            predicate: () => settings.store.removeClanTag
+            predicate: () => settings.store.removeClanTag,
         },
         {
             // Always show username
@@ -247,8 +249,8 @@ export default definePlugin({
                     match: /,\(0,\i\.jsxs?\)\(\i\.\i,\{.{0,600}#{intl::ACCOUNT_INPUT_OPTIONS}\)\}\)(?=\])/,
                     replace: "",
                     predicate: () => settings.store.removeAudioMenus
-                }
-            ]
+                },
+            ],
         },
         {
             // Button tooltips in right click audio settings
@@ -272,7 +274,7 @@ export default definePlugin({
                     replace: "",
                     predicate: () => settings.store.removeAudioMenus
                 }
-            ]
+            ],
         },
         {
             // ? Another button tooltips
@@ -290,19 +292,20 @@ export default definePlugin({
                 {
                     match: /"nitro-tab-group"\)/,
                     replace: "$&&&undefined",
-                    predicate: () => settings.store.removeShopAboveDms
+                    predicate: () => settings.store.removeShopAboveDms,
                 },
                 {
                     match: /NAVIGATION_LINK\}\}\},"discord-shop"\)/,
                     replace: "$&&&undefined",
                     predicate: () => settings.store.removeShopAboveDms
+
                 },
                 {
                     match: /\.QUEST_HOME\},"quests"\)/,
                     replace: "$&&&undefined",
                     predicate: () => settings.store.removeQuestsAboveDms
-                }
-            ]
+                },
+            ],
         },
         {
             // Above DMs section, keyboard navigation
@@ -310,14 +313,14 @@ export default definePlugin({
             replacement: [
                 {
                     match: /\i\.\i\.APPLICATION_STORE,/,
-                    replace: "/*$&*/"
+                    replace: "/*$&*/",
                 },
                 {
                     match: /\i\.\i\.COLLECTIBLES_SHOP,/,
-                    replace: "/*$&*/"
-                }
+                    replace: "/*$&*/",
+                },
             ],
-            predicate: () => settings.store.removeShopAboveDms
+            predicate: () => settings.store.removeShopAboveDms,
         },
         {
             // Channel list server boost progress bar
@@ -326,25 +329,25 @@ export default definePlugin({
                 match: /(GUILD_NEW_MEMBER_ACTIONS_PROGRESS_BAR\)):\i(?:\.premiumProgressBarEnabled)?/,
                 replace: "$1:null"
             },
-            predicate: () => settings.store.removeServerBoostInfo
+            predicate: () => settings.store.removeServerBoostInfo,
         },
         {
             // Billing settings
             find: ".BILLING_SECTION,",
             replacement: {
                 match: /(\.BILLING_SECTION.{0,50}buildLayout:\(\)=>\[).{0,15}?\]/,
-                replace: "$1]"
+                replace: "$1]",
             },
-            predicate: () => settings.store.removeBillingSettings
+            predicate: () => settings.store.removeBillingSettings,
         },
         {
             // Gift button
             find: '"sticker")',
             replacement: {
                 match: /&&\i\.push\(\([^&]*?,"gift"\)\)/,
-                replace: ""
+                replace: "",
             },
-            predicate: () => settings.store.removeGiftButton
+            predicate: () => settings.store.removeGiftButton,
         },
         {
             // Emoji list
@@ -353,7 +356,7 @@ export default definePlugin({
                 match: /(\i)=\i\|\|!\i&&\i.\i.isEmojiCategoryNitroLocked\(\{[^}]*\}\);/,
                 replace: "$&$1||"
             },
-            predicate: () => settings.store.removeUnavailableEmojiPicker
+            predicate: () => settings.store.removeUnavailableEmojiPicker,
         },
         {
             // Emoji category list
@@ -362,7 +365,7 @@ export default definePlugin({
                 match: /(?<=(\i)\.unshift\((\i)\):)(?=\1\.push\(\2\))/,
                 replace: "$2.isNitroLocked||"
             },
-            predicate: () => settings.store.removeUnavailableEmojiPicker
+            predicate: () => settings.store.removeUnavailableEmojiPicker,
         }
-    ]
+    ],
 });

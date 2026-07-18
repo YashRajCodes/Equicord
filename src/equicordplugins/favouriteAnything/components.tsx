@@ -4,59 +4,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Message, MessageAttachment, ScrollerBaseRef } from "@vencord/discord-types";
-import { ChannelType } from "@vencord/discord-types/enums";
-import {
-    findByCodeLazy,
-    findComponentByCode,
-    findComponentByCodeLazy,
-    findCssClassesLazy,
-    proxyLazyWebpack
-} from "@webpack";
-import { ReactNode } from "react";
-
 import { BaseText } from "@components/BaseText";
 import { Button } from "@components/Button";
 import { LazyComponentWrapper } from "@utils/lazyReact";
-import {
-    ChannelStore,
-    ExpressionPickerStore,
-    ListScrollerThin,
-    lodash,
-    PermissionsBits,
-    PermissionStore,
-    React,
-    useCallback,
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-    useStateFromStores
-} from "@webpack/common";
+import { Message, MessageAttachment, ScrollerBaseRef } from "@vencord/discord-types";
+import { ChannelType } from "@vencord/discord-types/enums";
+import { findByCodeLazy, findComponentByCode, findComponentByCodeLazy, findCssClassesLazy, proxyLazyWebpack } from "@webpack";
+import { ChannelStore, ExpressionPickerStore, ListScrollerThin, lodash, PermissionsBits, PermissionStore, React, useCallback, useEffect, useMemo, useRef, useState, useStateFromStores } from "@webpack/common";
+import { ReactNode } from "react";
 
 import { AttachmentContext, EmbedContext, EmbedMosaicContext } from ".";
 import { SignedUrlsStore } from "./stores";
-import {
-    AttachmentItem,
-    AttachmentsComponentProps,
-    CustomItemFormat,
-    FavoriteButtonProps,
-    FavouriteItemFormat,
-    FilePickerItemProps,
-    FilePickerProps,
-    ManaSearchBarProps,
-    MessageComponentClass
-} from "./types";
-import {
-    cl,
-    defs,
-    hasPermission,
-    ImageUtils,
-    sendAttachment,
-    useFavourites,
-    useListScroller,
-    useResizeObserver
-} from "./utils";
+import { AttachmentItem, AttachmentsComponentProps, CustomItemFormat, FavoriteButtonProps, FavouriteItemFormat, FilePickerItemProps, FilePickerProps, ManaSearchBarProps, MessageComponentClass } from "./types";
+import { cl, defs, hasPermission, ImageUtils, sendAttachment, useFavourites, useListScroller, useResizeObserver } from "./utils";
 
 const ManaSearchBar = findComponentByCodeLazy<ManaSearchBarProps>("#{intl::SEARCH}),ref");
 const FavoriteButton = findComponentByCodeLazy<FavoriteButtonProps>("#{intl::GIF_TOOLTIP_ADD_TO_FAVORITES}");
@@ -82,9 +42,7 @@ function createPreviewMessage(attachment: MessageAttachment, channelId: string) 
 
 export const AttachmentPreview = proxyLazyWebpack(() => {
     // findComponentByCodeLazy doesn't work properly with component classes, this must be kept within the lazy scope
-    const MessageComponent = findComponentByCode(
-        "this.renderAttachments"
-    ) as LazyComponentWrapper<MessageComponentClass>;
+    const MessageComponent = findComponentByCode("this.renderAttachments") as LazyComponentWrapper<MessageComponentClass>;
 
     class MessageAttachmentsComponent extends MessageComponent {
         render(): ReactNode {
@@ -95,7 +53,10 @@ export const AttachmentPreview = proxyLazyWebpack(() => {
     const channel = Object.freeze(createChannelRecordFromServer({ id: "0", type: ChannelType.GUILD_TEXT }));
 
     return function AttachmentPreview({ attachment }: AttachmentsComponentProps) {
-        const message = useMemo(() => createPreviewMessage(attachment, channel.id), [attachment, channel.id]);
+        const message = useMemo(
+            () => createPreviewMessage(attachment, channel.id),
+            [attachment, channel.id]
+        );
 
         return (
             <MessageAttachmentsComponent
@@ -319,8 +280,7 @@ export function AttachmentAccessory() {
     const props: FavoriteButtonProps | null = useMemo(() => {
         if (!attachment?.downloadUrl) return null;
         const { originalItem, type, downloadUrl, srcIsAnimated } = attachment;
-        const width = attachment.width || 600,
-            height = attachment.height || 400;
+        const width = attachment.width || 600, height = attachment.height || 400;
 
         // Do not render the custom accessory if the original attachment component already has a gif accessory
         const isAnimated = ImageUtils.isAnimated({

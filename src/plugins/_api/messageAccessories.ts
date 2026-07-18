@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -28,8 +28,8 @@ export default definePlugin({
             find: "#{intl::REMOVE_ATTACHMENT_BODY}",
             replacement: {
                 match: /children:(\[[^\]]{0,100}?this.renderSuppressConfirmModal[^\]]{0,100}?\])/,
-                replace: "children:Vencord.Api.MessageAccessories._modifyAccessories($1,this?.props)"
-            }
-        }
-    ]
+                replace: "children:Vencord.Api.MessageAccessories._modifyAccessories($1,this?.props)",
+            },
+        },
+    ],
 });

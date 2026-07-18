@@ -5,9 +5,6 @@
  */
 
 import "./styles.css";
-import { User } from "@vencord/discord-types";
-import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import { JSX } from "react";
 
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -20,14 +17,10 @@ import { getIntlMessage, openUserProfile } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import { classes, getUserAvatarUrl } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
-import {
-    ApplicationStreamingStore,
-    Clickable,
-    RelationshipStore,
-    Tooltip,
-    UserStore,
-    useStateFromStores
-} from "@webpack/common";
+import { User } from "@vencord/discord-types";
+import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
+import { ApplicationStreamingStore, Clickable, RelationshipStore, Tooltip, UserStore, useStateFromStores } from "@webpack/common";
+import { JSX } from "react";
 
 interface WatchingProps {
     userIds: string[];
@@ -44,36 +37,35 @@ function getUsername(user: User): string {
 
 function Watching({ userIds, guildId }: WatchingProps): JSX.Element {
     let missingUsers = 0;
-    const users = userIds
-        .map(id => UserStore.getUser(id))
-        .filter(user => (Boolean(user) ? true : ((missingUsers += 1), false)));
+    const users = userIds.map(id => UserStore.getUser(id)).filter(user => Boolean(user) ? true : (missingUsers += 1, false));
 
     return (
         <div className={cl("content")}>
-            {userIds.length ? (
-                <div className={cl("spectating")}>
-                    <Heading>{getIntlMessage("SPECTATORS", { numViewers: userIds.length })}</Heading>
-                    <Flex flexDirection="column" gap="6">
-                        {users.map(user => (
-                            <Flex key={user.id} flexDirection="row" gap="6" alignContent="center">
-                                <img
-                                    className={cl("user-avatar")}
-                                    src={getUserAvatarUrl(user, guildId, true, 80)}
-                                    alt=""
-                                />
-                                {getUsername(user)}
-                            </Flex>
-                        ))}
-                        {missingUsers > 0 && (
-                            <span className={cl("more-users")}>
-                                {`+${getIntlMessage("NUM_USERS", { num: missingUsers })}`}
-                            </span>
-                        )}
-                    </Flex>
-                </div>
-            ) : (
-                <span className={cl("no-viewers")}>No spectators</span>
-            )}
+            {userIds.length ?
+                (
+                    <div className={cl("spectating")}>
+                        <Heading>{getIntlMessage("SPECTATORS", { numViewers: userIds.length })}</Heading>
+                        <Flex flexDirection="column" gap="6" >
+                            {users.map(user => (
+                                <Flex key={user.id} flexDirection="row" gap="6" alignContent="center">
+                                    <img className={cl("user-avatar")} src={getUserAvatarUrl(user, guildId, true, 80)} alt="" />
+                                    {getUsername(user)}
+                                </Flex>
+                            ))}
+                            {missingUsers > 0 &&
+                                <span className={cl("more-users")}>
+                                    {`+${getIntlMessage("NUM_USERS", { num: missingUsers })}`}
+                                </span>
+                            }
+                        </Flex>
+                    </div>
+                )
+                : (
+                    <span className={cl("no-viewers")}>
+                        No spectators
+                    </span>
+                )
+            }
         </div>
     );
 }
@@ -84,7 +76,7 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: true,
         restartNeeded: true
-    }
+    },
 });
 
 export default definePlugin({
@@ -110,16 +102,12 @@ export default definePlugin({
         }
     ],
     WrapperComponent: ErrorBoundary.wrap(props => {
-        const stream = useStateFromStores([ApplicationStreamingStore], () =>
-            ApplicationStreamingStore.getCurrentUserActiveStream()
-        );
+        const stream = useStateFromStores([ApplicationStreamingStore], () => ApplicationStreamingStore.getCurrentUserActiveStream());
         if (!stream) return <div {...props}>{props.children}</div>;
 
         let missingUsers = 0;
         const userIds: string[] = ApplicationStreamingStore.getViewerIds(stream);
-        const users = userIds
-            .map(id => UserStore.getUser(id))
-            .filter(user => (Boolean(user) ? true : ((missingUsers += 1), false)));
+        const users = userIds.map(id => UserStore.getUser(id)).filter(user => Boolean(user) ? true : (missingUsers += 1, false));
         const guildId = stream?.guildId ?? "";
 
         function renderMoreUsers(_label: string, count: number) {
@@ -127,7 +115,11 @@ export default definePlugin({
             return (
                 <Tooltip text={<Watching userIds={userIds} guildId={guildId} />}>
                     {({ onMouseEnter, onMouseLeave }) => (
-                        <div className={AvatarStyles.moreUsers} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+                        <div
+                            className={AvatarStyles.moreUsers}
+                            onMouseEnter={onMouseEnter}
+                            onMouseLeave={onMouseLeave}
+                        >
                             +{sliced.length + missingUsers}
                         </div>
                     )}
@@ -142,7 +134,7 @@ export default definePlugin({
                     <HeadingSecondary className={cl("spectating-header")}>
                         {getIntlMessage("SPECTATORS", { numViewers: userIds.length })}
                     </HeadingSecondary>
-                    {users.length ? (
+                    {users.length ?
                         <div className={cl("spectating-users")}>
                             <UserSummaryItem
                                 users={users}
@@ -167,32 +159,29 @@ export default definePlugin({
                                 )}
                             />
                         </div>
-                    ) : (
-                        <Paragraph>No spectators</Paragraph>
-                    )}
+                        : <Paragraph>
+                            No spectators
+                        </Paragraph>
+                    }
                 </div>
             </div>
         );
     }),
     component: function ({ OriginalComponent }) {
         return ErrorBoundary.wrap(props => {
-            const stream = useStateFromStores([ApplicationStreamingStore], () =>
-                ApplicationStreamingStore.getCurrentUserActiveStream()
-            );
+            const stream = useStateFromStores([ApplicationStreamingStore], () => ApplicationStreamingStore.getCurrentUserActiveStream());
             if (!stream) return null;
 
             const viewers = ApplicationStreamingStore.getViewerIds(stream);
             const guildId = stream?.guildId ?? "";
 
-            return (
-                <Tooltip text={<Watching userIds={viewers} guildId={guildId} />}>
-                    {({ onMouseEnter, onMouseLeave }) => (
-                        <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-                            <OriginalComponent {...props} />
-                        </div>
-                    )}
-                </Tooltip>
-            );
+            return <Tooltip text={<Watching userIds={viewers} guildId={guildId} />}>
+                {({ onMouseEnter, onMouseLeave }) => (
+                    <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+                        <OriginalComponent {...props} />
+                    </div>
+                )}
+            </Tooltip>;
         });
     }
 });

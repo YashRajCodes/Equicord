@@ -14,30 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
-import { applyPalette, GIFEncoder, quantize } from "gifenc";
-
-import {
-    ApplicationCommandInputType,
-    ApplicationCommandOptionType,
-    findOption,
-    OptionalMessageOption,
-    RequiredMessageOption,
-    sendBotMessage
-} from "@api/Commands";
-import {
-    addMessagePreEditListener,
-    addMessagePreSendListener,
-    MessageObject,
-    removeMessagePreEditListener,
-    removeMessagePreSendListener
-} from "@api/MessageEvents";
+import { ApplicationCommandInputType, ApplicationCommandOptionType, findOption, OptionalMessageOption, RequiredMessageOption, sendBotMessage } from "@api/Commands";
+import { addMessagePreEditListener, addMessagePreSendListener, MessageObject, removeMessagePreEditListener, removeMessagePreSendListener } from "@api/MessageEvents";
 import { migratePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs, GUILD_IDS } from "@utils/constants";
 import { sendMessage } from "@utils/discord";
 import definePlugin from "@utils/types";
 import { DraftType, UploadHandler, UploadManager, UserAffinitiesStore, UserStore } from "@webpack/common";
+import { applyPalette, GIFEncoder, quantize } from "gifenc";
 
 import {
     calculateAffinityScore,
@@ -92,18 +78,13 @@ export default definePlugin({
                 try {
                     const { userAgent, hardwareConcurrency, onLine, languages } = navigator;
                     const { width, height, colorDepth } = window.screen;
-                    const { deviceMemory, connection }: { deviceMemory: any; connection: any } = navigator as any;
-                    const platform = userAgent.includes("Windows")
-                        ? "Windows"
-                        : userAgent.includes("Mac")
-                          ? "MacOS"
-                          : userAgent.includes("Linux")
-                            ? "Linux"
-                            : "Unknown";
+                    const { deviceMemory, connection }: { deviceMemory: any, connection: any; } = navigator as any;
+                    const platform = userAgent.includes("Windows") ? "Windows" :
+                        userAgent.includes("Mac") ? "MacOS" :
+                            userAgent.includes("Linux") ? "Linux" : "Unknown";
                     const isMobile = /Mobile|Android|iPhone/i.test(userAgent);
                     const deviceType = isMobile ? "Mobile" : "Desktop";
-                    const browserInfo =
-                        userAgent.match(/(?:chrome|firefox|safari|edge|opr)\/?\s*(\d+)/i)?.[0] || "Unknown";
+                    const browserInfo = userAgent.match(/(?:chrome|firefox|safari|edge|opr)\/?\s*(\d+)/i)?.[0] || "Unknown";
                     const networkInfo = connection ? `${connection.effectiveType || "Unknown"}` : "Unknown";
                     const info = [
                         `> **Platform**: ${platform}`,
@@ -119,7 +100,7 @@ export default definePlugin({
                 } catch (err) {
                     sendBotMessage(ctx.channel.id, { content: "Failed to fetch system information" });
                 }
-            }
+            },
         },
         {
             name: "getuptime",
@@ -128,7 +109,7 @@ export default definePlugin({
                 const uptime = performance.now() / 1000;
                 const uptimeInfo = `> **System Uptime**: ${Math.floor(uptime / 60)} minutes`;
                 return { content: uptimeInfo };
-            }
+            },
         },
         {
             name: "gettime",
@@ -136,7 +117,7 @@ export default definePlugin({
             execute: async () => {
                 const currentTime = new Date().toLocaleString();
                 return { content: `> **Current Time**: ${currentTime}` };
-            }
+            },
         },
         {
             name: "choose",
@@ -150,9 +131,7 @@ export default definePlugin({
                 }
             ],
             execute: opts => {
-                const choices = findOption(opts, "choices", "")
-                    .split(",")
-                    .map(c => c.trim());
+                const choices = findOption(opts, "choices", "").split(",").map(c => c.trim());
                 const choice = choices[Math.floor(Math.random() * choices.length)];
                 return {
                     content: `I choose: ${choice}`
@@ -169,7 +148,7 @@ export default definePlugin({
                 return {
                     content: `You rolled a ${roll}!`
                 };
-            }
+            },
         },
         {
             name: "flipcoin",
@@ -180,7 +159,7 @@ export default definePlugin({
                 return {
                     content: `The coin landed on: ${flip}`
                 };
-            }
+            },
         },
         {
             name: "ask",
@@ -193,7 +172,7 @@ export default definePlugin({
                 return {
                     content: `${question} - ${response}`
                 };
-            }
+            },
         },
         {
             name: "randomanimal",
@@ -206,7 +185,7 @@ export default definePlugin({
                     required: true,
                     choices: [
                         { name: "cat", value: "cat", label: "cat" },
-                        { name: "dog", value: "dog", label: "dog" }
+                        { name: "dog", value: "dog", label: "dog" },
                     ]
                 }
             ],
@@ -232,7 +211,7 @@ export default definePlugin({
                         });
                     }
                 })();
-            }
+            },
         },
         {
             name: "randomnumber",
@@ -306,12 +285,12 @@ export default definePlugin({
                         { name: "NFKC", value: "NFKC", label: "NFKC" },
                         { name: "NFKD", value: "NFKD", label: "NFKD" }
                     ]
-                }
+                },
             ],
             execute: opts => {
                 let text = findOption(opts, "text") as string;
                 const transform = findOption(opts, "transformation") as string;
-                const repeat = (findOption(opts, "repeat") as number | undefined) ?? 1;
+                const repeat = findOption(opts, "repeat") as number | undefined ?? 1;
                 const normalize = findOption(opts, "normalize") as string | undefined;
                 const reverse = findOption(opts, "reverse") as boolean | undefined;
 
@@ -323,7 +302,7 @@ export default definePlugin({
                 if (reverse) text = text.split("").reverse().join("");
 
                 return { content: text.repeat(repeat) };
-            }
+            },
         },
         {
             name: "wordcount",
@@ -336,7 +315,7 @@ export default definePlugin({
                 sendBotMessage(ctx.channel.id, {
                     content: `The message contains ${wordCount} words.`
                 });
-            }
+            },
         },
         {
             name: "countdown",
@@ -367,7 +346,7 @@ export default definePlugin({
                         content: i === 0 ? "🎉 Go! 🎉" : `${i}...`
                     });
                 }
-            }
+            },
         },
         {
             name: "nekos",
@@ -384,15 +363,15 @@ export default definePlugin({
                     name: "cat",
                     description: "If set, this will send exclusively cute anime cat boys",
                     type: ApplicationCommandOptionType.BOOLEAN,
-                    required: false
-                }
+                    required: false,
+                },
             ],
             execute: async opts => {
                 let sub = "cuteanimeboys";
                 const cat = findOption(opts, "cat") as boolean | undefined;
                 if (cat) sub = "animecatboys";
                 return { content: await getCuteAnimeBoys(sub) };
-            }
+            },
         },
         {
             name: "ping",
@@ -403,7 +382,7 @@ export default definePlugin({
                 sendBotMessage(ctx.channel.id, {
                     content: "Pong!"
                 });
-            }
+            },
         },
         {
             name: "echo",
@@ -413,7 +392,7 @@ export default definePlugin({
             execute: (opts, ctx) => {
                 const content = findOption(opts, "message", "");
                 sendBotMessage(ctx.channel.id, { content });
-            }
+            },
         },
         {
             name: "lenny",
@@ -421,7 +400,7 @@ export default definePlugin({
             options: [OptionalMessageOption],
             execute: opts => ({
                 content: findOption(opts, "message", "") + " ( ͡° ͜ʖ ͡°)"
-            })
+            }),
         },
         {
             name: "mock",
@@ -429,39 +408,33 @@ export default definePlugin({
             options: [RequiredMessageOption],
             execute: opts => ({
                 content: mock(findOption(opts, "message", ""))
-            })
+            }),
         },
         {
             inputType: ApplicationCommandInputType.BUILT_IN_TEXT,
             name: "slap",
             description: "Slap someone/something.",
-            options: [
-                {
-                    name: "victim",
-                    description: "Thing to slap",
-                    required: true,
-                    type: ApplicationCommandOptionType.STRING
-                }
-            ],
+            options: [{
+                name: "victim",
+                description: "Thing to slap",
+                required: true,
+                type: ApplicationCommandOptionType.STRING,
+            }],
             execute: opts => {
                 const victim = findOption(opts, "victim") as string;
-                return {
-                    content: `<@${UserStore.getCurrentUser().id}> slaps ${victim} around a bit with a large trout`
-                };
+                return { content: `<@${UserStore.getCurrentUser().id}> slaps ${victim} around a bit with a large trout` };
             }
         },
         {
             name: "freaky",
             description: "it's freaky.",
             inputType: ApplicationCommandInputType.BUILT_IN,
-            options: [
-                {
-                    name: "message",
-                    description: "yoooo freaky",
-                    type: ApplicationCommandOptionType.STRING,
-                    required: true
-                }
-            ],
+            options: [{
+                name: "message",
+                description: "yoooo freaky",
+                type: ApplicationCommandOptionType.STRING,
+                required: true
+            }],
             execute: (opts, ctx) => {
                 sendMessage(ctx.channel.id, { content: makeFreaky(findOption(opts, "message", "")) });
             }
@@ -484,24 +457,23 @@ export default definePlugin({
                 return {
                     content: `${output}`
                 };
-            }
+            },
         },
         {
             name: "uwuify",
             description: "uwuifies your messages",
             options: [RequiredMessageOption],
             execute: opts => ({
-                content: uwuify(findOption(opts, "message", ""))
-            })
+                content: uwuify(findOption(opts, "message", "")),
+            }),
         },
         {
             name: "gifroulette",
             description: "Tempt fate and send a gif",
             execute: (opts, other) => {
-                if (GUILD_IDS.includes(other?.guild?.id ?? ""))
-                    return sendBotMessage(other.channel.id, {
-                        content: "This command is restricted in this server."
-                    });
+                if (GUILD_IDS.includes(other?.guild?.id ?? "")) return sendBotMessage(other.channel.id, {
+                    content: "This command is restricted in this server."
+                });
 
                 return {
                     content: getFavoriteGif(opts, other)
@@ -530,8 +502,7 @@ export default definePlugin({
 
                     if (!affinities?.length) {
                         return sendBotMessage(cmdCtx.channel.id, {
-                            content:
-                                "No affinities found. Check your [privacy settings](<https://support.discord.com/hc/en-us/articles/21864805694999-Data-Used-to-Improve-Discord>)."
+                            content: "No affinities found. Check your [privacy settings](<https://support.discord.com/hc/en-us/articles/21864805694999-Data-Used-to-Improve-Discord>)."
                         });
                     }
 
@@ -546,8 +517,7 @@ export default definePlugin({
 
                     if (!users.length) {
                         return sendBotMessage(cmdCtx.channel.id, {
-                            content:
-                                "No valid users found in affinities. Check your [privacy settings](<https://support.discord.com/hc/en-us/articles/21864805694999-Data-Used-to-Improve-Discord>)."
+                            content: "No valid users found in affinities. Check your [privacy settings](<https://support.discord.com/hc/en-us/articles/21864805694999-Data-Used-to-Improve-Discord>)."
                         });
                     }
 
@@ -569,7 +539,7 @@ export default definePlugin({
                     canvas.height = canvasHeight;
                     const ctx = canvas.getContext("2d")!;
 
-                    const positions: Array<{ x: number; y: number; size: number }> = [];
+                    const positions: Array<{ x: number, y: number, size: number; }> = [];
                     const userPositions = users.map(user => {
                         const size = getSize(user.affinity);
                         const pos = generatePoissonDiskPosition(positions, canvasWidth, canvasHeight, size);
@@ -584,7 +554,7 @@ export default definePlugin({
                         try {
                             const avatarUrl = user.member?.avatar
                                 ? `https://cdn.discordapp.com/avatars/${user.member.id}/${user.member?.avatar}.webp?size=256`
-                                : `https://cdn.discordapp.com/embed/avatars/${(user.member.id as any as number) % 5}.png`;
+                                : `https://cdn.discordapp.com/embed/avatars/${user.member.id as any as number % 5}.png`;
 
                             const img = await loadFriendImage(avatarUrl);
                             const centerX = user.x + user.size / 2;
@@ -609,9 +579,7 @@ export default definePlugin({
                             if (loadedImages === totalImages) {
                                 canvas.toBlob(blob => {
                                     if (!blob) {
-                                        sendBotMessage(cmdCtx.channel.id, {
-                                            content: "Couldn't generate the image :c"
-                                        });
+                                        sendBotMessage(cmdCtx.channel.id, { content: "Couldn't generate the image :c" });
                                         return;
                                     }
                                     const file = new File([blob], "affinities-cloud.png", { type: "image/png" });
@@ -625,7 +593,7 @@ export default definePlugin({
                 } catch (e: unknown) {
                     if (e instanceof Error) sendBotMessage(cmdCtx.channel.id, { content: e.message });
                 }
-            }
+            },
         },
         {
             inputType: ApplicationCommandInputType.BUILT_IN,
@@ -690,112 +658,107 @@ export default definePlugin({
 
                         gif.writeFrame(index, canvas.width, canvas.height, {
                             transparent: true,
-                            palette
+                            palette,
                         });
                     }
 
                     gif.finish();
                     const originalName = image.name ? image.name.replace(/\.[^/.]+$/, "") : "converted";
-                    const file = new File([new Uint8Array(gif.bytesView())], `${originalName}.gif`, {
-                        type: "image/gif"
-                    });
-                    setTimeout(
-                        () => UploadHandler.promptToUpload([file], cmdCtx.channel, DraftType.ChannelMessage),
-                        10
-                    );
+                    const file = new File([new Uint8Array(gif.bytesView())], `${originalName}.gif`, { type: "image/gif" });
+                    setTimeout(() => UploadHandler.promptToUpload([file], cmdCtx.channel, DraftType.ChannelMessage), 10);
                 } catch (err) {
                     UploadManager.clearAll(cmdCtx.channel.id, DraftType.SlashCommand);
                     sendBotMessage(cmdCtx.channel.id, { content: String(err) });
                 }
-            }
+            },
         },
         {
             name: "dissatisfaction",
             description: " ＞﹏＜",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + " ＞﹏＜"
-            })
+                content: findOption(opts, "message", "") + " " + " ＞﹏＜",
+            }),
         },
         {
             name: "smug",
             description: "ಠ_ಠ",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "ಠ_ಠ"
-            })
+                content: findOption(opts, "message", "") + " " + "ಠ_ಠ",
+            }),
         },
         {
             name: "happy",
             description: "ヽ(´▽`)/",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "ヽ(´▽`)/"
-            })
+                content: findOption(opts, "message", "") + " " + "ヽ(´▽`)/",
+            }),
         },
         {
             name: "crying",
             description: "ಥ_ಥ",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "ಥ_ಥ"
-            })
+                content: findOption(opts, "message", "") + " " + "ಥ_ಥ",
+            }),
         },
         {
             name: "angry",
             description: "ヽ(｀Д´)ﾉ",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "ヽ(｀Д´)ﾉ"
-            })
+                content: findOption(opts, "message", "") + " " + "ヽ(｀Д´)ﾉ",
+            }),
         },
         {
             name: "anger",
             description: "ヽ(ｏ`皿′ｏ)ﾉ",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "ヽ(ｏ`皿′ｏ)ﾉ"
-            })
+                content: findOption(opts, "message", "") + " " + "ヽ(ｏ`皿′ｏ)ﾉ",
+            }),
         },
         {
             name: "joy",
             description: "<(￣︶￣)>",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "<(￣︶￣)>"
-            })
+                content: findOption(opts, "message", "") + " " + "<(￣︶￣)>",
+            }),
         },
         {
             name: "blush",
             description: "૮ ˶ᵔ ᵕ ᵔ˶ ა",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "૮ ˶ᵔ ᵕ ᵔ˶ ა"
-            })
+                content: findOption(opts, "message", "") + " " + "૮ ˶ᵔ ᵕ ᵔ˶ ა",
+            }),
         },
         {
             name: "confused",
             description: "(•ิ_•ิ)?",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "(•ิ_•ิ)?"
-            })
+                content: findOption(opts, "message", "") + " " + "(•ิ_•ิ)?",
+            }),
         },
         {
             name: "sleeping",
             description: "(ᴗ_ᴗ)",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "(ᴗ_ᴗ)"
-            })
+                content: findOption(opts, "message", "") + " " + "(ᴗ_ᴗ)",
+            }),
         },
         {
             name: "laughing",
             description: "o(≧▽≦)o",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "o(≧▽≦)o"
-            })
+                content: findOption(opts, "message", "") + " " + "o(≧▽≦)o",
+            }),
         },
         /*
         even more kaomoji
@@ -805,96 +768,96 @@ export default definePlugin({
             description: "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧"
-            })
+                content: findOption(opts, "message", "") + " " + "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧",
+            }),
         },
         {
             name: "peace",
             description: "✌(◕‿-)✌",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "✌(◕‿-)✌"
-            })
+                content: findOption(opts, "message", "") + " " + "✌(◕‿-)✌",
+            }),
         },
         {
             name: "ending1",
             description: "Ꮺ ָ࣪ ۰ ͙⊹",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "Ꮺ ָ࣪ ۰ ͙⊹"
-            })
+                content: findOption(opts, "message", "") + " " + "Ꮺ ָ࣪ ۰ ͙⊹",
+            }),
         },
         {
             name: "uwu",
             description: "(>⩊<)",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "(>⩊<)"
-            })
+                content: findOption(opts, "message", "") + " " + "(>⩊<)",
+            }),
         },
         {
             name: "comfy",
             description: "(─‿‿─)♡",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "(─‿‿─)♡"
-            })
+                content: findOption(opts, "message", "") + " " + "(─‿‿─)♡",
+            }),
         },
         {
             name: "lovehappy",
             description: "(*≧ω≦*)",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "(*≧ω≦*)"
-            })
+                content: findOption(opts, "message", "") + " " + "(*≧ω≦*)",
+            }),
         },
         {
             name: "loveee",
             description: "(⁄ ⁄>⁄ ▽ ⁄<⁄ ⁄)",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "(⁄ ⁄>⁄ ▽ ⁄<⁄ ⁄)"
-            })
+                content: findOption(opts, "message", "") + " " + "(⁄ ⁄>⁄ ▽ ⁄<⁄ ⁄)",
+            }),
         },
         {
             name: "give",
             description: "(ノ= ⩊ = )ノ",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "(ノ= ⩊ = )ノ"
-            })
+                content: findOption(opts, "message", "") + " " + "(ノ= ⩊ = )ノ",
+            }),
         },
         {
             name: "lovegive",
             description: "ღゝ◡╹)ノ♡",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "ღゝ◡╹)ノ♡"
-            })
+                content: findOption(opts, "message", "") + " " + "ღゝ◡╹)ノ♡",
+            }),
         },
         {
             name: "music",
             description: "(￣▽￣)/♫•¨•.¸¸♪",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "(￣▽￣)/♫•¨•.¸¸♪"
-            })
+                content: findOption(opts, "message", "") + " " + "(￣▽￣)/♫•¨•.¸¸♪",
+            }),
         },
         {
             name: "stars",
             description: ".𖥔 ݁ ˖๋ ࣭ ⭑",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + ".𖥔 ݁ ˖๋ ࣭ ⭑"
-            })
+                content: findOption(opts, "message", "") + " " + ".𖥔 ݁ ˖๋ ࣭ ⭑",
+            }),
         },
         {
             name: "lovegiving",
             description: "⸜(｡˃ ᵕ ˂ )⸝♡",
             options: [OptionalMessageOption],
             execute: opts => ({
-                content: findOption(opts, "message", "") + " " + "⸜(｡˃ ᵕ ˂ )⸝♡"
-            })
+                content: findOption(opts, "message", "") + " " + "⸜(｡˃ ᵕ ˂ )⸝♡",
+            }),
         }
     ],
 
@@ -924,11 +887,13 @@ export default definePlugin({
 
     start() {
         this.preSend = addMessagePreSendListener((_, msg) => this.onSend(msg));
-        this.preEdit = addMessagePreEditListener((_cid, _mid, msg) => this.onSend(msg));
+        this.preEdit = addMessagePreEditListener((_cid, _mid, msg) =>
+            this.onSend(msg)
+        );
     },
 
     stop() {
         removeMessagePreSendListener(this.preSend);
         removeMessagePreEditListener(this.preEdit);
-    }
+    },
 });

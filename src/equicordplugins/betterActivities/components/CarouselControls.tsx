@@ -19,58 +19,59 @@ export function CarouselControls({ activities, currentActivity, onActivityChange
             style={{
                 display: "flex",
                 flexDirection: "row",
-                justifyContent: "space-between"
+                justifyContent: "space-between",
             }}
         >
-            <Tooltip text="Left" tooltipClassName={cl("controls-tooltip")}>
-                {({ onMouseEnter, onMouseLeave }) => {
-                    return (
-                        <span
-                            onMouseEnter={onMouseEnter}
-                            onMouseLeave={onMouseLeave}
-                            onClick={() => {
-                                if (currentIndex - 1 >= 0) {
-                                    onActivityChange(activities[currentIndex - 1]);
-                                } else {
-                                    onActivityChange(activities[activities.length - 1]);
-                                }
-                            }}
-                        >
-                            <Caret disabled={currentIndex < 1} direction="left" />
-                        </span>
-                    );
-                }}
-            </Tooltip>
+            <Tooltip text="Left" tooltipClassName={cl("controls-tooltip")}>{({
+                onMouseEnter,
+                onMouseLeave
+            }) => {
+                return <span
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                    onClick={() => {
+                        if (currentIndex - 1 >= 0) {
+                            onActivityChange(activities[currentIndex - 1]);
+                        } else {
+                            onActivityChange(activities[activities.length - 1]);
+                        }
+                    }}
+                >
+                    <Caret
+                        disabled={currentIndex < 1}
+                        direction="left" />
+                </span>;
+            }}</Tooltip>
 
             <div className={cl("controls-carousel")}>
                 {activities.map((activity, index) => (
                     <div
                         key={"dot--" + index}
                         onClick={() => onActivityChange(activity)}
-                        className={cl("controls-dot", currentActivity.id === activity.id && "controls-selected")}
-                    />
+                        className={cl("controls-dot", currentActivity.id === activity.id && "controls-selected")} />
                 ))}
             </div>
 
-            <Tooltip text="Right" tooltipClassName={cl("controls-tooltip")}>
-                {({ onMouseEnter, onMouseLeave }) => {
-                    return (
-                        <span
-                            onMouseEnter={onMouseEnter}
-                            onMouseLeave={onMouseLeave}
-                            onClick={() => {
-                                if (currentIndex + 1 < activities.length) {
-                                    onActivityChange(activities[currentIndex + 1]);
-                                } else {
-                                    onActivityChange(activities[0]);
-                                }
-                            }}
-                        >
-                            <Caret disabled={currentIndex >= activities.length - 1} direction="right" />
-                        </span>
-                    );
-                }}
-            </Tooltip>
+            <Tooltip text="Right" tooltipClassName={cl("controls-tooltip")}>{({
+                onMouseEnter,
+                onMouseLeave
+            }) => {
+                return <span
+                    onMouseEnter={onMouseEnter}
+                    onMouseLeave={onMouseLeave}
+                    onClick={() => {
+                        if (currentIndex + 1 < activities.length) {
+                            onActivityChange(activities[currentIndex + 1]);
+                        } else {
+                            onActivityChange(activities[0]);
+                        }
+                    }}
+                >
+                    <Caret
+                        disabled={currentIndex >= activities.length - 1}
+                        direction="right" />
+                </span>;
+            }}</Tooltip>
         </div>
     );
 }

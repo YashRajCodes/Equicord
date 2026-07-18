@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { RenderModalProps } from "@vencord/discord-types";
-
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings, migratePluginSettings } from "@api/Settings";
 import { Button } from "@components/Button";
@@ -16,35 +14,16 @@ import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import definePlugin, { OptionType } from "@utils/types";
 import { saveFile } from "@utils/web";
-import {
-    Menu,
-    Modal,
-    openModal,
-    React,
-    Select,
-    Slider,
-    TextInput,
-    UploadHandler,
-    useEffect,
-    useRef,
-    useState
-} from "@webpack/common";
+import type { RenderModalProps } from "@vencord/discord-types";
+import { Menu, Modal, openModal, React, Select, Slider, TextInput, UploadHandler, useEffect, useRef, useState } from "@webpack/common";
 
 import { CAPTIONS } from "./captions";
 import { fetchAllGoogleFonts, getFontFamilyCss, loadGoogleFont } from "./fonts";
+import css from "./styles.css?managed";
 import { DEFAULT_OPTIONS, type GifMakerOptions, type GoogleFontMetadata } from "./types";
 import { clamp, getInitialSize, getMediaInfo } from "./utils/contextMenu";
 import { cleanupBlobUrl, createGif, loadImage, loadVideo } from "./utils/encoder";
-import {
-    collectCandidateUrls,
-    ensureGifUrl,
-    isLikelyVideoUrl,
-    normalizeUrl,
-    orderCandidateUrls,
-    stripDiscordFormatParam
-} from "./utils/gifPicker";
-
-import css from "./styles.css?managed";
+import { collectCandidateUrls, ensureGifUrl, isLikelyVideoUrl, normalizeUrl, orderCandidateUrls, stripDiscordFormatParam } from "./utils/gifPicker";
 
 const cl = classNameFactory("vc-gifmaker-");
 const logger = new Logger("gifMaker");
@@ -101,25 +80,13 @@ const settings = definePluginSettings({
         type: OptionType.NUMBER,
         default: 720,
         description: "Maximum auto-fit height."
-    }
+    },
 });
 
 const GIFMAKER_ID = "vc-gifmaker";
 
-function resolveInitialSize(
-    sourceWidth?: number,
-    sourceHeight?: number,
-    storedWidth?: number,
-    storedHeight?: number
-): [number, number] {
-    return getInitialSize(
-        settings.store.maxWidth,
-        settings.store.maxHeight,
-        sourceWidth,
-        sourceHeight,
-        storedWidth,
-        storedHeight
-    );
+function resolveInitialSize(sourceWidth?: number, sourceHeight?: number, storedWidth?: number, storedHeight?: number): [number, number] {
+    return getInitialSize(settings.store.maxWidth, settings.store.maxHeight, sourceWidth, sourceHeight, storedWidth, storedHeight);
 }
 
 const messageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => {
@@ -130,17 +97,9 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (children, props) =
         <Menu.MenuItem
             id={GIFMAKER_ID}
             label="Make GIF"
-            action={() =>
-                openModal(modalProps => (
-                    <GifMakerModal
-                        url={info.url}
-                        isVideo={info.isVideo}
-                        sourceWidth={info.sourceWidth}
-                        sourceHeight={info.sourceHeight}
-                        {...modalProps}
-                    />
-                ))
-            }
+            action={() => openModal(modalProps => (
+                <GifMakerModal url={info.url} isVideo={info.isVideo} sourceWidth={info.sourceWidth} sourceHeight={info.sourceHeight} {...modalProps} />
+            ))}
         />
     );
 };
@@ -157,17 +116,7 @@ const imageContextMenuPatch: NavContextMenuPatchCallback = (children, props) => 
         <Menu.MenuItem
             id={GIFMAKER_ID}
             label="Make GIF"
-            action={() =>
-                openModal(modalProps => (
-                    <GifMakerModal
-                        url={info.url}
-                        isVideo={info.isVideo}
-                        sourceWidth={info.sourceWidth}
-                        sourceHeight={info.sourceHeight}
-                        {...modalProps}
-                    />
-                ))
-            }
+            action={() => openModal(modalProps => <GifMakerModal url={info.url} isVideo={info.isVideo} sourceWidth={info.sourceWidth} sourceHeight={info.sourceHeight} {...modalProps} />)}
         />
     );
 };
@@ -178,26 +127,24 @@ interface SelectOption {
     value: string;
 }
 
-function FontOptionLabel({ option }: { option: SelectOption }) {
+function FontOptionLabel({ option }: { option: SelectOption; }) {
     React.useEffect(() => {
         void loadGoogleFont(option.value);
     }, [option.value]);
 
-    return <span style={{ fontFamily: getFontFamilyCss(option.value) }}>{option.label}</span>;
+    return (
+        <span style={{ fontFamily: getFontFamilyCss(option.value) }}>
+            {option.label}
+        </span>
+    );
 }
 
-function SelectedFontLabel({ options }: { options: SelectOption[] }) {
+function SelectedFontLabel({ options }: { options: SelectOption[]; }) {
     const option = options[0];
     return option ? <FontOptionLabel option={option} /> : null;
 }
 
-function FontSelector({
-    initialFont,
-    onSelect
-}: {
-    initialFont: string;
-    onSelect: (font: GoogleFontMetadata) => void;
-}) {
+function FontSelector({ initialFont, onSelect }: { initialFont: string; onSelect: (font: GoogleFontMetadata) => void; }) {
     const [fonts, setFonts] = React.useState<GoogleFontMetadata[]>([]);
     const [selectedFont, setSelectedFont] = React.useState<string | null>(initialFont !== "Arial" ? initialFont : null);
 
@@ -242,30 +189,19 @@ function FontSelector({
     );
 }
 
-function GifMakerModal({
-    url,
-    isVideo,
-    sourceWidth,
-    sourceHeight,
-    ...props
-}: RenderModalProps & { url: string; isVideo: boolean; sourceWidth?: number; sourceHeight?: number }) {
+function GifMakerModal({ url, isVideo, sourceWidth, sourceHeight, ...props }: RenderModalProps & { url: string; isVideo: boolean; sourceWidth?: number; sourceHeight?: number; }) {
+
     const [options, setOptions] = useState<GifMakerOptions>(() => {
-        const [width, height] = resolveInitialSize(
-            sourceWidth,
-            sourceHeight,
-            settings.store.lastWidth,
-            settings.store.lastHeight
-        );
+        const [width, height] = resolveInitialSize(sourceWidth, sourceHeight, settings.store.lastWidth, settings.store.lastHeight);
         return {
-            width,
-            height,
+            width, height,
             captionMode: settings.store.lastCaptionMode as GifMakerOptions["captionMode"],
             captionText: settings.store.lastCaptionText,
             captionSize: settings.store.lastCaptionSize,
-            fontFamily: (settings.store.lastFontFamily as string) || DEFAULT_OPTIONS.fontFamily,
+            fontFamily: settings.store.lastFontFamily as string || DEFAULT_OPTIONS.fontFamily,
             bubbleTipX: DEFAULT_OPTIONS.bubbleTipX,
             bubbleTipY: DEFAULT_OPTIONS.bubbleTipY,
-            bubbleTipBase: settings.store.lastBubbleTipBase
+            bubbleTipBase: settings.store.lastBubbleTipBase,
         };
     });
 
@@ -299,23 +235,19 @@ function GifMakerModal({
             return;
         }
         if (isVideo) {
-            loadVideo(url)
-                .then(v => {
-                    const [w, h] = resolveInitialSize(v.videoWidth, v.videoHeight);
-                    setOptions(prev => ({ ...prev, width: w, height: h }));
-                    cleanupBlobUrl(v);
-                    v.remove();
-                })
-                .catch(err => logger.error("auto-detect video failed", err));
+            loadVideo(url).then(v => {
+                const [w, h] = resolveInitialSize(v.videoWidth, v.videoHeight);
+                setOptions(prev => ({ ...prev, width: w, height: h }));
+                cleanupBlobUrl(v);
+                v.remove();
+            }).catch(err => logger.error("auto-detect video failed", err));
             return;
         }
-        loadImage(url)
-            .then(img => {
-                const [w, h] = resolveInitialSize(img.naturalWidth, img.naturalHeight);
-                setOptions(prev => ({ ...prev, width: w, height: h }));
-                cleanupBlobUrl(img);
-            })
-            .catch(err => logger.error("auto-detect image failed", err));
+        loadImage(url).then(img => {
+            const [w, h] = resolveInitialSize(img.naturalWidth, img.naturalHeight);
+            setOptions(prev => ({ ...prev, width: w, height: h }));
+            cleanupBlobUrl(img);
+        }).catch(err => logger.error("auto-detect image failed", err));
     }, [sourceWidth, sourceHeight]);
 
     useEffect(() => {
@@ -324,40 +256,28 @@ function GifMakerModal({
             setGenerating(true);
 
             const { current } = optionsRef;
-            createGif(url, isVideo, current)
-                .then(blob => {
-                    if (gen !== generationRef.current) {
-                        URL.revokeObjectURL(URL.createObjectURL(blob));
-                        return;
-                    }
-                    setError(null);
-                    setGifBlob(blob);
-                    setPreviewUrl(prev => {
-                        if (prev) URL.revokeObjectURL(prev);
-                        return URL.createObjectURL(blob);
-                    });
-                    setGenerating(false);
-                })
-                .catch((err: unknown) => {
-                    if (gen !== generationRef.current) return;
-                    logger.error("GIF generation failed", err);
-                    setError(err instanceof Error ? err.message : String(err));
-                    setGenerating(false);
+            createGif(url, isVideo, current).then(blob => {
+                if (gen !== generationRef.current) {
+                    URL.revokeObjectURL(URL.createObjectURL(blob));
+                    return;
+                }
+                setError(null);
+                setGifBlob(blob);
+                setPreviewUrl(prev => {
+                    if (prev) URL.revokeObjectURL(prev);
+                    return URL.createObjectURL(blob);
                 });
+                setGenerating(false);
+            }).catch((err: unknown) => {
+                if (gen !== generationRef.current) return;
+                logger.error("GIF generation failed", err);
+                setError(err instanceof Error ? err.message : String(err));
+                setGenerating(false);
+            });
         }, 300);
 
         return () => clearTimeout(timer);
-    }, [
-        JSON.stringify(options.captionMode),
-        options.captionText,
-        options.captionSize,
-        options.fontFamily,
-        options.bubbleTipX,
-        options.bubbleTipY,
-        options.bubbleTipBase,
-        options.width,
-        options.height
-    ]);
+    }, [JSON.stringify(options.captionMode), options.captionText, options.captionSize, options.fontFamily, options.bubbleTipX, options.bubbleTipY, options.bubbleTipBase, options.width, options.height]);
 
     const handlePreviewClick = (e: React.MouseEvent<HTMLImageElement>) => {
         if (options.captionMode !== "speechbubble") return;
@@ -365,8 +285,8 @@ function GifMakerModal({
         if (!img) return;
 
         const rect = img.getBoundingClientRect();
-        const x = ((e.clientX - rect.left) / rect.width) * options.width;
-        const y = ((e.clientY - rect.top) / rect.height) * options.height;
+        const x = (e.clientX - rect.left) / rect.width * options.width;
+        const y = (e.clientY - rect.top) / rect.height * options.height;
         patch({ bubbleTipX: x, bubbleTipY: y });
     };
 
@@ -412,15 +332,20 @@ function GifMakerModal({
                             alt="GIF preview"
                             src={previewUrl ?? ""}
                             onClick={handlePreviewClick}
-                            className={cl("preview", {
-                                "preview-generating": generating,
-                                "preview-crosshair": options.captionMode === "speechbubble"
-                            })}
+                            className={cl("preview", { "preview-generating": generating, "preview-crosshair": options.captionMode === "speechbubble" })}
                         />
 
-                        {generating && <div className={cl("generating-overlay")}>Generating GIF...</div>}
+                        {generating && (
+                            <div className={cl("generating-overlay")}>
+                                Generating GIF...
+                            </div>
+                        )}
 
-                        {error && !generating && <div className={cl("error-overlay")}>{error}</div>}
+                        {error && !generating && (
+                            <div className={cl("error-overlay")}>
+                                {error}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -469,14 +394,16 @@ function GifMakerModal({
                                     minValue={10}
                                     maxValue={100}
                                 />
-                                <span>{options.captionSize.toFixed(2)}px</span>
+                                <span>{(options.captionSize).toFixed(2)}px</span>
                             </div>
                         </div>
                     )}
 
                     {options.captionMode === "speechbubble" && (
                         <div className={cl("section")}>
-                            <div className={cl("section-hint")}>Click on the preview to position the bubble tip</div>
+                            <div className={cl("section-hint")}>
+                                Click on the preview to position the bubble tip
+                            </div>
                             <div className="vc-gifmaker-font-range">
                                 <div>Tip Base</div>
                                 <Slider
@@ -543,7 +470,9 @@ function openGifMakerFromItem(item) {
     const cleanedUrl = stripDiscordFormatParam(firstUrl);
     const isVideo = isLikelyVideoUrl(cleanedUrl);
 
-    openModal(modalProps => <GifMakerModal url={cleanedUrl} isVideo={isVideo} {...modalProps} />);
+    openModal(modalProps => (
+        <GifMakerModal url={cleanedUrl} isVideo={isVideo} {...modalProps} />
+    ));
 }
 
 migratePluginSettings("GifMaker", "gifMaker");
@@ -555,7 +484,7 @@ export default definePlugin({
     settings,
     managedStyle: css,
     contextMenus: {
-        message: messageContextMenuPatch,
+        "message": messageContextMenuPatch,
         "image-context": imageContextMenuPatch
     },
 
@@ -573,5 +502,5 @@ export default definePlugin({
                 action={() => openGifMakerFromItem(instance?.props?.item)}
             />
         );
-    }
+    },
 });

@@ -5,7 +5,6 @@
  */
 
 import { RenderModalProps } from "@vencord/discord-types";
-
 import { Modal, React } from "@webpack/common";
 
 import { sendRemix } from ".";

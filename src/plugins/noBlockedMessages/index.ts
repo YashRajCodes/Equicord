@@ -14,35 +14,34 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { Message, User } from "@vencord/discord-types";
-import { findStoreLazy } from "@webpack";
+*/
 
 import { definePluginSettings, migratePluginSetting, Settings } from "@api/Settings";
 import { containsBlockedKeywords } from "@equicordplugins/blockKeywords";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
+import { Message, User } from "@vencord/discord-types";
+import { findStoreLazy } from "@webpack";
 import { MessageStore, RelationshipStore } from "@webpack/common";
 
 const ReferencedMessageStore = findStoreLazy("ReferencedMessageStore");
 
 interface ChannelStreamDividerProps {
-    type: "DIVIDER";
-    content?: string;
-    contentKey?: string;
-    unreadId?: string;
+    type: "DIVIDER",
+    content?: string,
+    contentKey?: string,
+    unreadId?: string,
 }
 
 interface ChannelStreamMessageProps {
-    type: "MESSAGE" | "THREAD_STARTER_MESSAGE";
-    content: Message;
+    type: "MESSAGE" | "THREAD_STARTER_MESSAGE",
+    content: Message,
 }
 
 interface ChannelStreamGroupProps {
-    type: "MESSAGE_GROUP_BLOCKED" | "MESSAGE_GROUP_IGNORED";
-    content: ChannelStreamMessageProps[] | any;
+    type: "MESSAGE_GROUP_BLOCKED" | "MESSAGE_GROUP_IGNORED",
+    content: ChannelStreamMessageProps[] | any,
 }
 
 migratePluginSetting("NoBlockedMessages", "disableNotifications", "ignoreMessages");
@@ -56,8 +55,7 @@ const settings = definePluginSettings({
         restartNeeded: false
     },
     disableNotifications: {
-        description:
-            'Hide new message notifications for blocked users. Always true if "Default Hide Users" is enabled below and the user triggering the notification is not exempted in "Override Users".',
+        description: "Hide new message notifications for blocked users. Always true if \"Default Hide Users\" is enabled below and the user triggering the notification is not exempted in \"Override Users\".",
         type: OptionType.BOOLEAN,
         default: false,
         restartNeeded: false
@@ -66,28 +64,26 @@ const settings = definePluginSettings({
         description: "Allow messages sent by AutoMod to bypass filtering.",
         type: OptionType.BOOLEAN,
         default: true,
-        restartNeeded: false
+        restartNeeded: false,
     },
     hideBlockedUserReplies: {
         description: "Hide replies to blocked users.",
         type: OptionType.BOOLEAN,
         default: false,
-        restartNeeded: false
+        restartNeeded: false,
     },
     defaultHideUsers: {
         type: OptionType.BOOLEAN,
-        description:
-            "If enabled, messages from blocked users will be completely hidden and any messages from user IDs in the override list will be collapsed (default Discord behavior) instead. If disabled, messages from blocked users will be collapsed and any messages from user IDs in the override list will be completely hidden instead.",
+        description: "If enabled, messages from blocked users will be completely hidden and any messages from user IDs in the override list will be collapsed (default Discord behavior) instead. If disabled, messages from blocked users will be collapsed and any messages from user IDs in the override list will be completely hidden instead.",
         default: true,
-        restartNeeded: false
+        restartNeeded: false,
     },
     overrideUsers: {
         type: OptionType.STRING,
-        description:
-            "Comma separated list of user IDs which will be hidden or collapsed instead of the default behavior selected above.",
+        description: "Comma separated list of user IDs which will be hidden or collapsed instead of the default behavior selected above.",
         restartNeeded: false,
         default: ""
-    }
+    },
 });
 
 export default definePlugin({
@@ -124,16 +120,13 @@ export default definePlugin({
                     replace: "$2=$self.filterStream($2);$1"
                 }
             ]
-        }
+        },
     ],
 
     // true = keep message
     // false = hide message
     keepSuppressedMessage(userId: string) {
-        const overrideUsers = settings.store.overrideUsers
-            .split(",")
-            .map(id => id.trim())
-            .filter(id => id.length > 0);
+        const overrideUsers = settings.store.overrideUsers.split(",").map(id => id.trim()).filter(id => id.length > 0);
 
         if (settings.store.defaultHideUsers) {
             // If hidden by default, overriding shows messages as collapsed.
@@ -184,23 +177,15 @@ export default definePlugin({
             "overrideUsers"
         ]);
 
-        const newChannelStream: [ChannelStreamGroupProps | ChannelStreamMessageProps | ChannelStreamDividerProps] =
-            [] as any;
+        const newChannelStream: [ChannelStreamGroupProps | ChannelStreamMessageProps | ChannelStreamDividerProps] = [] as any;
 
         channelStream.forEach(item => {
             const isBlockedGroup = item.type === "MESSAGE_GROUP_BLOCKED";
             const isIgnoredGroup = item.type === "MESSAGE_GROUP_IGNORED";
             const isThreadStarter = item.type === "THREAD_STARTER_MESSAGE";
-            const hasThreadStarter =
-                (isBlockedGroup || isIgnoredGroup) && item.content?.[0]?.type === "THREAD_STARTER_MESSAGE";
-            const threadCreatorMessage =
-                (isThreadStarter && (item.content as Message)) ||
-                (hasThreadStarter && (item.content?.[0]?.content as Message)) ||
-                null;
-            const actualStarterMessage =
-                (threadCreatorMessage?.messageReference &&
-                    ReferencedMessageStore.getMessageByReference(threadCreatorMessage.messageReference)?.message) ||
-                null;
+            const hasThreadStarter = (isBlockedGroup || isIgnoredGroup) && item.content?.[0]?.type === "THREAD_STARTER_MESSAGE";
+            const threadCreatorMessage = (isThreadStarter && (item.content as Message)) || (hasThreadStarter && (item.content?.[0]?.content as Message)) || null;
+            const actualStarterMessage = (threadCreatorMessage?.messageReference && ReferencedMessageStore.getMessageByReference(threadCreatorMessage.messageReference)?.message) || null;
             let skipStarter = false;
 
             if (hasThreadStarter && threadCreatorMessage && actualStarterMessage) {
@@ -250,7 +235,7 @@ export default definePlugin({
         return newChannelStream;
     },
 
-    isReplyToSuppressed(message: Message): { suppressed: boolean; hide: boolean } {
+    isReplyToSuppressed(message: Message): { suppressed: boolean, hide: boolean; } {
         if (!settings.store.hideBlockedUserReplies) return { suppressed: false, hide: false };
 
         try {
@@ -259,9 +244,7 @@ export default definePlugin({
 
             if (!repliedMessage) {
                 const messageReference = message.messageReference || (message as any).message_reference;
-                repliedMessage = messageReference
-                    ? MessageStore.getMessage(messageReference.channel_id, messageReference.message_id)
-                    : null;
+                repliedMessage = messageReference ? MessageStore.getMessage(messageReference.channel_id, messageReference.message_id) : null;
             }
 
             return repliedMessage ? this.isSuppressed(repliedMessage) : { suppressed: false, hide: false };
@@ -271,35 +254,33 @@ export default definePlugin({
         }
     },
 
-    isSuppressed(message: Message): { suppressed: boolean; hide: boolean } {
+    isSuppressed(message: Message): { suppressed: boolean, hide: boolean; } {
         try {
             const { BlockKeywords } = Settings.plugins;
-            const blockedContent =
-                BlockKeywords?.enabled && BlockKeywords?.ignoreBlockedMessages && containsBlockedKeywords(message);
+            const blockedContent = BlockKeywords?.enabled && BlockKeywords?.ignoreBlockedMessages && containsBlockedKeywords(message);
             const authorRelationship = this.getRelationshipStatus(message.author);
-            const interactionUserRelationship =
-                message.interaction && this.getRelationshipStatus((message.interaction as any).user);
-            const prefixCMDReferenceData =
-                message.author.bot && (message.messageReference || (message as any).message_reference);
-            const prefixCMDReference =
-                prefixCMDReferenceData &&
-                MessageStore.getMessage(prefixCMDReferenceData.channel_id, prefixCMDReferenceData.message_id);
-            const prefixCMDUserRelationship =
-                prefixCMDReference && this.getRelationshipStatus(prefixCMDReference.author);
-            const suppressed =
-                blockedContent ||
-                authorRelationship.blocked ||
-                (authorRelationship.ignored && settings.store.alsoHideIgnoredUsers) ||
-                (interactionUserRelationship &&
-                    (interactionUserRelationship.blocked ||
-                        (interactionUserRelationship.ignored && settings.store.alsoHideIgnoredUsers))) ||
-                (prefixCMDUserRelationship &&
-                    (prefixCMDUserRelationship.blocked ||
-                        (prefixCMDUserRelationship.ignored && settings.store.alsoHideIgnoredUsers)));
-            const hide =
-                !this.keepSuppressedMessage(message.author.id) ||
-                (message.interaction && !this.keepSuppressedMessage((message.interaction as any).user.id)) ||
-                (prefixCMDReference && !this.keepSuppressedMessage(prefixCMDReference.author.id));
+            const interactionUserRelationship = message.interaction && this.getRelationshipStatus((message.interaction as any).user);
+            const prefixCMDReferenceData = message.author.bot && (message.messageReference || (message as any).message_reference);
+            const prefixCMDReference = prefixCMDReferenceData && MessageStore.getMessage(prefixCMDReferenceData.channel_id, prefixCMDReferenceData.message_id);
+            const prefixCMDUserRelationship = prefixCMDReference && this.getRelationshipStatus(prefixCMDReference.author);
+            const suppressed = (
+                blockedContent || authorRelationship.blocked || (
+                    authorRelationship.ignored && settings.store.alsoHideIgnoredUsers
+                ) || (
+                    interactionUserRelationship && (interactionUserRelationship.blocked || (
+                        interactionUserRelationship.ignored && settings.store.alsoHideIgnoredUsers
+                    ))
+                ) || (
+                    prefixCMDUserRelationship && (prefixCMDUserRelationship.blocked || (
+                        prefixCMDUserRelationship.ignored && settings.store.alsoHideIgnoredUsers
+                    ))
+                )
+            );
+            const hide = !this.keepSuppressedMessage(message.author.id) || (
+                message.interaction && !this.keepSuppressedMessage((message.interaction as any).user.id)
+            ) || (
+                    prefixCMDReference && !this.keepSuppressedMessage(prefixCMDReference.author.id)
+                );
             return { suppressed, hide };
         } catch (e) {
             new Logger("NoBlockedMessages").error("Failed to check if message is blocked or ignored:", e);
@@ -307,7 +288,7 @@ export default definePlugin({
         }
     },
 
-    getRelationshipStatus(user: User): { ignored: boolean; blocked: boolean } {
+    getRelationshipStatus(user: User): { ignored: boolean, blocked: boolean; } {
         const isBlocked = RelationshipStore.isBlocked(user.id);
         const isIgnored = RelationshipStore.isIgnored(user.id);
         return { ignored: isIgnored, blocked: isBlocked };

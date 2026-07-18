@@ -9,15 +9,13 @@ import { ReporterData } from "@debug/reporterData";
 export type OutgoingMessage = Base<DiffModule | ExtractModule | ModuleList | RawId | I18nValue | VersionResponse>;
 export type FullOutgoingMessage = OutgoingMessage & Nonce;
 
-export type Base<T> =
-    | ({
-          ok: true;
-      } & T)
-    | ({
-          ok: false;
-          data: null;
-          error: string;
-      } & Omit<T, "data">);
+export type Base<T> = ({
+    ok: true;
+} & T) | ({
+    ok: false;
+    data: null;
+    error: string;
+} & Omit<T, "data">);
 
 export type Nonce = {
     nonce: number;

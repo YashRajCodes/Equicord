@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-import { RenderModalProps } from "@vencord/discord-types";
 
 import { BadgePosition, BadgeUserArgs } from "@api/Badges";
 import { Badges } from "@api/index";
@@ -15,7 +14,8 @@ import { Paragraph } from "@components/Paragraph";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin from "@utils/types";
-import { Forms, Modal, openModal, RelationshipStore } from "@webpack/common";
+import { RenderModalProps } from "@vencord/discord-types";
+import { Forms, Modal,openModal, RelationshipStore } from "@webpack/common";
 
 interface rankInfo {
     title: string;
@@ -37,50 +37,51 @@ function daysSince(dateString: string): number {
     return Math.floor(days);
 }
 
-const ranks: rankInfo[] = [
-    {
-        title: "Sprout",
-        description: "Your friendship is just starting",
-        requirement: 0,
-        iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/sprout.png"
-    },
-    {
-        title: "Blooming",
-        description: "Your friendship is getting there! (1 Month)",
-        requirement: 30,
-        iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/blooming.png"
-    },
-    {
-        title: "Burning",
-        description: "Your friendship has reached terminal velocity (3 Months)",
-        requirement: 90,
-        iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/burning.png"
-    },
-    {
-        title: "Fighter",
-        description: "Your friendship is strong (6 Months)",
-        requirement: 182.5,
-        iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/fighter.png"
-    },
-    {
-        title: "Star",
-        description: "Your friendship has been going on for a WHILE (1 Year)",
-        requirement: 365,
-        iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/star.png"
-    },
-    {
-        title: "Royal",
-        description: "Your friendship has gone through thick and thin- a whole 2 years!",
-        requirement: 730,
-        iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/royal.png"
-    },
-    {
-        title: "Besties",
-        description: "How do you even manage this??? (5 Years)",
-        requirement: 1826.25,
-        iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/besties.png"
-    }
-];
+const ranks: rankInfo[] =
+    [
+        {
+            title: "Sprout",
+            description: "Your friendship is just starting",
+            requirement: 0,
+            iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/sprout.png"
+        },
+        {
+            title: "Blooming",
+            description: "Your friendship is getting there! (1 Month)",
+            requirement: 30,
+            iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/blooming.png"
+        },
+        {
+            title: "Burning",
+            description: "Your friendship has reached terminal velocity (3 Months)",
+            requirement: 90,
+            iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/burning.png"
+        },
+        {
+            title: "Fighter",
+            description: "Your friendship is strong (6 Months)",
+            requirement: 182.5,
+            iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/fighter.png"
+        },
+        {
+            title: "Star",
+            description: "Your friendship has been going on for a WHILE (1 Year)",
+            requirement: 365,
+            iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/star.png"
+        },
+        {
+            title: "Royal",
+            description: "Your friendship has gone through thick and thin- a whole 2 years!",
+            requirement: 730,
+            iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/royal.png"
+        },
+        {
+            title: "Besties",
+            description: "How do you even manage this??? (5 Years)",
+            requirement: 1826.25,
+            iconSrc: "https://equicord.org/assets/plugins/friendshipRanks/besties.png"
+        }
+    ];
 
 function openRankModal(rank: rankInfo) {
     openModal((props: RenderModalProps) => (
@@ -90,7 +91,10 @@ function openRankModal(rank: rankInfo) {
                 size="sm"
                 title={
                     <Flex className={cl("flex")}>
-                        <Forms.FormTitle className={cl("img")} tag="h2">
+                        <Forms.FormTitle
+                            className={cl("img")}
+                            tag="h2"
+                        >
                             <img src={rank.iconSrc} alt="rank icon" />
                             {rank.title}
                         </Forms.FormTitle>
@@ -98,10 +102,12 @@ function openRankModal(rank: rankInfo) {
                 }
             >
                 <div className={cl("text")}>
-                    <Paragraph>{rank.description}</Paragraph>
+                    <Paragraph>
+                        {rank.description}
+                    </Paragraph>
                 </div>
             </Modal>
-        </ErrorBoundary>
+        </ErrorBoundary >
     ));
 }
 
@@ -112,12 +118,12 @@ function shouldShowBadge(userId: string, requirement: number, index: number) {
 
     if (ranks[index + 1] == null) return days > requirement;
 
-    return days > requirement && days < ranks[index + 1].requirement;
+    return (days > requirement && days < ranks[index + 1].requirement);
 }
 
 function getBadgesToApply() {
     return ranks.map((rank, index) => {
-        return {
+        return ({
             id: `friendship_ranks_badge_${index}`,
             description: rank.title,
             iconSrc: rank.iconSrc,
@@ -129,8 +135,8 @@ function getBadgesToApply() {
                     borderRadius: "50%",
                     transform: "scale(0.9)"
                 }
-            }
-        };
+            },
+        });
     });
 }
 
@@ -141,8 +147,9 @@ export default definePlugin({
     authors: [Devs.Samwich],
     start() {
         getBadgesToApply().forEach(b => Badges.addProfileBadge(b));
+
     },
     stop() {
         getBadgesToApply().forEach(b => Badges.removeProfileBadge(b));
-    }
+    },
 });

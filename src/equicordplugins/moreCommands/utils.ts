@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { CommandArgument, CommandContext } from "@vencord/discord-types";
-
 import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
+import { CommandArgument, CommandContext } from "@vencord/discord-types";
 import { DraftType, UploadAttachmentStore, UploadManager, UserSettingsActionCreators } from "@webpack/common";
 
 export const settings = definePluginSettings({
@@ -56,65 +55,16 @@ export function mock(input: string): string {
 }
 
 const charMap: Record<string, string> = {
-    q: "𝓺",
-    w: "𝔀",
-    e: "𝓮",
-    r: "𝓻",
-    t: "𝓽",
-    y: "𝔂",
-    u: "𝓾",
-    i: "𝓲",
-    o: "𝓸",
-    p: "𝓹",
-    a: "𝓪",
-    s: "𝓼",
-    d: "𝓭",
-    f: "𝓯",
-    g: "𝓰",
-    h: "𝓱",
-    j: "𝓳",
-    k: "𝓴",
-    l: "𝓵",
-    z: "𝔃",
-    x: "𝔁",
-    c: "𝓬",
-    v: "𝓿",
-    b: "𝓫",
-    n: "𝓷",
-    m: "𝓶",
-    Q: "𝓠",
-    W: "𝓦",
-    E: "𝓔",
-    R: "𝓡",
-    T: "𝓣",
-    Y: "𝓨",
-    U: "𝓤",
-    I: "𝓘",
-    O: "𝓞",
-    P: "𝓟",
-    A: "𝓐",
-    S: "𝓢",
-    D: "𝓓",
-    F: "𝓕",
-    G: "𝓖",
-    H: "𝓗",
-    J: "𝓙",
-    K: "𝓚",
-    L: "𝓛",
-    Z: "𝓩",
-    X: "𝓧",
-    C: "𝓒",
-    V: "𝓥",
-    B: "𝓑",
-    N: "𝓝",
-    M: "𝓜"
+    q: "𝓺", w: "𝔀", e: "𝓮", r: "𝓻", t: "𝓽", y: "𝔂", u: "𝓾", i: "𝓲", o: "𝓸", p: "𝓹",
+    a: "𝓪", s: "𝓼", d: "𝓭", f: "𝓯", g: "𝓰", h: "𝓱", j: "𝓳", k: "𝓴", l: "𝓵", z: "𝔃",
+    x: "𝔁", c: "𝓬", v: "𝓿", b: "𝓫", n: "𝓷", m: "𝓶", Q: "𝓠", W: "𝓦", E: "𝓔", R: "𝓡",
+    T: "𝓣", Y: "𝓨", U: "𝓤", I: "𝓘", O: "𝓞", P: "𝓟", A: "𝓐", S: "𝓢", D: "𝓓", F: "𝓕",
+    G: "𝓖", H: "𝓗", J: "𝓙", K: "𝓚", L: "𝓛", Z: "𝓩", X: "𝓧", C: "𝓒", V: "𝓥", B: "𝓑",
+    N: "𝓝", M: "𝓜",
 };
 
 const mapCharacters = (text: string, map: Record<string, string>) =>
-    text
-        .split("")
-        .map(char => map[char] || char)
-        .join("");
+    text.split("").map(char => map[char] || char).join("");
 
 export function makeFreaky(text: string) {
     text = mapCharacters(text.trim() || "freaky", charMap);
@@ -123,60 +73,23 @@ export function makeFreaky(text: string) {
 }
 
 const morseMap = {
-    A: ".-",
-    B: "-...",
-    C: "-.-.",
-    D: "-..",
-    E: ".",
-    F: "..-.",
-    G: "--.",
-    H: "....",
-    I: "..",
-    J: ".---",
-    K: "-.-",
-    L: ".-..",
-    M: "--",
-    N: "-.",
-    O: "---",
-    P: ".--.",
-    Q: "--.-",
-    R: ".-.",
-    S: "...",
-    T: "-",
-    U: "..-",
-    V: "...-",
-    W: ".--",
-    X: "-..-",
-    Y: "-.--",
-    Z: "--..",
-    0: "-----",
-    1: ".----",
-    2: "..---",
-    3: "...--",
-    4: "....-",
-    5: ".....",
-    6: "-....",
-    7: "--...",
-    8: "---..",
-    9: "----.",
+    A: ".-", B: "-...", C: "-.-.", D: "-..", E: ".", F: "..-.",
+    G: "--.", H: "....", I: "..", J: ".---", K: "-.-", L: ".-..",
+    M: "--", N: "-.", O: "---", P: ".--.", Q: "--.-", R: ".-.",
+    S: "...", T: "-", U: "..-", V: "...-", W: ".--", X: "-..-",
+    Y: "-.--", Z: "--..",
+    0: "-----", 1: ".----", 2: "..---", 3: "...--", 4: "....-",
+    5: ".....", 6: "-....", 7: "--...", 8: "---..", 9: "----.",
     " ": "/"
 };
 
 export const toMorse = (text: string) => {
-    return text
-        .toUpperCase()
-        .split("")
-        .map(char => morseMap[char] ?? "")
-        .join(" ");
+    return text.toUpperCase().split("").map(char => morseMap[char] ?? "").join(" ");
 };
 
 export const fromMorse = (text: string) => {
     const reversedMap = Object.fromEntries(Object.entries(morseMap).map(([k, v]) => [v, k]));
-    const raw = text
-        .split(" ")
-        .map(code => reversedMap[code] ?? "")
-        .join("")
-        .toLowerCase();
+    const raw = text.split(" ").map(code => reversedMap[code] ?? "").join("").toLowerCase();
     return raw.charAt(0).toUpperCase() + raw.slice(1);
 };
 
@@ -226,7 +139,7 @@ export const replacements = [
     ["stupid", "baka"],
     ["what", "nani"],
     ["meow", "nya"],
-    ["hello", "hewwo"]
+    ["hello", "hewwo"],
 ];
 
 export function selectRandomElement(arr) {
@@ -266,8 +179,11 @@ export function uwuify(message: string): string {
         }
 
         if (!replaceString(words[i])) {
-            answer += words[i].replace(/n(?=[aeo])/g, "ny").replace(/l|r/g, "w");
+            answer += words[i]
+                .replace(/n(?=[aeo])/g, "ny")
+                .replace(/l|r/g, "w");
         } else answer += replaceString(words[i]);
+
     }
 
     answer += " " + selectRandomElement(endings);
@@ -299,10 +215,10 @@ export function getFavoriteGif(opts: CommandArgument[], other: CommandContext) {
 export function calculateAffinityScore(affinity): number {
     const weights = {
         friend: 0.15,
-        dm: 0.3,
+        dm: 0.30,
         vc: 0.25,
-        serverMsg: 0.2,
-        communication: 0.1
+        serverMsg: 0.20,
+        communication: 0.10
     };
 
     let score = 0;
@@ -333,11 +249,11 @@ export function loadFriendImage(source: File | string): Promise<HTMLImageElement
 }
 
 export function generatePoissonDiskPosition(
-    existingPositions: Array<{ x: number; y: number; size: number }>,
+    existingPositions: Array<{ x: number, y: number, size: number; }>,
     canvasWidth: number,
     canvasHeight: number,
     size: number
-): { x: number; y: number } {
+): { x: number, y: number; } {
     const edgePadding = 10;
     const minDist = size * 1.5;
     const textSpace = 60;
@@ -349,8 +265,7 @@ export function generatePoissonDiskPosition(
             x + size > canvasWidth - edgePadding ||
             y < edgePadding ||
             y + size > canvasHeight - textSpace - edgePadding
-        )
-            return false;
+        ) return false;
 
         return !existingPositions.some(pos => {
             const dx = pos.x - x;
@@ -401,7 +316,7 @@ export function generatePoissonDiskPosition(
     };
 }
 
-export function calculateCanvasSize(userCount: number, avatarSize: number): { width: number; height: number } {
+export function calculateCanvasSize(userCount: number, avatarSize: number): { width: number, height: number; } {
     const padding = 50;
     const textSpace = 60;
     const itemWidth = avatarSize + padding;
@@ -434,10 +349,7 @@ export function loadImage(source: File | string) {
     });
 }
 
-export async function resolveImage(
-    options: CommandArgument[],
-    ctx: CommandContext
-): Promise<{ image: File | null; width: number | null; height: number | null }> {
+export async function resolveImage(options: CommandArgument[], ctx: CommandContext): Promise<{ image: File | null; width: number | null; height: number | null; }> {
     let image: File | null = null;
     let width: number | null = null;
     let height: number | null = null;

@@ -5,8 +5,6 @@
  */
 
 import "./styles.css";
-import { User } from "@vencord/discord-types";
-import { extractAndLoadChunksLazy } from "@webpack";
 
 import { get } from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
@@ -20,6 +18,8 @@ import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { openInviteModal } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
+import { User } from "@vencord/discord-types";
+import { extractAndLoadChunksLazy } from "@webpack";
 import { IconUtils, Menu, openModal, UserStore } from "@webpack/common";
 
 import { SetAvatarModal } from "./AvatarModal";
@@ -36,8 +36,7 @@ export const data = { avatars: {} as Record<string, string> };
 const settings = definePluginSettings({
     overrideServerAvatars: {
         type: OptionType.BOOLEAN,
-        description:
-            "Override server avatars with custom avatars or the default user avatar if no custom avatar is set.",
+        description: "Override server avatars with custom avatars or the default user avatar if no custom avatar is set.",
         default: true
     },
     preferNitro: {
@@ -45,22 +44,22 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             { label: "UserPFP", value: false },
-            { label: "Nitro", value: true, default: true }
-        ]
+            { label: "Nitro", value: true, default: true },
+        ],
     },
     databaseSource: {
         description: "URL to load database from",
         type: OptionType.STRING,
         default: "https://userpfp.github.io/UserPFP/source/data.json",
         hidden: !IS_DEV,
-        isValid: value => {
+        isValid: (value => {
             if (!value) {
                 value = "https://userpfp.github.io/UserPFP/source/data.json";
                 return false;
             }
             return true;
-        }
-    }
+        })
+    },
 });
 
 export default definePlugin({
@@ -76,7 +75,11 @@ export default definePlugin({
                 Using the set avatar feature is local only meaning only you see it change.
             </Notice.Info>
             <Flex className={cl("settings")}>
-                <Button variant="link" className={cl("settings-button")} onClick={() => openInviteModal(INVITE_LINK)}>
+                <Button
+                    variant="link"
+                    className={cl("settings-button")}
+                    onClick={() => openInviteModal(INVITE_LINK)}
+                >
                     Join UserPFP Server
                 </Button>
                 <Button
@@ -169,7 +172,7 @@ export default definePlugin({
         return original(config);
     },
     async start() {
-        data.avatars = (await get<Record<string, string>>(KEY_DATASTORE)) || {};
+        data.avatars = await get<Record<string, string>>(KEY_DATASTORE) || {};
 
         await fetch(settings.store.databaseSource)
             .then(res => res.ok && res.json())

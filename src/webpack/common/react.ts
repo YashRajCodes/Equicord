@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { findByCodeLazy, findByPropsLazy, waitFor } from "@webpack";
 
@@ -29,10 +29,7 @@ export let useCallback: typeof React.useCallback;
 
 export const ReactDOM: typeof import("react-dom") = findByPropsLazy("createPortal");
 // 299 is an error code used in createRoot and createPortal
-export const createRoot: typeof import("react-dom/client").createRoot = findByCodeLazy(
-    "(299));",
-    ".onRecoverableError"
-);
+export const createRoot: typeof import("react-dom/client").createRoot = findByCodeLazy("(299));", ".onRecoverableError");
 
 waitFor(["createElement", "useEffect"], m => {
     React = m;

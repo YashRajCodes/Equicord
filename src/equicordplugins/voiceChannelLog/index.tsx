@@ -4,21 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { ChannelType } from "@vencord/discord-types/enums";
-import { findByPropsLazy } from "@webpack";
-
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
-import {
-    ApplicationStore,
-    ChannelStore,
-    Menu,
-    RelationshipStore,
-    SelectedChannelStore,
-    UserStore,
-    VoiceStateStore
-} from "@webpack/common";
+import { ChannelType } from "@vencord/discord-types/enums";
+import { findByPropsLazy } from "@webpack";
+import { ApplicationStore, ChannelStore, Menu, RelationshipStore, SelectedChannelStore, UserStore, VoiceStateStore } from "@webpack/common";
 
 import { LogIcon, OpenLogsButton } from "./components/LogsButton";
 import { openVoiceChannelLog } from "./components/VoiceChannelLogModal";
@@ -47,12 +38,7 @@ function log(entry: Omit<VoiceChannelLogEntry, "timestamp">) {
     addLogEntry({ ...entry, timestamp: new Date() });
 }
 
-const VOICE_CHANNEL_TYPES = new Set([
-    ChannelType.GUILD_VOICE,
-    ChannelType.GUILD_STAGE_VOICE,
-    ChannelType.DM,
-    ChannelType.GROUP_DM
-]);
+const VOICE_CHANNEL_TYPES = new Set([ChannelType.GUILD_VOICE, ChannelType.GUILD_STAGE_VOICE, ChannelType.DM, ChannelType.GROUP_DM]);
 
 const patchChannelContextMenu: NavContextMenuPatchCallback = (children, { channel }) => {
     if (!VOICE_CHANNEL_TYPES.has(channel.type)) return;
@@ -67,8 +53,7 @@ const patchChannelContextMenu: NavContextMenuPatchCallback = (children, { channe
 
 export default definePlugin({
     name: "VoiceChannelLog",
-    description:
-        "Logs voice channel activity including joins, leaves, soundboard, mute, camera, screenshare, and more.",
+    description: "Logs voice channel activity including joins, leaves, soundboard, mute, camera, screenshare, and more.",
     tags: ["Servers", "Utility", "Voice"],
     authors: [Devs.Sqaaakoi, Devs.thororen, EquicordDevs.nyx, Devs.Moxxie, EquicordDevs.Fres, Devs.amy],
     dependencies: ["AudioPlayerAPI", "HeaderBarAPI"],
@@ -92,13 +77,7 @@ export default definePlugin({
     },
 
     flux: {
-        VOICE_CHANNEL_SELECT({
-            channelId,
-            currentVoiceChannelId
-        }: {
-            channelId: string | null;
-            currentVoiceChannelId: string | null;
-        }) {
+        VOICE_CHANNEL_SELECT({ channelId, currentVoiceChannelId }: { channelId: string | null; currentVoiceChannelId: string | null; }) {
             const leaving = channelId == null && currentVoiceChannelId != null;
             const joining = channelId != null && currentVoiceChannelId == null;
             const oldChannel = currentVoiceChannelId ?? clientOldChannelId;
@@ -121,7 +100,7 @@ export default definePlugin({
             }
         },
 
-        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[] }) {
+        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
             const clientUserId = UserStore.getCurrentUser().id;
             const suppressJoins = Date.now() - clientJoinedAt < 5000;
 
@@ -159,13 +138,7 @@ export default definePlugin({
                     } else if (oldChannelId && channelId) {
                         if (settings.store.logJoinLeave) {
                             if (isMyChannel(oldChannelId)) {
-                                log({
-                                    type: "move",
-                                    userId,
-                                    channelId: oldChannelId,
-                                    oldChannelId,
-                                    newChannelId: channelId
-                                });
+                                log({ type: "move", userId, channelId: oldChannelId, oldChannelId, newChannelId: channelId });
                             }
                             if (isMyChannel(channelId)) {
                                 log({ type: "move", userId, channelId, oldChannelId, newChannelId: channelId });
@@ -248,9 +221,7 @@ export default definePlugin({
             if (app) {
                 logWithName(app.name);
             } else {
-                fetchApplication(appId)
-                    .then(fetched => logWithName(fetched?.name ?? "Unknown activity"))
-                    .catch(() => logWithName("Unknown activity"));
+                fetchApplication(appId).then(fetched => logWithName(fetched?.name ?? "Unknown activity")).catch(() => logWithName("Unknown activity"));
             }
         },
 

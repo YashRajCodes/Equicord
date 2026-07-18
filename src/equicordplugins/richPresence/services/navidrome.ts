@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Activity } from "@vencord/discord-types";
-import { ActivityFlags, ActivityStatusDisplayType } from "@vencord/discord-types/enums";
-import md5 from "md5";
-
 import { Logger } from "@utils/Logger";
 import { parseUrl } from "@utils/misc";
+import { Activity } from "@vencord/discord-types";
+import { ActivityFlags, ActivityStatusDisplayType } from "@vencord/discord-types/enums";
 import { ApplicationAssetUtils, FluxDispatcher } from "@webpack/common";
+import md5 from "md5";
 
 import { settings } from "../settings";
 
@@ -56,10 +55,7 @@ function customFormat(formatStr: string | undefined, track: NdTrack): string {
         .replaceAll("{artist}", track.artist ?? "")
         .replaceAll("{album}", track.album ?? "")
         .replaceAll("{year}", track.year ? `${track.year}` : "")
-        .replaceAll(
-            "{quality}",
-            track.suffix ? `${track.suffix.toUpperCase()}${track.bitRate ? " " + track.bitRate + "kbps" : ""}` : ""
-        );
+        .replaceAll("{quality}", track.suffix ? `${track.suffix.toUpperCase()}${track.bitRate ? " " + track.bitRate + "kbps" : ""}` : "");
 }
 
 async function getAsset(applicationId: string, key: string): Promise<string> {
@@ -162,20 +158,7 @@ async function getActivity(signal?: AbortSignal): Promise<Activity | null> {
         }
     }
 
-    const {
-        nd_clientId,
-        nd_showSmallImage,
-        nd_serverUrl,
-        nd_showAlbum,
-        nd_nameString,
-        nd_detailsString,
-        nd_stateString,
-        nd_largeTextString,
-        nd_activityType,
-        nd_statusDisplayType,
-        nd_lastfmApiKey,
-        nd_hideOnPause
-    } = settings.store;
+    const { nd_clientId, nd_showSmallImage, nd_serverUrl, nd_showAlbum, nd_nameString, nd_detailsString, nd_stateString, nd_largeTextString, nd_activityType, nd_statusDisplayType, nd_lastfmApiKey, nd_hideOnPause } = settings.store;
 
     if (isPaused && nd_hideOnPause) {
         cachedPauseTimestamp = undefined;
@@ -195,7 +178,7 @@ async function getActivity(signal?: AbortSignal): Promise<Activity | null> {
 
     if (track.id !== currentTrackId || !cachedStartTimestamp) {
         currentTrackId = track.id;
-        const elapsedMs = track.positionMs ?? trackMinutesAgo * 60 * 1000;
+        const elapsedMs = track.positionMs ?? (trackMinutesAgo * 60 * 1000);
         cachedStartTimestamp = Date.now() - elapsedMs;
         lastMinutesAgo = trackMinutesAgo;
     } else {
@@ -273,20 +256,14 @@ async function getActivity(signal?: AbortSignal): Promise<Activity | null> {
 
                 if (track.album) {
                     const album = encodeURIComponent(track.album);
-                    const res = await fetch(
-                        `https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${apiKey}&artist=${artist}&album=${album}&format=json`,
-                        { signal }
-                    );
+                    const res = await fetch(`https://ws.audioscrobbler.com/2.0/?method=album.getinfo&api_key=${apiKey}&artist=${artist}&album=${album}&format=json`, { signal });
                     const json = await res.json();
                     image = json?.album?.image?.at(-1)?.["#text"];
                 }
 
                 if (!image && track.title) {
                     const title = encodeURIComponent(track.title);
-                    const res = await fetch(
-                        `https://ws.audioscrobbler.com/2.0/?method=track.getinfo&api_key=${apiKey}&artist=${artist}&track=${title}&format=json`,
-                        { signal }
-                    );
+                    const res = await fetch(`https://ws.audioscrobbler.com/2.0/?method=track.getinfo&api_key=${apiKey}&artist=${artist}&track=${title}&format=json`, { signal });
                     const json = await res.json();
                     image = json?.track?.album?.image?.at(-1)?.["#text"];
                 }
@@ -314,7 +291,10 @@ async function getActivity(signal?: AbortSignal): Promise<Activity | null> {
         assets.small_text = "Navidrome";
     }
 
-    const [largeImage, smallImage] = await Promise.all([largeImagePromise, smallImagePromise ?? Promise.resolve("")]);
+    const [largeImage, smallImage] = await Promise.all([
+        largeImagePromise,
+        smallImagePromise ?? Promise.resolve("")
+    ]);
 
     assets.large_image = largeImage;
     if (nd_showSmallImage && smallImage) {
@@ -332,25 +312,20 @@ async function getActivity(signal?: AbortSignal): Promise<Activity | null> {
         name: nameString || "Navidrome",
         details: detailsString || undefined,
         state: stateString || undefined,
-        status_display_type: nd_statusDisplayType
-            ? {
-                  off: ActivityStatusDisplayType.NAME,
-                  artist: ActivityStatusDisplayType.STATE,
-                  track: ActivityStatusDisplayType.DETAILS
-              }[nd_statusDisplayType as "off" | "artist" | "track"]
-            : undefined,
-        type: isPaused && !nd_hideOnPause ? 0 : Number(nd_activityType ?? 2),
+        status_display_type: nd_statusDisplayType ? {
+            "off": ActivityStatusDisplayType.NAME,
+            "artist": ActivityStatusDisplayType.STATE,
+            "track": ActivityStatusDisplayType.DETAILS
+        }[nd_statusDisplayType as "off" | "artist" | "track"] : undefined,
+        type: (isPaused && !nd_hideOnPause) ? 0 : Number(nd_activityType ?? 2),
         flags: ActivityFlags.INSTANCE,
-        timestamps:
-            isPaused && !nd_hideOnPause
-                ? {
-                      start: cachedPauseTimestamp
-                  }
-                : {
-                      start: cachedStartTimestamp,
-                      end: durationMs > 0 ? endTimestamp : undefined
-                  },
-        assets
+        timestamps: isPaused && !nd_hideOnPause ? {
+            start: cachedPauseTimestamp,
+        } : {
+            start: cachedStartTimestamp,
+            end: durationMs > 0 ? endTimestamp : undefined,
+        },
+        assets,
     };
 
     cachedSettingsJSON = currentSettingsJSON;

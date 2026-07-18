@@ -9,4 +9,8 @@ import { captionCaption } from "./caption";
 import { noneCaption } from "./none";
 import { speechbubbleCaption } from "./speechbubble";
 
-export const CAPTIONS: CaptionDefinition[] = [noneCaption, captionCaption, speechbubbleCaption];
+export const CAPTIONS: CaptionDefinition[] = [
+    noneCaption,
+    captionCaption,
+    speechbubbleCaption,
+];

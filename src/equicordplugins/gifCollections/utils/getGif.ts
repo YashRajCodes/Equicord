@@ -5,7 +5,6 @@
  */
 
 import { Message } from "@vencord/discord-types";
-
 import { MessageStore, SnowflakeUtils } from "@webpack/common";
 
 import { settings } from "../settings";
@@ -32,7 +31,7 @@ function getGifByTarget(url: string, target?: HTMLElement | null): Gif | null {
 }
 
 function getGifByMessageAndTarget(target: HTMLElement, message: Message): Gif | null {
-    const wrapper = target.closest('[class*="imageWrapper"]');
+    const wrapper = target.closest("[class*=\"imageWrapper\"]");
     const url = wrapper?.querySelector("video")?.src ?? wrapper?.querySelector("img")?.src;
     if (!url) return null;
 
@@ -50,7 +49,7 @@ function getGifByMessageAndUrl(url: string, message: Message): Gif | null {
             e.image && cleanUrl(e.image.url),
             e.image?.proxyURL,
             e.video?.proxyURL,
-            e.thumbnail?.proxyURL
+            e.thumbnail?.proxyURL,
         ];
         return urls.some(u => u === cleanedUrl);
     });
@@ -62,7 +61,7 @@ function getGifByMessageAndUrl(url: string, message: Message): Gif | null {
                 height: embed.image.height,
                 width: embed.image.width,
                 src: embed.image.proxyURL!,
-                url: embed.image.url
+                url: embed.image.url,
             };
         }
         if (embed.video?.proxyURL) {
@@ -71,7 +70,7 @@ function getGifByMessageAndUrl(url: string, message: Message): Gif | null {
                 height: embed.video.height,
                 width: embed.video.width,
                 src: embed.video.proxyURL,
-                url: embed.provider?.name === "Tenor" ? (embed.url ?? embed.video.url) : embed.video.url
+                url: embed.provider?.name === "Tenor" ? embed.url ?? embed.video.url : embed.video.url,
             };
         }
         if (embed.thumbnail?.proxyURL) {
@@ -80,7 +79,7 @@ function getGifByMessageAndUrl(url: string, message: Message): Gif | null {
                 height: embed.thumbnail.height,
                 width: embed.thumbnail.width,
                 src: embed.thumbnail.proxyURL,
-                url: embed.thumbnail.url
+                url: embed.thumbnail.url,
             };
         }
     }
@@ -95,7 +94,7 @@ function getGifByMessageAndUrl(url: string, message: Message): Gif | null {
             url: attachment.url,
             channelId: message.channel_id,
             messageId: message.id,
-            attachmentId: attachment.id
+            attachmentId: attachment.id,
         };
     }
 
@@ -107,7 +106,7 @@ export function getGif(message: Message | null, url: string | null, target: HTML
     if (message && target && !url) return getGifByMessageAndTarget(target, message);
     if (url && target && !message) {
         const resolvedUrl = url.startsWith("https://discord.com/")
-            ? (target.parentElement?.querySelector("img")?.src ?? url)
+            ? target.parentElement?.querySelector("img")?.src ?? url
             : url;
         return getGifByTarget(resolvedUrl, target);
     }

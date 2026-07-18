@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { zipSync } from "fflate";
-
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
 import { ChannelStore, DraftType, SelectedChannelStore, UploadHandler } from "@webpack/common";
+import { zipSync } from "fflate";
 
 const logger = new Logger("AutoZipper");
 

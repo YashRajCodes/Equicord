@@ -7,10 +7,13 @@
 export const images = {
     cross: "https://github.com/Equicord/Equibored/raw/main/icons/loginwithqr/cross.png",
     deviceImage: {
-        success: "https://github.com/Equicord/Equibored/raw/main/icons/loginwithqr/success.png",
-        notFound: "https://github.com/Equicord/Equibored/raw/main/icons/loginwithqr/not-found.png",
-        loading: "https://github.com/Equicord/Equibored/raw/main/icons/loginwithqr/loaded.png"
-    }
+        success:
+            "https://github.com/Equicord/Equibored/raw/main/icons/loginwithqr/success.png",
+        notFound:
+            "https://github.com/Equicord/Equibored/raw/main/icons/loginwithqr/not-found.png",
+        loading:
+            "https://github.com/Equicord/Equibored/raw/main/icons/loginwithqr/loaded.png",
+    },
 } as const;
 
 export let unload: () => void;

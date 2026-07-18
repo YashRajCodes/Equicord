@@ -28,11 +28,14 @@ export function closePalette() {
 export function openPalette(initialPage?: PageEntry) {
     if (activeKey) closePalette();
 
-    const key = openModal(() => <SafePalette onClose={closePalette} initialPage={initialPage} />, {
-        onCloseCallback() {
-            if (activeKey === key) activeKey = null;
+    const key = openModal(
+        () => <SafePalette onClose={closePalette} initialPage={initialPage} />,
+        {
+            onCloseCallback() {
+                if (activeKey === key) activeKey = null;
+            }
         }
-    });
+    );
     activeKey = key;
 }
 

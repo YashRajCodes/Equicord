@@ -14,14 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { RenderModalProps } from "@vencord/discord-types";
+*/
 
 import { Divider } from "@components/Divider";
 import { FormSwitch } from "@components/FormSwitch";
 import { HeadingSecondary } from "@components/Heading";
 import { Margins } from "@utils/margins";
+import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, openModal, SearchableSelect, useMemo } from "@webpack/common";
 
 import { settings } from "./settings";
@@ -29,25 +28,24 @@ import { getLanguages } from "./utils";
 
 const LanguageSettingKeys = ["receivedInput", "receivedOutput", "sentInput", "sentOutput"] as const;
 
-function LanguageSelect({
-    settingsKey,
-    includeAuto
-}: {
-    settingsKey: (typeof LanguageSettingKeys)[number];
-    includeAuto: boolean;
-}) {
+function LanguageSelect({ settingsKey, includeAuto }: { settingsKey: typeof LanguageSettingKeys[number]; includeAuto: boolean; }) {
     const currentValue = settings.use([settingsKey])[settingsKey];
 
-    const options = useMemo(() => {
-        const options = Object.entries(getLanguages()).map(([value, label]) => ({ value, label }));
-        if (!includeAuto) options.shift();
+    const options = useMemo(
+        () => {
+            const options = Object.entries(getLanguages()).map(([value, label]) => ({ value, label }));
+            if (!includeAuto)
+                options.shift();
 
-        return options;
-    }, []);
+            return options;
+        }, []
+    );
 
     return (
         <section className={Margins.bottom16}>
-            <HeadingSecondary>{settings.def[settingsKey].description}</HeadingSecondary>
+            <HeadingSecondary>
+                {settings.def[settingsKey].description}
+            </HeadingSecondary>
 
             <SearchableSelect
                 options={options}
@@ -55,7 +53,7 @@ function LanguageSelect({
                 placeholder="Select a language"
                 maxVisibleItems={5}
                 closeOnSelect={true}
-                onChange={v => (settings.store[settingsKey] = v)}
+                onChange={v => settings.store[settingsKey] = v}
             />
         </section>
     );
@@ -69,17 +67,24 @@ function AutoTranslateToggle() {
             title="Auto Translate"
             description={settings.def.autoTranslate.description}
             value={value}
-            onChange={v => (settings.store.autoTranslate = v)}
+            onChange={v => settings.store.autoTranslate = v}
             hideBorder
         />
     );
 }
 
-export function TranslateModal({ rootProps }: { rootProps: RenderModalProps }) {
+export function TranslateModal({ rootProps }: { rootProps: RenderModalProps; }) {
     return (
-        <Modal {...rootProps} title="Translate">
+        <Modal
+            {...rootProps}
+            title="Translate"
+        >
             {LanguageSettingKeys.map(s => (
-                <LanguageSelect key={s} settingsKey={s} includeAuto={s.endsWith("Input")} />
+                <LanguageSelect
+                    key={s}
+                    settingsKey={s}
+                    includeAuto={s.endsWith("Input")}
+                />
             ))}
 
             <Divider className={Margins.bottom16} />

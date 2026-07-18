@@ -7,15 +7,7 @@
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import {
-    ChannelStore,
-    FluxDispatcher,
-    GuildMemberStore,
-    StreamerModeStore,
-    Toasts,
-    UserStore,
-    VoiceStateStore
-} from "@webpack/common";
+import { ChannelStore, FluxDispatcher, GuildMemberStore, StreamerModeStore, Toasts, UserStore, VoiceStateStore } from "@webpack/common";
 
 interface ChannelState {
     userId: string;
@@ -34,7 +26,7 @@ const settings = definePluginSettings({
         description: "Port to connect to",
         default: 6888,
         restartNeeded: true
-    }
+    },
 });
 
 const sendConfig = () => {
@@ -59,13 +51,15 @@ const waitForPopulate = async fn => {
 
 const stateToPayload = (guildId: string, state: ChannelState) => ({
     userId: state.userId,
-    username: GuildMemberStore.getNick(guildId, state.userId) || UserStore.getUser(state.userId)?.globalName,
+    username:
+        GuildMemberStore.getNick(guildId, state.userId) ||
+        UserStore.getUser(state.userId)?.globalName,
     avatarUrl: UserStore.getUser(state.userId)?.avatar,
     channelId: state.channelId,
     deaf: state.deaf || state.selfDeaf,
     mute: state.mute || state.selfMute,
     streaming: state.selfStream,
-    speaking: false
+    speaking: false,
 });
 
 const incoming = payload => {
@@ -115,7 +109,7 @@ const incoming = payload => {
                 type: "CHANNEL_SELECT",
                 guildId: String(guild_id),
                 channelId: String(channel_id),
-                messageId: String(message_id)
+                messageId: String(message_id),
             });
 
             break;
@@ -129,8 +123,8 @@ const handleSpeaking = dispatch => {
             cmd: "VOICE_STATE_UPDATE",
             state: {
                 userId: dispatch.userId,
-                speaking: dispatch.speakingFlags === 1
-            }
+                speaking: dispatch.speakingFlags === 1,
+            },
         })
     );
 };
@@ -145,7 +139,7 @@ const handleMessageNotification = dispatch => {
                 icon: dispatch.icon,
                 guildId: dispatch.message.guild_id,
                 channelId: dispatch.message.channel_id,
-                messageId: dispatch.message.id
+                messageId: dispatch.message.id,
             }
         })
     );
@@ -167,7 +161,7 @@ const handleVoiceStateUpdates = async dispatch => {
                 ws?.send(
                     JSON.stringify({
                         cmd: "CHANNEL_JOINED",
-                        states: Object.values(voiceStates).map(s => stateToPayload(guildId, s as ChannelState))
+                        states: Object.values(voiceStates).map(s => stateToPayload(guildId, s as ChannelState)),
                     })
                 );
 
@@ -177,7 +171,7 @@ const handleVoiceStateUpdates = async dispatch => {
             } else if (!state.channelId) {
                 ws?.send(
                     JSON.stringify({
-                        cmd: "CHANNEL_LEFT"
+                        cmd: "CHANNEL_LEFT",
                     })
                 );
 
@@ -187,11 +181,15 @@ const handleVoiceStateUpdates = async dispatch => {
             }
         }
 
-        if (!!currentChannel && (state.channelId === currentChannel || state.oldChannelId === currentChannel)) {
+        if (
+            !!currentChannel &&
+            (state.channelId === currentChannel ||
+                state.oldChannelId === currentChannel)
+        ) {
             ws?.send(
                 JSON.stringify({
                     cmd: "VOICE_STATE_UPDATE",
-                    state: stateToPayload(guildId, state as ChannelState)
+                    state: stateToPayload(guildId, state as ChannelState),
                 })
             );
         }
@@ -202,7 +200,7 @@ const handleStreamerMode = dispatch => {
     ws?.send(
         JSON.stringify({
             cmd: "STREAMER_MODE",
-            enabled: dispatch.value
+            enabled: dispatch.value,
         })
     );
 };
@@ -216,7 +214,7 @@ const createWebsocket = () => {
             Toasts.show({
                 message: "Orbolay websocket could not connect. Is it running?",
                 type: Toasts.Type.FAILURE,
-                id: Toasts.genId()
+                id: Toasts.genId(),
             });
             ws = null;
             return;
@@ -240,7 +238,7 @@ const createWebsocket = () => {
         Toasts.show({
             message: "Connected to Orbolay server",
             type: Toasts.Type.SUCCESS,
-            id: Toasts.genId()
+            id: Toasts.genId(),
         });
 
         const userId = await waitForPopulate(() => UserStore.getCurrentUser().id);
@@ -252,7 +250,7 @@ const createWebsocket = () => {
         ws?.send(
             JSON.stringify({
                 cmd: "STREAMER_MODE",
-                enabled: StreamerModeStore.enabled
+                enabled: StreamerModeStore.enabled,
             })
         );
 
@@ -269,7 +267,7 @@ const createWebsocket = () => {
         ws?.send(
             JSON.stringify({
                 cmd: "CHANNEL_JOINED",
-                states: Object.values(channelState).map(s => stateToPayload(guildId, s as ChannelState))
+                states: Object.values(channelState).map(s => stateToPayload(guildId, s as ChannelState)),
             })
         );
 
@@ -287,7 +285,7 @@ export default definePlugin({
         SPEAKING: handleSpeaking,
         VOICE_STATE_UPDATES: handleVoiceStateUpdates,
         RPC_NOTIFICATION_CREATE: handleMessageNotification,
-        STREAMER_MODE: handleStreamerMode
+        STREAMER_MODE: handleStreamerMode,
     },
 
     start() {

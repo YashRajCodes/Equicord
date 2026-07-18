@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Guild, User } from "@vencord/discord-types";
-
 import { DataStore } from "@api/index";
-import { ChannelStore, GuildMemberStore, GuildStore, MessageStore, UserStore } from "@webpack/common";
+import { Guild, User } from "@vencord/discord-types";
+import { ChannelStore, GuildMemberStore, GuildStore, MessageStore, UserStore, } from "@webpack/common";
 
 export interface IUserExtra {
     isOwner?: boolean;
@@ -16,15 +15,15 @@ export interface IUserExtra {
 
 export interface IStorageUser {
     id: string;
-    username: string;
-    tag: string;
+    username: string,
+    tag: string,
     iconURL?: string;
     extra?: IUserExtra;
 }
 
 export interface GroupData {
     id: string;
-    users: { [key: string]: IStorageUser };
+    users: { [key: string]: IStorageUser; };
     name: string;
     inviteLink?: string;
 }
@@ -39,7 +38,7 @@ export class Data {
     }
 
     onMessagePreSend(channelId, message, extra) {
-        const target: Set<{ user: User; source?: Guild; extra: IUserExtra }> = new Set();
+        const target: Set<{ user: User; source?: Guild, extra: IUserExtra; }> = new Set();
         const now = Date.now();
         const { replyOptions } = extra;
 
@@ -61,9 +60,13 @@ export class Data {
 
         if (message.content) {
             const { content } = message;
-            const ids = [...content.matchAll(/<@!?(?<id>\d{17,23})>/g)].map(({ groups }) => groups.id);
+            const ids = [...content.matchAll(/<@!?(?<id>\d{17,23})>/g)].map(
+                ({ groups }) => groups.id
+            );
 
-            const users = ids.map(id => UserStore.getUser(id)).filter(Boolean);
+            const users = ids
+                .map(id => UserStore.getUser(id))
+                .filter(Boolean);
             for (const user of users) {
                 target.add({ user, source: guild, extra: { updatedAt: now } });
             }
@@ -72,7 +75,9 @@ export class Data {
         this.processUsersToCollection([...target]);
     }
 
-    async processUsersToCollection(array: { user: User; source?: Guild; extra?: IUserExtra }[]) {
+    async processUsersToCollection(
+        array: { user: User; source?: Guild; extra?: IUserExtra; }[]
+    ) {
         const target = this.usersCollection;
         const processedGuilds = new Set<string>();
 
@@ -97,7 +102,7 @@ export class Data {
                 username,
                 tag: user.discriminator === "0" ? user.username : user.tag,
                 extra: { ...previouExtra, ...extra },
-                iconURL: user.getAvatarURL()
+                iconURL: user.getAvatarURL(),
             };
             if (source && !processedGuilds.has(source.id)) {
                 processedGuilds.add(source.id);
@@ -115,7 +120,8 @@ export class Data {
     }
 
     writeMembersFromUserGuildsToCollection() {
-        const target: Set<{ user: User; source?: Guild; extra: IUserExtra }> = new Set();
+        const target: Set<{ user: User; source?: Guild, extra: IUserExtra; }> =
+            new Set();
 
         const now = Date.now();
         const LIMIT = 1_000;
@@ -144,7 +150,8 @@ export class Data {
     }
 
     writeGuildsOwnersToCollection() {
-        const target: Set<{ user: User; source?: Guild; extra: IUserExtra }> = new Set();
+        const target: Set<{ user: User; source?: Guild; extra: IUserExtra; }> =
+            new Set();
         const now = Date.now();
 
         for (const guild of Object.values(GuildStore.getGuilds())) {
@@ -156,7 +163,7 @@ export class Data {
             target.add({
                 user: owner,
                 source: guild,
-                extra: { isOwner: true, updatedAt: now }
+                extra: { isOwner: true, updatedAt: now },
             });
         }
 
@@ -164,6 +171,9 @@ export class Data {
     }
 
     storageAutoSaveProtocol() {
-        this._storageAutoSaveProtocol_interval = setInterval(this.updateStorage.bind(this), 60_000 * 3);
+        this._storageAutoSaveProtocol_interval = setInterval(
+            this.updateStorage.bind(this),
+            60_000 * 3
+        );
     }
 }

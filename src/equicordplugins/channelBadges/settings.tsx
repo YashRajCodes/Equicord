@@ -12,265 +12,265 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         default: false,
         description: "Show only one badge per channel",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showTextBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Text badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showVoiceBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Voice badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showCategoryBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Category badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showDirectoryBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Directory badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showAnnouncementThreadBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Announcement Thread badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showPublicThreadBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Public Thread badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showPrivateThreadBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Private Thread badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showStageBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Stage badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showAnnouncementBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Announcement badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showForumBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Forum badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showMediaBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Media badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showNSFWBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show NSFW badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showLockedBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Locked badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showRulesBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Rules badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
     showUnknownBadge: {
         type: OptionType.BOOLEAN,
         default: true,
         description: "Show Unknown badge",
-        restartNeeded: true
+        restartNeeded: true,
     },
 
     textBadgeLabel: {
         type: OptionType.STRING,
         default: "Text",
         description: "Text badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     voiceBadgeLabel: {
         type: OptionType.STRING,
         default: "Voice",
         description: "Voice badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     categoryBadgeLabel: {
         type: OptionType.STRING,
         default: "Category",
         description: "Category badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     announcementBadgeLabel: {
         type: OptionType.STRING,
         default: "News",
         description: "Announcement badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     announcementThreadBadgeLabel: {
         type: OptionType.STRING,
         default: "News Thread",
         description: "Announcement Thread badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     publicThreadBadgeLabel: {
         type: OptionType.STRING,
         default: "Thread",
         description: "Public Thread badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     privateThreadBadgeLabel: {
         type: OptionType.STRING,
         default: "Private Thread",
         description: "Private Thread badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     stageBadgeLabel: {
         type: OptionType.STRING,
         default: "Stage",
         description: "Stage badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     directoryBadgeLabel: {
         type: OptionType.STRING,
         default: "Directory",
         description: "Directory badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     forumBadgeLabel: {
         type: OptionType.STRING,
         default: "Forum",
         description: "Forum badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     mediaBadgeLabel: {
         type: OptionType.STRING,
         default: "Media",
         description: "Media badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     nsfwBadgeLabel: {
         type: OptionType.STRING,
         default: "NSFW",
         description: "NSFW badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     lockedBadgeLabel: {
         type: OptionType.STRING,
         default: "Locked",
         description: "Locked badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     rulesBadgeLabel: {
         type: OptionType.STRING,
         default: "Rules",
         description: "Rules badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
     unknownBadgeLabel: {
         type: OptionType.STRING,
         default: "Unknown",
         description: "Unknown badge label",
-        restartNeeded: true
+        restartNeeded: true,
     },
 
     textBadgeColor: {
         type: OptionType.STRING,
         description: "Text badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     voiceBadgeColor: {
         type: OptionType.STRING,
         description: "Voice badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     categoryBadgeColor: {
         type: OptionType.STRING,
         description: "Category badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     announcementBadgeColor: {
         type: OptionType.STRING,
         description: "Announcement badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     announcementThreadBadgeColor: {
         type: OptionType.STRING,
         description: "Announcement Thread badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     publicThreadBadgeColor: {
         type: OptionType.STRING,
         description: "Public Thread badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     privateThreadBadgeColor: {
         type: OptionType.STRING,
         description: "Private Thread badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     stageBadgeColor: {
         type: OptionType.STRING,
         description: "Stage badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     directoryBadgeColor: {
         type: OptionType.STRING,
         description: "Directory badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     forumBadgeColor: {
         type: OptionType.STRING,
         description: "Forum badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     mediaBadgeColor: {
         type: OptionType.STRING,
         description: "Media badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     nsfwBadgeColor: {
         type: OptionType.STRING,
         description: "NSFW badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     lockedBadgeColor: {
         type: OptionType.STRING,
         description: "Locked badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     rulesBadgeColor: {
         type: OptionType.STRING,
         description: "Rules badge color",
-        restartNeeded: true
+        restartNeeded: true,
     },
     unknownBadgeColor: {
         type: OptionType.STRING,
         description: "Unknown badge color",
-        restartNeeded: true
-    }
+        restartNeeded: true,
+    },
 });
 
 export const defaultValues = {
@@ -308,7 +308,7 @@ export const defaultValues = {
         unknown: "Unknown"
     },
     lockedBadgeTooltip: "This channel is locked.",
-    nsfwBadgeTooltip: "This channel is marked as NSFW."
+    nsfwBadgeTooltip: "This channel is marked as NSFW.",
 };
 
 export function isEnabled(type: number) {
@@ -355,43 +355,19 @@ export function returnChannelBadge(type: number) {
         case 2:
             return { css: "voice", label: settings.store.voiceBadgeLabel, color: settings.store.voiceBadgeColor };
         case 4:
-            return {
-                css: "category",
-                label: settings.store.categoryBadgeLabel,
-                color: settings.store.categoryBadgeColor
-            };
+            return { css: "category", label: settings.store.categoryBadgeLabel, color: settings.store.categoryBadgeColor };
         case 5:
-            return {
-                css: "announcement",
-                label: settings.store.announcementBadgeLabel,
-                color: settings.store.announcementBadgeColor
-            };
+            return { css: "announcement", label: settings.store.announcementBadgeLabel, color: settings.store.announcementBadgeColor };
         case 10:
-            return {
-                css: "announcement-thread",
-                label: settings.store.announcementThreadBadgeLabel,
-                color: settings.store.announcementThreadBadgeColor
-            };
+            return { css: "announcement-thread", label: settings.store.announcementThreadBadgeLabel, color: settings.store.announcementThreadBadgeColor };
         case 11:
-            return {
-                css: "thread",
-                label: settings.store.publicThreadBadgeLabel,
-                color: settings.store.publicThreadBadgeColor
-            };
+            return { css: "thread", label: settings.store.publicThreadBadgeLabel, color: settings.store.publicThreadBadgeColor };
         case 12:
-            return {
-                css: "private-thread",
-                label: settings.store.privateThreadBadgeLabel,
-                color: settings.store.privateThreadBadgeColor
-            };
+            return { css: "private-thread", label: settings.store.privateThreadBadgeLabel, color: settings.store.privateThreadBadgeColor };
         case 13:
             return { css: "stage", label: settings.store.stageBadgeLabel, color: settings.store.stageBadgeColor };
         case 14:
-            return {
-                css: "directory",
-                label: settings.store.directoryBadgeLabel,
-                color: settings.store.directoryBadgeColor
-            };
+            return { css: "directory", label: settings.store.directoryBadgeLabel, color: settings.store.directoryBadgeColor };
         case 15:
             return { css: "forum", label: settings.store.forumBadgeLabel, color: settings.store.forumBadgeColor };
         case 16:

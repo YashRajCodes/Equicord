@@ -14,14 +14,11 @@ export type ITag = {
     // name shown on the tag itself, can be anything probably; automatically uppercase'd
     displayName: string;
     description: string;
-} & (
-    | {
-          permissions: Permissions[];
-      }
-    | {
-          condition?(message: Message | null, user: User, channel: Channel): boolean;
-      }
-);
+} & ({
+    permissions: Permissions[];
+} | {
+    condition?(message: Message | null, user: User, channel: Channel): boolean;
+});
 
 export interface TagSetting {
     text: string;
@@ -30,5 +27,5 @@ export interface TagSetting {
 }
 
 export type TagSettings = {
-    [k in (typeof tags)[number]["name"]]: TagSetting;
+    [k in typeof tags[number]["name"]]: TagSetting;
 };

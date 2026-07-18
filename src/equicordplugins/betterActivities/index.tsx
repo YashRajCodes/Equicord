@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { migratePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -31,19 +32,19 @@ export default definePlugin({
                 {
                     match: /(?<=className:\i,children:\[).*?(?=\i\(\),\i&&)/,
                     replace: "",
-                    predicate: () => settings.store.removeGameActivityStatus
+                    predicate: () => settings.store.removeGameActivityStatus,
                 },
                 {
                     match: /(?<=className:\i,children:\[\i\(\),)null.*?tooltipClassName:\i\}\),/,
                     replace: "",
-                    predicate: () => settings.store.removeGameActivityStatus
+                    predicate: () => settings.store.removeGameActivityStatus,
                 },
                 {
                     match: /(?<=hideTooltip:.{0,4}}=(\i).*?{}\))\]/g,
                     replace: ",$self.patchActivityList($1)]",
-                    predicate: () => settings.store.memberList
+                    predicate: () => settings.store.memberList,
                 }
-            ]
+            ],
         },
         {
             // Show all activities in the user popout/sidebar
@@ -53,6 +54,6 @@ export default definePlugin({
                 replace: "$1$self.showAllActivitiesComponent({ activity: $2, user: $3 })"
             },
             predicate: () => settings.store.userPopout
-        }
-    ]
+        },
+    ],
 });

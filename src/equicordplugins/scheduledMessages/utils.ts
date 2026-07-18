@@ -4,26 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Message } from "@vencord/discord-types";
-import { CloudUploadPlatform } from "@vencord/discord-types/enums";
-
 import * as DataStore from "@api/DataStore";
 import { Logger } from "@utils/Logger";
-import {
-    ChannelStore,
-    CloudUploader,
-    Constants,
-    FluxDispatcher,
-    GuildStore,
-    IconUtils,
-    MessageActions,
-    MessageStore,
-    RestAPI,
-    showToast,
-    SnowflakeUtils,
-    Toasts,
-    UserStore
-} from "@webpack/common";
+import { Message } from "@vencord/discord-types";
+import { CloudUploadPlatform } from "@vencord/discord-types/enums";
+import { ChannelStore, CloudUploader, Constants, FluxDispatcher, GuildStore, IconUtils, MessageActions, MessageStore, RestAPI, showToast, SnowflakeUtils, Toasts, UserStore } from "@webpack/common";
 
 import { settings } from ".";
 import { PhantomMessageData, ScheduledAttachment, ScheduledMessage, ScheduledReaction } from "./types";
@@ -38,7 +23,7 @@ let isProcessingMessages = false;
 export const phantomMessageMap = new Map<string, PhantomMessageData>();
 const pendingReactions = new Map<string, ScheduledReaction[]>();
 
-const recentReactionChanges = new Map<string, { action: string; timestamp: number }>();
+const recentReactionChanges = new Map<string, { action: string; timestamp: number; }>();
 const REACTION_COOLDOWN_MS = 2000;
 
 const pendingRecreations = new Map<string, ReturnType<typeof setTimeout>>();
@@ -63,7 +48,7 @@ export function getScheduledMessagesForChannel(channelId?: string): ScheduledMes
     return messages.filter(message => message.channelId === channelId);
 }
 
-export function getChannelDisplayInfo(channelId: string): { name: string; avatar: string } {
+export function getChannelDisplayInfo(channelId: string): { name: string; avatar: string; } {
     const channel = ChannelStore.getChannel(channelId);
     if (!channel) return { name: "Unknown", avatar: "" };
 
@@ -81,13 +66,11 @@ export function getChannelDisplayInfo(channelId: string): { name: string; avatar
     const guild = GuildStore.getGuild(channel.guild_id);
     return {
         name: channel.name || "Channel",
-        avatar: guild
-            ? (IconUtils.getGuildIconURL({ id: guild.id, icon: guild.icon, canAnimate: true, size: 512 }) ?? "")
-            : ""
+        avatar: guild ? IconUtils.getGuildIconURL({ id: guild.id, icon: guild.icon, canAnimate: true, size: 512 }) ?? "" : ""
     };
 }
 
-function getImageDimensions(dataUrl: string): Promise<{ width: number; height: number }> {
+function getImageDimensions(dataUrl: string): Promise<{ width: number; height: number; }> {
     return new Promise(resolve => {
         const img = new Image();
         img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
@@ -96,26 +79,17 @@ function getImageDimensions(dataUrl: string): Promise<{ width: number; height: n
     });
 }
 
-function getVideoPreview(dataUrl: string): Promise<{ width: number; height: number; previewUrl: string } | null> {
+function getVideoPreview(dataUrl: string): Promise<{ width: number; height: number; previewUrl: string; } | null> {
     return new Promise(resolve => {
         const video = document.createElement("video");
         video.preload = "metadata";
         video.muted = true;
         video.playsInline = true;
 
-        const timeout = setTimeout(() => {
-            video.src = "";
-            resolve(null);
-        }, 5000);
+        const timeout = setTimeout(() => { video.src = ""; resolve(null); }, 5000);
 
-        video.onloadeddata = () => {
-            clearTimeout(timeout);
-            video.currentTime = 0;
-        };
-        video.onerror = () => {
-            clearTimeout(timeout);
-            resolve(null);
-        };
+        video.onloadeddata = () => { clearTimeout(timeout); video.currentTime = 0; };
+        video.onerror = () => { clearTimeout(timeout); resolve(null); };
 
         video.onseeked = () => {
             const canvas = document.createElement("canvas");
@@ -123,16 +97,11 @@ function getVideoPreview(dataUrl: string): Promise<{ width: number; height: numb
             canvas.height = video.videoHeight;
             const ctx = canvas.getContext("2d");
 
-            if (!ctx) {
-                resolve(null);
-                video.src = "";
-                return;
-            }
+            if (!ctx) { resolve(null); video.src = ""; return; }
 
             ctx.drawImage(video, 0, 0);
             const size = Math.min(canvas.width, canvas.height) * 0.2;
-            const cx = canvas.width / 2,
-                cy = canvas.height / 2;
+            const cx = canvas.width / 2, cy = canvas.height / 2;
 
             ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
             ctx.beginPath();
@@ -156,21 +125,12 @@ function getVideoPreview(dataUrl: string): Promise<{ width: number; height: numb
 }
 
 async function buildPhantomAttachments(attachments: ScheduledAttachment[]) {
-    const result: {
-        id: string;
-        filename: string;
-        size: number;
-        content_type: string;
-        url?: string;
-        proxy_url?: string;
-        width?: number;
-        height?: number;
-    }[] = [];
+    const result: { id: string; filename: string; size: number; content_type: string; url?: string; proxy_url?: string; width?: number; height?: number; }[] = [];
 
     for (let idx = 0; idx < attachments.length; idx++) {
         const att = attachments[idx];
         const dataUrl = `data:${att.type};base64,${att.data}`;
-        const attachment: (typeof result)[0] = {
+        const attachment: typeof result[0] = {
             id: String(idx),
             filename: att.filename,
             size: Math.ceil(att.data.length * 0.75),
@@ -228,47 +188,45 @@ export async function createPhantomMessage(msg: ScheduledMessage): Promise<void>
         ? Promise.resolve()
         : MessageActions.fetchMessages({ channelId: msg.channelId });
 
-    messagesLoaded
-        .then(() => {
-            FluxDispatcher.dispatch({
-                type: "MESSAGE_CREATE",
-                channelId: msg.channelId,
-                message: {
-                    id: messageId,
-                    channel_id: msg.channelId,
-                    author: {
-                        id: currentUser.id,
-                        username: currentUser.username,
-                        discriminator: currentUser.discriminator || "0",
-                        avatar: currentUser.avatar,
-                        global_name: currentUser.globalName ?? null,
-                        bot: false
-                    },
-                    content: msg.content,
-                    timestamp: new Date().toISOString(),
-                    edited_timestamp: null,
-                    tts: false,
-                    mention_everyone: false,
-                    mentions: [],
-                    mention_roles: [],
-                    attachments,
-                    embeds: [],
-                    pinned: false,
-                    type: 0,
-                    flags: 0,
-                    components: [],
-                    reactions: initialReactions,
-                    nonce: messageId,
-                    scheduledMessageData: { scheduledTime: msg.scheduledTime, messageId: msg.id }
+    messagesLoaded.then(() => {
+        FluxDispatcher.dispatch({
+            type: "MESSAGE_CREATE",
+            channelId: msg.channelId,
+            message: {
+                id: messageId,
+                channel_id: msg.channelId,
+                author: {
+                    id: currentUser.id,
+                    username: currentUser.username,
+                    discriminator: currentUser.discriminator || "0",
+                    avatar: currentUser.avatar,
+                    global_name: currentUser.globalName ?? null,
+                    bot: false
                 },
-                optimistic: true,
-                sendMessageOptions: {},
-                isPushNotification: false
-            });
+                content: msg.content,
+                timestamp: new Date().toISOString(),
+                edited_timestamp: null,
+                tts: false,
+                mention_everyone: false,
+                mentions: [],
+                mention_roles: [],
+                attachments,
+                embeds: [],
+                pinned: false,
+                type: 0,
+                flags: 0,
+                components: [],
+                reactions: initialReactions,
+                nonce: messageId,
+                scheduledMessageData: { scheduledTime: msg.scheduledTime, messageId: msg.id }
+            },
+            optimistic: true,
+            sendMessageOptions: {},
+            isPushNotification: false
+        });
 
-            applyPhantomClassToMessage(msg.channelId, messageId);
-        })
-        .catch(() => {});
+        applyPhantomClassToMessage(msg.channelId, messageId);
+    }).catch(() => { });
 }
 
 function applyPhantomClassToMessage(channelId: string, messageId: string): void {
@@ -335,28 +293,19 @@ function doRecreatePhantomMessage(messageId: string, channelId: string, reaction
     }, 50);
 }
 
-async function uploadAttachment(
-    channelId: string,
-    att: ScheduledAttachment
-): Promise<{ id: string; filename: string; uploaded_filename: string } | null> {
+async function uploadAttachment(channelId: string, att: ScheduledAttachment): Promise<{ id: string; filename: string; uploaded_filename: string; } | null> {
     return new Promise(resolve => {
         const bytes = Uint8Array.from(atob(att.data), c => c.charCodeAt(0));
         const file = new File([bytes], att.filename, { type: att.type });
         const upload = new CloudUploader({ file, platform: CloudUploadPlatform.WEB }, channelId);
 
-        upload.on("complete", () =>
-            resolve({ id: "0", filename: upload.filename, uploaded_filename: upload.uploadedFilename })
-        );
+        upload.on("complete", () => resolve({ id: "0", filename: upload.filename, uploaded_filename: upload.uploadedFilename }));
         upload.on("error", () => resolve(null));
         upload.upload();
     });
 }
 
-async function postMessage(
-    channelId: string,
-    content: string,
-    attachments?: { id: string; filename: string; uploaded_filename: string }[]
-): Promise<void> {
+async function postMessage(channelId: string, content: string, attachments?: { id: string; filename: string; uploaded_filename: string; }[]): Promise<void> {
     await RestAPI.post({
         url: Constants.Endpoints.MESSAGES(channelId),
         body: {
@@ -367,11 +316,7 @@ async function postMessage(
     });
 }
 
-async function addReactionsToMessage(
-    channelId: string,
-    messageId: string,
-    reactions: ScheduledReaction[]
-): Promise<void> {
+async function addReactionsToMessage(channelId: string, messageId: string, reactions: ScheduledReaction[]): Promise<void> {
     for (const reaction of reactions) {
         const emojiStr = reaction.emoji.id
             ? `${reaction.emoji.name}:${reaction.emoji.id}`
@@ -382,7 +327,7 @@ async function addReactionsToMessage(
                 await RestAPI.put({ url: `/channels/${channelId}/messages/${messageId}/reactions/${emojiStr}/@me` });
                 break;
             } catch (e) {
-                const err = e as { status?: number; body?: { retry_after?: number } };
+                const err = e as { status?: number; body?: { retry_after?: number; }; };
                 if (err.status === 429 || err.body?.retry_after) {
                     await new Promise(r => setTimeout(r, (err.body?.retry_after ?? 1) * 1000 + 100));
                 } else if (err.status === 404) {
@@ -405,13 +350,9 @@ async function sendScheduledMessage(msg: ScheduledMessage): Promise<boolean> {
         pendingReactions.delete(msg.id);
 
         if (msg.attachments?.length) {
-            const uploaded = (
-                await Promise.all(
-                    msg.attachments.map((att, i) =>
-                        uploadAttachment(msg.channelId, att).then(r => (r ? { ...r, id: String(i) } : null))
-                    )
-                )
-            ).filter(Boolean) as { id: string; filename: string; uploaded_filename: string }[];
+            const uploaded = (await Promise.all(msg.attachments.map((att, i) =>
+                uploadAttachment(msg.channelId, att).then(r => r ? { ...r, id: String(i) } : null)
+            ))).filter(Boolean) as { id: string; filename: string; uploaded_filename: string; }[];
 
             await postMessage(msg.channelId, msg.content, uploaded.length ? uploaded : undefined);
         } else {
@@ -420,7 +361,7 @@ async function sendScheduledMessage(msg: ScheduledMessage): Promise<boolean> {
 
         if (reactions.length) {
             await new Promise(r => setTimeout(r, 1500));
-            const msgArray = (MessageStore.getMessages(msg.channelId) as { _array?: Message[] })?._array ?? [];
+            const msgArray = (MessageStore.getMessages(msg.channelId) as { _array?: Message[]; })?._array ?? [];
             const currentUserId = UserStore.getCurrentUser()?.id;
 
             for (let i = msgArray.length - 1; i >= Math.max(0, msgArray.length - 10); i--) {
@@ -447,17 +388,14 @@ export async function addScheduledMessage(
     content: string,
     scheduledTime: number,
     attachments?: ScheduledAttachment[]
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; }> {
     const minuteStart = Math.floor(scheduledTime / 60000) * 60000;
-    const count = scheduledMessages.filter(
-        m => m.channelId === channelId && m.scheduledTime >= minuteStart && m.scheduledTime < minuteStart + 60000
+    const count = scheduledMessages.filter(m =>
+        m.channelId === channelId && m.scheduledTime >= minuteStart && m.scheduledTime < minuteStart + 60000
     ).length;
 
     if (count >= settings.store.maxMessagesPerMinute) {
-        return {
-            success: false,
-            error: `Maximum of ${settings.store.maxMessagesPerMinute} messages per channel per minute reached`
-        };
+        return { success: false, error: `Maximum of ${settings.store.maxMessagesPerMinute} messages per channel per minute reached` };
     }
 
     const newMessage: ScheduledMessage = {
@@ -477,10 +415,7 @@ export async function addScheduledMessage(
     return { success: true };
 }
 
-export async function updateScheduledMessageTime(
-    id: string,
-    scheduledTime: number
-): Promise<{ success: boolean; error?: string }> {
+export async function updateScheduledMessageTime(id: string, scheduledTime: number): Promise<{ success: boolean; error?: string; }> {
     const message = scheduledMessages.find(entry => entry.id === id);
     if (!message) {
         return { success: false, error: "Scheduled message not found" };
@@ -491,19 +426,15 @@ export async function updateScheduledMessageTime(
     }
 
     const minuteStart = Math.floor(scheduledTime / 60000) * 60000;
-    const count = scheduledMessages.filter(
-        entry =>
-            entry.id !== id &&
-            entry.channelId === message.channelId &&
-            entry.scheduledTime >= minuteStart &&
-            entry.scheduledTime < minuteStart + 60000
+    const count = scheduledMessages.filter(entry =>
+        entry.id !== id
+        && entry.channelId === message.channelId
+        && entry.scheduledTime >= minuteStart
+        && entry.scheduledTime < minuteStart + 60000
     ).length;
 
     if (count >= settings.store.maxMessagesPerMinute) {
-        return {
-            success: false,
-            error: `Maximum of ${settings.store.maxMessagesPerMinute} messages per channel per minute reached`
-        };
+        return { success: false, error: `Maximum of ${settings.store.maxMessagesPerMinute} messages per channel per minute reached` };
     }
 
     removePhantomMessage(message);
@@ -514,7 +445,7 @@ export async function updateScheduledMessageTime(
     return { success: true };
 }
 
-export async function sendScheduledMessageNow(id: string): Promise<{ success: boolean; error?: string }> {
+export async function sendScheduledMessageNow(id: string): Promise<{ success: boolean; error?: string; }> {
     const message = scheduledMessages.find(entry => entry.id === id);
     if (!message) {
         return { success: false, error: "Scheduled message not found" };
@@ -568,10 +499,7 @@ export function startScheduler(): void {
 }
 
 export function stopScheduler(): void {
-    if (checkInterval) {
-        clearInterval(checkInterval);
-        checkInterval = null;
-    }
+    if (checkInterval) { clearInterval(checkInterval); checkInterval = null; }
 }
 
 export async function recreatePhantomMessages(): Promise<void> {
@@ -582,12 +510,7 @@ export function cleanupAllPhantomMessages(): void {
     for (const msg of scheduledMessages) removePhantomMessage(msg);
 }
 
-function modifyReaction(
-    messageId: string,
-    channelId: string,
-    emoji: { id: string | null; name: string; animated?: boolean },
-    delta: number
-): void {
+function modifyReaction(messageId: string, channelId: string, emoji: { id: string | null; name: string; animated?: boolean; }, delta: number): void {
     logger.info("modifyReaction called:", { messageId, emoji: emoji.name, delta });
 
     const phantomData = phantomMessageMap.get(messageId);
@@ -623,15 +546,11 @@ function modifyReaction(
     updatePhantomReactions(messageId, channelId, reactions);
 }
 
-function getReactionKey(messageId: string, emoji: { id: string | null; name: string }): string {
+function getReactionKey(messageId: string, emoji: { id: string | null; name: string; }): string {
     return `${messageId}:${emoji.name}:${emoji.id ?? ""}`;
 }
 
-export function handleReactionAdd(
-    messageId: string,
-    channelId: string,
-    emoji: { id: string | null; name: string; animated?: boolean }
-): void {
+export function handleReactionAdd(messageId: string, channelId: string, emoji: { id: string | null; name: string; animated?: boolean; }): void {
     const key = getReactionKey(messageId, emoji);
     const recent = recentReactionChanges.get(key);
     const now = Date.now();
@@ -642,10 +561,7 @@ export function handleReactionAdd(
     }
 
     if (recent && recent.action === "remove" && now - recent.timestamp < REACTION_COOLDOWN_MS) {
-        logger.info("handleReactionAdd: Ignoring Discord revert (ADD after our REMOVE)", {
-            messageId,
-            emoji: emoji.name
-        });
+        logger.info("handleReactionAdd: Ignoring Discord revert (ADD after our REMOVE)", { messageId, emoji: emoji.name });
         resyncPhantomReactions(messageId, channelId);
         return;
     }
@@ -655,28 +571,18 @@ export function handleReactionAdd(
     modifyReaction(messageId, channelId, emoji, 1);
 }
 
-export function handleReactionRemove(
-    messageId: string,
-    channelId: string,
-    emoji: { id: string | null; name: string }
-): void {
+export function handleReactionRemove(messageId: string, channelId: string, emoji: { id: string | null; name: string; }): void {
     const key = getReactionKey(messageId, emoji);
     const recent = recentReactionChanges.get(key);
     const now = Date.now();
 
     if (recent && recent.action === "remove" && now - recent.timestamp < REACTION_COOLDOWN_MS) {
-        logger.info("handleReactionRemove: Ignoring duplicate REMOVE within cooldown", {
-            messageId,
-            emoji: emoji.name
-        });
+        logger.info("handleReactionRemove: Ignoring duplicate REMOVE within cooldown", { messageId, emoji: emoji.name });
         return;
     }
 
     if (recent && recent.action === "add" && now - recent.timestamp < REACTION_COOLDOWN_MS) {
-        logger.info("handleReactionRemove: Ignoring Discord revert (REMOVE after our ADD)", {
-            messageId,
-            emoji: emoji.name
-        });
+        logger.info("handleReactionRemove: Ignoring Discord revert (REMOVE after our ADD)", { messageId, emoji: emoji.name });
         resyncPhantomReactions(messageId, channelId);
         return;
     }

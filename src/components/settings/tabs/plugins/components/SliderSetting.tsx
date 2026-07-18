@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { isSettingDisabled } from "@api/PluginManager";
 import { PluginSettingSliderDef } from "@utils/types";
@@ -22,13 +22,7 @@ import { React, Slider, useState } from "@webpack/common";
 
 import { resolveError, SettingProps, SettingsSection } from "./Common";
 
-export function SliderSetting({
-    setting,
-    pluginSettings,
-    definedSettings,
-    id,
-    onChange
-}: SettingProps<PluginSettingSliderDef>) {
+export function SliderSetting({ setting, pluginSettings, definedSettings, id, onChange }: SettingProps<PluginSettingSliderDef>) {
     const def = pluginSettings[id] ?? setting.default;
 
     const [error, setError] = useState<string | null>(null);

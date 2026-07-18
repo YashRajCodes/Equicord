@@ -14,9 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { search } from "@webpack";
+*/
 
 import { Button } from "@components/Button";
 import { CodeBlock } from "@components/CodeBlock";
@@ -31,6 +29,7 @@ import { copyWithToast } from "@utils/discord";
 import { Margins } from "@utils/margins";
 import { stripIndent } from "@utils/text";
 import { ReplaceFn } from "@utils/types";
+import { search } from "@webpack";
 import { React, TextInput, useMemo, useState } from "@webpack/common";
 
 import { FullPatchInput } from "./FullPatchInput";
@@ -42,9 +41,12 @@ const findCandidates = debounce(function ({ find, setModule, setError }) {
     const keys = Object.keys(candidates);
     const len = keys.length;
 
-    if (len === 0) setError("No match. Perhaps that module is lazy loaded?");
-    else if (len !== 1) setError("Multiple matches. Please refine your filter");
-    else setModule([keys[0], candidates[keys[0]]]);
+    if (len === 0)
+        setError("No match. Perhaps that module is lazy loaded?");
+    else if (len !== 1)
+        setError("Multiple matches. Please refine your filter");
+    else
+        setModule([keys[0], candidates[keys[0]]]);
 });
 
 function PatchHelper() {
@@ -122,11 +124,21 @@ function PatchHelper() {
 
             <div className={Margins.top20}>
                 <Heading className="">Find</Heading>
-                <TextInput type="text" value={find} onChange={onFindChange} error={findError} />
+                <TextInput
+                    type="text"
+                    value={find}
+                    onChange={onFindChange}
+                    error={findError}
+                />
             </div>
             <div className={Margins.top20}>
                 <Heading className="">Match</Heading>
-                <TextInput type="text" value={match} onChange={onMatchChange} error={matchError} />
+                <TextInput
+                    type="text"
+                    value={match}
+                    onChange={onMatchChange}
+                    error={matchError}
+                />
             </div>
 
             <div className={Margins.top20}>
@@ -140,9 +152,7 @@ function PatchHelper() {
             {module && (
                 <>
                     <Divider className={Margins.top16 + " " + Margins.bottom16} />
-                    <Span size="md" weight="medium" color="text-strong">
-                        Preview
-                    </Span>
+                    <Span size="md" weight="medium" color="text-strong">Preview</Span>
                     <PatchPreview
                         module={module}
                         match={match}
@@ -155,9 +165,7 @@ function PatchHelper() {
             {!!(find && match && replacement) && (
                 <>
                     <Divider className={Margins.top16 + " " + Margins.bottom16} />
-                    <Span size="md" weight="medium" color="text-strong">
-                        Generated Code
-                    </Span>
+                    <Span size="md" weight="medium" color="text-strong">Generated Code</Span>
                     <div style={{ width: "100%", marginTop: 8 }}>
                         <CodeBlock lang="js" content={code} />
                     </div>

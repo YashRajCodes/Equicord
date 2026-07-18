@@ -14,15 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
 export default definePlugin({
     name: "NoUnblockToJump",
-    description:
-        "Allows you to jump to messages of blocked or ignored users and likely spammers without unblocking them",
+    description: "Allows you to jump to messages of blocked or ignored users and likely spammers without unblocking them",
     tags: ["Utility"],
     authors: [Devs.Rini],
     patches: [

@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { definePluginSettings, migratePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
@@ -36,8 +37,7 @@ const settings = definePluginSettings({
         stickToMarkers: true
     },
     compactMode: {
-        description:
-            "Scales the buttons to 75% of their original scale, whilst increasing the inner emoji to 125% scale. Emojis will be 93.75% of the original size. Recommended to have a minimum of 5 columns",
+        description: "Scales the buttons to 75% of their original scale, whilst increasing the inner emoji to 125% scale. Emojis will be 93.75% of the original size. Recommended to have a minimum of 5 columns",
         type: OptionType.BOOLEAN,
         default: false
     },
@@ -85,8 +85,7 @@ export default definePlugin({
                 // Override limit of emojis to display with offset hook.
                 {
                     match: /"MessageContextMenu"\},\{autoTrackExposure.{0,5}\}\),/,
-                    replace:
-                        "$&[moreQuickReactionsScrollValue,setMoreQuickReactionsScrollValue]=Vencord.Webpack.Common.React.useState(0),"
+                    replace: "$&[moreQuickReactionsScrollValue,setMoreQuickReactionsScrollValue]=Vencord.Webpack.Common.React.useState(0),"
                 },
                 {
                     match: /\.length>4&&\(\i\.length=4\)/,
@@ -95,14 +94,12 @@ export default definePlugin({
                 // Add a custom class to identify the quick reactions have been modified and a CSS variable for the number of columns to display
                 {
                     match: /className:(\i\.\i),(?=children:)/,
-                    replace:
-                        'className:"vc-better-quick-react "+($self.settings.store.compactMode?"vc-better-quick-react-compact ":"")+$1,style:{"--vc-better-quick-react-columns":$self.settings.store.columns},'
+                    replace: 'className:"vc-better-quick-react "+($self.settings.store.compactMode?"vc-better-quick-react-compact ":"")+$1,style:{"--vc-better-quick-react-columns":$self.settings.store.columns},'
                 },
                 // Scroll handler + Apply the emoji count limit from earlier with custom logic
                 {
                     match: /children:(\i)\.map\(/,
-                    replace:
-                        "onWheel:$self.onWheelWrapper(moreQuickReactionsScrollValue,setMoreQuickReactionsScrollValue,$1.length),children:$self.applyScroll($1,moreQuickReactionsScrollValue).map("
+                    replace: "onWheel:$self.onWheelWrapper(moreQuickReactionsScrollValue,setMoreQuickReactionsScrollValue,$1.length),children:$self.applyScroll($1,moreQuickReactionsScrollValue).map("
                 }
             ]
         },
@@ -132,13 +129,12 @@ export default definePlugin({
         return emojis.slice(index, index + this.getMaxQuickReactions());
     },
     onWheelWrapper(currentScrollValue: number, setScrollHook: (value: number) => void, emojisLength: number) {
-        if (settings.store.scroll)
-            return (e: WheelEvent) => {
-                if (e.deltaY === 0 || e.shiftKey) return;
-                e.stopPropagation(); // does this do anything?
-                const modifier = e.deltaY < 0 ? -1 : 1;
-                const newValue = currentScrollValue + modifier * settings.store.columns;
-                setScrollHook(Math.max(0, Math.min(newValue, emojisLength - this.getMaxQuickReactions())));
-            };
-    }
+        if (settings.store.scroll) return (e: WheelEvent) => {
+            if (e.deltaY === 0 || e.shiftKey) return;
+            e.stopPropagation(); // does this do anything?
+            const modifier = e.deltaY < 0 ? -1 : 1;
+            const newValue = currentScrollValue + (modifier * settings.store.columns);
+            setScrollHook(Math.max(0, Math.min(newValue, emojisLength - this.getMaxQuickReactions())));
+        };
+    },
 });

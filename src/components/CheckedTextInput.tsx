@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { React, TextInput, useState } from "@webpack/common";
 
@@ -60,7 +60,13 @@ export function CheckedTextInput({ initialValue, onChange, validate, placeholder
 
     return (
         <>
-            <TextInput type="text" value={value} onChange={handleChange} error={error} placeholder={placeholder} />
+            <TextInput
+                type="text"
+                value={value}
+                onChange={handleChange}
+                error={error}
+                placeholder={placeholder}
+            />
         </>
     );
 }

@@ -22,48 +22,48 @@
 }
 
 .channel-badge-text {
-    background-color: #5865f2;
+    background-color: #5865F2;
 }
 
 .channel-badge-voice {
-    background-color: #3ba55d;
+    background-color: #3BA55D;
 }
 
 .channel-badge-category {
-    background-color: #4f545c;
+    background-color: #4F545C;
 }
 
 .channel-badge-directory {
-    background-color: #faa61a;
+    background-color: #FAA61A;
 }
 
 .channel-badge-thread,
 .channel-badge-public-thread,
 .channel-badge-announcement-thread,
 .channel-badge-private-thread {
-    background-color: #7289da;
+    background-color: #7289DA;
 }
 
 .channel-badge-announcement,
 .channel-badge-announcement-channel {
-    background-color: #faa61a;
+    background-color: #FAA61A;
 }
 
 .channel-badge-rules,
 .channel-badge-stage,
 .channel-badge-media,
 .channel-badge-forum {
-    background-color: #5865f2;
+    background-color: #5865F2;
 }
 
 .channel-badge-nsfw {
-    background-color: #e91e63;
+    background-color: #E91E63;
 }
 
 .channel-badge-locked {
-    background-color: #b9bbbe;
+    background-color: #B9BBBE;
 }
 
 .channel-badge-unknown {
-    background-color: #747f8d;
+    background-color: #747F8D;
 }

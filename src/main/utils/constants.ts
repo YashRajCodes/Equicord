@@ -14,20 +14,19 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
+import { app } from "electron";
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 
-import { app } from "electron";
-
 const suffix = IS_DEV ? "dev" : "";
 
-export const DATA_DIR =
-    process.env.EQUICORD_USER_DATA_DIR ??
-    (process.env.DISCORD_USER_DATA_DIR
+export const DATA_DIR = process.env.EQUICORD_USER_DATA_DIR ?? (
+    process.env.DISCORD_USER_DATA_DIR
         ? join(process.env.DISCORD_USER_DATA_DIR, "..", "EquicordData", suffix)
-        : join(app.getPath("userData"), "..", "Equicord", suffix));
+        : join(app.getPath("userData"), "..", "Equicord", suffix)
+);
 
 export const SETTINGS_DIR = join(DATA_DIR, "settings");
 export const THEMES_DIR = join(DATA_DIR, "themes");
@@ -44,7 +43,7 @@ export const ALLOWED_PROTOCOLS = [
     "tidal:",
     "itunes:",
     "vrcx:",
-    "tg:"
+    "tg:",
 ];
 
 export const IS_VANILLA = /* @__PURE__ */ process.argv.includes("--vanilla");

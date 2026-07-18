@@ -14,15 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
 export default definePlugin({
     name: "DisableCallIdle",
-    description:
-        "Disables automatically getting kicked from a DM voice call after 3 minutes and being moved to an AFK voice channel.",
+    description: "Disables automatically getting kicked from a DM voice call after 3 minutes and being moved to an AFK voice channel.",
     tags: ["Voice", "Utility"],
     authors: [Devs.Nuckyz],
     patches: [
@@ -42,5 +41,5 @@ export default definePlugin({
         }
     ],
 
-    noop() {}
+    noop() { }
 });

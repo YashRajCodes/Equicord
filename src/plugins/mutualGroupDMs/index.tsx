@@ -14,12 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import "./style.css";
-import { Channel, User } from "@vencord/discord-types";
-import { findByPropsLazy, findCssClassesLazy } from "@webpack";
-import { ComponentType, JSX } from "react";
 
 import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -27,16 +24,10 @@ import { Devs } from "@utils/constants";
 import { isNonNullish } from "@utils/guards";
 import { Logger } from "@utils/Logger";
 import definePlugin from "@utils/types";
-import {
-    Avatar,
-    ChannelStore,
-    Clickable,
-    IconUtils,
-    RelationshipStore,
-    ScrollerThin,
-    useMemo,
-    UserStore
-} from "@webpack/common";
+import { Channel, User } from "@vencord/discord-types";
+import { findByPropsLazy, findCssClassesLazy } from "@webpack";
+import { Avatar, ChannelStore, Clickable, IconUtils, RelationshipStore, ScrollerThin, useMemo, UserStore } from "@webpack/common";
+import { ComponentType, JSX } from "react";
 
 const SelectedChannelActionCreators = findByPropsLazy("selectPrivateChannel");
 const UserUtils = findByPropsLazy("getGlobalName");
@@ -48,18 +39,17 @@ const MutualsListClasses = findCssClassesLazy("row", "icon", "name", "details");
 let ExpandableList: ComponentType<any> = () => null;
 
 function getGroupDMName(channel: Channel) {
-    return (
-        channel.name ||
+    return channel.name ||
         channel.recipients
             .map(UserStore.getUser)
             .filter(isNonNullish)
             .map(c => RelationshipStore.getNickname(c.id) || UserUtils.getName(c))
-            .join(", ")
-    );
+            .join(", ");
 }
 
 const getMutualGroupDms = (userId: string) =>
-    ChannelStore.getSortedPrivateChannels().filter(c => c.isGroupDM() && c.recipients.includes(userId));
+    ChannelStore.getSortedPrivateChannels()
+        .filter(c => c.isGroupDM() && c.recipients.includes(userId));
 
 const isBotOrSelf = (user: User) => user.bot || user.id === UserStore.getCurrentUser().id;
 
@@ -82,12 +72,11 @@ function renderClickableGDMs(mutualDms: Channel[], onClose: () => void) {
                 src={IconUtils.getChannelIconURL({ id: c.id, icon: c.icon, size: 32 })}
                 size="SIZE_40"
                 className={MutualsListClasses.icon}
-            ></Avatar>
+            >
+            </Avatar>
             <div className={MutualsListClasses.details}>
                 <div className={MutualsListClasses.name}>{getGroupDMName(c)}</div>
-                <BaseText size="xs" weight="medium">
-                    {c.recipients.length + 1} Members
-                </BaseText>
+                <BaseText size="xs" weight="medium">{c.recipients.length + 1} Members</BaseText>
             </div>
         </Clickable>
     ));
@@ -138,7 +127,7 @@ export default definePlugin({
                 {
                     match: /type:"top",/,
                     replace: '$&className:"vc-mutual-gdms-modal-v2-tab-bar",'
-                }
+                },
             ]
         },
         {
@@ -150,8 +139,7 @@ export default definePlugin({
                 },
                 {
                     match: /\.openUserProfileModal.+?\)}\)}\)(?<=,(\i)&&(\i)&&(\(0,\i\.jsxs?\)\(\i\.\i,{className:(\i)\.\i}\)).{0,50}?"MUTUAL_FRIENDS".+?)/,
-                    replace: (m, hasMutualGuilds, hasMutualFriends, Divider, classes) =>
-                        "" +
+                    replace: (m, hasMutualGuilds, hasMutualFriends, Divider, classes) => "" +
                         `${m},$self.renderDMPageList({user:arguments[0].user,hasDivider:${hasMutualGuilds}||${hasMutualFriends},Divider:${Divider},listStyle:${classes}.list})`
                 },
                 {
@@ -183,61 +171,51 @@ export default definePlugin({
             sections[IS_PATCHED] = true;
             sections.push({
                 text: getMutualGDMCountText(user),
-                section: "MUTUAL_GDMS"
+                section: "MUTUAL_GDMS",
             });
         } catch (e) {
             new Logger("MutualGroupDMs").error("Failed to push mutual group dms section:", e);
         }
     },
 
-    renderMutualGDMs: ErrorBoundary.wrap(({ user, onClose }: { user: User; onClose: () => void }) => {
+    renderMutualGDMs: ErrorBoundary.wrap(({ user, onClose }: { user: User, onClose: () => void; }) => {
         const mutualGDms = useMemo(() => getMutualGroupDms(user.id), [user.id]);
         const entries = renderClickableGDMs(mutualGDms, onClose);
 
         return (
-            <ScrollerThin className={TabBarClasses.tabPanelScroller} fade={true} onClose={onClose}>
-                {entries.length > 0 ? (
-                    entries
-                ) : (
-                    <div className={ProfileListClasses.empty}>
-                        <div className={ProfileListClasses.textContainer}>
-                            <BaseText tag="h3" size="md" weight="medium" style={{ color: "var(--text-strong)" }}>
-                                You don't have any group chats in common
-                            </BaseText>
+            <ScrollerThin
+                className={TabBarClasses.tabPanelScroller}
+                fade={true}
+                onClose={onClose}
+            >
+                {entries.length > 0
+                    ? entries
+                    : (
+                        <div className={ProfileListClasses.empty}>
+                            <div className={ProfileListClasses.textContainer}>
+                                <BaseText tag="h3" size="md" weight="medium" style={{ color: "var(--text-strong)" }}>You don't have any group chats in common</BaseText>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )
+                }
             </ScrollerThin>
         );
     }),
 
-    renderDMPageList: ErrorBoundary.wrap(
-        ({
-            user,
-            hasDivider,
-            Divider,
-            listStyle
-        }: {
-            user: User;
-            hasDivider: boolean;
-            Divider: JSX.Element;
-            listStyle: string;
-        }) => {
-            const mutualGDms = getMutualGroupDms(user.id);
-            if (mutualGDms.length === 0) return null;
+    renderDMPageList: ErrorBoundary.wrap(({ user, hasDivider, Divider, listStyle }: { user: User, hasDivider: boolean, Divider: JSX.Element, listStyle: string; }) => {
+        const mutualGDms = getMutualGroupDms(user.id);
+        if (mutualGDms.length === 0) return null;
 
-            return (
-                <>
-                    {hasDivider && Divider}
-                    <ExpandableList
-                        listClassName={listStyle}
-                        header={"Mutual Groups"}
-                        isLoading={false}
-                        items={renderClickableGDMs(mutualGDms, () => {})}
-                    />
-                </>
-            );
-        },
-        { noop: true }
-    )
+        return (
+            <>
+                {hasDivider && Divider}
+                <ExpandableList
+                    listClassName={listStyle}
+                    header={"Mutual Groups"}
+                    isLoading={false}
+                    items={renderClickableGDMs(mutualGDms, () => { })}
+                />
+            </>
+        );
+    }, { noop: true })
 });

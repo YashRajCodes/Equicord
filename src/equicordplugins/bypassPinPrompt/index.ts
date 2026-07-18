@@ -13,7 +13,11 @@ export default definePlugin({
     tags: ["Shortcuts"],
     authors: [Devs.thororen],
     patches: [
-        ...['source:"message-actions"', 'id:"pin",action', '"Channel Pins"'].map(find => ({
+        ...[
+            'source:"message-actions"',
+            'id:"pin",action',
+            '"Channel Pins"',
+        ].map(find => ({
             find,
             replacement: [
                 {
@@ -22,5 +26,5 @@ export default definePlugin({
                 }
             ]
         }))
-    ]
+    ],
 });

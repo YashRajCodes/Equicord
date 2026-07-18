@@ -4,12 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { User } from "@vencord/discord-types";
-
 import { definePluginSettings } from "@api/Settings";
 import { Notice } from "@components/Notice";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
+import { User } from "@vencord/discord-types";
 import { ChannelStore, UserStore } from "@webpack/common";
 
 const settings = definePluginSettings({
@@ -54,25 +53,23 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(filter:\i).{0,75}context:\i\}\)(?=,allowSnowflake)/,
-                    replace: "$1=>true"
+                    replace: "$1=>true",
                 },
                 {
                     match: /(?<=\i=)\i\.\i\.getMembers\(.{0,25}\)\.filter\(\i\)/g,
                     replace: "$self.useFilter()",
-                    predicate: () => settings.store.globalMention || settings.store.onlyDMUsers
+                    predicate: () => settings.store.globalMention || settings.store.onlyDMUsers,
                 },
                 {
                     match: /(?<=\i=)\i\.recipients\.map\(.{0,100}\?\?null\}\)\)/,
-                    replace: "$self.useFilter(true)"
+                    replace: "$self.useFilter(true)",
                 }
-            ]
-        }
+            ],
+        },
     ],
     useFilter(map: boolean = false) {
         const foundUsers = getCachedUsers();
-        const users = settings.store.onlyDMUsers
-            ? foundUsers.filter(user => ChannelStore.getDMFromUserId(user.id))
-            : foundUsers;
+        const users = settings.store.onlyDMUsers ? foundUsers.filter(user => ChannelStore.getDMFromUserId(user.id)) : foundUsers;
         return map ? users.map(user => ({ userId: user.id, nick: null })) : users;
     }
 });

@@ -6,13 +6,19 @@
 
 // additional thanks to mwittrien/DevilBro and nexpid for their server hiding plugins, which served as inspiration
 
-import { Guild } from "@vencord/discord-types";
-import { findStoreLazy } from "@webpack";
-
-import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
-import { addServerListElement, removeServerListElement, ServerListRenderPosition } from "@api/ServerList";
+import {
+    findGroupChildrenByChildId,
+    NavContextMenuPatchCallback,
+} from "@api/ContextMenu";
+import {
+    addServerListElement,
+    removeServerListElement,
+    ServerListRenderPosition,
+} from "@api/ServerList";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import { Guild } from "@vencord/discord-types";
+import { findStoreLazy } from "@webpack";
 import { Menu, React, useStateFromStores } from "@webpack/common";
 
 import hiddenServersButton from "./components/HiddenServersButton";
@@ -35,7 +41,10 @@ type qsResult = {
 
 export const SortedGuildStore = findStoreLazy("SortedGuildStore");
 
-const Patch: NavContextMenuPatchCallback = (children, { guild }: { guild: Guild }) => {
+const Patch: NavContextMenuPatchCallback = (
+    children,
+    { guild }: { guild: Guild; }
+) => {
     const group = findGroupChildrenByChildId("privacy", children);
     if (!group) return;
 
@@ -99,7 +108,7 @@ export default definePlugin({
                     />
                 );
             }
-        }
+        },
     },
     patches: [
         {
@@ -111,7 +120,7 @@ export default definePlugin({
                 },
                 {
                     match: /let{disableAppDownload.{0,10}isPlatformEmbedded/,
-                    replace: "$self.useStore();$&"
+                    replace: "$self.useStore();$&",
                 }
             ]
         },
@@ -119,19 +128,12 @@ export default definePlugin({
             find: "#{intl::QUICKSWITCHER_PROTIP}",
             replacement: {
                 match: /(?<=renderResults\(\){.{0,100})let{query/,
-                replace: "this.props.results = $self.filteredGuildResults(this.props.results);$&"
-            }
-        }
+                replace: "this.props.results = $self.filteredGuildResults(this.props.results);$&",
+            },
+        },
     ],
     settings,
-    useStore: () => {
-        useStateFromStores(
-            [HiddenServersStore],
-            () => HiddenServersStore.hiddenGuilds,
-            undefined,
-            (old, newer) => old.size === newer.size
-        );
-    },
+    useStore: () => { useStateFromStores([HiddenServersStore], () => HiddenServersStore.hiddenGuilds, undefined, (old, newer) => old.size === newer.size); },
 
     async start() {
         if (settings.store.showIndicator) {
@@ -185,5 +187,5 @@ export default definePlugin({
             }
             return true;
         });
-    }
+    },
 });

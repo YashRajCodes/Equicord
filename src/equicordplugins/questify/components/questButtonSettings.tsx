@@ -9,27 +9,12 @@ import type { JSX } from "react";
 
 import { enabledOnStartup } from "..";
 import { getQuestifySettings, useQuestifySettings } from "../settings/access";
-import {
-    type QuestButtonAction,
-    type QuestButtonDisplayMode,
-    type QuestButtonIncludedTypes,
-    type QuestButtonIndicatorMode
-} from "../settings/def";
+import { type QuestButtonAction, type QuestButtonDisplayMode, type QuestButtonIncludedTypes, type QuestButtonIndicatorMode } from "../settings/def";
 import { startAutoFetchingQuests } from "../settings/fetching";
 import { validateIgnoredQuests } from "../settings/ignoredQuests";
 import { canShowBadge, canShowButton, canShowPill } from "../utils/ui";
 import { DummyQuestButton } from "./questButton";
-import {
-    type ManaSelectOption,
-    SettingsCard,
-    SettingsColorPicker,
-    SettingsDescription,
-    SettingsHeader,
-    SettingsRow,
-    SettingsRowItem,
-    SettingsSelect,
-    SettingsSubheader
-} from "./shared";
+import { type ManaSelectOption, SettingsCard, SettingsColorPicker, SettingsDescription, SettingsHeader, SettingsRow, SettingsRowItem, SettingsSelect, SettingsSubheader } from "./shared";
 
 interface QuestButtonIncludedTypeOption {
     label: string;
@@ -39,29 +24,29 @@ interface QuestButtonIncludedTypeOption {
 const questButtonDisplayOptions = [
     { label: "Always", value: "always" },
     { label: "Unclaimed", value: "unclaimed" },
-    { label: "Never", value: "never" }
-] as const satisfies readonly { label: string; value: QuestButtonDisplayMode }[];
+    { label: "Never", value: "never" },
+] as const satisfies readonly { label: string; value: QuestButtonDisplayMode; }[];
 
 const questButtonIndicatorOptions = [
     { label: "Pill", value: "pill" },
     { label: "Badge", value: "badge" },
     { label: "Both", value: "both" },
-    { label: "None", value: "none" }
-] as const satisfies readonly { label: string; value: QuestButtonIndicatorMode }[];
+    { label: "None", value: "none" },
+] as const satisfies readonly { label: string; value: QuestButtonIndicatorMode; }[];
 
 const questButtonClickOptions = [
     { label: "Open Quests", value: "open-quests" },
     { label: "Context Menu", value: "context-menu" },
     { label: "Plugin Settings", value: "plugin-settings" },
-    { label: "Nothing", value: "nothing" }
-] as const satisfies readonly { label: string; value: QuestButtonAction }[];
+    { label: "Nothing", value: "nothing" },
+] as const satisfies readonly { label: string; value: QuestButtonAction; }[];
 
 const questButtonRewardTypeOptions = [
     { label: "Orbs", value: QuestRewardType.VIRTUAL_CURRENCY },
     { label: "Nitro Codes", value: QuestRewardType.FRACTIONAL_PREMIUM },
     { label: "Reward Codes", value: QuestRewardType.REWARD_CODE },
     { label: "In Game Items", value: QuestRewardType.IN_GAME },
-    { label: "Profile Collectibles", value: QuestRewardType.COLLECTIBLE }
+    { label: "Profile Collectibles", value: QuestRewardType.COLLECTIBLE },
 ] as const satisfies readonly QuestButtonIncludedTypeOption[];
 
 const questButtonQuestTypeOptions = [
@@ -74,14 +59,14 @@ const questButtonQuestTypeOptions = [
     { label: "Play on Desktop V2", value: QuestTaskType.PLAY_ON_DESKTOP_V2 },
     { label: "Stream on Desktop", value: QuestTaskType.STREAM_ON_DESKTOP },
     { label: "Play on PlayStation", value: QuestTaskType.PLAY_ON_PLAYSTATION },
-    { label: "Play on Xbox", value: QuestTaskType.PLAY_ON_XBOX }
+    { label: "Play on Xbox", value: QuestTaskType.PLAY_ON_XBOX },
 ] as const satisfies readonly QuestButtonIncludedTypeOption[];
 
-function toManaOptions<T extends string | number>(options: readonly { label: string; value: T }[]): ManaSelectOption[] {
+function toManaOptions<T extends string | number>(options: readonly { label: string; value: T; }[]): ManaSelectOption[] {
     return options.map(({ label, value }) => ({
         id: String(value),
         label,
-        value: String(value)
+        value: String(value),
     }));
 }
 
@@ -101,7 +86,7 @@ export function QuestButtonSetting(): JSX.Element {
         "questButtonBadgeColor",
         "questButtonLeftClickAction",
         "questButtonMiddleClickAction",
-        "questButtonRightClickAction"
+        "questButtonRightClickAction",
     ]);
 
     const disabled = questButton.disableQuestsEverything;
@@ -129,10 +114,7 @@ export function QuestButtonSetting(): JSX.Element {
         startAutoFetchingQuests(true);
     }
 
-    function updateQuestButtonAction(
-        key: "questButtonLeftClickAction" | "questButtonMiddleClickAction" | "questButtonRightClickAction",
-        value: string | string[] | null
-    ) {
+    function updateQuestButtonAction(key: "questButtonLeftClickAction" | "questButtonMiddleClickAction" | "questButtonRightClickAction", value: string | string[] | null) {
         if (typeof value !== "string") return;
 
         getQuestifySettings()[key] = value as QuestButtonAction;
@@ -159,25 +141,19 @@ export function QuestButtonSetting(): JSX.Element {
             <SettingsRow>
                 <SettingsRowItem>
                     <SettingsHeader> Quest Button </SettingsHeader>
-                    <SettingsDescription>
-                        {" "}
-                        Show a Quest Button in the server list with an optional indicator for unclaimed and unignored
-                        Quests.{" "}
-                    </SettingsDescription>
+                    <SettingsDescription> Show a Quest Button in the server list with an optional indicator for unclaimed and unignored Quests. </SettingsDescription>
                 </SettingsRowItem>
-                {enabledOnStartup && (
-                    <SettingsRowItem width="content">
-                        <DummyQuestButton
-                            badgeColor={questButton.questButtonBadgeColor}
-                            leftClickAction={questButton.questButtonLeftClickAction}
-                            middleClickAction={questButton.questButtonMiddleClickAction}
-                            rightClickAction={questButton.questButtonRightClickAction}
-                            showBadge={canShowBadge(questButton.questButtonIndicator)}
-                            showPill={canShowPill(questButton.questButtonIndicator)}
-                            visible={canShowButton(questButton.questButtonDisplay)}
-                        />
-                    </SettingsRowItem>
-                )}
+                {enabledOnStartup && <SettingsRowItem width="content">
+                    <DummyQuestButton
+                        badgeColor={questButton.questButtonBadgeColor}
+                        leftClickAction={questButton.questButtonLeftClickAction}
+                        middleClickAction={questButton.questButtonMiddleClickAction}
+                        rightClickAction={questButton.questButtonRightClickAction}
+                        showBadge={canShowBadge(questButton.questButtonIndicator)}
+                        showPill={canShowPill(questButton.questButtonIndicator)}
+                        visible={canShowButton(questButton.questButtonDisplay)}
+                    />
+                </SettingsRowItem>}
             </SettingsRow>
             <SettingsSubheader className="no-top-margin"> Button Behavior </SettingsSubheader>
             <SettingsRow>
@@ -227,10 +203,9 @@ export function QuestButtonSetting(): JSX.Element {
                         onSelectionChange={updateQuestButtonDisplay}
                         tooltip={{
                             position: "top",
-                            text:
-                                "Always shows the Quest Button whenever this feature is enabled." +
-                                "\n\nUnclaimed only shows it while you have relevant unclaimed Quest rewards." +
-                                "\n\nNever hides the Quest Button."
+                            text: "Always shows the Quest Button whenever this feature is enabled."
+                                + "\n\nUnclaimed only shows it while you have relevant unclaimed Quest rewards."
+                                + "\n\nNever hides the Quest Button."
                         }}
                     />
                 </SettingsRowItem>
@@ -245,11 +220,10 @@ export function QuestButtonSetting(): JSX.Element {
                         onSelectionChange={updateQuestButtonIndicator}
                         tooltip={{
                             position: "top",
-                            text:
-                                "Pill shows Discord's unread-style marker beside the Quest Button." +
-                                "\n\nBadge shows the number of relevant unclaimed Quest rewards." +
-                                "\n\nBoth shows the pill and badge together." +
-                                "\n\nNone hides unclaimed indicators."
+                            text: "Pill shows Discord's unread-style marker beside the Quest Button."
+                                + "\n\nBadge shows the number of relevant unclaimed Quest rewards."
+                                + "\n\nBoth shows the pill and badge together."
+                                + "\n\nNone hides unclaimed indicators."
                         }}
                     />
                 </SettingsRowItem>

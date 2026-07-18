@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-import gitHash from "~git-hash";
 
 import { Button } from "@components/Button";
 import { Card } from "@components/Card";
@@ -21,6 +20,8 @@ import { Margins } from "@utils/margins";
 import { useAwaiter } from "@utils/react";
 import { getRepo, UpdateLogger } from "@utils/updater";
 import { Alerts, React, Toasts } from "@webpack/common";
+
+import gitHash from "~git-hash";
 
 import {
     ChangelogEntry,
@@ -38,27 +39,43 @@ import {
     getUpdatedPlugins,
     initializeChangelog,
     saveUpdateSession,
-    UpdateSession
+    UpdateSession,
 } from "./changelogManager";
 import { NewPluginsCompact, NewPluginsSection } from "./NewPluginsSection";
 
-function ChangelogCard({ entry, repo, repoPending }: { entry: ChangelogEntry; repo: string; repoPending: boolean }) {
+function ChangelogCard({
+    entry,
+    repo,
+    repoPending,
+}: {
+    entry: ChangelogEntry;
+    repo: string;
+    repoPending: boolean;
+}) {
     return (
         <Card className="vc-changelog-entry">
             <div
                 style={{
                     display: "flex",
                     flexDirection: "column",
-                    gap: "0.25em"
+                    gap: "0.25em",
                 }}
             >
                 <div className="vc-changelog-entry-header">
                     <code className="vc-changelog-entry-hash">
-                        <HashLink repo={repo} hash={entry.hash} disabled={repoPending} />
+                        <HashLink
+                            repo={repo}
+                            hash={entry.hash}
+                            disabled={repoPending}
+                        />
                     </code>
-                    <span className="vc-changelog-entry-author">by {entry.author}</span>
+                    <span className="vc-changelog-entry-author">
+                        by {entry.author}
+                    </span>
                 </div>
-                <div className="vc-changelog-entry-message">{entry.message}</div>
+                <div className="vc-changelog-entry-message">
+                    {entry.message}
+                </div>
             </div>
         </Card>
     );
@@ -70,7 +87,7 @@ function UpdateLogCard({
     repoPending,
     isExpanded,
     onToggleExpand,
-    onClearLog
+    onClearLog,
 }: {
     log: UpdateSession;
     repo: string;
@@ -81,7 +98,9 @@ function UpdateLogCard({
 }) {
     const isRepositoryFetch =
         log.type === "repository_fetch" ||
-        (log.type === undefined && log.fromHash === log.toHash && log.commits.length === 0);
+        (log.type === undefined &&
+            log.fromHash === log.toHash &&
+            log.commits.length === 0);
     const isUpToDate = log.fromHash === log.toHash;
 
     return (
@@ -107,7 +126,7 @@ function UpdateLogCard({
                                 cursor: "pointer",
                                 display: "flex",
                                 alignItems: "center",
-                                justifyContent: "center"
+                                justifyContent: "center",
                             }}
                             onClick={e => {
                                 e.stopPropagation();
@@ -119,51 +138,70 @@ function UpdateLogCard({
                     </div>
                     <div className="vc-changelog-log-meta">
                         {formatTimestamp(log.timestamp)}
-                        {log.commits.length > 0 && ` • ${log.commits.length} commits available`}
+                        {log.commits.length > 0 &&
+                            ` • ${log.commits.length} commits available`}
                         {log.commits.length === 0 && " • No new commits"}
-                        {log.newPlugins.length > 0 && ` • ${log.newPlugins.length} new plugins`}
-                        {log.updatedPlugins.length > 0 && ` • ${log.updatedPlugins.length} updated plugins`}
+                        {log.newPlugins.length > 0 &&
+                            ` • ${log.newPlugins.length} new plugins`}
+                        {log.updatedPlugins.length > 0 &&
+                            ` • ${log.updatedPlugins.length} updated plugins`}
                         {log.newSettings &&
                             getNewSettingsSize(log.newSettings) > 0 &&
                             ` • ${getNewSettingsEntries(log.newSettings).reduce((sum, [, arr]) => sum + arr.length, 0)} new settings`}
                     </div>
                 </div>
-                <div className={`vc-changelog-log-toggle ${isExpanded ? "expanded" : ""}`}>▼</div>
+                <div
+                    className={`vc-changelog-log-toggle ${isExpanded ? "expanded" : ""}`}
+                >
+                    ▼
+                </div>
             </div>
 
             {isExpanded && (
                 <div className="vc-changelog-log-content">
                     {log.newPlugins.length > 0 && (
                         <div className="vc-changelog-log-plugins">
-                            <NewPluginsCompact newPlugins={log.newPlugins} maxDisplay={50} />
+                            <NewPluginsCompact
+                                newPlugins={log.newPlugins}
+                                maxDisplay={50}
+                            />
                         </div>
                     )}
 
                     {log.updatedPlugins.length > 0 && (
                         <div className="vc-changelog-log-plugins">
-                            <Heading className={Margins.bottom8}>Updated Plugins</Heading>
-                            <NewPluginsCompact newPlugins={log.updatedPlugins} maxDisplay={50} />
+                            <Heading className={Margins.bottom8}>
+                                Updated Plugins
+                            </Heading>
+                            <NewPluginsCompact
+                                newPlugins={log.updatedPlugins}
+                                maxDisplay={50}
+                            />
                         </div>
                     )}
 
-                    {log.newSettings && getNewSettingsSize(log.newSettings) > 0 && (
-                        <div className="vc-changelog-log-plugins">
-                            <Heading className={Margins.bottom8}>New Settings</Heading>
-                            <div className="vc-changelog-new-plugins-list">
-                                {getNewSettingsEntries(log.newSettings).map(([pluginName, settings]) =>
-                                    settings.map(setting => (
-                                        <span
-                                            key={`${pluginName}-${setting}`}
-                                            className="vc-changelog-new-plugin-tag"
-                                            title={`New setting in ${pluginName}`}
-                                        >
-                                            {pluginName}.{setting}
-                                        </span>
-                                    ))
-                                )}
+                    {log.newSettings &&
+                        getNewSettingsSize(log.newSettings) > 0 && (
+                            <div className="vc-changelog-log-plugins">
+                                <Heading className={Margins.bottom8}>
+                                    New Settings
+                                </Heading>
+                                <div className="vc-changelog-new-plugins-list">
+                                    {getNewSettingsEntries(log.newSettings).map(
+                                        ([pluginName, settings]) =>
+                                            settings.map(setting => (
+                                                <span
+                                                    key={`${pluginName}-${setting}`}
+                                                    className="vc-changelog-new-plugin-tag"
+                                                    title={`New setting in ${pluginName}`}
+                                                >
+                                                    {pluginName}.{setting}
+                                                </span>
+                                            )),
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
                     {log.commits.length > 0 && (
                         <div className="vc-changelog-log-commits">
@@ -187,15 +225,18 @@ function UpdateLogCard({
 
 function ChangelogContent() {
     const [repo, repoErr, repoPending] = useAwaiter(getRepo, {
-        fallbackValue: "Loading..."
+        fallbackValue: "Loading...",
     });
     const [changelog, setChangelog] = React.useState<ChangelogEntry[]>([]);
-    const [changelogHistory, setChangelogHistory] = React.useState<ChangelogHistory>([]);
+    const [changelogHistory, setChangelogHistory] =
+        React.useState<ChangelogHistory>([]);
     const [newPlugins, setNewPlugins] = React.useState<string[]>([]);
     const [updatedPlugins, setUpdatedPlugins] = React.useState<string[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const [error, setError] = React.useState<string | null>(null);
-    const [expandedLogs, setExpandedLogs] = React.useState<Set<string>>(new Set());
+    const [expandedLogs, setExpandedLogs] = React.useState<Set<string>>(
+        new Set(),
+    );
     const [showHistory, setShowHistory] = React.useState(false);
     const [recentlyChecked, setRecentlyChecked] = React.useState(false);
 
@@ -272,7 +313,10 @@ function ChangelogContent() {
                 const updates = await VencordNative.updater.getUpdates();
 
                 if (updates.ok) {
-                    const currentRepoHash = updates.value.length > 0 ? updates.value[0].hash : gitHash;
+                    const currentRepoHash =
+                        updates.value.length > 0
+                            ? updates.value[0].hash
+                            : gitHash;
                     setRecentlyChecked(lastRepoCheck === currentRepoHash);
                 }
             } catch (err) {
@@ -296,7 +340,10 @@ function ChangelogContent() {
             // check if the repository was recently refreshed and that nothing has changed
             const updates = await VencordNative.updater.getUpdates();
             const lastRepoCheck = await getLastRepositoryCheckHash();
-            const currentRepoHash = updates.ok && updates.value.length > 0 ? updates.value[0].hash : gitHash;
+            const currentRepoHash =
+                updates.ok && updates.value.length > 0
+                    ? updates.value[0].hash
+                    : gitHash;
 
             // If repository state hasn't changed since last check
             if (lastRepoCheck === currentRepoHash) {
@@ -310,8 +357,8 @@ function ChangelogContent() {
                         id: Toasts.genId(),
                         type: Toasts.Type.MESSAGE,
                         options: {
-                            position: Toasts.Position.BOTTOM
-                        }
+                            position: Toasts.Position.BOTTOM,
+                        },
                     });
                 }
                 return;
@@ -327,7 +374,13 @@ function ChangelogContent() {
                     setNewPlugins(newPlgs);
                     setUpdatedPlugins(updatedPlgs);
 
-                    await saveUpdateSession(updates.value, newPlgs, updatedPlgs, newSettings, true);
+                    await saveUpdateSession(
+                        updates.value,
+                        newPlgs,
+                        updatedPlgs,
+                        newSettings,
+                        true,
+                    );
                     await loadChangelogHistory();
                     setRecentlyChecked(true);
 
@@ -336,8 +389,8 @@ function ChangelogContent() {
                         id: Toasts.genId(),
                         type: Toasts.Type.SUCCESS,
                         options: {
-                            position: Toasts.Position.BOTTOM
-                        }
+                            position: Toasts.Position.BOTTOM,
+                        },
                     });
                 } else {
                     const logged = await ensureLocalUpdateLogged();
@@ -349,19 +402,23 @@ function ChangelogContent() {
                         id: Toasts.genId(),
                         type: logged ? Toasts.Type.SUCCESS : Toasts.Type.MESSAGE,
                         options: {
-                            position: Toasts.Position.BOTTOM
-                        }
+                            position: Toasts.Position.BOTTOM,
+                        },
                     });
                     if (!logged) {
                         setChangelog([]);
                     }
                 }
             } else if (!updates.ok) {
-                throw new Error(updates.error?.message || "Failed to fetch from repository");
+                throw new Error(
+                    updates.error?.message || "Failed to fetch from repository",
+                );
             }
         } catch (err: any) {
             UpdateLogger.error("Failed to fetch commits from repository", err);
-            const errorMessage = err?.message || "Failed to connect to repository. Check your internet connection.";
+            const errorMessage =
+                err?.message ||
+                "Failed to connect to repository. Check your internet connection.";
             setError(errorMessage);
 
             // funny little error toast hopefully doesn't happen!
@@ -370,8 +427,8 @@ function ChangelogContent() {
                 id: Toasts.genId(),
                 type: Toasts.Type.FAILURE,
                 options: {
-                    position: Toasts.Position.BOTTOM
-                }
+                    position: Toasts.Position.BOTTOM,
+                },
             });
         } finally {
             setIsLoading(false);
@@ -395,7 +452,13 @@ function ChangelogContent() {
             }
         };
         loadInitialData();
-    }, [repoPending, repoErr, fetchChangelog, loadNewPlugins, ensureLocalUpdateLogged]);
+    }, [
+        repoPending,
+        repoErr,
+        fetchChangelog,
+        loadNewPlugins,
+        ensureLocalUpdateLogged,
+    ]);
 
     const toggleLogExpanded = (logId: string) => {
         const newExpanded = new Set(expandedLogs);
@@ -407,14 +470,16 @@ function ChangelogContent() {
         setExpandedLogs(newExpanded);
     };
 
-    const hasCurrentChanges = changelog.length > 0 || newPlugins.length > 0 || updatedPlugins.length > 0;
+    const hasCurrentChanges =
+        changelog.length > 0 ||
+        newPlugins.length > 0 ||
+        updatedPlugins.length > 0;
 
     return (
         <>
             <Heading className={Margins.top16}>Fetch Changes</Heading>
             <Paragraph className={Margins.bottom16}>
-                Check the repository for new commits, plugin updates, and code changes. This will compare your current
-                version with the latest available and show you what's new.
+                Check the repository for new commits, plugin updates, and code changes. This will compare your current version with the latest available and show you what's new.
             </Paragraph>
 
             <div className="vc-changelog-controls">
@@ -424,7 +489,11 @@ function ChangelogContent() {
                     onClick={fetchChangelog}
                     variant={recentlyChecked ? "positive" : "primary"}
                 >
-                    {isLoading ? "Loading..." : recentlyChecked ? "Repository Up to Date" : "Fetch from Repository"}
+                    {isLoading
+                        ? "Loading..."
+                        : recentlyChecked
+                            ? "Repository Up to Date"
+                            : "Fetch from Repository"}
                 </Button>
 
                 {changelogHistory.length > 0 && (
@@ -456,10 +525,10 @@ function ChangelogContent() {
                                             id: Toasts.genId(),
                                             type: Toasts.Type.SUCCESS,
                                             options: {
-                                                position: Toasts.Position.BOTTOM
-                                            }
+                                                position: Toasts.Position.BOTTOM,
+                                            },
                                         });
-                                    }
+                                    },
                                 });
                             }}
                             style={{ marginLeft: "8px" }}
@@ -491,9 +560,11 @@ function ChangelogContent() {
                 ) : repoErr ? (
                     "Failed to retrieve - check console"
                 ) : (
-                    <Link href={repo}>{repo.split("/").slice(-2).join("/")}</Link>
-                )}{" "}
-                (<HashLink repo={repo} hash={gitHash} disabled={repoPending} />)
+                    <Link href={repo}>
+                        {repo.split("/").slice(-2).join("/")}
+                    </Link>
+                )}
+                {" "}(<HashLink repo={repo} hash={gitHash} disabled={repoPending} />)
             </Paragraph>
 
             {hasCurrentChanges && (
@@ -502,19 +573,23 @@ function ChangelogContent() {
 
                     <Heading className={Margins.top20}>Recent Changes</Heading>
                     <Paragraph className={Margins.bottom16}>
-                        These are the new commits and plugin updates since your last version. You can see what features
-                        were added, bugs were fixed, and which plugins received updates.
+                        These are the new commits and plugin updates since your last version. You can see what features were added, bugs were fixed, and which plugins received updates.
                     </Paragraph>
 
                     {newPlugins.length > 0 && (
                         <div className={Margins.bottom16}>
-                            <NewPluginsSection newPlugins={newPlugins} onPluginToggle={() => {}} />
+                            <NewPluginsSection
+                                newPlugins={newPlugins}
+                                onPluginToggle={() => { }}
+                            />
                         </div>
                     )}
 
                     {updatedPlugins.length > 0 && (
                         <div className={Margins.bottom16}>
-                            <Heading className={Margins.bottom8}>Updated Plugins ({updatedPlugins.length})</Heading>
+                            <Heading className={Margins.bottom8}>
+                                Updated Plugins ({updatedPlugins.length})
+                            </Heading>
                             <NewPluginsCompact newPlugins={updatedPlugins} />
                         </div>
                     )}
@@ -544,8 +619,7 @@ function ChangelogContent() {
                     <Divider className={Margins.top20} />
                     <Heading className={Margins.top20}>Recent Changes</Heading>
                     <Paragraph color="text-subtle">
-                        No commits available ahead of your current version. Click "Fetch from Repository" to check for
-                        new changes.
+                        No commits available ahead of your current version. Click "Fetch from Repository" to check for new changes.
                     </Paragraph>
                 </>
             )}
@@ -558,8 +632,7 @@ function ChangelogContent() {
                         Update Logs ({changelogHistory.length} {changelogHistory.length === 1 ? "log" : "logs"})
                     </Heading>
                     <Paragraph className={Margins.bottom16}>
-                        A history of your previous update sessions with their commit history and plugin changes. Click
-                        on a log to expand it and see the details.
+                        A history of your previous update sessions with their commit history and plugin changes. Click on a log to expand it and see the details.
                     </Paragraph>
 
                     <div className="vc-changelog-history-list">
@@ -582,17 +655,19 @@ function ChangelogContent() {
                                             await clearIndividualLog(logId);
                                             await loadChangelogHistory();
                                             setExpandedLogs(
-                                                new Set(Array.from(expandedLogs).filter(id => id !== logId))
+                                                new Set(
+                                                    Array.from(expandedLogs).filter(id => id !== logId),
+                                                ),
                                             );
                                             Toasts.show({
                                                 message: "Log has been cleared",
                                                 id: Toasts.genId(),
                                                 type: Toasts.Type.SUCCESS,
                                                 options: {
-                                                    position: Toasts.Position.BOTTOM
-                                                }
+                                                    position: Toasts.Position.BOTTOM,
+                                                },
                                             });
-                                        }
+                                        },
                                     });
                                 }}
                             />

@@ -4,50 +4,27 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { RenderModalProps } from "@vencord/discord-types";
-
 import { Button } from "@components/Button";
 import { Flex } from "@components/Flex";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
+import type { RenderModalProps } from "@vencord/discord-types";
 import { Checkbox, Modal, openModal, showToast, Toasts, useEffect, useState } from "@webpack/common";
 
-import {
-    ApplicationField,
-    BooleanField,
-    DateTimeField,
-    getDateTimeLocalValue,
-    ParticipantField,
-    TextField
-} from "./fields";
-import {
-    abortActiveClipUploads,
-    type ClipMetadata,
-    getClipCreatedAt,
-    getClipTitleFromName,
-    getDefaultClipTitle,
-    getDefaultFileName,
-    getErrorMessage,
-    getParticipantIds,
-    getString,
-    isValidDate,
-    pickClipFile,
-    uploadClipFile
-} from "./upload";
+import { ApplicationField, BooleanField, DateTimeField, getDateTimeLocalValue, ParticipantField, TextField } from "./fields";
+import { abortActiveClipUploads, type ClipMetadata, getClipCreatedAt, getClipTitleFromName, getDefaultClipTitle, getDefaultFileName, getErrorMessage, getParticipantIds, getString, isValidDate, pickClipFile, uploadClipFile } from "./upload";
 
 export function openUploadClipFileModal(channelId: string, clip?: ClipMetadata | null) {
-    openModal(modalProps => <UploadClipFileModal modalProps={modalProps} channelId={channelId} clip={clip} />);
+    openModal(modalProps => (
+        <UploadClipFileModal
+            modalProps={modalProps}
+            channelId={channelId}
+            clip={clip}
+        />
+    ));
 }
 
-function UploadClipFileModal({
-    modalProps,
-    channelId,
-    clip
-}: {
-    modalProps: RenderModalProps;
-    channelId: string;
-    clip?: ClipMetadata | null;
-}) {
+function UploadClipFileModal({ modalProps, channelId, clip }: { modalProps: RenderModalProps; channelId: string; clip?: ClipMetadata | null; }) {
     const defaultFileName = getDefaultFileName();
     const [file, setFile] = useState<File | null>(null);
     const [fileName, setFileName] = useState(defaultFileName);
@@ -63,10 +40,9 @@ function UploadClipFileModal({
     const [parseMetadata, setParseMetadata] = useState(false);
 
     const canUpload = Boolean(file && fileName.trim() && title.trim() && isValidDate(createdAt)) && !uploading;
-    const notice =
-        createdAt && !isValidDate(createdAt)
-            ? { message: "Created at must be a valid date.", type: "critical" as const }
-            : undefined;
+    const notice = createdAt && !isValidDate(createdAt)
+        ? { message: "Created at must be a valid date.", type: "critical" as const }
+        : undefined;
 
     useEffect(() => abortActiveClipUploads, []);
 
@@ -83,7 +59,7 @@ function UploadClipFileModal({
         const { file: picked, metadata } = result;
 
         setFile(picked);
-        setFileName(name => (name === defaultFileName ? picked.name : name));
+        setFileName(name => name === defaultFileName ? picked.name : name);
 
         const appName = metadata?.applicationName;
         const appUsers = metadata?.users;
@@ -91,7 +67,7 @@ function UploadClipFileModal({
 
         setTitle(currentTitle => appName || currentTitle || getClipTitleFromName(picked.name));
 
-        if (appUsers?.length) setParticipants(current => (current.length ? current : appUsers));
+        if (appUsers?.length) setParticipants(current => current.length ? current : appUsers);
         if (appId) setApplicationId(current => current || appId);
     }
 
@@ -162,30 +138,11 @@ function UploadClipFileModal({
                     </Checkbox>
                 </section>
 
-                <TextField
-                    title="File name"
-                    value={fileName}
-                    onChange={setFileName}
-                    placeholder="my_clip.mp4"
-                    disabled={uploading}
-                />
-                <TextField
-                    title="Title"
-                    value={title}
-                    onChange={setTitle}
-                    placeholder="Epic Moment"
-                    disabled={uploading}
-                />
+                <TextField title="File name" value={fileName} onChange={setFileName} placeholder="my_clip.mp4" disabled={uploading} />
+                <TextField title="Title" value={title} onChange={setTitle} placeholder="Epic Moment" disabled={uploading} />
                 <ParticipantField value={participants} onChange={setParticipants} disabled={uploading} />
                 <DateTimeField value={createdAt} onChange={setCreatedAt} disabled={uploading} />
-                <TextField
-                    title="Message"
-                    value={message}
-                    onChange={setMessage}
-                    placeholder="Check out this clip!"
-                    disabled={uploading}
-                    multiline
-                />
+                <TextField title="Message" value={message} onChange={setMessage} placeholder="Check out this clip!" disabled={uploading} multiline />
                 <ApplicationField value={applicationId} onChange={setApplicationId} disabled={uploading} />
 
                 <Flex flexDirection="column" gap={8}>

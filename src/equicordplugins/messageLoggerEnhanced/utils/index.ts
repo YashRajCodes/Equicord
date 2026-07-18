@@ -14,11 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { findStoreLazy } from "@webpack";
+*/
 
 import { Settings } from "@api/Settings";
+import { findStoreLazy } from "@webpack";
 import { ChannelStore, SelectedChannelStore, UserStore } from "@webpack/common";
 
 import { settings } from "../index";
@@ -30,30 +29,21 @@ export * from "./misc";
 
 // stolen from mlv2
 // https://github.com/1Lighty/BetterDiscordPlugins/blob/master/Plugins/MessageLoggerV2/MessageLoggerV2.plugin.js#L2367
-interface Id {
-    id: string;
-    time: number;
-    message?: LoggedMessageJSON;
-}
+interface Id { id: string, time: number; message?: LoggedMessageJSON; }
 export const DISCORD_EPOCH = 14200704e5;
-export function reAddDeletedMessages(
-    messages: LoggedMessageJSON[],
-    deletedMessages: LoggedMessageJSON[],
-    channelStart: boolean,
-    channelEnd: boolean
-) {
+export function reAddDeletedMessages(messages: LoggedMessageJSON[], deletedMessages: LoggedMessageJSON[], channelStart: boolean, channelEnd: boolean) {
     if (!messages.length || !deletedMessages?.length) return;
     const IDs: Id[] = [];
     const savedIDs: Id[] = [];
 
     for (let i = 0, len = messages.length; i < len; i++) {
         const { id } = messages[i];
-        IDs.push({ id: id, time: parseInt(id) / 4194304 + DISCORD_EPOCH });
+        IDs.push({ id: id, time: (parseInt(id) / 4194304) + DISCORD_EPOCH });
     }
     for (let i = 0, len = deletedMessages.length; i < len; i++) {
         const record = deletedMessages[i];
         if (!record) continue;
-        savedIDs.push({ id: record.id, time: parseInt(record.id) / 4194304 + DISCORD_EPOCH, message: record });
+        savedIDs.push({ id: record.id, time: (parseInt(record.id) / 4194304) + DISCORD_EPOCH, message: record });
     }
 
     savedIDs.sort((a, b) => a.time - b.time);
@@ -76,10 +66,10 @@ export function reAddDeletedMessages(
 }
 
 interface ShouldIgnoreArguments {
-    channelId?: string;
-    authorId?: string;
+    channelId?: string,
+    authorId?: string,
     guildId?: string;
-    flags?: number;
+    flags?: number,
     bot?: boolean;
     ghostPinged?: boolean;
     isCachedByUs?: boolean;
@@ -91,36 +81,29 @@ const EPHEMERAL = 64;
 const UserGuildSettingsStore = findStoreLazy("UserGuildSettingsStore");
 
 /**
- * the function `shouldIgnore` evaluates whether a message should be ignored or kept, following a priority hierarchy: User > Channel > Server.
- * In this hierarchy, whitelisting takes priority; if any element (User, Channel, or Server) is whitelisted, the message is kept.
- * However, if a higher-priority element, like a User, is blacklisted, it will override the whitelisting status of a lower-priority element, such as a Server, causing the message to be ignored.
- * @param {ShouldIgnoreArguments} args - An object containing the message details.
- * @returns {boolean} - True if the message should be ignored, false if it should be kept.
- */
-export function shouldIgnore({
-    channelId,
-    authorId,
-    guildId,
-    flags,
-    bot,
-    ghostPinged,
-    isCachedByUs,
-    webhookId
-}: ShouldIgnoreArguments): boolean {
+  * the function `shouldIgnore` evaluates whether a message should be ignored or kept, following a priority hierarchy: User > Channel > Server.
+  * In this hierarchy, whitelisting takes priority; if any element (User, Channel, or Server) is whitelisted, the message is kept.
+  * However, if a higher-priority element, like a User, is blacklisted, it will override the whitelisting status of a lower-priority element, such as a Server, causing the message to be ignored.
+  * @param {ShouldIgnoreArguments} args - An object containing the message details.
+  * @returns {boolean} - True if the message should be ignored, false if it should be kept.
+*/
+export function shouldIgnore({ channelId, authorId, guildId, flags, bot, ghostPinged, isCachedByUs, webhookId }: ShouldIgnoreArguments): boolean {
     const isEphemeral = ((flags ?? 0) & EPHEMERAL) === EPHEMERAL;
     if (isEphemeral) return true; // ignore
 
-    if (channelId && guildId == null) guildId = getGuildIdByChannel(channelId);
+    if (channelId && guildId == null)
+        guildId = getGuildIdByChannel(channelId);
 
     const myId = UserStore.getCurrentUser().id;
     const { ignoreUsers, ignoreChannels, ignoreGuilds } = Settings.plugins.MessageLogger;
     const { ignoreBots, ignoreSelf, ignoreWebhooks } = settings.store;
 
-    if (ignoreSelf && authorId === myId) return true; // ignore
-    if (settings.store.alwaysLogDirectMessages && ChannelStore.getChannel(channelId ?? "-1")?.isDM?.()) return false; // keep
+    if (ignoreSelf && authorId === myId)
+        return true; // ignore
+    if (settings.store.alwaysLogDirectMessages && ChannelStore.getChannel(channelId ?? "-1")?.isDM?.())
+        return false; // keep
 
-    const shouldLogCurrentChannel =
-        settings.store.alwaysLogCurrentChannel && SelectedChannelStore.getChannelId() === channelId;
+    const shouldLogCurrentChannel = settings.store.alwaysLogCurrentChannel && SelectedChannelStore.getChannelId() === channelId;
 
     const ids = [authorId, channelId, guildId];
 
@@ -146,9 +129,9 @@ export function shouldIgnore({
     const shouldIgnoreMutedCategories = settings.store.ignoreMutedCategories;
     const shouldIgnoreMutedChannels = settings.store.ignoreMutedChannels;
 
-    if (ignoreBots && bot && !isAuthorWhitelisted) return true; // ignore
+    if ((ignoreBots && bot) && !isAuthorWhitelisted) return true; // ignore
 
-    if (ignoreWebhooks && webhookId && !isAuthorWhitelisted) return true;
+    if ((ignoreWebhooks && webhookId) && !isAuthorWhitelisted) return true;
 
     if (ghostPinged) return false; // keep
 
@@ -163,15 +146,13 @@ export function shouldIgnore({
 
     if (isWhitelisted) return false; // keep
 
-    if (isCachedByUs && !settings.store.cacheMessagesFromServers && guildId != null && !isGuildWhitelisted) return true; // ignore
+    if (isCachedByUs && (!settings.store.cacheMessagesFromServers && guildId != null && !isGuildWhitelisted)) return true; // ignore
 
     if (isBlacklisted && (!isAuthorWhitelisted || !isChannelWhitelisted)) return true; // ignore
 
     if (guildId != null && shouldIgnoreMutedGuilds && UserGuildSettingsStore.isMuted(guildId)) return true; // ignore
-    if (channelId != null && shouldIgnoreMutedCategories && UserGuildSettingsStore.isCategoryMuted(guildId, channelId))
-        return true; // ignore
-    if (channelId != null && shouldIgnoreMutedChannels && UserGuildSettingsStore.isChannelMuted(guildId, channelId))
-        return true; // ignore
+    if (channelId != null && shouldIgnoreMutedCategories && UserGuildSettingsStore.isCategoryMuted(guildId, channelId)) return true; // ignore
+    if (channelId != null && shouldIgnoreMutedChannels && UserGuildSettingsStore.isChannelMuted(guildId, channelId)) return true; // ignore
 
     return false; // keep;
 }

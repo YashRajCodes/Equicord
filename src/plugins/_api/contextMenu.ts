@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Devs } from "@utils/constants";
 import { canonicalizeMatch } from "@utils/patches";
@@ -32,7 +32,7 @@ const nameMap = {
     compositecontrol: "MenuControlItem",
 
     item: "MenuItem",
-    customitem: "MenuItem"
+    customitem: "MenuItem",
 };
 
 export default definePlugin({
@@ -52,12 +52,7 @@ export default definePlugin({
                     replace: (m, rest, ...args) => {
                         if (rest.match(/}=.+/)) return m;
                         const src = args[1]?.slice(Math.max(0, +args[0] - 2000), +args[0]);
-                        if (
-                            src &&
-                            Math.max(src.lastIndexOf("PureComponent{"), src.lastIndexOf("Component{")) >
-                                src.lastIndexOf("function")
-                        )
-                            return m;
+                        if (src && Math.max(src.lastIndexOf("PureComponent{"), src.lastIndexOf("Component{")) > src.lastIndexOf("function")) return m;
                         return `contextMenuAPIArguments:typeof arguments!=='undefined'?arguments:[],${m}`;
                     }
                 }
@@ -98,17 +93,14 @@ export default definePlugin({
                         }
 
                         if (registerCalls.length < 6) {
-                            console.warn(
-                                "[MenuItemDemanglerAPI] Expected to remap 6 items, only remapped",
-                                registerCalls.length
-                            );
+                            console.warn("[MenuItemDemanglerAPI] Expected to remap 6 items, only remapped", registerCalls.length);
                         }
 
                         return `${registerCalls.join(";")};}`;
-                    }
+                    },
                 }
-            ]
-        }
+            ],
+        },
     ],
 
     registerMenuItem(name: string, component: any) {

@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Activity } from "@vencord/discord-types";
-import { ActivityFlags, ActivityType } from "@vencord/discord-types/enums";
-
 import { Logger } from "@utils/Logger";
 import { PluginNative } from "@utils/types";
+import { Activity } from "@vencord/discord-types";
+import { ActivityFlags, ActivityType } from "@vencord/discord-types/enums";
 import { ApplicationAssetUtils, FluxDispatcher } from "@webpack/common";
 
 import { settings } from "../settings";
@@ -40,16 +39,16 @@ async function getActivity(): Promise<Activity | null> {
         state: trackData.artist,
         timestamps: {
             start: trackData.position * 1000,
-            end: trackData.duration * 1000
+            end: trackData.duration * 1000,
         },
         assets: {
             large_image: await getAsset(trackData.artwork),
             large_text: trackData.album,
             small_image: await getAsset("logo"),
-            small_text: "Gensokyo Radio"
+            small_text: "Gensokyo Radio",
         },
         type: ActivityType.LISTENING,
-        flags: ActivityFlags.INSTANCE
+        flags: ActivityFlags.INSTANCE,
     };
 }
 

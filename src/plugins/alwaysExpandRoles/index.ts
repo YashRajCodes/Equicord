@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { definePluginSettings, migratePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
@@ -26,7 +26,7 @@ const settings = definePluginSettings({
         default: false,
         description: "Hide Arrow",
         restartNeeded: true
-    }
+    },
 });
 
 migratePluginSettings("AlwaysExpandRoles", "ShowAllRoles");
@@ -58,5 +58,5 @@ export default definePlugin({
                 }
             ]
         }
-    ]
+    ],
 });

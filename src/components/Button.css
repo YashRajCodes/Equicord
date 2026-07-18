@@ -15,11 +15,11 @@
     white-space: nowrap;
 
     &:hover {
-        transition: 0.15s ease-out;
+        transition: .15s ease-out;
     }
 
     &:disabled {
-        opacity: 0.5;
+        opacity: .5;
         pointer-events: none;
         cursor: not-allowed;
     }

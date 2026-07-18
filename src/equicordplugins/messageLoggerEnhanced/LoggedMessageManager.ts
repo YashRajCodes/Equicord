@@ -14,17 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Flogger, settings } from ".";
-import {
-    addMessageIDB,
-    db,
-    DBMessageStatus,
-    deleteMessagesBulkIDB,
-    getOlderThanTimestampForGuildsIDB,
-    getOldestMessagesIDB
-} from "./db";
+import { addMessageIDB, db, DBMessageStatus, deleteMessagesBulkIDB, getOlderThanTimestampForGuildsIDB, getOldestMessagesIDB } from "./db";
 import { LoggedMessage, LoggedMessageJSON } from "./types";
 import { cleanupMessage } from "./utils";
 import { cacheMessageImages } from "./utils/saveImage";
@@ -32,12 +25,9 @@ import { cacheMessageImages } from "./utils/saveImage";
 let lastCleanupTime = 0;
 const CLEANUP_COOLDOWN = 60 * 1000;
 
-export const addMessage = async (
-    message: LoggedMessage | LoggedMessageJSON,
-    status: DBMessageStatus,
-    currentChannelId?: string
-) => {
-    if (settings.store.saveImages && status === DBMessageStatus.DELETED) await cacheMessageImages(message);
+export const addMessage = async (message: LoggedMessage | LoggedMessageJSON, status: DBMessageStatus, currentChannelId?: string) => {
+    if (settings.store.saveImages && status === DBMessageStatus.DELETED)
+        await cacheMessageImages(message);
     const finalMessage = cleanupMessage(message);
 
     await addMessageIDB(finalMessage, status);
@@ -47,16 +37,10 @@ export const addMessage = async (
         if (now - lastCleanupTime > CLEANUP_COOLDOWN) {
             lastCleanupTime = now;
             const cutoffTime = new Date(now - settings.store.timeBasedCleanupMinutes * 60 * 1000).toISOString();
-            const oldGuildMessages = await getOlderThanTimestampForGuildsIDB(
-                cutoffTime,
-                currentChannelId,
-                settings.store.preserveCurrentChannel
-            );
+            const oldGuildMessages = await getOlderThanTimestampForGuildsIDB(cutoffTime, currentChannelId, settings.store.preserveCurrentChannel);
 
             if (oldGuildMessages.length > 0) {
-                Flogger.info(
-                    `Deleting ${oldGuildMessages.length} old server messages older than ${settings.store.timeBasedCleanupMinutes} minutes`
-                );
+                Flogger.info(`Deleting ${oldGuildMessages.length} old server messages older than ${settings.store.timeBasedCleanupMinutes} minutes`);
                 await deleteMessagesBulkIDB(oldGuildMessages.map(m => m.message_id));
             }
         }

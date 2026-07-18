@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { classNameFactory } from "@utils/css";
 import { onlyOnce } from "@utils/onlyOnce";
@@ -67,49 +67,51 @@ export const getLanguages = () => {
 };
 
 export async function translate(kind: "received" | "sent", text: string): Promise<TranslationValue> {
-    const translate = IS_WEB
-        ? googleTranslate
-        : (() => {
-              switch (settings.store.service) {
-                  case "google":
-                      return googleTranslate;
-                  case "kagi":
-                      return kagiTranslate;
-                  default:
-                      return deeplTranslate;
-              }
-          })();
+    const translate = IS_WEB ? googleTranslate : (() => {
+        switch (settings.store.service) {
+            case "google":
+                return googleTranslate;
+            case "kagi":
+                return kagiTranslate;
+            default:
+                return deeplTranslate;
+        }
+    })();
 
     try {
-        return await translate(text, settings.store[`${kind}Input`], settings.store[`${kind}Output`]);
+        return await translate(
+            text,
+            settings.store[`${kind}Input`],
+            settings.store[`${kind}Output`]
+        );
     } catch (e) {
-        const userMessage =
-            typeof e === "string"
-                ? e
-                : "Something went wrong. If this issue persists, please check the console or ask for help in the support server.";
+        const userMessage = typeof e === "string"
+            ? e
+            : "Something went wrong. If this issue persists, please check the console or ask for help in the support server.";
 
         showToast(userMessage, Toasts.Type.FAILURE);
 
-        throw e instanceof Error ? e : new Error(userMessage);
+        throw e instanceof Error
+            ? e
+            : new Error(userMessage);
     }
 }
 
 async function googleTranslate(text: string, sourceLang: string, targetLang: string): Promise<TranslationValue> {
-    const url =
-        "https://translate-pa.googleapis.com/v1/translate?" +
-        new URLSearchParams({
-            "params.client": "gtx",
-            dataTypes: "TRANSLATION",
-            key: "AIzaSyDLEeFI5OtFBwYBIoK_jj5m32rZK5CkCXA", // some google API key
-            "query.sourceLanguage": sourceLang,
-            "query.targetLanguage": targetLang,
-            "query.text": text
-        });
+    const url = "https://translate-pa.googleapis.com/v1/translate?" + new URLSearchParams({
+        "params.client": "gtx",
+        "dataTypes": "TRANSLATION",
+        "key": "AIzaSyDLEeFI5OtFBwYBIoK_jj5m32rZK5CkCXA", // some google API key
+        "query.sourceLanguage": sourceLang,
+        "query.targetLanguage": targetLang,
+        "query.text": text,
+    });
 
     const res = await fetch(url);
     if (!res.ok)
         throw new Error(
-            `Failed to translate "${text}" (${sourceLang} -> ${targetLang})` + `\n${res.status} ${res.statusText}`
+            `Failed to translate "${text}" (${sourceLang} -> ${targetLang})`
+            + `\n${res.status} ${res.statusText}`
         );
 
     const { sourceLanguage, translation }: GoogleData = await res.json();
@@ -121,11 +123,15 @@ async function googleTranslate(text: string, sourceLang: string, targetLang: str
 }
 
 function fallbackToGoogle(text: string, sourceLang: string, targetLang: string): Promise<TranslationValue> {
-    return googleTranslate(text, deeplLanguageToGoogleLanguage(sourceLang), deeplLanguageToGoogleLanguage(targetLang));
+    return googleTranslate(
+        text,
+        deeplLanguageToGoogleLanguage(sourceLang),
+        deeplLanguageToGoogleLanguage(targetLang)
+    );
 }
 
-const showDeeplApiQuotaToast = onlyOnce(() =>
-    showToast("Deepl API quota exceeded. Falling back to Google Translate", Toasts.Type.FAILURE)
+const showDeeplApiQuotaToast = onlyOnce(
+    () => showToast("Deepl API quota exceeded. Falling back to Google Translate", Toasts.Type.FAILURE)
 );
 
 async function deeplTranslate(text: string, sourceLang: string, targetLang: string): Promise<TranslationValue> {
@@ -174,10 +180,7 @@ async function deeplTranslate(text: string, sourceLang: string, targetLang: stri
 
 async function kagiTranslate(text: string, sourceLang: string, targetLang: string): Promise<TranslationValue> {
     const { status, data } = await Native.makeKagiTranslateRequest(
-        settings.store.kagiSession,
-        text,
-        sourceLang,
-        targetLang
+        settings.store.kagiSession, text, sourceLang, targetLang
     );
 
     switch (status) {

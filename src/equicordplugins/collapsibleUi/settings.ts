@@ -12,57 +12,49 @@ export const panelRegistry = {
         id: "guildBar",
         classId: "guild-bar",
         label: "Guild Bar",
-        collapsedKey: "guildBarCollapsed"
+        collapsedKey: "guildBarCollapsed",
     },
     channelList: {
         id: "channelList",
         classId: "channel-list",
         label: "Channel List",
-        collapsedKey: "channelListCollapsed"
+        collapsedKey: "channelListCollapsed",
     },
     membersList: {
         id: "membersList",
         classId: "members-list",
         label: "Members List",
-        collapsedKey: "membersListCollapsed"
+        collapsedKey: "membersListCollapsed",
     },
     chatButtons: {
         id: "chatButtons",
         classId: "chat-buttons",
         label: "Message Buttons",
-        collapsedKey: "chatButtonsCollapsed"
+        collapsedKey: "chatButtonsCollapsed",
     },
     titleBar: {
         id: "titleBar",
         classId: "title-bar",
         label: "Title Bar",
-        collapsedKey: "titleBarCollapsed"
+        collapsedKey: "titleBarCollapsed",
     },
     headerBar: {
         id: "headerBar",
         classId: "header-bar",
         label: "Header Bar",
-        collapsedKey: "headerBarCollapsed"
+        collapsedKey: "headerBarCollapsed",
     },
     userArea: {
         id: "userArea",
         classId: "user-area",
         label: "User Area",
-        collapsedKey: "userAreaCollapsed"
-    }
+        collapsedKey: "userAreaCollapsed",
+    },
 } as const;
 
 export type PanelId = keyof typeof panelRegistry;
 
-export const toolbarPanelOrder = [
-    "guildBar",
-    "channelList",
-    "membersList",
-    "chatButtons",
-    "titleBar",
-    "headerBar",
-    "userArea"
-] as const satisfies readonly PanelId[];
+export const toolbarPanelOrder = ["guildBar", "channelList", "membersList", "chatButtons", "titleBar", "headerBar", "userArea"] as const satisfies readonly PanelId[];
 
 export const collapseSettingKeys = toolbarPanelOrder.map(panelId => panelRegistry[panelId].collapsedKey);
 
@@ -89,69 +81,69 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Detach the user area so it can be moved freely when it is not collapsed.",
         default: false,
-        onChange: () => userAreaDetachSettingChangeHandler?.()
+        onChange: () => userAreaDetachSettingChangeHandler?.(),
     },
     detachedUserAreaX: {
         type: OptionType.NUMBER,
         description: "Persist the detached user area x position.",
         default: -1,
         hidden: true,
-        onChange: () => userAreaDetachSettingChangeHandler?.()
+        onChange: () => userAreaDetachSettingChangeHandler?.(),
     },
     detachedUserAreaY: {
         type: OptionType.NUMBER,
         description: "Persist the detached user area y position.",
         default: -1,
         hidden: true,
-        onChange: () => userAreaDetachSettingChangeHandler?.()
+        onChange: () => userAreaDetachSettingChangeHandler?.(),
     },
     guildBarCollapsed: {
         type: OptionType.BOOLEAN,
         description: "Persist the guild bar as collapsed.",
         default: false,
         hidden: true,
-        onChange: onCollapseSettingChanged("guildBar")
+        onChange: onCollapseSettingChanged("guildBar"),
     },
     channelListCollapsed: {
         type: OptionType.BOOLEAN,
         description: "Persist the channel list as collapsed.",
         default: false,
         hidden: true,
-        onChange: onCollapseSettingChanged("channelList")
+        onChange: onCollapseSettingChanged("channelList"),
     },
     membersListCollapsed: {
         type: OptionType.BOOLEAN,
         description: "Persist the members list as collapsed.",
         default: false,
         hidden: true,
-        onChange: onCollapseSettingChanged("membersList")
+        onChange: onCollapseSettingChanged("membersList"),
     },
     chatButtonsCollapsed: {
         type: OptionType.BOOLEAN,
         description: "Persist the message button row as collapsed.",
         default: false,
         hidden: true,
-        onChange: onCollapseSettingChanged("chatButtons")
+        onChange: onCollapseSettingChanged("chatButtons"),
     },
     titleBarCollapsed: {
         type: OptionType.BOOLEAN,
         description: "Persist the title bar as collapsed.",
         default: false,
         hidden: true,
-        onChange: onCollapseSettingChanged("titleBar")
+        onChange: onCollapseSettingChanged("titleBar"),
     },
     headerBarCollapsed: {
         type: OptionType.BOOLEAN,
         description: "Persist the header bar as collapsed.",
         default: false,
         hidden: true,
-        onChange: onCollapseSettingChanged("headerBar")
+        onChange: onCollapseSettingChanged("headerBar"),
     },
     userAreaCollapsed: {
         type: OptionType.BOOLEAN,
         description: "Persist the user area as collapsed.",
         default: false,
         hidden: true,
-        onChange: onCollapseSettingChanged("userArea")
-    }
+        onChange: onCollapseSettingChanged("userArea"),
+    },
 });

@@ -4,15 +4,14 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findByCodeLazy, findByPropsLazy } from "@webpack";
-
 import { Devs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
 import definePlugin from "@utils/types";
+import { findByCodeLazy, findByPropsLazy } from "@webpack";
 import { ChannelStore, GuildStore, RelationshipStore, UserStore } from "@webpack/common";
 
 const { getName } = findByPropsLazy("getName", "useName", "getNickname");
-const computeChannelName = findByCodeLazy('.isThread())return`"');
+const computeChannelName = findByCodeLazy(".isThread())return`\"");
 
 const ChannelTypes = findByPropsLazy("DM", "GUILD_TEXT", "PUBLIC_THREAD", "UNKNOWN");
 const ChannelTypesSets = findByPropsLazy("THREADS", "GUILD_TEXTUAL", "ALL_DMS");
@@ -29,9 +28,9 @@ export default definePlugin({
             find: '"SystemMessageUtils.stringify(...) could not convert"',
             replacement: {
                 match: /{icon:.{0,50}emoji:\i}/,
-                replace: "($self.makeTitle($&,...arguments))"
+                replace: "($self.makeTitle($&,...arguments))",
             }
-        }
+        },
     ],
 
     makeTitle(result, channel, message, user) {
@@ -43,7 +42,7 @@ export default definePlugin({
             const replyUsername = getName(channel.guild_id, channel.id, replyUser);
             title = getIntlMessage("CHANNEL_MESSAGE_REPLY_A11Y_LABEL", {
                 author: username,
-                repliedAuthor: replyUsername
+                repliedAuthor: replyUsername,
             });
         }
 
@@ -54,7 +53,8 @@ export default definePlugin({
             let where = ChannelTypesSets.THREADS.has(channel.type)
                 ? `${channelName(channel)} in ${channelName(parent, true)}`
                 : `${channelName(channel, true)}`;
-            if (guild != null) where += `, ${guild.name}`;
+            if (guild != null)
+                where += `, ${guild.name}`;
             title += `\n(${where})`;
         }
         result.title = title;

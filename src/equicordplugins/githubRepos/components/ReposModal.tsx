@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderModalProps } from "@vencord/discord-types";
-
 import { getLanguageColor } from "@equicordplugins/githubRepos/colors";
 import { GitHubRepo } from "@equicordplugins/githubRepos/types";
+import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, React } from "@webpack/common";
 
 import { cl } from "..";
@@ -19,7 +18,7 @@ interface ReposModalProps {
     rootProps: any;
 }
 
-export function ReposModal({ repos, username, rootProps }: ReposModalProps & { rootProps: RenderModalProps }) {
+export function ReposModal({ repos, username, rootProps }: ReposModalProps & { rootProps: RenderModalProps; }) {
     const renderTableHeader = () => (
         <thead>
             <tr>
@@ -37,7 +36,9 @@ export function ReposModal({ repos, username, rootProps }: ReposModalProps & { r
                 <div className={cl("table-name")}>{repo.name}</div>
             </td>
             <td>
-                <div className={cl("table-description")}>{repo.description || ""}</div>
+                <div className={cl("table-description")}>
+                    {repo.description || ""}
+                </div>
             </td>
             <td>
                 {repo.language && (
@@ -87,7 +88,9 @@ export function ReposModal({ repos, username, rootProps }: ReposModalProps & { r
                         <col className={cl("header-stars")} />
                     </colgroup>
                     {renderTableHeader()}
-                    <tbody>{repos.map(renderTableRow)}</tbody>
+                    <tbody>
+                        {repos.map(renderTableRow)}
+                    </tbody>
                 </table>
             </div>
         </Modal>

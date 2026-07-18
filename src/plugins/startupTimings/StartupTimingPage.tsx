@@ -14,13 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { findByPropsLazy } from "@webpack";
+*/
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Flex } from "@components/Flex";
 import { HeadingPrimary, HeadingSecondary } from "@components/Heading";
+import { findByPropsLazy } from "@webpack";
 import { React } from "@webpack/common";
 
 interface AppStartPerformance {
@@ -62,12 +61,7 @@ function TimerItem({ emoji, prefix, log, delta, instance }: TimerItemProps) {
             <span>{instance.sinceStart.toFixed(3)}s</span>
             <span>{instance.sinceLast.toFixed(3)}s</span>
             <span>{delta?.toFixed(0) ?? ""}</span>
-            <span>
-                <pre>
-                    {emoji} {prefix ?? " "}
-                    {log}
-                </pre>
-            </span>
+            <span><pre>{emoji} {prefix ?? " "}{log}</pre></span>
         </React.Fragment>
     );
 }
@@ -100,18 +94,10 @@ function TimingSection({ title, logs, traceEnd }: TimingSectionProps) {
             <code>
                 {traceEnd && (
                     <div style={{ color: "var(--text-strong)", marginBottom: 5, userSelect: "text" }}>
-                        Trace ended at: {new Date(traceEnd).toTimeString()}
+                        Trace ended at: {(new Date(traceEnd)).toTimeString()}
                     </div>
                 )}
-                <div
-                    style={{
-                        color: "var(--text-strong)",
-                        display: "grid",
-                        gridTemplateColumns: "repeat(3, auto) 1fr",
-                        gap: "2px 10px",
-                        userSelect: "text"
-                    }}
-                >
+                <div style={{ color: "var(--text-strong)", display: "grid", gridTemplateColumns: "repeat(3, auto) 1fr", gap: "2px 10px", userSelect: "text" }}>
                     <span>Start</span>
                     <span>Interval</span>
                     <span>Delta</span>

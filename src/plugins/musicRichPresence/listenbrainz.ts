@@ -19,12 +19,7 @@ async function fetchCoverArt(releaseGroupMBID: string) {
     return res.json().then(json => json.images[0].thumbnails.large);
 }
 
-async function getUrls(
-    additionalInfo: Record<string, string> | undefined,
-    trackName: string,
-    artistName: string,
-    releaseName: string
-): Promise<Partial<TrackData>> {
+async function getUrls(additionalInfo: Record<string, string> | undefined, trackName: string, artistName: string, releaseName: string): Promise<Partial<TrackData>> {
     // Well tagged music will have MBIDs which we can use directly. These are optional but highly recommended in ListenBrainz scrobbles.
     // If your music doesn't have these, it's highly recommended to use https://picard.musicbrainz.org/ to automatically add them
     if (additionalInfo?.recording_mbid) {
@@ -36,9 +31,9 @@ async function getUrls(
             albumURL: release_group_mbid
                 ? url(`/release-group/${release_group_mbid}`)
                 : release_mbid
-                  ? url(`/release/${release_mbid}`)
-                  : undefined,
-            artistURL: artist_mbids?.length ? url(`/artist/${artist_mbids[0]}`) : undefined
+                    ? url(`/release/${release_mbid}`)
+                    : undefined,
+            artistURL: artist_mbids?.length ? url(`/artist/${artist_mbids[0]}`) : undefined,
         };
     }
 
@@ -55,7 +50,7 @@ async function getUrls(
     const metadata = await fetch("https://musicbrainz.org/ws/2/recording/?" + params + "&query=" + query, {
         headers: { "User-Agent": VENCORD_USER_AGENT }
     })
-        .then(res => (res.ok ? res.json() : Promise.reject(new Error(`${res.status} ${res.statusText}`))))
+        .then(res => res.ok ? res.json() : Promise.reject(new Error(`${res.status} ${res.statusText}`)))
         .then(json => json.recordings?.[0]);
 
     if (!metadata) {
@@ -68,12 +63,8 @@ async function getUrls(
     return {
         imageURL: release?.["release-group"] ? await fetchCoverArt(release["release-group"].id) : undefined,
         trackURL: url(`/track/${metadata.id}/`),
-        albumURL: release?.id
-            ? url(`/release/${release.id}/`)
-            : release?.["release-group"]?.id
-              ? url(`/release-group/${release["release-group"].id}/`)
-              : undefined,
-        artistURL: artist?.id ? url(`/artist/${artist.id}/`) : undefined
+        albumURL: release?.id ? url(`/release/${release.id}/`) : release?.["release-group"]?.id ? url(`/release-group/${release["release-group"].id}/`) : undefined,
+        artistURL: artist?.id ? url(`/artist/${artist.id}/`) : undefined,
     };
 }
 
@@ -87,7 +78,8 @@ export const ListenBrainzScrobbler: ScrobblerBackend = {
             if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
 
             const data = await res.json().then(json => json.payload?.listens[0]);
-            if (!data?.playing_now || !data?.track_metadata) return null;
+            if (!data?.playing_now || !data?.track_metadata)
+                return null;
 
             const { track_name, artist_name, release_name, additional_info } = data.track_metadata;
 
@@ -96,7 +88,7 @@ export const ListenBrainzScrobbler: ScrobblerBackend = {
                 artist: artist_name,
                 album: release_name || "Unknown",
                 serviceName: additional_info?.music_service_name || additional_info?.submission_client,
-                ...(await getUrls(additional_info, track_name, artist_name, release_name))
+                ...await getUrls(additional_info, track_name, artist_name, release_name)
             } as TrackData;
 
             return trackData;

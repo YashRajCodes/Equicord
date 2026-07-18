@@ -9,7 +9,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { ChevronSmallDownIcon, ChevronSmallUpIcon, FolderIcon } from "@components/Icons";
 import { classNameFactory } from "@utils/css";
 import { copyWithToast } from "@utils/discord";
-import { Modal, openModal, useEffect, useMemo, useRef, useState } from "@webpack/common";
+import { Modal,openModal, useEffect, useMemo, useRef, useState } from "@webpack/common";
 
 import {
     createImageObjectUrl,
@@ -78,14 +78,11 @@ export function ZipPreviewInline(props: ZipPreviewAttachmentProps) {
         setIsContentMounted(false);
     }, [url]);
 
-    useEffect(
-        () => () => {
-            loadRequestIdRef.current++;
-            if (animationFrameRef.current != null) cancelAnimationFrame(animationFrameRef.current);
-            if (animationTimeoutRef.current != null) clearTimeout(animationTimeoutRef.current);
-        },
-        []
-    );
+    useEffect(() => () => {
+        loadRequestIdRef.current++;
+        if (animationFrameRef.current != null) cancelAnimationFrame(animationFrameRef.current);
+        if (animationTimeoutRef.current != null) clearTimeout(animationTimeoutRef.current);
+    }, []);
 
     if (!isZipFile(fileName) || !url) return null;
 
@@ -134,11 +131,7 @@ export function ZipPreviewInline(props: ZipPreviewAttachmentProps) {
             {isContentMounted && (
                 <div className={cl("content")} aria-hidden={!isExpanded}>
                     <div className={cl("content-inner")}>
-                        <ZipPreviewContent
-                            cacheState={cacheState}
-                            currentPath={currentPath}
-                            onNavigate={setCurrentPath}
-                        />
+                        <ZipPreviewContent cacheState={cacheState} currentPath={currentPath} onNavigate={setCurrentPath} />
                     </div>
                 </div>
             )}
@@ -192,14 +185,12 @@ function ZipPreviewContent({
     );
 }
 
-function ZipPreviewBreadcrumb({ path, onNavigate }: { path: string; onNavigate: (path: string) => void }) {
+function ZipPreviewBreadcrumb({ path, onNavigate }: { path: string; onNavigate: (path: string) => void; }) {
     if (!path) {
         return (
             <div className={cl("breadcrumb")}>
                 <FolderIcon className={cl("breadcrumb-icon")} style={breadcrumbColorStyle} />
-                <span className={cl("breadcrumb-current")} style={breadcrumbColorStyle}>
-                    /
-                </span>
+                <span className={cl("breadcrumb-current")} style={breadcrumbColorStyle}>/</span>
             </div>
         );
     }
@@ -226,23 +217,21 @@ function ZipPreviewBreadcrumb({ path, onNavigate }: { path: string; onNavigate: 
 
                 return (
                     <span key={segmentPath}>
-                        {isLast ? (
-                            <span className={cl("breadcrumb-current")} style={breadcrumbColorStyle}>
-                                {part}/
-                            </span>
-                        ) : (
-                            <button
-                                className={cl("breadcrumb-segment")}
-                                type="button"
-                                onClick={event => {
-                                    event.preventDefault();
-                                    event.stopPropagation();
-                                    onNavigate(segmentPath);
-                                }}
-                            >
-                                {part}
-                            </button>
-                        )}
+                        {isLast
+                            ? <span className={cl("breadcrumb-current")} style={breadcrumbColorStyle}>{part}/</span>
+                            : (
+                                <button
+                                    className={cl("breadcrumb-segment")}
+                                    type="button"
+                                    onClick={event => {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                        onNavigate(segmentPath);
+                                    }}
+                                >
+                                    {part}
+                                </button>
+                            )}
                     </span>
                 );
             })}
@@ -250,15 +239,7 @@ function ZipPreviewBreadcrumb({ path, onNavigate }: { path: string; onNavigate: 
     );
 }
 
-function ZipPreviewFileList({
-    entries,
-    currentPath,
-    onNavigate
-}: {
-    entries: ZipEntry[];
-    currentPath: string;
-    onNavigate: (path: string) => void;
-}) {
+function ZipPreviewFileList({ entries, currentPath, onNavigate }: { entries: ZipEntry[]; currentPath: string; onNavigate: (path: string) => void; }) {
     const { directories, files } = useMemo(() => getVisibleEntries(entries, currentPath), [entries, currentPath]);
 
     if (directories.length === 0 && files.length === 0) {
@@ -288,7 +269,7 @@ function ZipPreviewFileList({
     );
 }
 
-function ZipPreviewFileRow({ entry }: { entry: ZipEntry }) {
+function ZipPreviewFileRow({ entry }: { entry: ZipEntry; }) {
     const previewable = entry.kind !== "unsupported";
 
     if (!previewable) {
@@ -375,7 +356,7 @@ function openImageEntryModal(entry: ZipEntry) {
     ));
 }
 
-function ZipImagePreview({ entry }: { entry: ZipEntry }) {
+function ZipImagePreview({ entry }: { entry: ZipEntry; }) {
     const [url] = useState(() => createImageObjectUrl(entry));
 
     useEffect(() => {

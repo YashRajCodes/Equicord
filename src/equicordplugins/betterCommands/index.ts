@@ -14,12 +14,12 @@ const settings = definePluginSettings({
     autoFillArguments: {
         description: "Automatically fill command with all arguments instead of just required ones.",
         type: OptionType.BOOLEAN,
-        default: true
+        default: true,
     },
     allowNewlinesInCommands: {
         description: "Allow newlines in command inputs (CTRL + Shift + Enter)",
         type: OptionType.BOOLEAN,
-        default: true
+        default: true,
     }
 });
 
@@ -45,7 +45,7 @@ export default definePlugin({
                 {
                     match: /\(\i\.required.{0,20}\]\)/,
                     replace: "true"
-                }
+                },
             ]
         },
         {
@@ -77,7 +77,7 @@ export default definePlugin({
                 {
                     name: "user",
                     description: "specific user to try and refresh",
-                    type: ApplicationCommandOptionType.USER
+                    type: ApplicationCommandOptionType.USER,
                 }
             ],
             inputType: ApplicationCommandInputType.BOT,
@@ -88,7 +88,7 @@ export default definePlugin({
                     const user = findOption(opts, "user") as string;
 
                     sendBotMessage(ctx.channel.id, {
-                        content: "Refreshing application commands..."
+                        content: "Refreshing application commands...",
                     });
 
                     fetchIndex({ type: "channel", channelId });
@@ -97,19 +97,23 @@ export default definePlugin({
 
                     if (user) {
                         const target = await UserStore.getUser(user);
-                        fetchIndex(target.bot ? { type: "application", applicationId: target.id } : { type: "user" });
+                        fetchIndex(
+                            target.bot
+                                ? { type: "application", applicationId: target.id }
+                                : { type: "user" }
+                        );
                     }
 
                     sendBotMessage(ctx.channel.id, {
-                        content: "Commands refreshed successfully!"
+                        content: "Commands refreshed successfully!",
                     });
                 } catch (err) {
                     console.error("[Refresh Command] Error refreshing commands:", err);
                     sendBotMessage(ctx.channel.id, {
-                        content: "Failed to refresh commands. Check the console for details."
+                        content: "Failed to refresh commands. Check the console for details.",
                     });
                 }
-            }
-        }
+            },
+        },
     ]
 });

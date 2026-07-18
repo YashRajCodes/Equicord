@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { classes } from "@utils/misc";
 import { Channel, RenderModalProps } from "@vencord/discord-types";
 import { findStoreLazy } from "@webpack";
-
-import { classes } from "@utils/misc";
 import { Modal, openModal, React, ScrollerThin } from "@webpack/common";
 
 import { clearLogs, getVcLogs, vcLogSubscribe } from "../logs";
@@ -17,10 +16,12 @@ import { VoiceChannelLogEntryComponent } from "./VoiceChannelLogEntryComponent";
 const AccessibilityStore = findStoreLazy("AccessibilityStore");
 
 export function openVoiceChannelLog(channel: Channel) {
-    return openModal(props => <VoiceChannelLogModal props={props} channel={channel} />);
+    return openModal(props => (
+        <VoiceChannelLogModal props={props} channel={channel} />
+    ));
 }
 
-export function VoiceChannelLogModal({ channel, props }: { channel: Channel; props: RenderModalProps }) {
+export function VoiceChannelLogModal({ channel, props }: { channel: Channel; props: RenderModalProps; }) {
     const logs = React.useSyncExternalStore(vcLogSubscribe, () => getVcLogs(channel.id));
 
     return (
@@ -36,34 +37,24 @@ export function VoiceChannelLogModal({ channel, props }: { channel: Channel; pro
                 }
             ]}
         >
-            <ScrollerThin
-                fade
-                className={classes(cl("scroller"), `group-spacing-${AccessibilityStore.messageGroupSpacing}`)}
-            >
-                {logs.length > 0 ? (
-                    logs.map((entry, i) => {
-                        const elements: React.ReactNode[] = [];
+            <ScrollerThin fade className={classes(cl("scroller"), `group-spacing-${AccessibilityStore.messageGroupSpacing}`)}>
+                {logs.length > 0 ? logs.map((entry, i) => {
+                    const elements: React.ReactNode[] = [];
 
-                        if (i === 0 || entry.timestamp.toDateString() !== logs[i - 1].timestamp.toDateString()) {
-                            elements.push(
-                                <div
-                                    key={`sep-${i}`}
-                                    className={cl("date-separator")}
-                                    role="separator"
-                                    aria-label={entry.timestamp.toDateString()}
-                                >
-                                    <span>{entry.timestamp.toDateString()}</span>
-                                </div>
-                            );
-                        }
-
+                    if (i === 0 || entry.timestamp.toDateString() !== logs[i - 1].timestamp.toDateString()) {
                         elements.push(
-                            <VoiceChannelLogEntryComponent key={`entry-${i}`} logEntry={entry} channel={channel} />
+                            <div key={`sep-${i}`} className={cl("date-separator")} role="separator" aria-label={entry.timestamp.toDateString()}>
+                                <span>{entry.timestamp.toDateString()}</span>
+                            </div>
                         );
+                    }
 
-                        return elements;
-                    })
-                ) : (
+                    elements.push(
+                        <VoiceChannelLogEntryComponent key={`entry-${i}`} logEntry={entry} channel={channel} />
+                    );
+
+                    return elements;
+                }) : (
                     <div className={cl("empty")}>No logs to display.</div>
                 )}
             </ScrollerThin>

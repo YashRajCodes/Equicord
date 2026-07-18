@@ -55,8 +55,8 @@ const defaultIndicators = new Map(
         nbr: "Not Being Rude",
         ot: "Off-Topic",
         nj: "Not Joking",
-        naj: "Not A Joke"
-    })
+        naj: "Not A Joke",
+    }),
 );
 
 export default defaultIndicators;

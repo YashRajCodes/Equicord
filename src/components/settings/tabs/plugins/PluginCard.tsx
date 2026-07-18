@@ -4,17 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { PluginMeta } from "~plugins";
-
 import { showNotice } from "@api/Notices";
-import {
-    hasAnyVisibleSettings,
-    isPluginEnabled,
-    pluginRequiresRestart,
-    startDependenciesRecursive,
-    startPlugin,
-    stopPlugin
-} from "@api/PluginManager";
+import { hasAnyVisibleSettings, isPluginEnabled, pluginRequiresRestart, startDependenciesRecursive, startPlugin, stopPlugin } from "@api/PluginManager";
 import { Settings } from "@api/Settings";
 import { CogWheel, InfoIcon } from "@components/Icons";
 import { AddonCard } from "@components/settings/AddonCard";
@@ -22,6 +13,8 @@ import { classNameFactory } from "@utils/css";
 import { Logger } from "@utils/Logger";
 import { Plugin } from "@utils/types";
 import { React, showToast, Toasts } from "@webpack/common";
+
+import { PluginMeta } from "~plugins";
 
 import { openPluginModal } from "./PluginModal";
 
@@ -87,7 +80,7 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
 
             const msg = `Error while ${wasEnabled ? "stopping" : "starting"} plugin ${plugin.name}`;
             showToast(msg, Toasts.Type.FAILURE, {
-                position: Toasts.Position.BOTTOM
+                position: Toasts.Position.BOTTOM,
             });
 
             return;
@@ -126,7 +119,11 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
     const pluginDetails = pluginInfo.find(p => p.condition);
 
     const sourceBadge = pluginDetails ? (
-        <img src={pluginDetails.src} alt={pluginDetails.alt} className={cl("source")} />
+        <img
+            src={pluginDetails.src}
+            alt={pluginDetails.alt}
+            className={cl("source")}
+        />
     ) : null;
 
     const tooltip = pluginDetails?.title || "Unknown Plugin";
@@ -149,13 +146,11 @@ export function PluginCard({ plugin, disabled, onRestartNeeded, onMouseEnter, on
                     onClick={() => openPluginModal(plugin, onRestartNeeded)}
                     className={cl("info-button")}
                 >
-                    {hasAnyVisibleSettings(plugin) ? (
-                        <CogWheel className={cl("info-icon")} />
-                    ) : (
-                        <InfoIcon className={cl("info-icon")} />
-                    )}
+                    {hasAnyVisibleSettings(plugin)
+                        ? <CogWheel className={cl("info-icon")} />
+                        : <InfoIcon className={cl("info-icon")} />
+                    }
                 </button>
-            }
-        />
+            } />
     );
 }

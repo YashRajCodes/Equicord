@@ -33,7 +33,7 @@ function SettingsComponent() {
                 style={{
                     display: "flex",
                     flexWrap: "wrap",
-                    gap: "16px"
+                    gap: "16px",
                 }}
             >
                 {tags.map(t => (
@@ -42,13 +42,16 @@ function SettingsComponent() {
                         style={{
                             padding: "1em 1em 0",
                             width: "calc(33.333% - 11px)",
-                            boxSizing: "border-box"
+                            boxSizing: "border-box",
                         }}
                     >
                         <Forms.FormTitle style={{ width: "fit-content" }}>
                             <Tooltip text={t.description}>
                                 {({ onMouseEnter, onMouseLeave }) => (
-                                    <div onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+                                    <div
+                                        onMouseEnter={onMouseEnter}
+                                        onMouseLeave={onMouseLeave}
+                                    >
                                         {t.displayName} Tag
                                     </div>
                                 )}
@@ -56,7 +59,9 @@ function SettingsComponent() {
                         </Forms.FormTitle>
 
                         <div style={{ marginBottom: "10px" }}>
-                            <Paragraph style={{ fontSize: "13px" }}>Example:</Paragraph>
+                            <Paragraph style={{ fontSize: "13px" }}>
+                                Example:
+                            </Paragraph>
                             <Tag type={localTags[t.name]} />
                         </div>
 
@@ -64,21 +69,21 @@ function SettingsComponent() {
                             type="text"
                             value={tagSettings[t.name]?.text ?? t.displayName}
                             placeholder={`Text on tag (default: ${t.displayName})`}
-                            onChange={v => (tagSettings[t.name].text = v)}
+                            onChange={v => tagSettings[t.name].text = v}
                             className={Margins.bottom16}
                         />
 
                         <FormSwitch
                             title="Show in messages"
                             value={tagSettings[t.name]?.showInChat ?? true}
-                            onChange={v => (tagSettings[t.name].showInChat = v)}
+                            onChange={v => tagSettings[t.name].showInChat = v}
                             hideBorder
                         />
 
                         <FormSwitch
                             title="Show in member list and profiles"
                             value={tagSettings[t.name]?.showInNotChat ?? true}
-                            onChange={v => (tagSettings[t.name].showInNotChat = v)}
+                            onChange={v => tagSettings[t.name].showInNotChat = v}
                             hideBorder
                         />
                     </Card>

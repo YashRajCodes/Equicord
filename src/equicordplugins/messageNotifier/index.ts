@@ -4,14 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { MessageJSON } from "@vencord/discord-types";
-import { MessageType } from "@vencord/discord-types/enums";
-
 import { Notifications } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import { getCurrentChannel } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
+import { MessageJSON } from "@vencord/discord-types";
+import { MessageType } from "@vencord/discord-types/enums";
 import { ChannelStore, GuildStore, NavigationRouter, RelationshipStore } from "@webpack/common";
 
 interface MessageCreatePayload {
@@ -28,10 +27,11 @@ const settings = definePluginSettings({
         isValid(value: string) {
             if (value === "") return true;
             const userIds = value.split(",").map(id => id.trim());
-            for (const id of userIds) if (!/\d+/.test(id)) return `${id} isn't a valid user id`;
+            for (const id of userIds)
+                if (!/\d+/.test(id)) return `${id} isn't a valid user id`;
             return true;
-        }
-    }
+        },
+    },
 });
 
 export default definePlugin({
@@ -47,21 +47,18 @@ export default definePlugin({
             const userIds = settings.store.users.split(",").map(id => id.trim());
             if (!userIds.includes(message.author.id)) return;
 
-            const username =
-                RelationshipStore.getNickname(message.author.id) ??
-                message.author.globalName ??
-                message.author.username;
+            const username = RelationshipStore.getNickname(message.author.id) ?? message.author.globalName ?? message.author.username;
             const guild = GuildStore.getGuild(guildId);
             const channel = ChannelStore.getChannel(channelId);
-            const locationName = guild ? `${guild.name}#${channel.name}` : (channel?.name ?? "their dms");
+            const locationName = guild ? `${guild.name}#${channel.name}` : channel?.name ?? "their dms";
 
             Notifications.showNotification({
                 title: `${username} sent a message`,
                 body: `Click to jump to ${locationName}`,
                 onClick() {
                     NavigationRouter.transitionTo(`/channels/${guild?.id ?? "@me"}/${channel.id}/${message.id}`);
-                }
+                },
             });
-        }
-    }
+        },
+    },
 });

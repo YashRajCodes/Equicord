@@ -5,8 +5,6 @@
  */
 
 import "./styles.css";
-import { Message, User } from "@vencord/discord-types";
-import { findByPropsLazy, findCssClassesLazy } from "@webpack";
 
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import * as DataStore from "@api/DataStore";
@@ -14,18 +12,9 @@ import { definePluginSettings, migratePluginSetting } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
-import {
-    Button,
-    ChannelStore,
-    Menu,
-    openModal,
-    showToast,
-    Toasts,
-    Tooltip,
-    useEffect,
-    UserStore,
-    useState
-} from "@webpack/common";
+import { Message, User } from "@vencord/discord-types";
+import { findByPropsLazy, findCssClassesLazy } from "@webpack";
+import { Button, ChannelStore, Menu, openModal, showToast, Toasts, Tooltip, useEffect, UserStore, useState } from "@webpack/common";
 
 import { deleteTimezone, getTimezone, loadDatabaseTimezones, setUserDatabaseTimezone } from "./database";
 import { SetTimezoneModal } from "./TimezoneModal";
@@ -35,7 +24,9 @@ export const DATASTORE_KEY = "vencord-timezones";
 
 export function resolveUserTimezone(userId: string): string | null {
     const localTimezone = timezones[userId];
-    const shouldUseDatabase = settings.store.useDatabase && (settings.store.preferDatabaseOverLocal || !localTimezone);
+    const shouldUseDatabase =
+        settings.store.useDatabase &&
+        (settings.store.preferDatabaseOverLocal || !localTimezone);
 
     if (shouldUseDatabase) {
         return getTimezone(userId) ?? localTimezone;
@@ -103,7 +94,7 @@ export const settings = definePluginSettings({
     showLocalTimezone: {
         type: OptionType.BOOLEAN,
         description: "Show Local Timezone instead of just local",
-        default: false
+        default: false,
     },
 
     databaseUrl: {
@@ -116,17 +107,9 @@ export const settings = definePluginSettings({
         description: "Set your timezone on the database",
         type: OptionType.COMPONENT,
         component: () => (
-            <Button
-                onClick={() => {
-                    openModal(modalProps => (
-                        <SetTimezoneModal
-                            userId={UserStore.getCurrentUser().id}
-                            modalProps={modalProps}
-                            database={true}
-                        />
-                    ));
-                }}
-            >
+            <Button onClick={() => {
+                openModal(modalProps => <SetTimezoneModal userId={UserStore.getCurrentUser().id} modalProps={modalProps} database={true} />);
+            }}>
                 Set Timezone on Database
             </Button>
         )
@@ -188,91 +171,88 @@ interface Props {
     type: "message" | "profile";
 }
 
-const TimestampComponent = ErrorBoundary.wrap(
-    ({ userId, timestamp, type }: Props) => {
-        const [currentTime, setCurrentTime] = useState(timestamp || Date.now());
-        const [timezone, setTimezone] = useState<string | null>(null);
+const TimestampComponent = ErrorBoundary.wrap(({ userId, timestamp, type }: Props) => {
+    const [currentTime, setCurrentTime] = useState(timestamp || Date.now());
+    const [timezone, setTimezone] = useState<string | null>(null);
 
-        useEffect(() => {
-            setTimezone(resolveUserTimezone(userId));
-        }, [userId, settings.store.useDatabase, settings.store.preferDatabaseOverLocal]);
+    useEffect(() => {
+        setTimezone(resolveUserTimezone(userId));
+    }, [userId, settings.store.useDatabase, settings.store.preferDatabaseOverLocal]);
 
-        useEffect(() => {
-            if (type !== "profile") return;
+    useEffect(() => {
+        if (type !== "profile") return;
 
+        setCurrentTime(Date.now());
+
+        const now = new Date();
+        const delay = (60 - now.getSeconds()) * 1000 + 1000 - now.getMilliseconds();
+        const timer = setTimeout(() => {
             setCurrentTime(Date.now());
+        }, delay);
 
-            const now = new Date();
-            const delay = (60 - now.getSeconds()) * 1000 + 1000 - now.getMilliseconds();
-            const timer = setTimeout(() => {
-                setCurrentTime(Date.now());
-            }, delay);
+        const interval = setInterval(() => {
+            setCurrentTime(Date.now());
+        }, 60000);
 
-            const interval = setInterval(() => {
-                setCurrentTime(Date.now());
-            }, 60000);
+        return () => {
+            clearTimeout(timer);
+            clearInterval(interval);
+        };
+    }, [type]);
 
-            return () => {
-                clearTimeout(timer);
-                clearInterval(interval);
-            };
-        }, [type]);
+    if (!timezone) return null;
 
-        if (!timezone) return null;
+    const shortTime = getTime(timezone, currentTime, { hour: "numeric", minute: "numeric" });
+    let displayTime = shortTime;
+    let isLocal = false;
 
-        const shortTime = getTime(timezone, currentTime, { hour: "numeric", minute: "numeric" });
-        let displayTime = shortTime;
-        let isLocal = false;
-
-        if (settings.store.showTimezoneInfo) {
-            const userTimezone = getSystemTimezone();
-            isLocal = timezone === userTimezone && !settings.store.showLocalTimezone;
-            if (isLocal) {
-                displayTime = "local";
-            } else {
-                const timezoneInfo = getTimezoneAbbreviation(timezone, currentTime);
-                const tz = timezoneInfo || timezone;
-                const hideLocalTime = isLocal && type === "message";
-                displayTime = hideLocalTime ? tz : `${shortTime} ${tz}`;
-            }
+    if (settings.store.showTimezoneInfo) {
+        const userTimezone = getSystemTimezone();
+        isLocal = timezone === userTimezone && !settings.store.showLocalTimezone;
+        if (isLocal) {
+            displayTime = "local";
+        } else {
+            const timezoneInfo = getTimezoneAbbreviation(timezone, currentTime);
+            const tz = timezoneInfo || timezone;
+            const hideLocalTime = isLocal && type === "message";
+            displayTime = hideLocalTime ? tz : `${shortTime} ${tz}`;
         }
+    }
 
-        const longTime = getTime(timezone, currentTime, {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric"
-        });
+    const longTime = getTime(timezone, currentTime, {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric"
+    });
 
-        const tooltipText = isLocal ? `${longTime} (Your local timezone)` : longTime;
+    const tooltipText = isLocal ? `${longTime} (Your local timezone)` : longTime;
 
-        return (
-            <Tooltip
-                position="top"
-                delay={750}
-                allowOverflow={false}
-                spacing={8}
-                hideOnClick={true}
-                tooltipClassName="timezone-tooltip"
-                text={tooltipText}
-            >
-                {toolTipProps => (
-                    <span
-                        {...toolTipProps}
-                        className={`${type === "message" ? `timezone-message-item ${classes.timestamp}` : "timezone-profile-item"}${isLocal ? " timezone-local-text" : ""}`}
-                    >
-                        {type === "message" ? `(${displayTime})` : displayTime}
-                    </span>
-                )}
-            </Tooltip>
-        );
-    },
-    { noop: true }
-);
+    return (
+        <Tooltip
+            position="top"
+            delay={750}
+            allowOverflow={false}
+            spacing={8}
+            hideOnClick={true}
+            tooltipClassName="timezone-tooltip"
+            text={tooltipText}
+        >
+            {toolTipProps => (
+                <span
+                    {...toolTipProps}
+                    className={`${type === "message" ? `timezone-message-item ${classes.timestamp}` : "timezone-profile-item"}${isLocal ? " timezone-local-text" : ""}`}
+                >
+                    {type === "message" ? `(${displayTime})` : displayTime}
+                </span>
+            )}
+        </Tooltip>
+    );
+}, { noop: true });
 
-const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user }: { user: User }) => {
+const userContextMenuPatch: NavContextMenuPatchCallback = (children, { user }: { user: User; }) => {
     if (user?.id == null) return;
 
     const setTimezoneItem = (
@@ -318,9 +298,7 @@ export default definePlugin({
 
     toolboxActions: {
         "Set Database Timezone": () => {
-            openModal(modalProps => (
-                <SetTimezoneModal userId={UserStore.getCurrentUser().id} modalProps={modalProps} database={true} />
-            ));
+            openModal(modalProps => <SetTimezoneModal userId={UserStore.getCurrentUser().id} modalProps={modalProps} database={true} />);
         },
         "Refresh Database Timezones": async () => {
             try {
@@ -331,7 +309,8 @@ export default definePlugin({
                 } else {
                     showToast("Timezones Failed to refresh!", Toasts.Type.FAILURE);
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 console.error("Failed to refresh timezone:", error);
                 showToast("Failed to refresh timezones.", Toasts.Type.FAILURE);
             }
@@ -339,32 +318,30 @@ export default definePlugin({
     },
 
     async start() {
-        timezones = (await DataStore.get<Record<string, string>>(DATASTORE_KEY)) || {};
+        timezones = await DataStore.get<Record<string, string>>(DATASTORE_KEY) || {};
 
         if (settings.store.useDatabase) {
             await loadDatabaseTimezones();
 
             if (!settings.store.askedTimezone) {
-                showToast("", Toasts.Type.MESSAGE, {
-                    duration: 10000,
-                    component: (
-                        <Button
-                            color={Button.Colors.GREEN}
-                            onClick={() => {
-                                openModal(modalProps => (
-                                    <SetTimezoneModal
-                                        userId={UserStore.getCurrentUser().id}
-                                        modalProps={modalProps}
-                                        database={true}
-                                    />
-                                ));
-                            }}
-                        >
-                            Want to save your timezone to the database? Click here to set it.
-                        </Button>
-                    ),
-                    position: Toasts.Position.BOTTOM
-                });
+                showToast(
+                    "",
+                    Toasts.Type.MESSAGE,
+                    {
+                        duration: 10000,
+                        component: (
+                            <Button
+                                color={Button.Colors.GREEN}
+                                onClick={() => {
+                                    openModal(modalProps => <SetTimezoneModal userId={UserStore.getCurrentUser().id} modalProps={modalProps} database={true} />);
+                                }}
+                            >
+                                Want to save your timezone to the database? Click here to set it.
+                            </Button>
+                        ),
+                        position: Toasts.Position.BOTTOM
+                    }
+                );
                 settings.store.askedTimezone = true;
             }
         }
@@ -373,14 +350,14 @@ export default definePlugin({
     settings,
     getTime,
 
-    renderProfileTimezone: (props?: { user?: User }) => {
+    renderProfileTimezone: (props?: { user?: User; }) => {
         if (!settings.store.showProfileTime || !props?.user?.id) return null;
         if (props.user.id === UserStore.getCurrentUser().id && !settings.store.showOwnTimezone) return null;
 
         return <TimestampComponent userId={props.user.id} type="profile" />;
     },
 
-    renderMessageTimezone: (props?: { message?: Message }) => {
+    renderMessageTimezone: (props?: { message?: Message; }) => {
         const { showMessageHeaderTime, recipientTimezoneInDms, showOwnTimezone } = settings.store;
         if (!showMessageHeaderTime || !props?.message) return null;
 

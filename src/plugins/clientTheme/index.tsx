@@ -5,6 +5,7 @@
  */
 
 import "./clientTheme.css";
+
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType, StartAt } from "@utils/types";

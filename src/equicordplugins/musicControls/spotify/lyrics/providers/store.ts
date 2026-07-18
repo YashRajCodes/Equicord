@@ -4,12 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { proxyLazyWebpack } from "@webpack";
-
 import { showNotification } from "@api/Notifications";
 import { settings } from "@equicordplugins/musicControls/settings";
 import { getLyrics, lyricFetchers, providers, updateLyrics } from "@equicordplugins/musicControls/spotify/lyrics/api";
 import { SpotifyStore, type Track } from "@equicordplugins/musicControls/spotify/SpotifyStore";
+import { proxyLazyWebpack } from "@webpack";
 import { Flux, FluxDispatcher } from "@webpack/common";
 
 import { lyricsAlternativeFetchers } from "./translator";
@@ -33,14 +32,14 @@ export const SpotifyLrcStore = proxyLazyWebpack(() => {
     let fetchingsTracks: string[] = [];
 
     class SpotifyLrcStore extends Flux.Store {
-        init() {}
+        init() { }
         get lyricsInfo() {
             return lyricsInfo;
         }
     }
 
     const store = new SpotifyLrcStore(FluxDispatcher, {
-        async SPOTIFY_PLAYER_STATE(e: { track: Track | null }) {
+        async SPOTIFY_PLAYER_STATE(e: { track: Track | null; }) {
             if (fetchingsTracks.includes(e.track?.id ?? "")) return;
 
             fetchingsTracks.push(e.track?.id ?? "");
@@ -59,7 +58,7 @@ export const SpotifyLrcStore = proxyLazyWebpack(() => {
         },
 
         // @ts-ignore
-        async SPOTIFY_LYRICS_PROVIDER_CHANGE(e: { provider: Provider }) {
+        async SPOTIFY_LYRICS_PROVIDER_CHANGE(e: { provider: Provider; }) {
             const { track } = SpotifyStore;
             if (!track) return;
             const currentInfo = await getLyrics(track);
@@ -75,15 +74,11 @@ export const SpotifyLrcStore = proxyLazyWebpack(() => {
             }
 
             if (provider === Provider.Translated || provider === Provider.Romanized) {
-                const originalLyrics =
-                    currentInfo?.lyricsVersions[settings.store.lyricsProvider] ||
+                const originalLyrics = currentInfo?.lyricsVersions[settings.store.lyricsProvider] ||
                     providers.map(p => currentInfo?.lyricsVersions[p]).find(Boolean);
 
                 if (!originalLyrics || !currentInfo) {
-                    showNotif(
-                        "No lyrics",
-                        `No lyrics to ${provider === Provider.Translated ? "translate" : "romanize"}`
-                    );
+                    showNotif("No lyrics", `No lyrics to ${provider === Provider.Translated ? "translate" : "romanize"}`);
                     return;
                 }
 
@@ -94,8 +89,8 @@ export const SpotifyLrcStore = proxyLazyWebpack(() => {
                         ...currentInfo,
                         useLyric: settings.store.lyricsProvider,
                         lyricsVersions: {
-                            ...currentInfo.lyricsVersions
-                        }
+                            ...currentInfo.lyricsVersions,
+                        },
                     };
                     store.emitChange();
                     return;
@@ -104,10 +99,7 @@ export const SpotifyLrcStore = proxyLazyWebpack(() => {
                 const fetchResult = await lyricsAlternativeFetchers[provider](originalLyrics);
 
                 if (!fetchResult) {
-                    showNotif(
-                        "Lyrics fetch failed",
-                        `Failed to fetch ${provider === Provider.Translated ? "translation" : "romanization"}`
-                    );
+                    showNotif("Lyrics fetch failed", `Failed to fetch ${provider === Provider.Translated ? "translation" : "romanization"}`);
                     return;
                 }
 

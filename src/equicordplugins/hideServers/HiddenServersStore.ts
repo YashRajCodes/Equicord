@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import * as DataStore from "@api/DataStore";
 import { Guild } from "@vencord/discord-types";
 import { findStoreLazy, proxyLazyWebpack } from "@webpack";
-
-import * as DataStore from "@api/DataStore";
 import { Flux, FluxDispatcher, GuildStore } from "@webpack/common";
 
 export const HiddenServersStore = proxyLazyWebpack(() => {
@@ -18,9 +17,7 @@ export const HiddenServersStore = proxyLazyWebpack(() => {
     class HiddenServersStore extends Store {
         public _hiddenGuilds: Set<string> = new Set();
 
-        public get hiddenGuilds() {
-            return this._hiddenGuilds;
-        }
+        public get hiddenGuilds() { return this._hiddenGuilds; }
 
         public async load() {
             const data = await DataStore.get(DB_KEY);

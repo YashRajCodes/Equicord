@@ -14,18 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import type * as t from "@vencord/discord-types";
-import {
-    _resolveReady,
-    filters,
-    findByCodeLazy,
-    findByPropsLazy,
-    findLazy,
-    mapMangledModuleLazy,
-    waitFor
-} from "@webpack";
+import { _resolveReady, filters, findByCodeLazy, findByPropsLazy, findLazy, mapMangledModuleLazy, waitFor } from "@webpack";
 import type * as TSPattern from "ts-pattern";
 
 export let FluxDispatcher: t.FluxDispatcher;
@@ -43,7 +35,7 @@ waitFor(["dispatch", "subscribe"], m => {
 });
 
 export let ComponentDispatch: any;
-waitFor(["dispatchToLastSubscribed"], m => (ComponentDispatch = m));
+waitFor(["dispatchToLastSubscribed"], m => ComponentDispatch = m);
 
 export const Constants: t.Constants = mapMangledModuleLazy('ME:"/users/@me"', {
     Endpoints: filters.byProps("USER", "ME"),
@@ -58,32 +50,25 @@ export const useDrag = findByCodeLazy("useDrag::spec.begin was deprecated");
 // you cant make a better finder i love that they remove display names sm
 export const useDrop = findByCodeLazy(".disconnectDropTarget()", ".dropTargetOptions=");
 
-export const { match, P }: { match: (typeof TSPattern)["match"]; P: (typeof TSPattern)["P"] } = mapMangledModuleLazy(
-    "@ts-pattern/matcher",
-    {
-        match: filters.byCode("return new"),
-        P: filters.byProps("when")
-    }
-);
+export const { match, P }: { match: typeof TSPattern["match"], P: typeof TSPattern["P"]; } = mapMangledModuleLazy("@ts-pattern/matcher", {
+    match: filters.byCode("return new"),
+    P: filters.byProps("when")
+});
 
 export const lodash: typeof import("lodash") = findByPropsLazy("debounce", "cloneDeep");
 
-export const i18n = mapMangledModuleLazy(
-    ['defaultLocale:"en-US"', /initialLocale:\i/],
-    {
-        t: m => m?.[Symbol.toStringTag] === "IntlMessagesProxy",
-        intl: m => m != null && Object.getPrototypeOf(m)?.withFormatters != null
-    },
-    true
-);
+export const i18n = mapMangledModuleLazy(['defaultLocale:"en-US"', /initialLocale:\i/], {
+    t: m => m?.[Symbol.toStringTag] === "IntlMessagesProxy",
+    intl: m => m != null && Object.getPrototypeOf(m)?.withFormatters != null
+}, true);
 
 export let SnowflakeUtils: t.SnowflakeUtils;
-waitFor(["fromTimestamp", "extractTimestamp"], m => (SnowflakeUtils = m));
+waitFor(["fromTimestamp", "extractTimestamp"], m => SnowflakeUtils = m);
 
 export let Parser: t.Parser;
-waitFor("parseTopic", m => (Parser = m));
+waitFor("parseTopic", m => Parser = m);
 export let Alerts: t.Alerts;
-waitFor(["show", "close"], m => (Alerts = m));
+waitFor(["show", "close"], m => Alerts = m);
 
 const ToastType = {
     MESSAGE: "message",
@@ -103,12 +88,12 @@ const ToastPosition = {
 };
 
 export interface ToastData {
-    message: string;
-    id: string;
+    message: string,
+    id: string,
     /**
      * Toasts.Type
      */
-    type: string;
+    type: string,
     options?: ToastOptions;
 }
 
@@ -117,7 +102,7 @@ export interface ToastOptions {
      * Toasts.Position
      */
     position?: number;
-    component?: React.ReactNode;
+    component?: React.ReactNode,
     duration?: number;
 }
 
@@ -147,7 +132,7 @@ export const Toasts = {
 
     show: ToastsExports.showToast,
     pop: ToastsExports.popToast,
-    create: createToast
+    create: createToast,
 };
 
 /**
@@ -163,11 +148,7 @@ export const UserUtils = {
 
 export const UploadManager = findByPropsLazy("clearAll", "addFile");
 export const UploadHandler = {
-    promptToUpload: findByCodeLazy("Unexpected mismatch between files and file metadata") as (
-        files: File[],
-        channel: t.Channel,
-        draftType: Number
-    ) => Promise<void>
+    promptToUpload: findByCodeLazy("Unexpected mismatch between files and file metadata") as (files: File[], channel: t.Channel, draftType: Number) => Promise<void>
 };
 
 export const ApplicationAssetUtils = mapMangledModuleLazy("getAssetImage: size must === [", {
@@ -181,7 +162,7 @@ export const NavigationRouter: t.NavigationRouter = mapMangledModuleLazy("transi
     transitionTo: filters.byCode("transitionTo -"),
     transitionToGuild: filters.byCode("transitionToGuild -"),
     back: filters.byCode("goBack()"),
-    forward: filters.byCode("goForward()")
+    forward: filters.byCode("goForward()"),
 });
 export const ChannelRouter: t.ChannelRouter = mapMangledModuleLazy('"Thread must have a parent ID."', {
     transitionToChannel: filters.byCode(".preload"),
@@ -189,7 +170,7 @@ export const ChannelRouter: t.ChannelRouter = mapMangledModuleLazy('"Thread must
 });
 
 export let SettingsRouter: any;
-waitFor(["openUserSettings", "USER_SETTINGS_MODAL_KEY"], m => (SettingsRouter = m));
+waitFor(["openUserSettings", "USER_SETTINGS_MODAL_KEY"], m => SettingsRouter = m);
 
 export const PermissionsBits: t.PermissionsBits = findLazy(m => typeof m.ADMINISTRATOR === "bigint");
 
@@ -223,7 +204,7 @@ export const ColorUtils = mapMangledModuleLazy("Invalid hex color format", {
     mixColors: filters.byCode(".substring(1,3),16)"),
     hexWithAlpha: filters.byCode("Invalid hex color format"),
     getDominantColor: filters.byCode("hex:", "hsv:"),
-    generatePalette: filters.byCode("360/(")
+    generatePalette: filters.byCode("360/("),
 });
 
 export const ImageUtils = mapMangledModuleLazy("Input data is not a valid image.", {
@@ -234,40 +215,34 @@ export const ImageUtils = mapMangledModuleLazy("Input data is not a valid image.
     fitDimensions: filters.byCode("minWidth:", "minHeight:"),
     loadImage: filters.byCode('addEventListener("load"'),
     isAnimatedPNG: filters.byCode("File is not a PNG"),
-    base64Size: filters.byCode("Input data is not a valid image.")
+    base64Size: filters.byCode("Input data is not a valid image."),
 });
 
 export const ReadStateUtils = mapMangledModuleLazy('type:"ENABLE_AUTOMATIC_ACK",', {
     ackChannel: filters.byCode(".isForumLikeChannel(")
 });
 
-export const ExpressionPickerStore: t.ExpressionPickerStore = mapMangledModuleLazy(
-    "expression-picker-last-active-view",
-    {
-        openExpressionPicker: filters.byCode(/setState\({activeView:(?:(?!null)\i),activeViewType:/),
-        closeExpressionPicker: filters.byCode("setState({activeView:null"),
-        toggleMultiExpressionPicker: filters.byCode(".EMOJI,"),
-        toggleExpressionPicker: filters.byCode(/\i\.activeView===\i&&\i\.activeViewType===\i&&/),
-        setExpressionPickerView: filters.byCode(/setState\({activeView:\i,lastActiveView:/),
-        setSearchQuery: filters.byCode("searchQuery:"),
-        useExpressionPickerStore: filters.byCode(/\(\i,\i=\i\)=>/)
-    }
-);
+export const ExpressionPickerStore: t.ExpressionPickerStore = mapMangledModuleLazy("expression-picker-last-active-view", {
+    openExpressionPicker: filters.byCode(/setState\({activeView:(?:(?!null)\i),activeViewType:/),
+    closeExpressionPicker: filters.byCode("setState({activeView:null"),
+    toggleMultiExpressionPicker: filters.byCode(".EMOJI,"),
+    toggleExpressionPicker: filters.byCode(/\i\.activeView===\i&&\i\.activeViewType===\i&&/),
+    setExpressionPickerView: filters.byCode(/setState\({activeView:\i,lastActiveView:/),
+    setSearchQuery: filters.byCode("searchQuery:"),
+    useExpressionPickerStore: filters.byCode(/\(\i,\i=\i\)=>/)
+});
 
 export const PopoutActions: t.PopoutActions = mapMangledModuleLazy('type:"POPOUT_WINDOW_OPEN"', {
     open: filters.byCode('type:"POPOUT_WINDOW_OPEN"'),
     close: filters.byCode('type:"POPOUT_WINDOW_CLOSE"'),
-    setAlwaysOnTop: filters.byCode('type:"POPOUT_WINDOW_SET_ALWAYS_ON_TOP"')
+    setAlwaysOnTop: filters.byCode('type:"POPOUT_WINDOW_SET_ALWAYS_ON_TOP"'),
 });
 
 export const UsernameUtils: t.UsernameUtils = findByPropsLazy("useName", "getGlobalName");
-export const DisplayProfileUtils: t.DisplayProfileUtils = mapMangledModuleLazy(
-    /=\i\.getUserProfile\(\i\),\i=\i\.getGuildMemberProfile\(/,
-    {
-        getDisplayProfile: filters.byCode(".getGuildMemberProfile("),
-        useDisplayProfile: filters.byCode(/\[\i\.\i,\i\.\i],\(\)=>/)
-    }
-);
+export const DisplayProfileUtils: t.DisplayProfileUtils = mapMangledModuleLazy(/=\i\.getUserProfile\(\i\),\i=\i\.getGuildMemberProfile\(/, {
+    getDisplayProfile: filters.byCode(".getGuildMemberProfile("),
+    useDisplayProfile: filters.byCode(/\[\i\.\i,\i\.\i],\(\)=>/)
+});
 
 export const DateUtils: t.DateUtils = mapMangledModuleLazy("millisecondsInUnit:", {
     calendarFormat: filters.byCode('<-1?"sameElse":'),

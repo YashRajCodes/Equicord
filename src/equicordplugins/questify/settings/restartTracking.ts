@@ -29,9 +29,7 @@ export function initializeRestartTracking(settings: RestartTrackingSettings): vo
     didAttachRestartListeners = true;
 
     for (const path of getRestartSettingPaths(settings)) {
-        const markRestartDirty = () => {
-            restartDirty = true;
-        };
+        const markRestartDirty = () => { restartDirty = true; };
 
         SettingsStore.addChangeListener(path, markRestartDirty);
         restartListenerCleanups.push(() => SettingsStore.removeChangeListener(path, markRestartDirty));
@@ -64,7 +62,7 @@ export function promptToRestartIfDirty(): boolean {
         body: "A change you've made to Questify's settings requires a restart.",
         confirmText: "Restart",
         cancelText: "Later",
-        onConfirm: () => location.reload()
+        onConfirm: () => location.reload(),
     });
 
     return true;

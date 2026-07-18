@@ -9,59 +9,49 @@ import type { JSX } from "react";
 import { getQuestifySettings, useQuestifySettings } from "../settings/access";
 import { defaultQuestOrder, type QuestOrderStatus, type QuestSubsort } from "../settings/def";
 import { rerenderQuests } from "../settings/rerender";
-import {
-    type ManaSelectOption,
-    SettingsCard,
-    SettingsDescription,
-    SettingsHeader,
-    SettingsRow,
-    SettingsRowItem,
-    SettingsSelect,
-    SettingsSubheader,
-    SettingsSubtleSwitch
-} from "./shared";
+import { type ManaSelectOption, SettingsCard, SettingsDescription, SettingsHeader, SettingsRow, SettingsRowItem, SettingsSelect, SettingsSubheader, SettingsSubtleSwitch } from "./shared";
 
 const questStatusOptions = [
     { label: "Unclaimed", value: "UNCLAIMED" },
     { label: "Claimed", value: "CLAIMED" },
     { label: "Ignored", value: "IGNORED" },
-    { label: "Expired", value: "EXPIRED" }
-] as const satisfies readonly { label: string; value: QuestOrderStatus }[];
+    { label: "Expired", value: "EXPIRED" },
+] as const satisfies readonly { label: string, value: QuestOrderStatus; }[];
 
 const questStatusManaOptions: ManaSelectOption[] = questStatusOptions.map(({ label, value }) => ({
     id: value,
     label,
-    value
+    value,
 }));
 
 const baseSubsortOptions = [
     { label: "Added (Newest)", value: "Recent DESC" },
-    { label: "Added (Oldest)", value: "Recent ASC" }
-] as const satisfies readonly { label: string; value: QuestSubsort }[];
+    { label: "Added (Oldest)", value: "Recent ASC" },
+] as const satisfies readonly { label: string, value: QuestSubsort; }[];
 
 const expiringSubsortOptions = [
     ...baseSubsortOptions,
     { label: "Expiring (Soonest)", value: "Expiring ASC" },
-    { label: "Expiring (Latest)", value: "Expiring DESC" }
-] as const satisfies readonly { label: string; value: QuestSubsort }[];
+    { label: "Expiring (Latest)", value: "Expiring DESC" },
+] as const satisfies readonly { label: string, value: QuestSubsort; }[];
 
 const expiredSubsortOptions = [
     ...baseSubsortOptions,
     { label: "Expired (Most Recent)", value: "Expiring DESC" },
-    { label: "Expired (Least Recent)", value: "Expiring ASC" }
-] as const satisfies readonly { label: string; value: QuestSubsort }[];
+    { label: "Expired (Least Recent)", value: "Expiring ASC" },
+] as const satisfies readonly { label: string, value: QuestSubsort; }[];
 
 const claimedSubsortOptions = [
     ...baseSubsortOptions,
     { label: "Claimed (Most Recent)", value: "Claimed DESC" },
-    { label: "Claimed (Least Recent)", value: "Claimed ASC" }
-] as const satisfies readonly { label: string; value: QuestSubsort }[];
+    { label: "Claimed (Least Recent)", value: "Claimed ASC" },
+] as const satisfies readonly { label: string, value: QuestSubsort; }[];
 
-function toManaOptions(options: readonly { label: string; value: QuestSubsort }[]): ManaSelectOption[] {
+function toManaOptions(options: readonly { label: string, value: QuestSubsort; }[]): ManaSelectOption[] {
     return options.map(({ label, value }) => ({
         id: value,
         label,
-        value
+        value,
     }));
 }
 
@@ -71,12 +61,10 @@ const ignoredSubsortManaOptions = toManaOptions(expiringSubsortOptions);
 const expiredSubsortManaOptions = toManaOptions(expiredSubsortOptions);
 const positionLabels = ["First", "Second", "Third", "Fourth"] as const;
 const subsortTooltips = {
-    unclaimedSubsort:
-        "Completed but unclaimed Quests stay below incomplete unclaimed Quests, then this subsort is applied within those groups.",
+    unclaimedSubsort: "Completed but unclaimed Quests stay below incomplete unclaimed Quests, then this subsort is applied within those groups.",
     claimedSubsort: "Claimed Quests can be sorted by claim time or by when the Quest was added.",
-    ignoredSubsort:
-        "Ignored Quests still keep their ignored group position, then this subsort controls their order inside that group.",
-    expiredSubsort: "Expired Quests can be sorted by expiration time or by when the Quest was added."
+    ignoredSubsort: "Ignored Quests still keep their ignored group position, then this subsort controls their order inside that group.",
+    expiredSubsort: "Expired Quests can be sorted by expiration time or by when the Quest was added.",
 } as const;
 
 function sanitizeQuestOrder(order: unknown): QuestOrderStatus[] {
@@ -103,7 +91,7 @@ export function ReorderQuestsSetting(): JSX.Element {
         "ignoredSubsort",
         "expiredSubsort",
         "rememberQuestPageSort",
-        "rememberQuestPageFilters"
+        "rememberQuestPageFilters",
     ]);
 
     const disabled = reorderQuests.disableQuestsEverything;
@@ -126,10 +114,7 @@ export function ReorderQuestsSetting(): JSX.Element {
         rerenderQuests();
     }
 
-    function updateSubsort(
-        key: "unclaimedSubsort" | "claimedSubsort" | "ignoredSubsort" | "expiredSubsort",
-        value: string | string[] | null
-    ): void {
+    function updateSubsort(key: "unclaimedSubsort" | "claimedSubsort" | "ignoredSubsort" | "expiredSubsort", value: string | string[] | null): void {
         if (typeof value !== "string") return;
 
         getQuestifySettings()[key] = value;
@@ -143,10 +128,7 @@ export function ReorderQuestsSetting(): JSX.Element {
     return (
         <SettingsCard>
             <SettingsHeader> Reorder Quests </SettingsHeader>
-            <SettingsDescription>
-                {" "}
-                Sort Quests by their status when the Questify sort option is selected on the Quests page.{" "}
-            </SettingsDescription>
+            <SettingsDescription> Sort Quests by their status when the Questify sort option is selected on the Quests page. </SettingsDescription>
             <SettingsSubheader> Status Order </SettingsSubheader>
             <SettingsRow>
                 {questOrder.map((status, index) => (

@@ -5,11 +5,11 @@
  */
 
 import "./style.css";
-import { RenderModalProps } from "@vencord/discord-types";
 
 import { ButtonAction } from "@equicordplugins/keyboardNavigation/commands";
 import { classNameFactory } from "@utils/css";
-import { closeAllModals, Modal, openModal, React, TextInput, useEffect, useState } from "@webpack/common";
+import { RenderModalProps } from "@vencord/discord-types";
+import { closeAllModals, Modal,openModal, React, TextInput, useEffect, useState } from "@webpack/common";
 
 import { settings } from "..";
 
@@ -29,7 +29,9 @@ export function MultipleChoice({ modalProps, onSelect, choices }: MultipleChoice
 
     const sortedActions = choices.slice().sort((a, b) => a.label.localeCompare(b.label));
 
-    const filteredActions = sortedActions.filter(action => action.label.toLowerCase().includes(queryEh.toLowerCase()));
+    const filteredActions = sortedActions.filter(
+        action => action.label.toLowerCase().includes(queryEh.toLowerCase())
+    );
 
     const visibleActions = filteredActions.slice(startIndex, startIndex + 20);
 
@@ -102,12 +104,7 @@ export function MultipleChoice({ modalProps, onSelect, choices }: MultipleChoice
                 <TextInput
                     value={queryEh}
                     onChange={e => setQuery(e)}
-                    style={{
-                        width: "100%",
-                        borderBottomLeftRadius: "0",
-                        borderBottomRightRadius: "0",
-                        paddingLeft: "0.9rem"
-                    }}
+                    style={{ width: "100%", borderBottomLeftRadius: "0", borderBottomRightRadius: "0", paddingLeft: "0.9rem" }}
                     placeholder="Search the Command Palette"
                 />
                 <div className={cl("option-container")}>
@@ -115,12 +112,8 @@ export function MultipleChoice({ modalProps, onSelect, choices }: MultipleChoice
                         <button
                             key={action.id}
                             className={cl("option", { "key-hover": index === focusedIndex })}
-                            onClick={() => {
-                                if (allowMouse) handleButtonClick(action.id, index);
-                            }}
-                            onMouseMove={() => {
-                                if (allowMouse) setFocusedIndex(index);
-                            }}
+                            onClick={() => { if (allowMouse) handleButtonClick(action.id, index); }}
+                            onMouseMove={() => { if (allowMouse) setFocusedIndex(index); }}
                             style={allowMouse ? { cursor: "pointer" } : { cursor: "default" }}
                         >
                             {action.label}

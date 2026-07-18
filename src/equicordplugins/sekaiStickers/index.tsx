@@ -23,10 +23,7 @@ const settings = definePluginSettings({
 
 const SekaiStickerChatButton: ChatBarButtonFactory = () => {
     return (
-        <ChatBarButton
-            onClick={() => openModal(props => <SekaiStickersModal modalProps={props} settings={settings} />)}
-            tooltip="Sekai Stickers"
-        >
+        <ChatBarButton onClick={() => openModal(props => <SekaiStickersModal modalProps={props} settings={settings} />)} tooltip="Sekai Stickers">
             {kanadeSvg()}
         </ChatBarButton>
     );
@@ -45,28 +42,15 @@ export default definePlugin({
         render: SekaiStickerChatButton
     },
     async start() {
-        const fonts = [
-            {
-                name: "YurukaStd",
-                url: "https://raw.githubusercontent.com/TheOriginalAyaka/sekai-stickers/47a2ca33b8cb35f59800e8faad48980e4ce5ea71/src/fonts/YurukaStd.woff2"
-            },
-            {
-                name: "SSFangTangTi",
-                url: "https://raw.githubusercontent.com/TheOriginalAyaka/sekai-stickers/main/src/fonts/ShangShouFangTangTi.woff2"
-            }
-        ];
+        const fonts = [{ name: "YurukaStd", url: "https://raw.githubusercontent.com/TheOriginalAyaka/sekai-stickers/47a2ca33b8cb35f59800e8faad48980e4ce5ea71/src/fonts/YurukaStd.woff2" }, { name: "SSFangTangTi", url: "https://raw.githubusercontent.com/TheOriginalAyaka/sekai-stickers/main/src/fonts/ShangShouFangTangTi.woff2" }];
         if (!IS_FONTS_LOADED) {
             fonts.map(n => {
                 new FontFace(n.name, `url(${n.url})`).load().then(
-                    font => {
-                        document.fonts.add(font);
-                    },
-                    err => {
-                        console.log(err);
-                    }
+                    font => { document.fonts.add(font); },
+                    err => { console.log(err); }
                 );
             });
             IS_FONTS_LOADED = true;
         }
-    }
+    },
 });

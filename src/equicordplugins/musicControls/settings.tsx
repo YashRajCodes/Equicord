@@ -13,15 +13,14 @@ import { SettingsSection } from "@components/settings/tabs/plugins/components/Co
 import { makeRange, OptionType } from "@utils/types";
 import { MaskedLink, Select, showToast, TextInput, Toasts } from "@webpack/common";
 
+import hoverOnlyStyle from "./hoverOnly.css?managed";
 import { clearLyricsCache, removeTranslations } from "./spotify/lyrics/api";
 import languages from "./spotify/lyrics/providers/translator/languages";
 import { Provider } from "./spotify/lyrics/providers/types";
 
-import hoverOnlyStyle from "./hoverOnly.css?managed";
-
 const sliderOptions = {
     markers: makeRange(-2500, 2500, 250),
-    stickToMarkers: true
+    stickToMarkers: true,
 };
 
 export function toggleHoverControls(value: boolean) {
@@ -33,8 +32,7 @@ function InstallInstructions() {
         <section>
             <HeadingSecondary>How to install</HeadingSecondary>
             <Paragraph>
-                Install <MaskedLink href="https://github.com/Inrixia/TidaLuna#installation">TidaLuna</MaskedLink> from
-                here, then go to TidalLuna settings &rarr; Plugin stores &rarr; Install <code>@vmohammad/api</code>
+                Install <MaskedLink href="https://github.com/Inrixia/TidaLuna#installation">TidaLuna</MaskedLink> from here, then go to TidalLuna settings &rarr; Plugin stores &rarr; Install <code>@vmohammad/api</code>
             </Paragraph>
         </section>
     );
@@ -49,12 +47,10 @@ function LyricsProviderSettings() {
                 <Select
                     options={[
                         { value: Provider.Lrclib, label: "LRCLIB", default: true },
-                        { value: Provider.Spotify, label: "Spotify (Musixmatch)" }
+                        { value: Provider.Spotify, label: "Spotify (Musixmatch)" },
                     ]}
                     isSelected={v => v === store.lyricsProvider}
-                    select={v => {
-                        store.lyricsProvider = v as Provider;
-                    }}
+                    select={v => { store.lyricsProvider = v as Provider; }}
                     serialize={v => v}
                     placeholder="Select a lyrics provider"
                 />
@@ -93,24 +89,24 @@ export const settings = definePluginSettings({
     showMusicNoteOnNoLyrics: {
         description: "Show a music note icon when no lyrics are found",
         type: OptionType.BOOLEAN,
-        default: true
+        default: true,
     },
     lyricsPosition: {
         description: "Position of the lyrics",
         type: OptionType.SELECT,
         options: [
             { value: "above", label: "Above Player(s)" },
-            { value: "below", label: "Below  Player(s)", default: true }
-        ]
+            { value: "below", label: "Below  Player(s)", default: true },
+        ],
     },
     lyricsProvider: {
         description: "Where lyrics are fetched from",
         type: OptionType.SELECT,
         options: [
             { value: Provider.Lrclib, label: "LRCLIB", default: true },
-            { value: Provider.Spotify, label: "Spotify (Musixmatch)" }
+            { value: Provider.Spotify, label: "Spotify (Musixmatch)" },
         ],
-        hidden: true
+        hidden: true,
     },
     spotifyLyricsApiUrl: {
         type: OptionType.STRING,
@@ -124,7 +120,7 @@ export const settings = definePluginSettings({
     },
     lyricsProviderSettings: {
         type: OptionType.COMPONENT,
-        component: LyricsProviderSettings
+        component: LyricsProviderSettings,
     },
     translateTo: {
         description: "Translate lyrics to - Changing this will clear existing translations",
@@ -141,18 +137,18 @@ export const settings = definePluginSettings({
         options: [
             { value: Provider.None, label: "None", default: true },
             { value: Provider.Translated, label: "Translate" },
-            { value: Provider.Romanized, label: "Romanize" }
+            { value: Provider.Romanized, label: "Romanize" },
         ]
     },
     fallbackProvider: {
         description: "When a lyrics provider fails, try other providers",
         type: OptionType.BOOLEAN,
-        default: true
+        default: true,
     },
     showFailedToasts: {
         description: "Hide toasts when lyrics fail to fetch",
         type: OptionType.BOOLEAN,
-        default: true
+        default: true,
     },
     lyricDelay: {
         description: "",
@@ -173,7 +169,7 @@ export const settings = definePluginSettings({
             >
                 Purge Cache
             </ButtonCompat>
-        )
+        ),
     },
     spotifySectionTitle: {
         type: OptionType.COMPONENT,
@@ -186,17 +182,16 @@ export const settings = definePluginSettings({
     showSpotifyControls: {
         description: "Show Spotify Controls",
         type: OptionType.BOOLEAN,
-        default: false
+        default: false,
     },
     showSpotifyLyrics: {
         description: "Show Spotify Lyrics",
         type: OptionType.BOOLEAN,
-        default: false
+        default: false,
     },
     useSpotifyUris: {
         type: OptionType.BOOLEAN,
-        description:
-            "Open Spotify URIs instead of Spotify URLs. Will only work if you have Spotify installed and might not work on all platforms",
+        description: "Open Spotify URIs instead of Spotify URLs. Will only work if you have Spotify installed and might not work on all platforms",
         default: false
     },
     previousButtonRestartsTrack: {
@@ -220,17 +215,17 @@ export const settings = definePluginSettings({
     showTidalControls: {
         description: "Show Tidal Player",
         type: OptionType.BOOLEAN,
-        default: false
+        default: false,
     },
     showTidalLyrics: {
         description: "Show Tidal Controls",
         type: OptionType.BOOLEAN,
-        default: false
+        default: false,
     },
     websocketURL: {
         type: OptionType.STRING,
         description: "Default is ws://localhost:24123",
         default: "ws://localhost:24123",
-        restartNeeded: true
+        restartNeeded: true,
     }
 });

@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Channel, Message, User } from "@vencord/discord-types";
-import { findByCodeLazy } from "@webpack";
-
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import { Channel, Message, User } from "@vencord/discord-types";
+import { findByCodeLazy } from "@webpack";
 import { FluxDispatcher, RestAPI } from "@webpack/common";
 
 const enum ReferencedMessageState {
@@ -18,10 +17,10 @@ const enum ReferencedMessageState {
 }
 
 interface Reply {
-    baseAuthor: User;
+    baseAuthor: User,
     baseMessage: Message;
     channel: Channel;
-    referencedMessage: { state: ReferencedMessageState };
+    referencedMessage: { state: ReferencedMessageState; };
     compact: boolean;
     isReplyAuthorBlocked: boolean;
 }
@@ -102,7 +101,7 @@ export default definePlugin({
                     });
                 }
             })
-            .catch(() => {})
+            .catch(() => { })
             .finally(() => {
                 fetching.delete(messageId);
             });

@@ -14,7 +14,7 @@ export enum Provider {
     Spotify = "Spotify",
     Translated = "Translated",
     Romanized = "Romanized",
-    None = "None"
+    None = "None",
 }
 
 export interface LyricsData {

@@ -5,9 +5,6 @@
  */
 
 import "./style.css";
-import { GuildMember, Message, RenderModalProps, User } from "@vencord/discord-types";
-import { findByCodeLazy, findStoreLazy } from "@webpack";
-import { JSX } from "react";
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { DataStore } from "@api/index";
@@ -21,20 +18,10 @@ import mentionAvatars from "@plugins/mentionAvatars";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/index";
 import definePlugin, { OptionType } from "@utils/types";
-import {
-    ChannelStore,
-    GuildMemberStore,
-    GuildStore,
-    Menu,
-    MessageStore,
-    Modal,
-    openModal,
-    RelationshipStore,
-    StreamerModeStore,
-    TextInput,
-    useEffect,
-    useState
-} from "@webpack/common";
+import { GuildMember, Message, RenderModalProps, User } from "@vencord/discord-types";
+import { findByCodeLazy, findStoreLazy } from "@webpack";
+import { ChannelStore, GuildMemberStore, GuildStore, Menu, MessageStore, Modal, openModal, RelationshipStore, StreamerModeStore, TextInput, useEffect, useState } from "@webpack/common";
+import { JSX } from "react";
 
 const SMYNC = classNameFactory();
 const UserStore = findStoreLazy("UserStore");
@@ -121,18 +108,16 @@ function validColor(color: string) {
 
 function resolveColor(
     colorStrings: colorStringsType,
-    displayNameStyles: { effectId: number; colors: number[] } | null | undefined,
+    displayNameStyles: { effectId: number; colors: number[]; } | null | undefined,
     savedColor: string,
     canUseGradient: boolean,
     inGuild: boolean,
     ircColorsEnabled: boolean,
-    isHovering: boolean
+    isHovering: boolean,
 ): Record<string, any> | null {
     const defaultColor = getComputedStyle(document.documentElement).getPropertyValue("--text-strong").trim() || null;
 
-    if (!defaultColor) {
-        return null;
-    }
+    if (!defaultColor) { return null; }
 
     savedColor = savedColor.trim() || defaultColor;
     const isRoleColor = savedColor.toLowerCase().includes("role");
@@ -150,35 +135,26 @@ function resolveColor(
         const percentage = roleColorPattern.exec(savedColor)?.[1] || "";
         if (percentage && isNaN(parseInt(percentage))) return null;
 
-        primaryColor = forceDefault
-            ? defaultColor
-            : toCSS(colorStrings?.primaryColor) || (!inGuild && toCSS(displayNameStyles?.colors?.[0])) || defaultColor;
-        secondaryColor = forceDefault
-            ? null
-            : toCSS(colorStrings?.secondaryColor) || (!inGuild && toCSS(displayNameStyles?.colors?.[1])) || null;
-        tertiaryColor = forceDefault
-            ? null
-            : toCSS(colorStrings?.tertiaryColor) || (!inGuild && toCSS(displayNameStyles?.colors?.[2])) || null;
+        primaryColor = forceDefault ? defaultColor : (toCSS(colorStrings?.primaryColor) || (!inGuild && toCSS(displayNameStyles?.colors?.[0])) || defaultColor);
+        secondaryColor = forceDefault ? null : (toCSS(colorStrings?.secondaryColor) || (!inGuild && toCSS(displayNameStyles?.colors?.[1])) || null);
+        tertiaryColor = forceDefault ? null : (toCSS(colorStrings?.tertiaryColor) || (!inGuild && toCSS(displayNameStyles?.colors?.[2])) || null);
 
         primaryAdjusted = percentage ? adjustBrightness(primaryColor, parseInt(percentage)) : primaryColor;
-        secondaryAdjusted =
-            secondaryColor && percentage ? adjustBrightness(secondaryColor, parseInt(percentage)) : secondaryColor;
-        tertiaryAdjusted =
-            tertiaryColor && percentage ? adjustBrightness(tertiaryColor, parseInt(percentage)) : tertiaryColor;
+        secondaryAdjusted = secondaryColor && percentage ? adjustBrightness(secondaryColor, parseInt(percentage)) : secondaryColor;
+        tertiaryAdjusted = tertiaryColor && percentage ? adjustBrightness(tertiaryColor, parseInt(percentage)) : tertiaryColor;
     } else {
         primaryColor = forceDefault ? defaultColor : toCSS(savedColor);
         primaryAdjusted = primaryColor;
     }
 
-    gradient =
-        !canUseGradient || !secondaryColor || forceDefault
-            ? null
-            : tertiaryColor
-              ? "linear-gradient(to right,var(--custom-gradient-color-1),var(--custom-gradient-color-2),var(--custom-gradient-color-3),var(--custom-gradient-color-1))"
-              : "linear-gradient(to right,var(--custom-gradient-color-1),var(--custom-gradient-color-2),var(--custom-gradient-color-1))";
+    gradient = !canUseGradient || !secondaryColor || forceDefault
+        ? null
+        : tertiaryColor
+            ? "linear-gradient(to right,var(--custom-gradient-color-1),var(--custom-gradient-color-2),var(--custom-gradient-color-3),var(--custom-gradient-color-1))"
+            : "linear-gradient(to right,var(--custom-gradient-color-1),var(--custom-gradient-color-2),var(--custom-gradient-color-1))";
 
     const baseNormalStyle = {
-        isolation: "isolate"
+        "isolation": "isolate"
     };
 
     const baseGradientStyle = {
@@ -186,58 +162,46 @@ function resolveColor(
         "background-size": "100px auto",
         "-webkit-text-fill-color": "transparent",
         "-webkit-background-clip": "text",
-        isolation: "isolate"
+        "isolation": "isolate"
     };
 
     return {
         normal: {
-            original: {
-                ...baseNormalStyle,
-                color: primaryColor,
-                "text-decoration-color": primaryColor,
-                "-webkit-text-fill-color": primaryColor
-            },
-            adjusted: {
-                ...baseNormalStyle,
-                color: primaryAdjusted,
-                "text-decoration-color": primaryAdjusted,
-                "-webkit-text-fill-color": primaryAdjusted
-            }
+            original: { ...baseNormalStyle, "color": primaryColor, "text-decoration-color": primaryColor, "-webkit-text-fill-color": primaryColor },
+            adjusted: { ...baseNormalStyle, "color": primaryAdjusted, "text-decoration-color": primaryAdjusted, "-webkit-text-fill-color": primaryAdjusted },
         },
-        gradient: gradient
-            ? {
-                  animated: {
-                      ...baseGradientStyle,
-                      color: primaryColor,
-                      "text-decoration-color": primaryColor,
-                      "--custom-gradient-color-1": primaryColor,
-                      "--custom-gradient-color-2": secondaryColor || primaryColor,
-                      "--custom-gradient-color-3": tertiaryColor || primaryColor,
-                      "background-image": gradient,
-                      animation: "smyn-animation var(--smyn-gradient-duration) linear infinite"
-                  },
-                  static: {
-                      original: {
-                          ...baseGradientStyle,
-                          color: primaryColor,
-                          "text-decoration-color": primaryColor,
-                          "--custom-gradient-color-1": primaryColor,
-                          "--custom-gradient-color-2": secondaryColor || primaryColor,
-                          "--custom-gradient-color-3": tertiaryColor || primaryColor,
-                          "background-image": gradient
-                      },
-                      adjusted: {
-                          ...baseGradientStyle,
-                          color: primaryAdjusted,
-                          "text-decoration-color": primaryAdjusted,
-                          "--custom-gradient-color-1": primaryAdjusted,
-                          "--custom-gradient-color-2": secondaryAdjusted || primaryAdjusted,
-                          "--custom-gradient-color-3": tertiaryAdjusted || primaryAdjusted,
-                          "background-image": gradient
-                      }
-                  }
-              }
-            : null
+        gradient: gradient ? {
+            animated: {
+                ...baseGradientStyle,
+                "color": primaryColor,
+                "text-decoration-color": primaryColor,
+                "--custom-gradient-color-1": primaryColor,
+                "--custom-gradient-color-2": secondaryColor || primaryColor,
+                "--custom-gradient-color-3": tertiaryColor || primaryColor,
+                "background-image": gradient,
+                "animation": "smyn-animation var(--smyn-gradient-duration) linear infinite"
+            },
+            static: {
+                original: {
+                    ...baseGradientStyle,
+                    "color": primaryColor,
+                    "text-decoration-color": primaryColor,
+                    "--custom-gradient-color-1": primaryColor,
+                    "--custom-gradient-color-2": secondaryColor || primaryColor,
+                    "--custom-gradient-color-3": tertiaryColor || primaryColor,
+                    "background-image": gradient,
+                },
+                adjusted: {
+                    ...baseGradientStyle,
+                    "color": primaryAdjusted,
+                    "text-decoration-color": primaryAdjusted,
+                    "--custom-gradient-color-1": primaryAdjusted,
+                    "--custom-gradient-color-2": secondaryAdjusted || primaryAdjusted,
+                    "--custom-gradient-color-3": tertiaryAdjusted || primaryAdjusted,
+                    "background-image": gradient,
+                },
+            }
+        } : null,
     };
 }
 
@@ -312,45 +276,32 @@ function getProcessedNames(
         }
     }
 
-    const username: string | null = !author?.username
-        ? null
+    const username: string | null = !author?.username ? null
         : StreamerModeStore.enabled
-          ? author.username[0] + "..."
-          : (author.username as string) + (discriminator ? `#${discriminator}` : "");
+            ? author.username[0] + "..."
+            : author.username as string + (discriminator ? `#${discriminator}` : "");
 
-    const display: string | null = !author?.globalName
-        ? null
-        : StreamerModeStore.enabled &&
-            (truncateAllNamesWithStreamerMode || author.globalName.toLowerCase() === author.username.toLowerCase())
-          ? author.globalName[0] + "..."
-          : (author.globalName as string);
+    const display: string | null = !author?.globalName ? null
+        : StreamerModeStore.enabled && (truncateAllNamesWithStreamerMode || author.globalName.toLowerCase() === author.username.toLowerCase())
+            ? author.globalName[0] + "..."
+            : author.globalName as string;
 
-    const nick: string | null = !author?.nick
-        ? null
-        : StreamerModeStore.enabled &&
-            (truncateAllNamesWithStreamerMode || author.nick.toLowerCase() === author.username.toLowerCase())
-          ? author.nick[0] + "..."
-          : (author.nick as string);
+    const nick: string | null = !author?.nick ? null
+        : StreamerModeStore.enabled && (truncateAllNamesWithStreamerMode || author.nick.toLowerCase() === author.username.toLowerCase())
+            ? author.nick[0] + "..."
+            : author.nick as string;
 
-    const friendName: string | null =
-        author && !(inGuild && friendNameOnlyInDirectMessages)
-            ? RelationshipStore.getNickname(author.id) || null
-            : null;
-    const friend: string | null = !friendName
-        ? null
-        : StreamerModeStore.enabled &&
-            (truncateAllNamesWithStreamerMode || friendName.toLowerCase() === author.username.toLowerCase())
-          ? friendName[0] + "..."
-          : (friendName as string);
+    const friendName: string | null = (author && !(inGuild && friendNameOnlyInDirectMessages)) ? RelationshipStore.getNickname(author.id) || null : null;
+    const friend: string | null = !friendName ? null
+        : StreamerModeStore.enabled && (truncateAllNamesWithStreamerMode || friendName.toLowerCase() === author.username.toLowerCase())
+            ? friendName[0] + "..."
+            : friendName as string;
 
-    const customName: string | null =
-        author && !(inGuild && customNameOnlyInDirectMessages) ? customNicknames[author.id] || null : null;
-    const custom: string | null = !customName
-        ? null
-        : StreamerModeStore.enabled &&
-            (truncateAllNamesWithStreamerMode || customName.toLowerCase() === author.username.toLowerCase())
-          ? customName[0] + "..."
-          : customName;
+    const customName: string | null = (author && !(inGuild && customNameOnlyInDirectMessages)) ? customNicknames[author.id] || null : null;
+    const custom: string | null = !customName ? null
+        : StreamerModeStore.enabled && (truncateAllNamesWithStreamerMode || customName.toLowerCase() === author.username.toLowerCase())
+            ? customName[0] + "..."
+            : customName;
 
     return { username, display, nick, friend, custom };
 }
@@ -361,7 +312,7 @@ interface mentionProps {
     props?: {
         messageId?: string;
         groupId?: string;
-    };
+    },
 }
 
 interface messageProps {
@@ -375,25 +326,15 @@ interface messageProps {
 
 interface memberListProfileReactionProps {
     user: User | null | undefined;
-    type:
-        | "typingIndicator"
-        | "membersList"
-        | "profilesPopout"
-        | "profilesTooltip"
-        | "reactionsTooltip"
-        | "reactionsPopout"
-        | "voiceChannel";
+    type: "typingIndicator" | "membersList" | "profilesPopout" | "profilesTooltip" | "reactionsTooltip" | "reactionsPopout" | "voiceChannel";
     guildId?: string;
     tags?: any;
 }
 
-type colorStringsType =
-    | { primaryColor: string | null; secondaryColor: string | null; tertiaryColor: string | null }
-    | null
-    | undefined;
+type colorStringsType = { primaryColor: string | null, secondaryColor: string | null, tertiaryColor: string | null; } | null | undefined;
 
 function getTypingMemberListProfilesReactionsVoiceName(
-    props: memberListProfileReactionProps
+    props: memberListProfileReactionProps,
 ): [string | null, JSX.Element | null, string | null] {
     const { user, type } = props;
     // props.guildId for member list & preview profile, props.tags.props.displayProfile.guildId
@@ -409,9 +350,7 @@ function getTypingMemberListProfilesReactionsVoiceNameText(props: memberListProf
     return getTypingMemberListProfilesReactionsVoiceName(props)[2];
 }
 
-function getTypingMemberListProfilesReactionsVoiceNameElement(
-    props: memberListProfileReactionProps
-): JSX.Element | null {
+function getTypingMemberListProfilesReactionsVoiceNameElement(props: memberListProfileReactionProps): JSX.Element | null {
     return getTypingMemberListProfilesReactionsVoiceName(props)[1];
 }
 
@@ -422,24 +361,10 @@ function getMessageName(props: messageProps): [string | null, JSX.Element | null
     const channel = message ? ChannelStore.getChannel(message.channel_id) || null : null;
     const target = userOverride || message?.author;
     const user = isWebhook ? target : target ? UserStore.getUser(target.id) : null;
-    const member = isWebhook
-        ? null
-        : target && channel
-          ? GuildMemberStore.getMember(channel.guild_id, target.id)
-          : null;
+    const member = isWebhook ? null : target && channel ? GuildMemberStore.getMember(channel.guild_id, target.id) : null;
     const author = user && member ? { ...user, ...member } : user || member || null;
     const mentionSymbol = hideDefaultAtSign && (!isRepliedMessage || replies) ? "" : withMentionPrefix ? "@" : "";
-    return renderUsername(
-        author,
-        channel?.id || null,
-        message?.id || null,
-        isRepliedMessage ? "replies" : "messages",
-        mentionSymbol,
-        false,
-        !!channel?.guild_id,
-        props.colorString,
-        props.colorStrings
-    );
+    return renderUsername(author, channel?.id || null, message?.id || null, isRepliedMessage ? "replies" : "messages", mentionSymbol, false, !!channel?.guild_id, props.colorString, props.colorStrings);
 }
 
 function getMessageNameElement(props: messageProps): JSX.Element | null {
@@ -463,11 +388,7 @@ function getMentionNameElement(props: mentionProps): JSX.Element | null {
     let colorStrings: colorStringsType = undefined;
 
     if (isPluginEnabled(ircColors.name)) {
-        const color = ircColors.calculateNameColorForMessageContext({
-            message: { author: author },
-            author: author,
-            channel: channel
-        });
+        const color = ircColors.calculateNameColorForMessageContext({ message: { author: author }, author: author, channel: channel });
 
         if (color) {
             colorString = color;
@@ -475,35 +396,20 @@ function getMentionNameElement(props: mentionProps): JSX.Element | null {
         }
     }
 
-    return renderUsername(
-        author,
-        channelId || null,
-        nestedProps?.messageId || null,
-        "mentions",
-        mentionSymbol,
-        false,
-        !!channel?.guild_id,
-        colorString,
-        colorStrings
-    )[1];
+    return renderUsername(author, channelId || null, nestedProps?.messageId || null, "mentions", mentionSymbol, false, !!channel?.guild_id, colorString, colorStrings)[1];
 }
 
 function getEffectType(effectId: number | null | undefined): string | null {
     switch (effectId) {
-        case 1:
-            return "solid";
+        case 1: return "solid";
         // Delegate gradient effect handling to the guild
         // gradient handler. This adds animation to DM
         // gradients which are usually static.
         // case 2: return "gradient";
-        case 3:
-            return "neon";
-        case 4:
-            return "toon";
-        case 5:
-            return "pop";
-        default:
-            return null;
+        case 3: return "neon";
+        case 4: return "toon";
+        case 5: return "pop";
+        default: return null;
     }
 }
 
@@ -525,7 +431,7 @@ function computeEffectCSSVars(styles: any): Record<string, string> {
         "--smyn-effect-dark-2": adjusted.dark2,
         "--smyn-effect-neon-stroke": adjusted.neonStroke,
         "--smyn-effect-neon-flicker": `hsl(from ${adjusted.main} h calc(min(1, s) * ((s * 1.1) + 10)) 85)`,
-        "--smyn-effect-toon-stroke": adjusted.toonStroke
+        "--smyn-effect-toon-stroke": adjusted.toonStroke,
     };
 }
 
@@ -533,22 +439,12 @@ function renderUsername(
     author: User | GuildMember | null,
     channelId: string | null,
     messageId: string | null,
-    type:
-        | "messages"
-        | "replies"
-        | "typingIndicator"
-        | "mentions"
-        | "membersList"
-        | "profilesPopout"
-        | "profilesTooltip"
-        | "reactionsTooltip"
-        | "reactionsPopout"
-        | "voiceChannel",
+    type: "messages" | "replies" | "typingIndicator" | "mentions" | "membersList" | "profilesPopout" | "profilesTooltip" | "reactionsTooltip" | "reactionsPopout" | "voiceChannel",
     mentionSymbol: string,
     hookless: boolean,
     inGuild: boolean,
     colorString?: string,
-    colorStrings?: { primaryColor: string | null; secondaryColor: string | null; tertiaryColor: string | null } | null
+    colorStrings?: { primaryColor: string | null, secondaryColor: string | null, tertiaryColor: string | null; } | null
 ): [string | null, JSX.Element | null, string | null] {
     const isMessage = type === "messages";
     const isReply = type === "replies";
@@ -561,70 +457,18 @@ function renderUsername(
     const isReaction = isReactionsTooltip || isReactionsPopout;
     const isVoice = type === "voiceChannel";
 
-    const config = hookless
-        ? settings.store
-        : settings.use([
-              "messages",
-              "replies",
-              "mentions",
-              "typingIndicator",
-              "memberList",
-              "profilePopout",
-              "reactions",
-              "friendNameOnlyInDirectMessages",
-              "customNameOnlyInDirectMessages",
-              "discriminators",
-              "hideDefaultAtSign",
-              "truncateAllNamesWithStreamerMode",
-              "removeDuplicates",
-              "ignoreGradients",
-              "ignoreFonts",
-              "animateGradients",
-              "includedNames",
-              "customNameColor",
-              "friendNameColor",
-              "nicknameColor",
-              "displayNameColor",
-              "usernameColor",
-              "nameSeparator",
-              "triggerNameRerender"
-          ]);
-    const {
-        messages,
-        replies,
-        mentions,
-        typingIndicator,
-        memberList,
-        profilePopout,
-        reactions,
-        friendNameOnlyInDirectMessages,
-        customNameOnlyInDirectMessages,
-        discriminators,
-        truncateAllNamesWithStreamerMode,
-        removeDuplicates,
-        ignoreGradients,
-        ignoreFonts,
-        animateGradients,
-        includedNames,
-        customNameColor,
-        friendNameColor,
-        nicknameColor,
-        displayNameColor,
-        usernameColor,
-        nameSeparator,
-        triggerNameRerender
-    } = config;
+    const config = hookless ? settings.store : settings.use(["messages", "replies", "mentions", "typingIndicator", "memberList", "profilePopout", "reactions", "friendNameOnlyInDirectMessages", "customNameOnlyInDirectMessages", "discriminators", "hideDefaultAtSign", "truncateAllNamesWithStreamerMode", "removeDuplicates", "ignoreGradients", "ignoreFonts", "animateGradients", "includedNames", "customNameColor", "friendNameColor", "nicknameColor", "displayNameColor", "usernameColor", "nameSeparator", "triggerNameRerender"]);
+    const { messages, replies, mentions, typingIndicator, memberList, profilePopout, reactions, friendNameOnlyInDirectMessages, customNameOnlyInDirectMessages, discriminators, truncateAllNamesWithStreamerMode, removeDuplicates, ignoreGradients, ignoreFonts, animateGradients, includedNames, customNameColor, friendNameColor, nicknameColor, displayNameColor, usernameColor, nameSeparator, triggerNameRerender } = config;
 
     const channel = channelId ? ChannelStore.getChannel(channelId) || null : null;
     const message = channelId && messageId ? MessageStore.getMessage(channelId, messageId) : null;
     const groupId = (message as any)?.showMeYourNameGroupId || null;
 
-    const isHovering =
-        isMessage || isMention
-            ? (messageId && hoveringMessageMap.has(messageId)) || (groupId && hoveringMessageMap.has(groupId))
-            : isReply
-              ? (messageId && hoveringRepliesMap.has(messageId)) || (groupId && hoveringRepliesMap.has(groupId))
-              : isReactionsPopout
+    const isHovering = (isMessage || isMention)
+        ? ((messageId && hoveringMessageMap.has(messageId)) || (groupId && hoveringMessageMap.has(groupId)))
+        : isReply
+            ? (messageId && hoveringRepliesMap.has(messageId)) || (groupId && hoveringRepliesMap.has(groupId))
+            : isReactionsPopout
                 ? hoveringReactionPopoutSet.has((author as User).id)
                 : false;
 
@@ -647,99 +491,20 @@ function renderUsername(
     const shouldShowEffect = hasEffect && isHovering;
     const shouldAnimateEffect = shouldShowEffect && !AccessibilityStore.useReducedMotion;
 
-    const canUseGradient = (author as GuildMember)?.guildId
-        ? (GuildStore.getGuild((author as GuildMember).guildId) ?? {}).premiumFeatures?.features.includes(
-              "ENHANCED_ROLE_COLORS"
-          )
-        : !inGuild;
+    const canUseGradient = ((author as GuildMember)?.guildId ? (GuildStore.getGuild((author as GuildMember).guildId) ?? {}).premiumFeatures?.features.includes("ENHANCED_ROLE_COLORS") : !inGuild);
     const useTopRoleStyle = isMention || isReactionsPopout || channel?.isDM() || channel?.isGroupDM();
-    const topRoleStyle = author
-        ? resolveColor(
-              authorColorStrings,
-              authorDisplayNameStyles,
-              "Role",
-              canUseGradient,
-              inGuild,
-              ircColorsEnabled,
-              isHovering
-          )
-        : null;
+    const topRoleStyle = author ? resolveColor(authorColorStrings, authorDisplayNameStyles, "Role", canUseGradient, inGuild, ircColorsEnabled, isHovering) : null;
     const hasGradient = !!topRoleStyle?.gradient && Object.keys(topRoleStyle.gradient).length > 0;
 
-    const textMutedValue =
-        getComputedStyle(document.documentElement)?.getPropertyValue("--text-muted")?.trim() || "#72767d";
+    const textMutedValue = getComputedStyle(document.documentElement)?.getPropertyValue("--text-muted")?.trim() || "#72767d";
     const options = splitTemplate(includedNames);
-    const resolvedUsernameColor = author
-        ? resolveColor(
-              authorColorStrings,
-              authorDisplayNameStyles,
-              usernameColor.trim(),
-              canUseGradient,
-              inGuild,
-              ircColorsEnabled,
-              isHovering
-          )
-        : null;
-    const resolvedDisplayNameColor = author
-        ? resolveColor(
-              authorColorStrings,
-              authorDisplayNameStyles,
-              displayNameColor.trim(),
-              canUseGradient,
-              inGuild,
-              ircColorsEnabled,
-              isHovering
-          )
-        : null;
-    const resolvedNicknameColor = author
-        ? resolveColor(
-              authorColorStrings,
-              authorDisplayNameStyles,
-              nicknameColor.trim(),
-              canUseGradient,
-              inGuild,
-              ircColorsEnabled,
-              isHovering
-          )
-        : null;
-    const resolvedFriendNameColor = author
-        ? resolveColor(
-              authorColorStrings,
-              authorDisplayNameStyles,
-              friendNameColor.trim(),
-              canUseGradient,
-              inGuild,
-              ircColorsEnabled,
-              isHovering
-          )
-        : null;
-    const resolvedCustomNameColor = author
-        ? resolveColor(
-              authorColorStrings,
-              authorDisplayNameStyles,
-              customNameColor.trim(),
-              canUseGradient,
-              inGuild,
-              ircColorsEnabled,
-              isHovering
-          )
-        : null;
-    const affixColor = {
-        color: textMutedValue,
-        "-webkit-text-fill-color": textMutedValue,
-        isolation: "isolate",
-        "white-space": "pre",
-        "font-family": "var(--font-primary)",
-        "letter-spacing": "normal"
-    };
-    const { username, display, nick, friend, custom } = getProcessedNames(
-        author,
-        truncateAllNamesWithStreamerMode,
-        discriminators,
-        inGuild,
-        friendNameOnlyInDirectMessages,
-        customNameOnlyInDirectMessages
-    );
+    const resolvedUsernameColor = author ? resolveColor(authorColorStrings, authorDisplayNameStyles, usernameColor.trim(), canUseGradient, inGuild, ircColorsEnabled, isHovering) : null;
+    const resolvedDisplayNameColor = author ? resolveColor(authorColorStrings, authorDisplayNameStyles, displayNameColor.trim(), canUseGradient, inGuild, ircColorsEnabled, isHovering) : null;
+    const resolvedNicknameColor = author ? resolveColor(authorColorStrings, authorDisplayNameStyles, nicknameColor.trim(), canUseGradient, inGuild, ircColorsEnabled, isHovering) : null;
+    const resolvedFriendNameColor = author ? resolveColor(authorColorStrings, authorDisplayNameStyles, friendNameColor.trim(), canUseGradient, inGuild, ircColorsEnabled, isHovering) : null;
+    const resolvedCustomNameColor = author ? resolveColor(authorColorStrings, authorDisplayNameStyles, customNameColor.trim(), canUseGradient, inGuild, ircColorsEnabled, isHovering) : null;
+    const affixColor = { color: textMutedValue, "-webkit-text-fill-color": textMutedValue, isolation: "isolate", "white-space": "pre", "font-family": "var(--font-primary)", "letter-spacing": "normal" };
+    const { username, display, nick, friend, custom } = getProcessedNames(author, truncateAllNamesWithStreamerMode, discriminators, inGuild, friendNameOnlyInDirectMessages, customNameOnlyInDirectMessages);
 
     const names: Record<string, [string | null, object | null]> = {
         user: [username, resolvedUsernameColor],
@@ -801,15 +566,25 @@ function renderUsername(
     let fourth = outputs.shift();
     let fifth = outputs.shift();
 
-    const firstValueWrapped = hookless ? first.name || "" : wrapEmojis(first.name || "");
+    const firstValueWrapped = hookless ?
+        (first.name || "")
+        : wrapEmojis(first.name || "");
 
-    const secondValueWrapped = hookless ? (second ?? {}).name || "" : wrapEmojis((second ?? {}).name || "");
+    const secondValueWrapped = hookless ?
+        ((second ?? {}).name || "")
+        : wrapEmojis((second ?? {}).name || "");
 
-    const thirdValueWrapped = hookless ? (third ?? {}).name || "" : wrapEmojis((third ?? {}).name || "");
+    const thirdValueWrapped = hookless ?
+        ((third ?? {}).name || "")
+        : wrapEmojis((third ?? {}).name || "");
 
-    const fourthValueWrapped = hookless ? (fourth ?? {}).name || "" : wrapEmojis((fourth ?? {}).name || "");
+    const fourthValueWrapped = hookless ?
+        ((fourth ?? {}).name || "")
+        : wrapEmojis((fourth ?? {}).name || "");
 
-    const fifthValueWrapped = hookless ? (fifth ?? {}).name || "" : wrapEmojis((fifth ?? {}).name || "");
+    const fifthValueWrapped = hookless ?
+        ((fifth ?? {}).name || "")
+        : wrapEmojis((fifth ?? {}).name || "");
 
     first.wrapped = firstValueWrapped;
     second && (second.wrapped = secondValueWrapped);
@@ -837,61 +612,20 @@ function renderUsername(
         return [null, null, null];
     }
 
-    const prioritizeUsername =
-        new Set([first, second, third, fourth, fifth].filter(Boolean).map(pos => pos.name.toLowerCase())).size > 1;
+    const prioritizeUsername = (new Set([first, second, third, fourth, fifth].filter(Boolean).map(pos => pos.name.toLowerCase())).size > 1);
 
     if (removeDuplicates) {
         // Remove duplicates from back to front. Prioritize the earlier name, unless it's the username and there's more than one unique option, then prioritize it.
-        fifth && fourth && fifth.name.toLowerCase() === fourth.name.toLowerCase()
-            ? fifth.type === "user" && prioritizeUsername
-                ? (fourth = null)
-                : (fifth = null)
-            : null;
-        fifth && third && fifth.name.toLowerCase() === third.name.toLowerCase()
-            ? fifth.type === "user" && prioritizeUsername
-                ? (third = null)
-                : (fifth = null)
-            : null;
-        fifth && second && fifth.name.toLowerCase() === second.name.toLowerCase()
-            ? fifth.type === "user" && prioritizeUsername
-                ? (second = null)
-                : (fifth = null)
-            : null;
-        fifth && first && fifth.name.toLowerCase() === first.name.toLowerCase()
-            ? fifth.type === "user" && prioritizeUsername
-                ? (first = null)
-                : (fifth = null)
-            : null;
-        fourth && third && fourth.name.toLowerCase() === third.name.toLowerCase()
-            ? fourth.type === "user" && prioritizeUsername
-                ? (third = null)
-                : (fourth = null)
-            : null;
-        fourth && second && fourth.name.toLowerCase() === second.name.toLowerCase()
-            ? fourth.type === "user" && prioritizeUsername
-                ? (second = null)
-                : (fourth = null)
-            : null;
-        fourth && first && fourth.name.toLowerCase() === first.name.toLowerCase()
-            ? fourth.type === "user" && prioritizeUsername
-                ? (first = null)
-                : (fourth = null)
-            : null;
-        third && second && third.name.toLowerCase() === second.name.toLowerCase()
-            ? third.type === "user" && prioritizeUsername
-                ? (second = null)
-                : (third = null)
-            : null;
-        third && first && third.name.toLowerCase() === first.name.toLowerCase()
-            ? third.type === "user" && prioritizeUsername
-                ? (first = null)
-                : (third = null)
-            : null;
-        second && first && second.name.toLowerCase() === first.name.toLowerCase()
-            ? second.type === "user" && prioritizeUsername
-                ? (first = null)
-                : (second = null)
-            : null;
+        fifth && fourth && fifth.name.toLowerCase() === fourth.name.toLowerCase() ? fifth.type === "user" && prioritizeUsername ? fourth = null : fifth = null : null;
+        fifth && third && fifth.name.toLowerCase() === third.name.toLowerCase() ? fifth.type === "user" && prioritizeUsername ? third = null : fifth = null : null;
+        fifth && second && fifth.name.toLowerCase() === second.name.toLowerCase() ? fifth.type === "user" && prioritizeUsername ? second = null : fifth = null : null;
+        fifth && first && fifth.name.toLowerCase() === first.name.toLowerCase() ? fifth.type === "user" && prioritizeUsername ? first = null : fifth = null : null;
+        fourth && third && fourth.name.toLowerCase() === third.name.toLowerCase() ? fourth.type === "user" && prioritizeUsername ? third = null : fourth = null : null;
+        fourth && second && fourth.name.toLowerCase() === second.name.toLowerCase() ? fourth.type === "user" && prioritizeUsername ? second = null : fourth = null : null;
+        fourth && first && fourth.name.toLowerCase() === first.name.toLowerCase() ? fourth.type === "user" && prioritizeUsername ? first = null : fourth = null : null;
+        third && second && third.name.toLowerCase() === second.name.toLowerCase() ? third.type === "user" && prioritizeUsername ? second = null : third = null : null;
+        third && first && third.name.toLowerCase() === first.name.toLowerCase() ? third.type === "user" && prioritizeUsername ? first = null : third = null : null;
+        second && first && second.name.toLowerCase() === first.name.toLowerCase() ? second.type === "user" && prioritizeUsername ? first = null : second = null : null;
     }
 
     const remainingNames = [first, second, third, fourth, fifth].filter(Boolean);
@@ -911,13 +645,10 @@ function renderUsername(
     const thirdDataText = third && shouldAnimateSecondaryNames ? third.name : "";
     const fourthDataText = fourth && shouldAnimateSecondaryNames ? fourth.name : "";
     const fifthDataText = fifth && shouldAnimateSecondaryNames ? fifth.name : "";
-    const allDataText = [firstDataText, secondDataText, thirdDataText, fourthDataText, fifthDataText]
-        .filter(Boolean)
-        .join(nameSeparator)
-        .trim();
+    const allDataText = [firstDataText, secondDataText, thirdDataText, fourthDataText, fifthDataText].filter(Boolean).join(nameSeparator).trim();
 
     // Only mentions and reactions popouts should patch in the gradient glow or else a double glow will appear on messages.
-    const hoveringClass = isHovering ? " smyn-gradient-hovered" : "";
+    const hoveringClass = (isHovering ? " smyn-gradient-hovered" : "");
     const gradientClasses = useTopRoleStyle
         ? "smyn-gradient smyn-gradient-inherit-bg" + hoveringClass
         : "smyn-gradient smyn-gradient-unset-bg" + hoveringClass;
@@ -939,7 +670,9 @@ function renderUsername(
 
     const topLevelStyle = {
         // Allows names to wrap in reaction popouts.
-        ...(isReactionsPopout ? { display: "flex", flexWrap: "wrap", lineHeight: "1.1em", fontSize: "0.9em" } : {}),
+        ...(isReactionsPopout
+            ? { display: "flex", flexWrap: "wrap", lineHeight: "1.1em", fontSize: "0.9em" }
+            : {}),
         ...(hasEffect ? effectCSSVars : {}),
         "--smyn-gradient-duration": `${animationDuration}s`
     } as React.CSSProperties;
@@ -953,15 +686,11 @@ function renderUsername(
             className="smyn-container"
         >
             {mentionSymbol && <span>{mentionSymbol}</span>}
-            {
+            {(
                 <span
                     className={SMYNC(firstGroupClasses, { [gradientClasses]: shouldGradientGlow })}
                     data-text={shouldGradientGlow ? firstDataText : undefined}
-                    style={
-                        (shouldGradientGlow && useTopRoleStyle && topRoleStyle
-                            ? topRoleStyle.gradient.animated
-                            : undefined) as React.CSSProperties
-                    }
+                    style={(shouldGradientGlow && useTopRoleStyle && topRoleStyle ? topRoleStyle.gradient.animated : undefined) as React.CSSProperties}
                 >
                     <span
                         className={SMYNC(firstNameClasses, {
@@ -970,96 +699,59 @@ function renderUsername(
                             "smyn-effect-animated": shouldAnimateEffect
                         })}
                         data-username-with-effects={needsEffectDataAttr && shouldShowEffect ? first.name : undefined}
-                        style={
-                            shouldShowEffect
-                                ? undefined
-                                : topRoleStyle
-                                  ? shouldAnimateGradients && topRoleStyle.gradient
-                                      ? topRoleStyle.gradient.animated
-                                      : topRoleStyle.gradient
+                        style={shouldShowEffect
+                            ? undefined
+                            : topRoleStyle ?
+                                shouldAnimateGradients && topRoleStyle.gradient
+                                    ? topRoleStyle.gradient.animated
+                                    : topRoleStyle.gradient
                                         ? topRoleStyle.gradient.static.original
                                         : topRoleStyle.normal.original
-                                  : undefined
-                        }
-                    >
-                        {first.wrapped}
-                    </span>
+                                : undefined
+                        }>
+                        {first.wrapped}</span>
                 </span>
-            }
-            {[
-                {
-                    name: second,
-                    dataText: secondDataText,
-                    groupClass: secondGroupClasses,
-                    nameClass: secondNameClasses,
-                    position: "second"
-                },
-                {
-                    name: third,
-                    dataText: thirdDataText,
-                    groupClass: thirdGroupClasses,
-                    nameClass: thirdNameClasses,
-                    position: "third"
-                },
-                {
-                    name: fourth,
-                    dataText: fourthDataText,
-                    groupClass: fourthGroupClasses,
-                    nameClass: fourthNameClasses,
-                    position: "fourth"
-                },
-                {
-                    name: fifth,
-                    dataText: fifthDataText,
-                    groupClass: fifthGroupClasses,
-                    nameClass: fifthNameClasses,
-                    position: "fifth"
-                }
-            ].map(
-                ({ name, dataText, groupClass, nameClass, position }) =>
-                    name && (
-                        <span key={position} className={SMYNC(groupClass)}>
-                            <span style={affixColor as React.CSSProperties} className={prefixClasses}>
-                                <span>{nameSeparator}</span>
-                                {name.prefix}
-                            </span>
-                            <span
-                                // On non-primary names, allow disabling the effects completely, or just their animation & glow.
-                                className={SMYNC(nameClass, {
-                                    [gradientClasses]: shouldGradientGlow && shouldAnimateSecondaryNames,
-                                    "smyn-effect-container": shouldShowEffect && !ignoreGradients,
-                                    [`smyn-effect-${effectType}`]: shouldShowEffect && !ignoreGradients,
-                                    "smyn-effect-animated": shouldAnimateEffect && shouldAnimateSecondaryNames
-                                })}
-                                data-text={shouldGradientGlow && dataText ? dataText : undefined}
-                                data-username-with-effects={
-                                    needsEffectDataAttr && shouldShowEffect && !ignoreGradients ? name.name : undefined
-                                }
-                                style={{
-                                    ...(ignoreFonts
-                                        ? { "font-family": "var(--font-primary)", "letter-spacing": "normal" }
-                                        : {}),
-                                    ...(name.style
-                                        ? ignoreGradients
-                                            ? name.style.normal.adjusted
-                                            : shouldAnimateGradients &&
-                                                shouldAnimateSecondaryNames &&
-                                                name.style.gradient
-                                              ? name.style.gradient.animated
-                                              : name.style.gradient
-                                                ? name.style.gradient.static.original
-                                                : name.style.normal.adjusted
-                                        : {})
-                                }}
-                            >
-                                {name.wrapped}
-                            </span>
-                            <span style={affixColor as React.CSSProperties} className={suffixClasses}>
-                                {name.suffix}
-                            </span>
-                        </span>
-                    )
             )}
+            {[
+                { name: second, dataText: secondDataText, groupClass: secondGroupClasses, nameClass: secondNameClasses, position: "second" },
+                { name: third, dataText: thirdDataText, groupClass: thirdGroupClasses, nameClass: thirdNameClasses, position: "third" },
+                { name: fourth, dataText: fourthDataText, groupClass: fourthGroupClasses, nameClass: fourthNameClasses, position: "fourth" },
+                { name: fifth, dataText: fifthDataText, groupClass: fifthGroupClasses, nameClass: fifthNameClasses, position: "fifth" }
+            ].map(({ name, dataText, groupClass, nameClass, position }) => name && (
+                <span
+                    key={position}
+                    className={SMYNC(groupClass)}
+                >
+                    <span style={affixColor as React.CSSProperties} className={prefixClasses}>
+                        <span>{nameSeparator}</span>
+                        {name.prefix}</span>
+                    <span
+                        // On non-primary names, allow disabling the effects completely, or just their animation & glow.
+                        className={SMYNC(nameClass, {
+                            [gradientClasses]: shouldGradientGlow && shouldAnimateSecondaryNames,
+                            "smyn-effect-container": shouldShowEffect && !ignoreGradients,
+                            [`smyn-effect-${effectType}`]: shouldShowEffect && !ignoreGradients,
+                            "smyn-effect-animated": shouldAnimateEffect && shouldAnimateSecondaryNames
+                        })}
+                        data-text={shouldGradientGlow && dataText ? dataText : undefined}
+                        data-username-with-effects={needsEffectDataAttr && shouldShowEffect && !ignoreGradients ? name.name : undefined}
+                        style={{
+                            ...(ignoreFonts ? { "font-family": "var(--font-primary)", "letter-spacing": "normal" } : {}),
+                            ...(name.style
+                                ? ignoreGradients
+                                    ? name.style.normal.adjusted
+                                    : shouldAnimateGradients && shouldAnimateSecondaryNames && name.style.gradient
+                                        ? name.style.gradient.animated
+                                        : name.style.gradient
+                                            ? name.style.gradient.static.original
+                                            : name.style.normal.adjusted
+                                : {})
+                        }}>
+                        {name.wrapped}</span>
+                    <span style={affixColor as React.CSSProperties} className={suffixClasses}>
+                        {name.suffix}</span>
+                </span>
+            ))}
         </span>
     );
 
@@ -1150,7 +842,7 @@ function removeHoveringReactionPopout(id: string) {
     settings.store.triggerNameRerender = !settings.store.triggerNameRerender;
 }
 
-function CustomNicknameModal({ modalProps, user }: { modalProps: RenderModalProps; user: User }) {
+function CustomNicknameModal({ modalProps, user }: { modalProps: RenderModalProps; user: User; }) {
     const [value, setValue] = useState(customNicknames[user.id] ?? "");
 
     return (
@@ -1183,19 +875,8 @@ function CustomNicknameModal({ modalProps, user }: { modalProps: RenderModalProp
                 }
             ]}
         >
-            <Heading
-                tag="h3"
-                style={{
-                    marginBottom: 8,
-                    fontSize: "16px",
-                    fontWeight: "400",
-                    lineHeight: "1.25",
-                    color: "var(--text-subtle)"
-                }}
-            >
-                {
-                    "Set a custom SMYN nickname for this user. Make use of it by specifying {custom} in the SMYN template settings."
-                }
+            <Heading tag="h3" style={{ marginBottom: 8, fontSize: "16px", fontWeight: "400", lineHeight: "1.25", color: "var(--text-subtle)" }}>
+                {"Set a custom SMYN nickname for this user. Make use of it by specifying {custom} in the SMYN template settings."}
             </Heading>
             <div style={{ paddingTop: "10px", flexGrow: 0 }}></div>
             <Heading tag="h3" style={{ marginBottom: 8, fontSize: "14px", fontWeight: 600 }}>
@@ -1237,13 +918,11 @@ const userContextPatch: NavContextMenuPatchCallback = (children, { user }) => {
         <Menu.MenuItem
             id="smyn-custom-nickname"
             label={customNicknames[user.id] ? "Change SMYN Nickname" : "Add SMYN Nickname"}
-            action={() =>
-                openModal(props => (
-                    <ErrorBoundary>
-                        <CustomNicknameModal modalProps={props} user={user} />
-                    </ErrorBoundary>
-                ))
-            }
+            action={() => openModal(props => (
+                <ErrorBoundary>
+                    <CustomNicknameModal modalProps={props} user={user} />
+                </ErrorBoundary>
+            ))}
         />
     );
 };
@@ -1252,159 +931,145 @@ const settings = definePluginSettings({
     messages: {
         type: OptionType.BOOLEAN,
         default: true,
-        description: "Display custom name format in messages."
+        description: "Display custom name format in messages.",
     },
     replies: {
         type: OptionType.BOOLEAN,
         default: true,
-        description: "Display custom name format in replies."
+        description: "Display custom name format in replies.",
     },
     mentions: {
         type: OptionType.BOOLEAN,
         default: true,
-        description: "Display custom name format in mentions."
+        description: "Display custom name format in mentions.",
     },
     typingIndicator: {
         type: OptionType.BOOLEAN,
         default: true,
-        description: "Display the first available name listed in your custom name format in the typing indicator."
+        description: "Display the first available name listed in your custom name format in the typing indicator.",
     },
     memberList: {
         type: OptionType.BOOLEAN,
         default: true,
-        description:
-            "Display the first available name listed in your custom name format in the members list, DMs list, and friends list."
+        description: "Display the first available name listed in your custom name format in the members list, DMs list, and friends list.",
     },
     profilePopout: {
         type: OptionType.BOOLEAN,
         default: true,
-        description: "Display the first available name listed in your custom name format in profile popouts."
+        description: "Display the first available name listed in your custom name format in profile popouts.",
     },
     voiceChannels: {
         type: OptionType.BOOLEAN,
         default: true,
-        description: "Display the first available name listed in your custom name format in voice channels."
+        description: "Display the first available name listed in your custom name format in voice channels.",
     },
     reactions: {
         type: OptionType.BOOLEAN,
         default: true,
-        description:
-            "Display the first available name listed in your custom name format in reaction tooltips, and the full name in reaction popouts."
+        description: "Display the first available name listed in your custom name format in reaction tooltips, and the full name in reaction popouts.",
     },
     discriminators: {
         type: OptionType.BOOLEAN,
         default: true,
-        description:
-            "Append discriminators to usernames for bots. Discriminators were deprecated for users, but are still used for bots. By default, a bot's username is equivalent to a user's global name, therefore multiple bots can have the same username. Appending discriminators makes them unique again."
+        description: "Append discriminators to usernames for bots. Discriminators were deprecated for users, but are still used for bots. By default, a bot's username is equivalent to a user's global name, therefore multiple bots can have the same username. Appending discriminators makes them unique again.",
     },
     hideDefaultAtSign: {
         type: OptionType.BOOLEAN,
         default: false,
-        description:
-            'Hide the default "@" symbol before the name in mentions and replies. Only applied if either feature is enabled.'
+        description: "Hide the default \"@\" symbol before the name in mentions and replies. Only applied if either feature is enabled.",
     },
     truncateAllNamesWithStreamerMode: {
         type: OptionType.BOOLEAN,
         default: true,
-        description: "Truncate all names, not just usernames, while in Streamer Mode."
+        description: "Truncate all names, not just usernames, while in Streamer Mode.",
     },
     removeDuplicates: {
         type: OptionType.BOOLEAN,
         default: true,
-        description: "If any of the names are equivalent, remove them, leaving only the unique names."
+        description: "If any of the names are equivalent, remove them, leaving only the unique names.",
     },
     ignoreFonts: {
         type: OptionType.BOOLEAN,
         default: false,
-        description:
-            "For the non-primary names, use Discord's default fonts regardless of the user's custom nitro font."
+        description: "For the non-primary names, use Discord's default fonts regardless of the user's custom nitro font.",
     },
     ignoreGradients: {
         type: OptionType.BOOLEAN,
         default: true,
-        description:
-            'For the non-primary names, if the role has a gradient and the color below is set to "Role+-#", use the primary color instead of the whole gradient, and if it has a nitro effect, ignore it entirely.'
+        description: "For the non-primary names, if the role has a gradient and the color below is set to \"Role+-#\", use the primary color instead of the whole gradient, and if it has a nitro effect, ignore it entirely."
     },
     animateGradients: {
         type: OptionType.BOOLEAN,
         default: false,
-        description:
-            'For the non-primary names, if the role has a gradient or nitro effect, animate it. This is disabled by "Ignore Gradients" and reduced motion.'
+        description: "For the non-primary names, if the role has a gradient or nitro effect, animate it. This is disabled by \"Ignore Gradients\" and reduced motion.",
     },
     nameSeparator: {
         type: OptionType.STRING,
         description: "The separator to use between names. The default is a single space.",
-        default: " "
+        default: " ",
     },
     friendNameOnlyInDirectMessages: {
         type: OptionType.BOOLEAN,
         default: false,
-        description: "Only display friend names when in DMs, and not in servers."
+        description: "Only display friend names when in DMs, and not in servers.",
     },
     customNameOnlyInDirectMessages: {
         type: OptionType.BOOLEAN,
         default: false,
-        description: "Only display custom names when in DMs, and not in servers."
+        description: "Only display custom names when in DMs, and not in servers.",
     },
     alwaysShowEffects: {
         type: OptionType.BOOLEAN,
         default: false,
-        description: "Always show effects as if you were hovering."
+        description: "Always show effects as if you were hovering.",
     },
     includedNames: {
         type: OptionType.STRING,
-        description:
-            "The order to display usernames, display names, nicknames, friend names, and custom names. Use the following placeholders: {user}, {display}, {nick}, {friend}, {custom}. You can provide multiple name options to use as fallbacks if one is unavailable by separating them with commas as such: {custom, friend, nick}. You can have up to three prefixes and three suffixes per name.",
+        description: "The order to display usernames, display names, nicknames, friend names, and custom names. Use the following placeholders: {user}, {display}, {nick}, {friend}, {custom}. You can provide multiple name options to use as fallbacks if one is unavailable by separating them with commas as such: {custom, friend, nick}. You can have up to three prefixes and three suffixes per name.",
         default: "{custom, friend, nick} [{display}] (@{user})",
-        isValid: validTemplate
+        isValid: validTemplate,
     },
     customNameColor: {
         type: OptionType.STRING,
-        description:
-            'The color to use for the custom name you assigned a user if it\'s not the first displayed. Accepts any valid CSS input. Use "Role" to follow the user\'s top role colors, nitro effect colors, or IRCColors color if enabled. Use "Role+-#" to adjust the brightness by that percentage (ex: "Role+15")',
+        description: "The color to use for the custom name you assigned a user if it's not the first displayed. Accepts any valid CSS input. Use \"Role\" to follow the user's top role colors, nitro effect colors, or IRCColors color if enabled. Use \"Role+-#\" to adjust the brightness by that percentage (ex: \"Role+15\")",
         default: "Role-25",
-        isValid: validColor
+        isValid: validColor,
     },
     friendNameColor: {
         type: OptionType.STRING,
-        description:
-            'The color to use for a friend\'s nickname if it\'s not the first displayed. Accepts any valid CSS input. Use "Role" to follow the user\'s top role colors, nitro effect colors, or IRCColors color if enabled. Use "Role+-#" to adjust the brightness by that percentage (ex: "Role+15")',
+        description: "The color to use for a friend's nickname if it's not the first displayed. Accepts any valid CSS input. Use \"Role\" to follow the user's top role colors, nitro effect colors, or IRCColors color if enabled. Use \"Role+-#\" to adjust the brightness by that percentage (ex: \"Role+15\")",
         default: "Role-25",
-        isValid: validColor
+        isValid: validColor,
     },
     nicknameColor: {
         type: OptionType.STRING,
-        description:
-            'The color to use for the nickname if it\'s not the first displayed. Accepts any valid CSS input. Use "Role" to follow the user\'s top role colors, nitro effect colors, or IRCColors color if enabled. Use "Role+-#" to adjust the brightness by that percentage (ex: "Role+15")',
+        description: "The color to use for the nickname if it's not the first displayed. Accepts any valid CSS input. Use \"Role\" to follow the user's top role colors, nitro effect colors, or IRCColors color if enabled. Use \"Role+-#\" to adjust the brightness by that percentage (ex: \"Role+15\")",
         default: "Role-25",
-        isValid: validColor
+        isValid: validColor,
     },
     displayNameColor: {
         type: OptionType.STRING,
-        description:
-            'The color to use for the display name if it\'s not the first displayed. Accepts any valid CSS input. Use "Role" to follow the user\'s top role colors, nitro effect colors, or IRCColors color if enabled. Use "Role+-#" to adjust the brightness by that percentage (ex: "Role+15")',
+        description: "The color to use for the display name if it's not the first displayed. Accepts any valid CSS input. Use \"Role\" to follow the user's top role colors, nitro effect colors, or IRCColors color if enabled. Use \"Role+-#\" to adjust the brightness by that percentage (ex: \"Role+15\")",
         default: "Role-25",
-        isValid: validColor
+        isValid: validColor,
     },
     usernameColor: {
         type: OptionType.STRING,
-        description:
-            'The color to use for the username if it\'s not the first displayed. Accepts any valid CSS input. Use "Role" to follow the user\'s top role colors, nitro effect colors, or IRCColors color if enabled. Use "Role+-#" to adjust the brightness by that percentage (ex: "Role+15")',
+        description: "The color to use for the username if it's not the first displayed. Accepts any valid CSS input. Use \"Role\" to follow the user's top role colors, nitro effect colors, or IRCColors color if enabled. Use \"Role+-#\" to adjust the brightness by that percentage (ex: \"Role+15\")",
         default: "Role-25",
-        isValid: validColor
+        isValid: validColor,
     },
     triggerNameRerender: {
         type: OptionType.BOOLEAN,
         description: "Trigger a name rerender by toggling this setting.",
         default: false,
         hidden: true
-    }
+    },
 });
 
 export default definePlugin({
     name: "ShowMeYourName",
-    description:
-        "Display any permutation of custom nicknames, friend nicknames, server nicknames, display names, and usernames in chat.",
+    description: "Display any permutation of custom nicknames, friend nicknames, server nicknames, display names, and usernames in chat.",
     authors: [EquicordDevs.Etorix, Devs.Rini, Devs.TheKodeToad, Devs.sadan, Devs.prism],
     tags: ["Appearance", "Customisation"],
     searchTerms: ["SMYN", "Nicknames", "Custom Nicknames"],
@@ -1421,8 +1086,7 @@ export default definePlugin({
                 {
                     // Replace names in messages and replies.
                     match: /(?<=colorString:(\i),colorStrings:(\i).{0,900}?)style:.{0,120}?,(onClick:\i,onContextMenu:\i,children:)(.{0,250}?),"data-text":(\i\+\i)/,
-                    replace:
-                        '$3$self.getMessageNameElement({...arguments[0],colorString:$1,colorStrings:$2})??($4),"data-text":$self.getMessageNameText(arguments[0])??($5)'
+                    replace: "$3$self.getMessageNameElement({...arguments[0],colorString:$1,colorStrings:$2})??($4),\"data-text\":$self.getMessageNameText(arguments[0])??($5)"
                 },
                 {
                     // Pass the message object to the should-animate checker.
@@ -1436,57 +1100,52 @@ export default definePlugin({
             find: "activityInviteEducationActivity:",
             replacement: {
                 match: /(?=\i.\i.getName\((\i.guild_id),\i.id,(\i)\))/,
-                replace:
-                    '$self.getTypingMemberListProfilesReactionsVoiceNameText({user:$2,type:"typingIndicator",guildId:$1})??'
-            }
+                replace: "$self.getTypingMemberListProfilesReactionsVoiceNameText({user:$2,type:\"typingIndicator\",guildId:$1})??"
+            },
         },
         {
             // Replace names in DMs list.
             find: "ImpressionNames.DM_LIST_RIGHT_CLICK_MENU_SHOWN",
             replacement: {
                 match: /(?<=getMentionCount\(\i.id\)>0\),\i=)/,
-                replace:
-                    '$self.getTypingMemberListProfilesReactionsVoiceNameText({...arguments[0],type:"membersList"})??'
-            }
+                replace: "$self.getTypingMemberListProfilesReactionsVoiceNameText({...arguments[0],type:\"membersList\"})??"
+            },
         },
         {
             // Replace names in the friends list.
             find: "hasUniqueUsername()}),usernameClass",
             replacement: {
                 match: /(?<=nick:)(\i)/,
-                replace:
-                    '$self.getTypingMemberListProfilesReactionsVoiceNameText({user:arguments[0].user,type:"membersList"})??$1'
-            }
+                replace: "$self.getTypingMemberListProfilesReactionsVoiceNameText({user:arguments[0].user,type:\"membersList\"})??$1"
+            },
         },
         {
             // Don't block name style in friends list just
             // because the name is the same as the username.
-            find: 'location:"DiscordTag"});',
+            find: "location:\"DiscordTag\"});",
             replacement: {
                 match: /(?<=,forceUsername:(\i),.*?displayNameStyles:)\i!==\i\?(\i.displayNameStyles):null/,
                 replace: "!$1?$2:null"
-            }
+            },
         },
         {
             // Replace name in solo DM title bar and tooltip.
             find: "channel.isSystemDM(),",
             replacement: {
                 match: /(?<=length>0,\i=\i&&null!=\i&&!\i,)(\i=)(.{0,125}?"aria-label":)(\i.\i.getName\(\i\).{0,1700}?text:)(?=\i,position)/,
-                replace:
-                    'smynName=arguments[0].channel.recipients.length===1?$self.getTypingMemberListProfilesReactionsVoiceNameText({user:$self.UserStore.getUser(arguments[0].channel.recipients[0]),type:"profilesPopout"})??null:null,$1smynName??$2smynName??$3smynName??'
-            }
+                replace: "smynName=arguments[0].channel.recipients.length===1?$self.getTypingMemberListProfilesReactionsVoiceNameText({user:$self.UserStore.getUser(arguments[0].channel.recipients[0]),type:\"profilesPopout\"})??null:null,$1smynName??$2smynName??$3smynName??"
+            },
         },
         {
             // Track hovering on messages to animate gradients.
             // Attach the group ID to their messages to allow animating gradients within a group.
-            find: 'CUSTOM_GIFT?"":',
+            find: "CUSTOM_GIFT?\"\":",
             replacement: [
                 {
                     match: /(hasHovered:\i,isHovered:(\i).{0,2000})(let \i=\i.id===\i,\i=)/,
-                    replace:
-                        "$1arguments[0].message.showMeYourNameGroupId=!!arguments[0].groupId?`g-${arguments[0].groupId}`:null;$self.handleHoveringMessage(arguments[0].message,$2);$3"
-                }
-            ]
+                    replace: "$1arguments[0].message.showMeYourNameGroupId=!!arguments[0].groupId?`g-${arguments[0].groupId}`:null;$self.handleHoveringMessage(arguments[0].message,$2);$3",
+                },
+            ],
         },
         {
             // Replace names in mentions.
@@ -1499,7 +1158,7 @@ export default definePlugin({
                 {
                     match: /(?<=onContextMenu:\i,\.\.\.\i,children:)/,
                     replace: "showMeYourNameMention??",
-                    predicate: () => !isPluginEnabled(mentionAvatars.name)
+                    predicate: () => !isPluginEnabled(mentionAvatars.name),
                 }
             ]
         },
@@ -1517,8 +1176,7 @@ export default definePlugin({
             find: "let{colorRoleName:",
             replacement: {
                 match: /(let{colorRoleName:\i,colorString:\i,colorStrings:\i,)name:(\i)/,
-                replace:
-                    '$1showMeYourNameName:$2=$self.getTypingMemberListProfilesReactionsVoiceNameText({...arguments[0],type:"membersList"})??(arguments[0].name)'
+                replace: "$1showMeYourNameName:$2=$self.getTypingMemberListProfilesReactionsVoiceNameText({...arguments[0],type:\"membersList\"})??(arguments[0].name)"
             }
         },
         {
@@ -1526,9 +1184,8 @@ export default definePlugin({
             find: "shouldWrap:!0,loop:!0,inProfile:!0",
             replacement: {
                 match: /displayName:(\i),(?=trailing:\i,|size:\i=|displayNameSize:\i)/g,
-                replace:
-                    'showMeYourNameNickname:$1=$self.getTypingMemberListProfilesReactionsVoiceNameText({...arguments[0],type:"profilesPopout"})??(arguments[0].nickname),'
-            }
+                replace: "showMeYourNameNickname:$1=$self.getTypingMemberListProfilesReactionsVoiceNameText({...arguments[0],type:\"profilesPopout\"})??(arguments[0].nickname),"
+            },
         },
         {
             // Replace names in the profile tooltip for switching between guild and global profiles.
@@ -1538,13 +1195,11 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(displayName:)(\i.\i.getName\(void 0,void 0,\i\))/,
-                    replace:
-                        '$1$self.getTypingMemberListProfilesReactionsVoiceNameText({user:arguments[0].user,guildId:null,type:"profilesTooltip"})??($2)'
+                    replace: "$1$self.getTypingMemberListProfilesReactionsVoiceNameText({user:arguments[0].user,guildId:null,type:\"profilesTooltip\"})??($2)"
                 },
                 {
                     match: /(displayName:)(\i.\i.getName\(\i,\i,\i\))/,
-                    replace:
-                        '$1$self.getTypingMemberListProfilesReactionsVoiceNameText({user:arguments[0].user,guildId:arguments[0].guildId,type:"profilesTooltip"})??($2)'
+                    replace: "$1$self.getTypingMemberListProfilesReactionsVoiceNameText({user:arguments[0].user,guildId:arguments[0].guildId,type:\"profilesTooltip\"})??($2)"
                 }
             ]
         },
@@ -1553,8 +1208,7 @@ export default definePlugin({
             find: "reactionTooltip1,",
             replacement: {
                 match: /(\i.\i.getName\((\i),\i\?\.id,(\i)\))/,
-                replace:
-                    '$self.getTypingMemberListProfilesReactionsVoiceNameText({user:$3,guildId:$2,type:"reactionsTooltip"})??($1)'
+                replace: "$self.getTypingMemberListProfilesReactionsVoiceNameText({user:$3,guildId:$2,type:\"reactionsTooltip\"})??($1)"
             }
         },
         {
@@ -1564,14 +1218,12 @@ export default definePlugin({
                 {
                     // Track hovering over reaction popouts.
                     match: /(?<=\(0,\i.\i\)\(\i.\i,{className:\i.\i,)(?=(?:align:\i\.\i\.\i\.CENTER|onContextMenu:\i=>))/g,
-                    replace:
-                        "onMouseEnter:()=>{$self.addHoveringReactionPopout(arguments[0].user.id)},onMouseLeave:()=>{$self.removeHoveringReactionPopout(arguments[0].user.id)},"
+                    replace: "onMouseEnter:()=>{$self.addHoveringReactionPopout(arguments[0].user.id)},onMouseLeave:()=>{$self.removeHoveringReactionPopout(arguments[0].user.id)},"
                 },
                 {
                     // Replace names in reaction popouts.
                     match: /(?<=Child,{className:\i.\i,children:)/g,
-                    replace:
-                        '($self.getTypingMemberListProfilesReactionsVoiceNameElement({user:arguments[0].user,guildId:arguments[0].guildId,type:"reactionsPopout"}))??'
+                    replace: "($self.getTypingMemberListProfilesReactionsVoiceNameElement({user:arguments[0].user,guildId:arguments[0].guildId,type:\"reactionsPopout\"}))??"
                 }
             ]
         },
@@ -1580,8 +1232,7 @@ export default definePlugin({
             find: ",connectUserDragSource:",
             replacement: {
                 match: /(serverDeaf:\i,)nick:(\i)/,
-                replace:
-                    '$1showMeYourNameVoice:$2=$self.getTypingMemberListProfilesReactionsVoiceNameText({user:arguments[0].user,guildId:arguments[0].channel.guild_id,type:"voiceChannel"})??(arguments[0].nick)'
+                replace: "$1showMeYourNameVoice:$2=$self.getTypingMemberListProfilesReactionsVoiceNameText({user:arguments[0].user,guildId:arguments[0].channel.guild_id,type:\"voiceChannel\"})??(arguments[0].nick)"
             }
         }
     ],

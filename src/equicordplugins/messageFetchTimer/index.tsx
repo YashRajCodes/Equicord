@@ -21,23 +21,23 @@ interface FetchTiming {
 
 let currentFetch: FetchTiming | null = null;
 let currentChannelId: string | null = null;
-const channelTimings: Map<string, { time: number; timestamp: Date }> = new Map();
+const channelTimings: Map<string, { time: number; timestamp: Date; }> = new Map();
 
 const settings = definePluginSettings({
     showIcon: {
         type: OptionType.BOOLEAN,
         description: "Show fetch time icon in message bar",
-        default: true
+        default: true,
     },
     showMs: {
         type: OptionType.BOOLEAN,
         description: "Show milliseconds in timing",
-        default: true
+        default: true,
     },
     iconColor: {
         type: OptionType.STRING,
         description: "Icon color (CSS color value)",
-        default: "#00d166"
+        default: "#00d166",
     }
 });
 
@@ -63,22 +63,21 @@ const FetchTimeButton: ChatBarButtonFactory = ({ isMainChat }) => {
     const timeAgo = formatTimeAgo(timestamp);
 
     return (
-        <ChatBarButton tooltip={`Messages loaded in ${Math.round(time)}ms (${timeAgo})`} onClick={() => {}}>
-            <div
-                style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "4px"
-                }}
-            >
+        <ChatBarButton
+            tooltip={`Messages loaded in ${Math.round(time)}ms (${timeAgo})`}
+            onClick={() => { }}
+        >
+            <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px"
+            }}>
                 {FetchTimeIcon()}
-                <span
-                    style={{
-                        fontSize: "12px",
-                        color: iconColor,
-                        fontWeight: "500"
-                    }}
-                >
+                <span style={{
+                    fontSize: "12px",
+                    color: iconColor,
+                    fontWeight: "500"
+                }}>
                     {displayTime}
                 </span>
             </div>
@@ -88,7 +87,12 @@ const FetchTimeButton: ChatBarButtonFactory = ({ isMainChat }) => {
 
 function FetchTimeIcon() {
     return (
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+        <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+        >
             <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
         </svg>
     );

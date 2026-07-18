@@ -17,7 +17,8 @@ export async function startNativeLogExport(_event: IpcMainInvokeEvent, filename:
         filters: [{ name: "JSON", extensions: ["json"] }]
     });
 
-    if (canceled || !filePath) throw new Error("No file path selected");
+    if (canceled || !filePath)
+        throw new Error("No file path selected");
 
     const stream = createWriteStream(filePath, { flags: "w", encoding: "utf-8" });
 

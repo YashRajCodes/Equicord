@@ -24,14 +24,15 @@ export async function ensureUnreadFallbackCountsLoaded(userId: string) {
     if (unreadFallbacks[userId]) return unreadFallbacks[userId];
     if (unreadFallbackLoads.has(userId)) return unreadFallbackLoads.get(userId)!;
 
-    const loadPromise = DataStore.get<PersistedUnreadFallbacks>(DATASTORE_KEY).then(fallbacks => {
-        unreadFallbacks[userId] = {
-            ...(fallbacks?.[userId] ?? {}),
-            ...(unreadFallbacks[userId] ?? {})
-        };
-        unreadFallbackLoads.delete(userId);
-        return unreadFallbacks[userId];
-    });
+    const loadPromise = DataStore.get<PersistedUnreadFallbacks>(DATASTORE_KEY)
+        .then(fallbacks => {
+            unreadFallbacks[userId] = {
+                ...(fallbacks?.[userId] ?? {}),
+                ...(unreadFallbacks[userId] ?? {})
+            };
+            unreadFallbackLoads.delete(userId);
+            return unreadFallbacks[userId];
+        });
 
     unreadFallbackLoads.set(userId, loadPromise);
     return loadPromise;
@@ -47,12 +48,10 @@ export function updateUnreadFallbackCounts(userId: string, channelStates: Channe
     const pendingSave = unreadFallbackSaves.get(userId) ?? Promise.resolve();
     const nextSave = pendingSave
         .catch(() => void 0)
-        .then(() =>
-            DataStore.update<PersistedUnreadFallbacks>(DATASTORE_KEY, old => ({
-                ...(old ?? {}),
-                [userId]: unreadFallbacks[userId]
-            }))
-        );
+        .then(() => DataStore.update<PersistedUnreadFallbacks>(DATASTORE_KEY, old => ({
+            ...(old ?? {}),
+            [userId]: unreadFallbacks[userId]
+        })));
 
     unreadFallbackSaves.set(userId, nextSave);
 }

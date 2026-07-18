@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderModalProps } from "@vencord/discord-types";
-
 import { BaseText } from "@components/BaseText";
 import { TidalStore, Track } from "@equicordplugins/musicControls/tidal/TidalStore";
-import { Modal, React } from "@webpack/common";
+import { RenderModalProps } from "@vencord/discord-types";
+import { Modal,React } from "@webpack/common";
 
 import { cl, NoteSvg, scrollClasses, useLyrics } from "./util";
 
@@ -23,12 +22,14 @@ function getTitleNode(track: Track | null) {
     return (
         <div className={cl("header-content")}>
             {track?.imageSrc && (
-                <img src={track.imageSrc} alt={track.album || track.name} className={cl("album-image")} />
+                <img
+                    src={track.imageSrc}
+                    alt={track.album || track.name}
+                    className={cl("album-image")}
+                />
             )}
             <div>
-                <BaseText size="sm" weight="semibold">
-                    {track.name}
-                </BaseText>
+                <BaseText size="sm" weight="semibold">{track.name}</BaseText>
                 <BaseText size="sm">by {track.artist}</BaseText>
                 {track.album && <BaseText size="sm">on {track.album}</BaseText>}
             </div>
@@ -36,7 +37,7 @@ function getTitleNode(track: Track | null) {
     );
 }
 
-export function LyricsModal({ rootProps }: { rootProps: RenderModalProps }) {
+export function LyricsModal({ rootProps }: { rootProps: RenderModalProps; }) {
     const { track, lyrics, currLrcIndex } = useLyrics({ scroll: false });
     const currentLyrics = lyrics || null;
     const position = track ? TidalStore.mPosition : 0;
@@ -52,16 +53,16 @@ export function LyricsModal({ rootProps }: { rootProps: RenderModalProps }) {
                             weight={currLrcIndex === i ? "semibold" : "normal"}
                             className={currLrcIndex === i ? cl("modal-line-current") : cl("modal-line")}
                         >
-                            <span className={cl("modal-timestamp")} onClick={() => TidalStore.seek(line.time * 1000)}>
+                            <span className={cl("modal-timestamp")}
+                                onClick={() => TidalStore.seek(line.time * 1000)}
+                            >
                                 {formatTime(line.time)}
                             </span>
                             {line.text || NoteSvg(cl("modal-note"))}
                         </BaseText>
                     ))
                 ) : (
-                    <BaseText size="sm" className={cl("modal-no-lyrics")}>
-                        No lyrics available :(
-                    </BaseText>
+                    <BaseText size="sm" className={cl("modal-no-lyrics")}>No lyrics available :(</BaseText>
                 )}
             </div>
         </Modal>

@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findComponentByCodeLazy } from "@webpack";
-
 import type { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { CloudUploadIcon } from "@components/Icons";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import { findComponentByCodeLazy } from "@webpack";
 import { Menu } from "@webpack/common";
 
 import { abortActiveClipUploads, type ClipMetadata } from "./upload";
@@ -39,13 +38,7 @@ const ctxMenuPatch: NavContextMenuPatchCallback = (children, props) => {
 export default definePlugin({
     name: "ClipUpload",
     description: "Adds a button to upload a local video file as a Discord clip.",
-    authors: [
-        EquicordDevs.qdnx,
-        EquicordDevs.BachLe2000,
-        EquicordDevs.pandaptable,
-        EquicordDevs.Nyro,
-        EquicordDevs.Jahsohsani
-    ],
+    authors: [EquicordDevs.qdnx, EquicordDevs.BachLe2000, EquicordDevs.pandaptable, EquicordDevs.Nyro, EquicordDevs.Jahsohsani],
     tags: ["Media", "Utility"],
 
     patches: [
@@ -64,16 +57,16 @@ export default definePlugin({
 
     stop: abortActiveClipUploads,
 
-    UploadClipFileButton: ErrorBoundary.wrap(
-        ({ channelId, clip }: ClipUploadActionProps) => {
-            if (!clip) return null;
+    UploadClipFileButton: ErrorBoundary.wrap(({ channelId, clip }: ClipUploadActionProps) => {
+        if (!clip) return null;
 
-            return (
-                <ActionBarIcon tooltip="Upload clip file" onClick={() => openUploadClipFileModal(channelId, clip)}>
-                    <CloudUploadIcon width={20} height={20} />
-                </ActionBarIcon>
-            );
-        },
-        { noop: true }
-    )
+        return (
+            <ActionBarIcon
+                tooltip="Upload clip file"
+                onClick={() => openUploadClipFileModal(channelId, clip)}
+            >
+                <CloudUploadIcon width={20} height={20} />
+            </ActionBarIcon>
+        );
+    }, { noop: true })
 });

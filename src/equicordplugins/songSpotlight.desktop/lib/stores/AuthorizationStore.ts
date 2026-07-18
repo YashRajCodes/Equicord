@@ -37,8 +37,8 @@ export const useAuthorizationStore: PersistedZustandStore<AuthorizationState> = 
                         set({
                             tokens: {
                                 ...get().tokens,
-                                [userId]: { access, refresh }
-                            }
+                                [userId]: { access, refresh },
+                            },
                         });
                     }
                 },
@@ -47,7 +47,7 @@ export const useAuthorizationStore: PersistedZustandStore<AuthorizationState> = 
                 },
                 isAuthorized() {
                     return !!get().getToken();
-                }
+                },
             })) as ZustandDefinition<AuthorizationState>,
             {
                 name: "songspotlight-auth",
@@ -55,13 +55,10 @@ export const useAuthorizationStore: PersistedZustandStore<AuthorizationState> = 
                 migrate(persisted: any, version: number) {
                     if (version === 0) {
                         persisted.tokens = Object.fromEntries(
-                            Object.entries(persisted.tokens).map(([userId, access]) => [
-                                userId,
-                                {
-                                    access,
-                                    refresh: ""
-                                }
-                            ])
+                            Object.entries(persisted.tokens).map(([userId, access]) => [userId, {
+                                access,
+                                refresh: "",
+                            }]),
                         );
                     }
 
@@ -76,10 +73,10 @@ export const useAuthorizationStore: PersistedZustandStore<AuthorizationState> = 
                     },
                     async removeItem(name: string) {
                         return await DataStore.del(name);
-                    }
+                    },
                 },
-                partialize: ({ tokens }) => ({ tokens })
-            }
-        )
+                partialize: ({ tokens }) => ({ tokens }),
+            },
+        ),
     )
 );

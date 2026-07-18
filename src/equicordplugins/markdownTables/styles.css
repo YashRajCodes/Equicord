@@ -132,7 +132,12 @@
 }
 
 .vc-markdownTables-mask-left .vc-markdownTables-scroll {
-    mask-image: linear-gradient(to right, transparent 0, black var(--vc-markdown-tables-mask-size), black 100%);
+    mask-image: linear-gradient(
+        to right,
+        transparent 0,
+        black var(--vc-markdown-tables-mask-size),
+        black 100%
+    );
 }
 
 .vc-markdownTables-mask-right .vc-markdownTables-scroll {

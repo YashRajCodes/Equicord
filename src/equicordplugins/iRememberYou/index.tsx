@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { addMessagePreSendListener, removeMessagePreSendListener } from "@api/MessageEvents";
 import { EyeIcon } from "@components/Icons";
 import SettingsPlugin from "@plugins/_core/settings";
@@ -37,7 +38,9 @@ export default definePlugin({
         await data.initializeUsersCollection();
         data.writeGuildsOwnersToCollection();
         data.writeMembersFromUserGuildsToCollection();
-        data._onMessagePreSend_preSend = addMessagePreSendListener(data.onMessagePreSend.bind(data));
+        data._onMessagePreSend_preSend = addMessagePreSendListener(
+            data.onMessagePreSend.bind(data)
+        );
         data.storageAutoSaveProtocol();
     },
 
@@ -47,5 +50,5 @@ export default definePlugin({
         const dataManager = this.dataManager as Data;
         removeMessagePreSendListener(dataManager._onMessagePreSend_preSend);
         clearInterval(dataManager._storageAutoSaveProtocol_interval);
-    }
+    },
 });

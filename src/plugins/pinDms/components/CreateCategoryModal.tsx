@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderModalProps } from "@vencord/discord-types";
-import { extractAndLoadChunksLazy, findComponentByCodeLazy } from "@webpack";
-
 import { Heading } from "@components/Heading";
 import { DEFAULT_COLOR, SWATCHES } from "@plugins/pinDms/constants";
 import { categoryLen, createCategory, getCategory } from "@plugins/pinDms/data";
 import { classNameFactory } from "@utils/css";
+import { RenderModalProps } from "@vencord/discord-types";
+import { extractAndLoadChunksLazy, findComponentByCodeLazy } from "@webpack";
 import { ColorPicker, Modal, openModalLazy, TextInput, Toasts, useMemo, useState } from "@webpack/common";
 
 interface ColorPickerWithSwatchesProps {
@@ -76,14 +75,12 @@ export function NewCategoryModal({ categoryId, modalProps, initialChannelId }: P
         <Modal
             {...modalProps}
             title={`${categoryId ? "Edit" : "New"} Category`}
-            actions={[
-                {
-                    text: categoryId ? "Save" : "Create",
-                    variant: "primary",
-                    onClick: onSave,
-                    disabled: !name
-                }
-            ]}
+            actions={[{
+                text: categoryId ? "Save" : "Create",
+                variant: "primary",
+                onClick: onSave,
+                disabled: !name
+            }]}
         >
             <form
                 className={cl("content")}
@@ -94,7 +91,10 @@ export function NewCategoryModal({ categoryId, modalProps, initialChannelId }: P
             >
                 <section>
                     <Heading tag="h5">Name</Heading>
-                    <TextInput value={name} onChange={e => setName(e)} />
+                    <TextInput
+                        value={name}
+                        onChange={e => setName(e)}
+                    />
                 </section>
                 <section>
                     <Heading tag="h5">Color</Heading>
@@ -124,7 +124,5 @@ export function NewCategoryModal({ categoryId, modalProps, initialChannelId }: P
 export const openCategoryModal = (categoryId: string | null, channelId: string | null) =>
     openModalLazy(async () => {
         await requireSettingsModal();
-        return modalProps => (
-            <NewCategoryModal categoryId={categoryId} modalProps={modalProps} initialChannelId={channelId} />
-        );
+        return modalProps => <NewCategoryModal categoryId={categoryId} modalProps={modalProps} initialChannelId={channelId} />;
     });

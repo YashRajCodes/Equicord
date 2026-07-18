@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Style } from "@api/Styles";
 
@@ -65,7 +65,7 @@ declare global {
     export var VesktopNative: any;
     export var unsafeWindow: any;
 
-    interface Window extends Record<PropertyKey, any> {}
+    interface Window extends Record<PropertyKey, any> { }
 }
 
-export {};
+export { };

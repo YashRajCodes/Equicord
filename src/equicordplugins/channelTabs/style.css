@@ -45,9 +45,7 @@
     flex-direction: row;
     align-items: center;
     gap: 0.5rem;
-    transition:
-        gap 0.15s ease,
-        padding 0.2s ease-in-out;
+    transition: gap 0.15s ease, padding 0.2s ease-in-out;
 }
 
 .vc-channeltabs-tab-container,
@@ -167,11 +165,7 @@
     border-radius: 4px;
     align-items: center;
     position: relative;
-    transition:
-        transform 0.14s ease,
-        border-color 0.14s ease,
-        box-shadow 0.14s ease,
-        background-color 0.14s ease;
+    transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease, background-color 0.14s ease;
 }
 
 .vc-channeltabs-bookmark.vc-channeltabs-wider {
@@ -402,10 +396,7 @@
     overflow: hidden;
     transform: translateY(-50%) scaleX(0.92);
     transform-origin: right center;
-    transition:
-        width 0.18s ease,
-        opacity 0.15s ease,
-        transform 0.18s ease;
+    transition: width 0.18s ease, opacity 0.15s ease, transform 0.18s ease;
 }
 
 .vc-channeltabs-bookmark-search-shell-open .vc-channeltabs-bookmark-search-field {
@@ -486,9 +477,7 @@
     margin: 0 0 0 4px;
     border-radius: 50%;
     color: var(--text-muted);
-    transition:
-        all 0.15s ease,
-        transform 0.2s ease-in-out;
+    transition: all 0.15s ease, transform 0.2s ease-in-out;
 }
 
 .vc-channeltabs-close-button:hover {
@@ -571,8 +560,9 @@
     min-width: unset;
 }
 
-.vc-channeltabs-preview-tab
-    > :is(.vc-channeltabs-emoji-container, .vc-channeltabs-typing-indicator, [data-has-mention]) {
+.vc-channeltabs-preview-tab > :is(.vc-channeltabs-emoji-container,
+    .vc-channeltabs-typing-indicator,
+    [data-has-mention]) {
     display: none;
 }
 
@@ -597,24 +587,19 @@
 /* stylelint-disable-next-line no-descending-specificity */
 .vc-channeltabs-tab:has([data-has-mention="true"]) {
     animation: vc-channeltabs-mention-pulse 2s ease-in-out infinite;
-    box-shadow:
-        0 0 8px rgb(242 63 66 / 60%),
-        0 0 16px rgb(242 63 66 / 30%);
+    box-shadow: 0 0 8px rgb(242 63 66 / 60%), 0 0 16px rgb(242 63 66 / 30%);
 }
 
 @keyframes vc-channeltabs-mention-pulse {
+
     /* stylelint-disable-next-line rule-empty-line-before */
     0%,
     100% {
-        box-shadow:
-            0 0 8px rgb(242 63 66 / 60%),
-            0 0 16px rgb(242 63 66 / 30%);
+        box-shadow: 0 0 8px rgb(242 63 66 / 60%), 0 0 16px rgb(242 63 66 / 30%);
     }
 
     50% {
-        box-shadow:
-            0 0 12px rgb(242 63 66 / 80%),
-            0 0 24px rgb(242 63 66 / 50%);
+        box-shadow: 0 0 12px rgb(242 63 66 / 80%), 0 0 24px rgb(242 63 66 / 50%);
     }
 }
 
@@ -629,24 +614,19 @@
 /* Pink Nitro glow effect (easter egg) */
 .vc-channeltabs-tab-nitro {
     animation: vc-channeltabs-nitro-pulse 3s ease-in-out infinite;
-    box-shadow:
-        0 0 10px rgb(255 115 250 / 70%),
-        0 0 20px rgb(255 115 250 / 40%);
+    box-shadow: 0 0 10px rgb(255 115 250 / 70%), 0 0 20px rgb(255 115 250 / 40%);
 }
 
 @keyframes vc-channeltabs-nitro-pulse {
+
     /* stylelint-disable-next-line rule-empty-line-before */
     0%,
     100% {
-        box-shadow:
-            0 0 10px rgb(255 115 250 / 70%),
-            0 0 20px rgb(255 115 250 / 40%);
+        box-shadow: 0 0 10px rgb(255 115 250 / 70%), 0 0 20px rgb(255 115 250 / 40%);
     }
 
     50% {
-        box-shadow:
-            0 0 16px rgb(255 115 250 / 90%),
-            0 0 32px rgb(255 115 250 / 60%);
+        box-shadow: 0 0 16px rgb(255 115 250 / 90%), 0 0 32px rgb(255 115 250 / 60%);
     }
 }
 
@@ -669,6 +649,7 @@
 }
 
 @keyframes vc-channeltabs-nitro-icon-gradient {
+
     /* stylelint-disable-next-line rule-empty-line-before */
     0%,
     100% {
@@ -691,16 +672,14 @@
     position: absolute;
     inset: 0;
     border-radius: 11px;
-    background: linear-gradient(
-        135deg,
-        transparent,
-        transparent 25%,
-        rgb(114 137 218) 40%,
-        rgb(88 101 242) 50%,
-        rgb(71 82 196) 60%,
-        transparent 75%,
-        transparent
-    );
+    background: linear-gradient(135deg,
+            transparent,
+            transparent 25%,
+            rgb(114 137 218) 40%,
+            rgb(88 101 242) 50%,
+            rgb(71 82 196) 60%,
+            transparent 75%,
+            transparent);
     background-size: 300% 300%;
     animation: vc-channeltabs-quests-diagonal 5s linear infinite;
     opacity: 0.8;
@@ -718,6 +697,7 @@
 }
 
 @keyframes vc-channeltabs-quests-diagonal {
+
     /* stylelint-disable-next-line rule-empty-line-before */
     0%,
     40% {
@@ -868,10 +848,7 @@
 
 /* Disable tab transitions when any tab is being dragged for smoother reordering */
 .vc-channeltabs-tab-container:has(.vc-channeltabs-tab-dragging) .vc-channeltabs-tab:not(.vc-channeltabs-tab-dragging) {
-    transition:
-        transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-        opacity 0.2s ease,
-        box-shadow 0.2s ease;
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.2s ease, box-shadow 0.2s ease;
 }
 
 .vc-channeltabs-tab-drop-target {
@@ -879,7 +856,7 @@
 }
 
 .vc-channeltabs-tab-drop-target::before {
-    content: "";
+    content: '';
     position: absolute;
     left: -4px;
     top: 0;
@@ -891,6 +868,7 @@
 }
 
 @keyframes vc-channeltabs-drop-indicator {
+
     /* stylelint-disable-next-line rule-empty-line-before */
     0%,
     100% {
@@ -912,8 +890,7 @@
 /* stylelint-disable no-descending-specificity */
 
 /* Hover animation - disable if setting is off */
-.vc-channeltabs-container.vc-channeltabs-no-hover-animation
-    .vc-channeltabs-tab:hover:not(.vc-channeltabs-tab-selected) {
+.vc-channeltabs-container.vc-channeltabs-no-hover-animation .vc-channeltabs-tab:hover:not(.vc-channeltabs-tab-selected) {
     transform: none !important;
 }
 
@@ -952,17 +929,14 @@
 }
 
 .vc-channeltabs-container.vc-channeltabs-no-enter-exit-animation .vc-channeltabs-tab {
-    transition:
-        opacity 0.2s ease-out,
+    transition: opacity 0.2s ease-out,
         transform 0.2s ease-in-out,
         background-color 0.15s ease !important;
 }
 
 /* Icon pop animation - disable if setting is off */
 .vc-channeltabs-container.vc-channeltabs-no-icon-pop-animation .vc-channeltabs-tab-selected .vc-channeltabs-icon,
-.vc-channeltabs-container.vc-channeltabs-no-icon-pop-animation
-    .vc-channeltabs-tab-selected
-    .vc-channeltabs-guild-acronym-icon {
+.vc-channeltabs-container.vc-channeltabs-no-icon-pop-animation .vc-channeltabs-tab-selected .vc-channeltabs-guild-acronym-icon {
     animation: none !important;
 }
 
@@ -985,9 +959,7 @@
 }
 
 /* Close button rotation - disable if setting is off */
-.vc-channeltabs-container.vc-channeltabs-no-close-rotation
-    .vc-channeltabs-tab-selected
-    .vc-channeltabs-close-button:hover {
+.vc-channeltabs-container.vc-channeltabs-no-close-rotation .vc-channeltabs-tab-selected .vc-channeltabs-close-button:hover {
     transform: none !important;
 }
 
@@ -995,9 +967,7 @@
     transform: none !important;
 }
 
-.vc-channeltabs-container.vc-channeltabs-no-close-rotation
-    .vc-channeltabs-tab-selected
-    .vc-channeltabs-close-button:active {
+.vc-channeltabs-container.vc-channeltabs-no-close-rotation .vc-channeltabs-tab-selected .vc-channeltabs-close-button:active {
     transform: none !important;
 }
 
@@ -1047,12 +1017,8 @@
 }
 
 /* Make close button appear instantly with more specificity */
-.vc-channeltabs-container.vc-channeltabs-no-compact-animation
-    .vc-channeltabs-tab-compact:hover
-    .vc-channeltabs-close-button-compact,
-.vc-channeltabs-container.vc-channeltabs-no-compact-animation
-    .vc-channeltabs-tab-compact.vc-channeltabs-tab-selected
-    .vc-channeltabs-close-button-compact {
+.vc-channeltabs-container.vc-channeltabs-no-compact-animation .vc-channeltabs-tab-compact:hover .vc-channeltabs-close-button-compact,
+.vc-channeltabs-container.vc-channeltabs-no-compact-animation .vc-channeltabs-tab-compact.vc-channeltabs-tab-selected .vc-channeltabs-close-button-compact {
     transition: none !important;
     transition-delay: 0s !important;
 }
@@ -1066,54 +1032,40 @@
     transition: none !important;
 }
 
-.vc-channeltabs-container.vc-channeltabs-no-tab-positioning
-    .vc-channeltabs-tab-container:has(.vc-channeltabs-tab-dragging)
-    .vc-channeltabs-tab:not(.vc-channeltabs-tab-dragging) {
+.vc-channeltabs-container.vc-channeltabs-no-tab-positioning .vc-channeltabs-tab-container:has(.vc-channeltabs-tab-dragging) .vc-channeltabs-tab:not(.vc-channeltabs-tab-dragging) {
     transition: none !important;
 }
 
 /* Compact auto-expand selected - disable if setting is off */
-.vc-channeltabs-container.vc-channeltabs-no-compact-auto-expand
-    .vc-channeltabs-tab-compact.vc-channeltabs-tab-selected
-    .vc-channeltabs-tab-inner {
+.vc-channeltabs-container.vc-channeltabs-no-compact-auto-expand .vc-channeltabs-tab-compact.vc-channeltabs-tab-selected .vc-channeltabs-tab-inner {
     padding-right: 0 !important;
 }
 
-.vc-channeltabs-container.vc-channeltabs-no-compact-auto-expand
-    .vc-channeltabs-tab-compact.vc-channeltabs-tab-selected
-    .vc-channeltabs-name-text {
+.vc-channeltabs-container.vc-channeltabs-no-compact-auto-expand .vc-channeltabs-tab-compact.vc-channeltabs-tab-selected .vc-channeltabs-name-text {
     max-width: 0 !important;
     opacity: 0 !important;
     transform: translateX(-20px) !important;
 }
 
 /* Hide close button on selected compact tabs when auto-expand is disabled */
-.vc-channeltabs-container.vc-channeltabs-no-compact-auto-expand
-    .vc-channeltabs-tab-compact.vc-channeltabs-tab-selected
-    .vc-channeltabs-close-button-compact {
+.vc-channeltabs-container.vc-channeltabs-no-compact-auto-expand .vc-channeltabs-tab-compact.vc-channeltabs-tab-selected .vc-channeltabs-close-button-compact {
     opacity: 0 !important;
     pointer-events: none;
 }
 
 /* Compact hover expansion - disable if setting is off */
-.vc-channeltabs-container.vc-channeltabs-no-compact-hover-expand
-    .vc-channeltabs-tab-compact:hover
-    .vc-channeltabs-tab-inner {
+.vc-channeltabs-container.vc-channeltabs-no-compact-hover-expand .vc-channeltabs-tab-compact:hover .vc-channeltabs-tab-inner {
     padding-right: 0 !important;
 }
 
-.vc-channeltabs-container.vc-channeltabs-no-compact-hover-expand
-    .vc-channeltabs-tab-compact:hover
-    .vc-channeltabs-name-text {
+.vc-channeltabs-container.vc-channeltabs-no-compact-hover-expand .vc-channeltabs-tab-compact:hover .vc-channeltabs-name-text {
     max-width: 0 !important;
     opacity: 0 !important;
     transform: translateX(-20px) !important;
 }
 
 /* Hide close button on hover for compact tabs when hover-expand is disabled */
-.vc-channeltabs-container.vc-channeltabs-no-compact-hover-expand
-    .vc-channeltabs-tab-compact:hover
-    .vc-channeltabs-close-button-compact {
+.vc-channeltabs-container.vc-channeltabs-no-compact-hover-expand .vc-channeltabs-tab-compact:hover .vc-channeltabs-close-button-compact {
     opacity: 0 !important;
     pointer-events: none;
 }
@@ -1279,6 +1231,7 @@
 }
 
 @keyframes keybind-pulse {
+
     /* stylelint-disable-next-line rule-empty-line-before */
     0%,
     100% {
@@ -1301,6 +1254,7 @@
 }
 
 @keyframes shake {
+
     /* stylelint-disable-next-line rule-empty-line-before */
     0%,
     100% {
@@ -1366,8 +1320,7 @@
 }
 
 /* directional slide animations for compact mode */
-.vc-channeltabs-tab-compact:not(:hover, .vc-channeltabs-tab-selected)
-    .vc-channeltabs-tab-number-badge[data-position="right"] {
+.vc-channeltabs-tab-compact:not(:hover, .vc-channeltabs-tab-selected) .vc-channeltabs-tab-number-badge[data-position="right"] {
     opacity: 0;
     transform: translateX(-6px) scale(0.95);
     max-width: 0;
@@ -1375,8 +1328,7 @@
     pointer-events: none;
 }
 
-.vc-channeltabs-tab-compact:not(:hover, .vc-channeltabs-tab-selected)
-    .vc-channeltabs-tab-number-badge[data-position="left"] {
+.vc-channeltabs-tab-compact:not(:hover, .vc-channeltabs-tab-selected) .vc-channeltabs-tab-number-badge[data-position="left"] {
     opacity: 0;
     transform: translateX(-6px) scale(0.95);
     max-width: 0;

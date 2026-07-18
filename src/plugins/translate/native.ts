@@ -7,14 +7,16 @@
 import { IpcMainInvokeEvent } from "electron";
 
 export async function makeDeeplTranslateRequest(_: IpcMainInvokeEvent, pro: boolean, apiKey: string, payload: string) {
-    const url = pro ? "https://api.deepl.com/v2/translate" : "https://api-free.deepl.com/v2/translate";
+    const url = pro
+        ? "https://api.deepl.com/v2/translate"
+        : "https://api-free.deepl.com/v2/translate";
 
     try {
         const res = await fetch(url, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Authorization: `DeepL-Auth-Key ${apiKey}`
+                "Authorization": `DeepL-Auth-Key ${apiKey}`
             },
             body: payload
         });
@@ -26,13 +28,7 @@ export async function makeDeeplTranslateRequest(_: IpcMainInvokeEvent, pro: bool
     }
 }
 
-export async function makeKagiTranslateRequest(
-    _: IpcMainInvokeEvent,
-    token: string,
-    text: string,
-    sourceLang: string,
-    targetLang: string
-) {
+export async function makeKagiTranslateRequest(_: IpcMainInvokeEvent, token: string, text: string, sourceLang: string, targetLang: string) {
     const url = "https://translate.kagi.com/api/translate";
 
     try {
@@ -40,14 +36,14 @@ export async function makeKagiTranslateRequest(
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                Cookie: `kagi_session=${token}`
+                "Cookie": `kagi_session=${token}`
             },
             body: JSON.stringify({
                 text,
                 from: sourceLang,
                 to: targetLang,
                 model: "standard"
-            })
+            }),
         });
 
         const data = await res.json();

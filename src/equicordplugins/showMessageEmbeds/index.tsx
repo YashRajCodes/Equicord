@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Message } from "@vencord/discord-types";
-import { findByCodeLazy } from "@webpack";
-
 import { findGroupChildrenByChildId } from "@api/ContextMenu";
 import { updateMessage } from "@api/MessageUpdater";
 import { ImageInvisible, ImageVisible } from "@components/Icons";
@@ -14,6 +11,8 @@ import { EquicordDevs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import { parseUrl } from "@utils/misc";
 import definePlugin from "@utils/types";
+import { Message } from "@vencord/discord-types";
+import { findByCodeLazy } from "@webpack";
 import { ChannelStore, Constants, Menu, MessageStore, React, RestAPI, showToast, Toasts } from "@webpack/common";
 
 const logger = new Logger("ShowMessageEmbeds");
@@ -42,42 +41,30 @@ const addButton = (children, message, url) => {
     url = normaliseUrl(url);
 
     if (!isEmbedInMessage(message, url)) {
-        children.splice(
-            0,
-            0,
+        children.splice(0, 0,
             <Menu.MenuItem
                 id="vc-sme-show"
                 label="Show Embed"
                 action={_ => unfurlEmbed(url, message)}
                 icon={ImageVisible}
-                key="vc-sme-show"
-            />
-        );
-    } else if (isUrlInMessage(message, url)) {
-        // check the url is actually in the message text so we know it's one people can actually add back
-        children.splice(
-            0,
-            0,
+                key="vc-sme-show" />);
+    } else if (isUrlInMessage(message, url)) { // check the url is actually in the message text so we know it's one people can actually add back
+        children.splice(0, 0,
             <Menu.MenuItem
                 id="vc-sme-remove"
                 label="Remove Embed"
                 action={_ => removeEmbed(url, message)}
                 icon={ImageInvisible}
-                key="vc-sme-remove"
-            />
-        );
+                key="vc-sme-remove" />);
     }
 };
 
 function isEmbedInMessage(message: Message, url: string): boolean {
-    return (
-        message?.embeds?.some((embed: any) => {
-            return embed?.url === url;
-        }) ||
-        message?.attachments?.some((attachment: any) => {
-            return attachment?.url === url;
-        })
-    );
+    return message?.embeds?.some((embed: any) => {
+        return embed?.url === url;
+    }) || message?.attachments?.some((attachment: any) => {
+        return attachment?.url === url;
+    });
 }
 
 function isUrlInMessage(message: Message, url: string): boolean {
@@ -89,10 +76,7 @@ function isUrlInMessage(message: Message, url: string): boolean {
     }
     for (const embed of message.embeds) {
         // check if the embed content contains the url but not the embed.url property itself
-        if (
-            embed.url !== url &&
-            (embed.rawDescription?.includes(url) || embed.fields.some((field: any) => field.value.includes(url)))
-        ) {
+        if (embed.url !== url && (embed.rawDescription?.includes(url) || embed.fields.some((field: any) => field.value.includes(url)))) {
             return true;
         }
     }
@@ -104,8 +88,7 @@ function isUrlInMessage(message: Message, url: string): boolean {
 // this is not an exhaustive list, may need to add more cases in the future
 function normaliseUrl(url: string): string {
     // normalise youtube urls to the /watch?v= format (t param is replaced with start, v always comes first)
-    const youtubeRegex =
-        /(https?:\/\/)?(?:m\.|www\.)?(youtu\.be|youtube\.com)\/(embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/)?((\w|-){11})(?:\S+)?/;
+    const youtubeRegex = /(https?:\/\/)?(?:m\.|www\.)?(youtu\.be|youtube\.com)\/(embed\/|v\/|watch\?v=|watch\?.+&v=|shorts\/)?((\w|-){11})(?:\S+)?/;
 
     if (youtubeRegex.test(url)) {
         const urlObj = new URL(url);
@@ -147,7 +130,7 @@ function normaliseUrl(url: string): string {
     return url;
 }
 
-const convertEmbed = findByCodeLazy('.uniqueId("embed_")');
+const convertEmbed = findByCodeLazy(".uniqueId(\"embed_\")");
 
 async function unfurlEmbed(url: string, message: Message) {
     const channel = ChannelStore.getChannel(message.channel_id);
@@ -215,16 +198,16 @@ export default definePlugin({
 
     patches: [
         {
-            find: 'className:"attachmentLink",',
+            find: "className:\"attachmentLink\",",
             replacement: {
                 match: /(?:(\i).noStyleAndInteraction.*?)attachmentName:\i.attachmentName/,
-                replace: "$&,channelId:$1.channelId,messageId:$1.messageId"
+                replace: "$&,channelId:$1.channelId,messageId:$1.messageId",
             }
         }
     ],
 
     contextMenus: {
-        message: addShowEmbedButton,
+        "message": addShowEmbedButton,
         "attachment-link-context": addShowAttachmentEmbedButton
     }
 });

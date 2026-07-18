@@ -10,7 +10,7 @@ export async function setFolderData(props: folderProp, newData: folderIcon) {
     if (!settings.store.folderIcons) {
         settings.store.folderIcons = {};
     }
-    const folderSettings = settings.store.folderIcons as folderIconsData;
+    const folderSettings = (settings.store.folderIcons as folderIconsData);
     folderSettings[props.folderId] = newData;
 }
 
@@ -22,10 +22,10 @@ export interface folderProp {
 /**
  * @param rgbVal RGB value
  * @param alpha alpha bewteen zero and 1
- */
+*/
 export function int2rgba(rgbVal: number, alpha: number = 1) {
-    const b = rgbVal & 0xff,
-        g = (rgbVal & 0xff00) >>> 8,
-        r = (rgbVal & 0xff0000) >>> 16;
+    const b = rgbVal & 0xFF,
+        g = (rgbVal & 0xFF00) >>> 8,
+        r = (rgbVal & 0xFF0000) >>> 16;
     return `rgba(${[r, g, b].join(",")},${alpha})`;
 }

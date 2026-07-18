@@ -5,8 +5,6 @@
  */
 
 import "./styles.css";
-import { VoiceState } from "@vencord/discord-types";
-import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 
 import { get, set } from "@api/DataStore";
 import { BaseText } from "@components/BaseText";
@@ -14,6 +12,8 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
 import { useTimer } from "@utils/react";
 import definePlugin from "@utils/types";
+import { VoiceState } from "@vencord/discord-types";
+import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 import { SelectedChannelStore, UserStore, VoiceStateStore } from "@webpack/common";
 
 const wrapperClasses = findCssClassesLazy("memberSinceWrapper");
@@ -87,51 +87,52 @@ function formatDuration(seconds: number): string {
     return `${s}s`;
 }
 
-const VoiceStatsSection = ErrorBoundary.wrap(
-    ({ userId, isSideBar }: { userId: string; isSideBar: boolean }) => {
-        const isLive = sessionStarts.has(userId);
-        useTimer({ interval: isLive ? 1000 : 0 });
+const VoiceStatsSection = ErrorBoundary.wrap(({ userId, isSideBar }: { userId: string; isSideBar: boolean; }) => {
+    const isLive = sessionStarts.has(userId);
+    useTimer({ interval: isLive ? 1000 : 0 });
 
-        const seconds = getLiveSeconds(userId);
-        if (seconds <= 0) return null;
+    const seconds = getLiveSeconds(userId);
+    if (seconds <= 0) return null;
 
-        const text = formatDuration(seconds);
+    const text = formatDuration(seconds);
 
-        if (isSideBar) {
-            return (
-                <Section heading="Voice Time" headingVariant="text-xs/semibold" headingColor="text-strong">
-                    <BaseText size="sm">{text}</BaseText>
-                </Section>
-            );
-        }
-
+    if (isSideBar) {
         return (
             <Section
                 heading="Voice Time"
-                headingVariant="text-xs/medium"
-                headingColor="text-default"
-                className="vc-voicestats-profile-section"
+                headingVariant="text-xs/semibold"
+                headingColor="text-strong"
             >
-                <div className={wrapperClasses.memberSinceWrapper}>
-                    <div className={containerClasses.memberSince}>
-                        <svg
-                            aria-hidden="true"
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="var(--interactive-icon-default)"
-                        >
-                            <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" />
-                            <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V21a1 1 0 1 0 2 0v-3.08A7 7 0 0 0 19 11Z" />
-                        </svg>
-                        <BaseText size="sm">{text}</BaseText>
-                    </div>
-                </div>
+                <BaseText size="sm">{text}</BaseText>
             </Section>
         );
-    },
-    { noop: true }
-);
+    }
+
+    return (
+        <Section
+            heading="Voice Time"
+            headingVariant="text-xs/medium"
+            headingColor="text-default"
+            className="vc-voicestats-profile-section"
+        >
+            <div className={wrapperClasses.memberSinceWrapper}>
+                <div className={containerClasses.memberSince}>
+                    <svg
+                        aria-hidden="true"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="var(--interactive-icon-default)"
+                    >
+                        <path d="M12 1a4 4 0 0 0-4 4v6a4 4 0 0 0 8 0V5a4 4 0 0 0-4-4Z" />
+                        <path d="M19 11a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V21a1 1 0 1 0 2 0v-3.08A7 7 0 0 0 19 11Z" />
+                    </svg>
+                    <BaseText size="sm">{text}</BaseText>
+                </div>
+            </div>
+        </Section>
+    );
+}, { noop: true });
 
 export default definePlugin({
     name: "VoiceStats",
@@ -141,10 +142,10 @@ export default definePlugin({
     dependencies: ["ProfileSectionsAPI"],
     renderProfileSection: {
         render: VoiceStatsSection,
-        priority: 0
+        priority: 0,
     },
     flux: {
-        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[] }) {
+        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
             const myId = UserStore.getCurrentUser()?.id;
             if (!myId) return;
 
@@ -161,10 +162,8 @@ export default definePlugin({
                     continue;
                 }
 
-                const joinedMyChannel =
-                    trackedChannelId !== null && channelId === trackedChannelId && oldChannelId !== trackedChannelId;
-                const leftMyChannel =
-                    trackedChannelId !== null && oldChannelId === trackedChannelId && channelId !== trackedChannelId;
+                const joinedMyChannel = trackedChannelId !== null && channelId === trackedChannelId && oldChannelId !== trackedChannelId;
+                const leftMyChannel = trackedChannelId !== null && oldChannelId === trackedChannelId && channelId !== trackedChannelId;
 
                 if (joinedMyChannel) {
                     sessionStarts.set(userId, Date.now());

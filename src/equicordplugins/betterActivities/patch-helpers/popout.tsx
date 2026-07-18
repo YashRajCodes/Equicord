@@ -4,29 +4,27 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Activity } from "@vencord/discord-types";
-import { JSX } from "react";
-
 import ErrorBoundary from "@components/ErrorBoundary";
+import { Activity } from "@vencord/discord-types";
 import { PresenceStore, React, useEffect, useMemo, UserStore, useState, useStateFromStores } from "@webpack/common";
+import { JSX } from "react";
 
 import { CarouselControls } from "../components/CarouselControls";
 import { settings } from "../settings";
 import { AllActivitiesProps } from "../types";
 import { ActivityView, getActivityApplication } from "../utils";
 
-export function showAllActivitiesComponent({
-    activity,
-    user,
-    ...props
-}: Readonly<AllActivitiesProps>): JSX.Element | null {
+export function showAllActivitiesComponent({ activity, user, ...props }: Readonly<AllActivitiesProps>): JSX.Element | null {
     const currentUser = UserStore.getCurrentUser();
     if (!currentUser) return null;
 
-    const [currentActivity, setCurrentActivity] = useState<Activity | null>(activity?.type !== 4 ? activity! : null);
+    const [currentActivity, setCurrentActivity] = useState<Activity | null>(
+        activity?.type !== 4 ? activity! : null
+    );
 
-    const activities = useStateFromStores([PresenceStore], () =>
-        PresenceStore.getActivities(user.id).filter((activity: Activity) => activity != null && activity.type !== 4)
+    const activities = useStateFromStores(
+        [PresenceStore],
+        () => PresenceStore.getActivities(user.id).filter((activity: Activity) => activity != null && activity.type !== 4)
     );
 
     useEffect(() => {
@@ -44,15 +42,11 @@ export function showAllActivitiesComponent({
     }, [activities]);
 
     // we use these for other activities, it would be better to somehow get the corresponding activity props
-    const generalProps = useMemo(
-        () =>
-            Object.keys(props).reduce((acc, key) => {
-                // exclude activity specific props to prevent copying them to all activities (e.g. buttons)
-                if (key !== "renderActions" && key !== "application") acc[key] = props[key];
-                return acc;
-            }, {}),
-        [props]
-    );
+    const generalProps = useMemo(() => Object.keys(props).reduce((acc, key) => {
+        // exclude activity specific props to prevent copying them to all activities (e.g. buttons)
+        if (key !== "renderActions" && key !== "application") acc[key] = props[key];
+        return acc;
+    }, {}), [props]);
 
     if (!activities.length) return null;
 
@@ -62,7 +56,12 @@ export function showAllActivitiesComponent({
             <ErrorBoundary noop>
                 <div style={{ display: "flex", flexDirection: "column" }}>
                     {activity && currentActivity?.application_id === activity.application_id ? (
-                        <ActivityView activity={currentActivity} user={user} currentUser={currentUser} {...props} />
+                        <ActivityView
+                            activity={currentActivity}
+                            user={user}
+                            currentUser={currentUser}
+                            {...props}
+                        />
                     ) : (
                         <ActivityView
                             activity={currentActivity}
@@ -90,7 +89,7 @@ export function showAllActivitiesComponent({
                     style={{
                         display: "flex",
                         flexDirection: "column",
-                        gap: "5px"
+                        gap: "5px",
                     }}
                 >
                     {activities.map((activity, index) =>
@@ -101,8 +100,7 @@ export function showAllActivitiesComponent({
                                 user={user}
                                 currentUser={currentUser}
                                 {...props}
-                            />
-                        ) : (
+                            />) : (
                             <ActivityView
                                 key={index}
                                 activity={activity}
@@ -111,8 +109,7 @@ export function showAllActivitiesComponent({
                                 currentUser={currentUser}
                                 {...generalProps}
                             />
-                        )
-                    )}
+                        ))}
                 </div>
             </ErrorBoundary>
         );

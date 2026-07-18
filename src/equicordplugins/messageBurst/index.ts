@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Channel, Message } from "@vencord/discord-types";
-
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
+import { Channel, Message } from "@vencord/discord-types";
 import { ChannelStore, MessageActions, MessageStore, UserStore } from "@webpack/common";
 
 function shouldEdit(channel: Channel, message: Message, timePeriod: number, shouldMergeWithAttachment: boolean) {
@@ -36,7 +35,7 @@ function shouldEdit(channel: Channel, message: Message, timePeriod: number, shou
     const timestamp = new Date(message.timestamp);
     const now = new Date();
 
-    if (now.getTime() - timestamp.getTime() > timePeriod * 1000) {
+    if ((now.getTime() - timestamp.getTime()) > (timePeriod * 1000)) {
         should = false;
     }
 
@@ -66,8 +65,7 @@ const settings = definePluginSettings({
 
 export default definePlugin({
     name: "MessageBurst",
-    description:
-        "Merges messages sent within a time period with your previous sent message if no one else sends a message before you.",
+    description: "Merges messages sent within a time period with your previous sent message if no one else sends a message before you.",
     dependencies: ["MessagePopoverAPI"],
     tags: ["Chat"],
     authors: [EquicordDevs.port22exposed],
@@ -84,22 +82,17 @@ export default definePlugin({
 
         const channel = ChannelStore.getChannel(channelId);
 
-        const { should, content } = shouldEdit(
-            channel,
-            lastMessage as Message,
-            this.settings.store.timePeriod,
-            this.settings.store.shouldMergeWithAttachment
-        );
+        const { should, content } = shouldEdit(channel, lastMessage as Message, this.settings.store.timePeriod, this.settings.store.shouldMergeWithAttachment);
 
         if (should) {
             const separator = settings.store.useSpace ? " " : "\n";
             const newContent = content + separator + message.content;
 
             MessageActions.editMessage(channelId, lastMessageId, {
-                content: newContent
+                content: newContent,
             });
 
             message.content = "";
         }
-    }
+    },
 });

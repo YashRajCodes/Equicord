@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -28,8 +28,7 @@ export default definePlugin({
             find: "#{intl::MESSAGE_UTILITIES_A11Y_LABEL}",
             replacement: {
                 match: /(?<=\]\}\)),(.{0,40}togglePopout:.+?\}\))\]\}\):null,(?<=\((\i),\{label:.+?:null,(\i)\?\(0,\i\.jsxs?\)\(\i\.Fragment.+?message:(\i).+?)/,
-                replace: (_, ReactButton, ButtonComponent, showReactButton, message) =>
-                    "" +
+                replace: (_, ReactButton, ButtonComponent, showReactButton, message) => "" +
                     `]}):null,Vencord.Api.MessagePopover._buildPopoverElements(${ButtonComponent},${message}),${showReactButton}?${ReactButton}:null,`
             }
         }

@@ -26,7 +26,7 @@ const settings = definePluginSettings({
     amount: {
         type: OptionType.NUMBER,
         description: "amount of clicks to trigger crossant",
-        default: 10
+        default: 10,
     }
 });
 
@@ -38,9 +38,7 @@ export default definePlugin({
     dependencies: ["AudioPlayerAPI"],
     settings,
     start() {
-        croissant = createAudioPlayer("https://github.com/Equicord/Equibored/raw/main/sounds/equissant/croissant.mp3", {
-            persistent: true
-        });
+        croissant = createAudioPlayer("https://github.com/Equicord/Equibored/raw/main/sounds/equissant/croissant.mp3", { persistent: true });
         document.addEventListener("click", play);
     },
     stop() {

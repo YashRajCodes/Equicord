@@ -14,9 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { Message } from "@vencord/discord-types";
+*/
 
 import { ChatBarButton, ChatBarButtonFactory } from "@api/ChatButtons";
 import { updateMessage } from "@api/MessageUpdater";
@@ -25,6 +23,7 @@ import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { getStegCloak } from "@utils/dependencies";
 import definePlugin, { OptionType, ReporterTestable } from "@utils/types";
+import { Message } from "@vencord/discord-types";
 import { ChannelStore, Constants, RestAPI, Tooltip } from "@webpack/common";
 
 import { buildDecModal } from "./components/DecryptionModal";
@@ -34,7 +33,12 @@ let steggo: any;
 
 function PopOverIcon() {
     return (
-        <svg fill="var(--text-default)" width={24} height={24} viewBox={"0 0 64 64"}>
+
+        <svg
+            fill="var(--text-default)"
+            width={24} height={24}
+            viewBox={"0 0 64 64"}
+        >
             <path d="M 32 9 C 24.832 9 19 14.832 19 22 L 19 27.347656 C 16.670659 28.171862 15 30.388126 15 33 L 15 49 C 15 52.314 17.686 55 21 55 L 43 55 C 46.314 55 49 52.314 49 49 L 49 33 C 49 30.388126 47.329341 28.171862 45 27.347656 L 45 22 C 45 14.832 39.168 9 32 9 z M 32 13 C 36.963 13 41 17.038 41 22 L 41 27 L 23 27 L 23 22 C 23 17.038 27.037 13 32 13 z" />
         </svg>
     );
@@ -55,7 +59,9 @@ function Indicator() {
                 />
             )}
         </Tooltip>
+
     );
+
 }
 
 const ChatBarRender: ChatBarButtonFactory = ({ isMainChat }) => {
@@ -66,7 +72,7 @@ const ChatBarRender: ChatBarButtonFactory = ({ isMainChat }) => {
             tooltip="Encrypt Message"
             onClick={() => buildEncModal()}
             buttonProps={{
-                "aria-haspopup": "dialog"
+                "aria-haspopup": "dialog",
             }}
         >
             {ChatBarIcon()}
@@ -84,10 +90,7 @@ function ChatBarIcon() {
             viewBox={"0 0 64 64"}
             style={{ scale: "1.39", translate: "0 -1px" }}
         >
-            <path
-                fill="currentColor"
-                d="M 32 9 C 24.832 9 19 14.832 19 22 L 19 27.347656 C 16.670659 28.171862 15 30.388126 15 33 L 15 49 C 15 52.314 17.686 55 21 55 L 43 55 C 46.314 55 49 52.314 49 49 L 49 33 C 49 30.388126 47.329341 28.171862 45 27.347656 L 45 22 C 45 14.832 39.168 9 32 9 z M 32 13 C 36.963 13 41 17.038 41 22 L 41 27 L 23 27 L 23 22 C 23 17.038 27.037 13 32 13 z"
-            />
+            <path fill="currentColor" d="M 32 9 C 24.832 9 19 14.832 19 22 L 19 27.347656 C 16.670659 28.171862 15 30.388126 15 33 L 15 49 C 15 52.314 17.686 55 21 55 L 43 55 C 46.314 55 49 52.314 49 49 L 49 33 C 49 30.388126 47.329341 28.171862 45 27.347656 L 45 22 C 45 14.832 39.168 9 32 9 z M 32 13 C 36.963 13 41 17.038 41 22 L 41 27 L 23 27 L 23 22 C 23 17.038 27.037 13 32 13 z" />
         </svg>
     );
 }
@@ -102,11 +105,11 @@ const settings = definePluginSettings({
 
 const EMBED_API_URL = "https://embed.sammcheese.net";
 const INV_REGEX = new RegExp(/( \u200c|\u200d |[\u2060-\u2064])[^\u200b]/);
-const URL_REGEX = new RegExp(
-    /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/
-);
+const URL_REGEX = new RegExp(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&//=]*)/);
 function colorCodeFromNumber(color: number): string {
-    return `#${[color >> 16, color >> 8, color].map(x => (x & 0xff).toString(16)).join("")}`;
+    return `#${[color >> 16, color >> 8, color]
+        .map(x => (x & 0xFF).toString(16))
+        .join("")}`;
 }
 
 async function getEmbed(url: URL): Promise<Object | {}> {
@@ -130,13 +133,14 @@ export async function buildEmbed(message: any, revealed: string): Promise<void> 
         color: "#45f5f5",
         rawDescription: revealed,
         footer: {
-            text: "Made with ❤️ by c0dine and Sammy!"
-        }
+            text: "Made with ❤️ by c0dine and Sammy!",
+        },
     });
 
     if (urlCheck?.length) {
         const embed = await getEmbed(new URL(urlCheck[0]));
-        if (embed) message.embeds.push(embed);
+        if (embed)
+            message.embeds.push(embed);
     }
 
     updateMessage(message.channel_id, message.id, { embeds: message.embeds });
@@ -162,10 +166,9 @@ export default definePlugin({
             find: ".SEND_FAILED,",
             replacement: {
                 match: /let\{className:\i,message:\i[^}]*\}=(\i)/,
-                replace:
-                    "try {$1 && $self.INV_REGEX.test($1.message.content) ? $1.content.push($self.indicator()) : null } catch {};$&"
+                replace: "try {$1 && $self.INV_REGEX.test($1.message.content) ? $1.content.push($self.indicator()) : null } catch {};$&"
             }
-        }
+        },
     ],
     INV_REGEX,
 
@@ -178,17 +181,19 @@ export default definePlugin({
         render(message) {
             return INV_REGEX.test(message?.content)
                 ? {
-                      label: "Decrypt Message",
-                      icon: PopOverIcon,
-                      message: message,
-                      channel: ChannelStore.getChannel(message.channel_id),
-                      onClick: async () => {
-                          const res = await iteratePasswords(message);
+                    label: "Decrypt Message",
+                    icon: PopOverIcon,
+                    message: message,
+                    channel: ChannelStore.getChannel(message.channel_id),
+                    onClick: async () => {
+                        const res = await iteratePasswords(message);
 
-                          if (res) buildEmbed(message, res);
-                          else buildDecModal({ message });
-                      }
-                  }
+                        if (res)
+                            buildEmbed(message, res);
+                        else
+                            buildDecModal({ message });
+                    }
+                }
                 : null;
         }
     },

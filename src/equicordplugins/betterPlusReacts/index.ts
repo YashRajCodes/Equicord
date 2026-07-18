@@ -45,7 +45,7 @@ export default definePlugin({
                     replace: "$&$self.setMsgReference(this.props.currentWord.split(':')[0],this.props.channel.id);"
                 }
             ]
-        }
+        },
     ],
     message: null,
     getMsgReference() {

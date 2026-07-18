@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { definePluginSettings } from "@api/Settings";
 import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
@@ -17,7 +18,7 @@ const MAX_FILE_SIZE = 12e6;
 
 interface PlayerInstance {
     mediaRef: React.RefObject<HTMLAudioElement>;
-    props: { src: string; type: string };
+    props: { src: string; type: string; };
 }
 
 function validateColor(value: string, key: string, fallback: string) {
@@ -29,9 +30,7 @@ function validateColor(value: string, key: string, fallback: string) {
             settings.store[key] = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
             return;
         }
-    } catch {
-        /* invalid hex */
-    }
+    } catch { /* invalid hex */ }
 
     showToast(`Invalid color format for ${key}, use "R, G, B" or "#RRGGBB"`, Toasts.Type.FAILURE);
     settings.store[key] = fallback;
@@ -45,13 +44,7 @@ function maxTypedArray(arr: Uint8Array<ArrayBufferLike>): number {
     return max;
 }
 
-function drawOscilloscope(
-    ctx: CanvasRenderingContext2D,
-    w: number,
-    h: number,
-    dataArray: Uint8Array<ArrayBufferLike>,
-    bufferLength: number
-) {
+function drawOscilloscope(ctx: CanvasRenderingContext2D, w: number, h: number, dataArray: Uint8Array<ArrayBufferLike>, bufferLength: number) {
     const sliceWidth = w / bufferLength;
     const [r, g, b] = settings.store.oscilloscopeColor.split(",").map(Number);
     const amp = 3;
@@ -62,7 +55,7 @@ function drawOscilloscope(
 
     for (let i = 0; i < bufferLength; i++) {
         const v = (dataArray[i] - 128) / 128;
-        const y = h / 2 - (v * amp * h) / 2;
+        const y = (h / 2) - (v * amp * h / 2);
 
         if (settings.store.oscilloscopeSolidColor) {
             ctx.strokeStyle = `rgb(${r}, ${g}, ${b})`;
@@ -78,13 +71,7 @@ function drawOscilloscope(
     ctx.stroke();
 }
 
-function drawSpectrograph(
-    ctx: CanvasRenderingContext2D,
-    w: number,
-    h: number,
-    frequencyData: Uint8Array<ArrayBufferLike>,
-    bufferLength: number
-) {
+function drawSpectrograph(ctx: CanvasRenderingContext2D, w: number, h: number, frequencyData: Uint8Array<ArrayBufferLike>, bufferLength: number) {
     const barWidth = w / bufferLength;
     const maxVal = maxTypedArray(frequencyData);
     if (maxVal === 0) return;
@@ -103,10 +90,7 @@ function drawSpectrograph(
             const blue = Math.min(b + (i / bufferLength) * 155, 255);
             const gradient = ctx.createLinearGradient(x, h - barH, x, h);
             gradient.addColorStop(0, `rgb(${red}, ${green}, ${blue})`);
-            gradient.addColorStop(
-                1,
-                `rgb(${Math.max(red - 50, 0)}, ${Math.max(green - 50, 0)}, ${Math.max(blue - 50, 0)})`
-            );
+            gradient.addColorStop(1, `rgb(${Math.max(red - 50, 0)}, ${Math.max(green - 50, 0)}, ${Math.max(blue - 50, 0)})`);
             ctx.fillStyle = gradient;
         }
 
@@ -127,7 +111,7 @@ async function fetchAudioBlob(src: string): Promise<string | null> {
     return URL.createObjectURL(blob);
 }
 
-function Visualizer({ playerRef, src }: { playerRef: React.RefObject<HTMLAudioElement>; src: string }) {
+function Visualizer({ playerRef, src }: { playerRef: React.RefObject<HTMLAudioElement>; src: string; }) {
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
     const audioCtxRef = React.useRef<AudioContext | null>(null);
     const analyserRef = React.useRef<AnalyserNode | null>(null);
@@ -138,7 +122,7 @@ function Visualizer({ playerRef, src }: { playerRef: React.RefObject<HTMLAudioEl
     React.useEffect(() => {
         const audio = playerRef.current;
         const canvas = canvasRef.current;
-        if (!audio || !canvas) return () => {};
+        if (!audio || !canvas) return () => { };
 
         let cancelled = false;
 
@@ -164,7 +148,7 @@ function Visualizer({ playerRef, src }: { playerRef: React.RefObject<HTMLAudioEl
             setupDoneRef.current = true;
 
             if (wasPlaying) {
-                audio.play().catch(() => {});
+                audio.play().catch(() => { });
             }
         };
 
@@ -190,8 +174,7 @@ function Visualizer({ playerRef, src }: { playerRef: React.RefObject<HTMLAudioEl
             const { width, height } = canvas.getBoundingClientRect();
             canvasCtx.clearRect(0, 0, width, height);
             if (settings.store.oscilloscope) drawOscilloscope(canvasCtx, width, height, dataArray, dataArray.length);
-            if (settings.store.spectrograph)
-                drawSpectrograph(canvasCtx, width, height, frequencyData, frequencyData.length);
+            if (settings.store.spectrograph) drawSpectrograph(canvasCtx, width, height, frequencyData, frequencyData.length);
         };
 
         const onPlay = () => {
@@ -229,7 +212,7 @@ function Visualizer({ playerRef, src }: { playerRef: React.RefObject<HTMLAudioEl
 
     React.useEffect(() => {
         const canvas = canvasRef.current;
-        if (!canvas) return () => {};
+        if (!canvas) return () => { };
 
         const resize = () => {
             const rect = canvas.getBoundingClientRect();
@@ -245,42 +228,47 @@ function Visualizer({ playerRef, src }: { playerRef: React.RefObject<HTMLAudioEl
         return () => observer.disconnect();
     }, []);
 
-    return <canvas className={cl("canvas")} ref={canvasRef} />;
+    return (
+        <canvas
+            className={cl("canvas")}
+            ref={canvasRef}
+        />
+    );
 }
 
 const settings = definePluginSettings({
     oscilloscope: {
         type: OptionType.BOOLEAN,
         description: "Enable oscilloscope visualizer.",
-        default: true
+        default: true,
     },
     spectrograph: {
         type: OptionType.BOOLEAN,
         description: "Enable spectrograph visualizer.",
-        default: true
+        default: true,
     },
     oscilloscopeSolidColor: {
         type: OptionType.BOOLEAN,
         description: "Use a solid color for the oscilloscope.",
-        default: false
+        default: false,
     },
     oscilloscopeColor: {
         type: OptionType.STRING,
         description: "Color for the oscilloscope (R, G, B or #hex).",
         default: "255, 255, 255",
-        onChange: value => validateColor(value, "oscilloscopeColor", "255, 255, 255")
+        onChange: value => validateColor(value, "oscilloscopeColor", "255, 255, 255"),
     },
     spectrographSolidColor: {
         type: OptionType.BOOLEAN,
         description: "Use a solid color for the spectrograph.",
-        default: false
+        default: false,
     },
     spectrographColor: {
         type: OptionType.STRING,
         description: "Color for the spectrograph (R, G, B or #hex).",
         default: "33, 150, 243",
-        onChange: value => validateColor(value, "spectrographColor", "33, 150, 243")
-    }
+        onChange: value => validateColor(value, "spectrographColor", "33, 150, 243"),
+    },
 });
 
 export default definePlugin({
@@ -295,13 +283,13 @@ export default definePlugin({
             find: "}renderPlayIcon(){",
             replacement: {
                 match: /this\.renderAudio\(\):this\.renderVideo\(\)/,
-                replace: "$&,$self.renderVisualizer(this)"
-            }
-        }
+                replace: "$&,$self.renderVisualizer(this)",
+            },
+        },
     ],
 
     renderVisualizer(player: PlayerInstance) {
         if (player.props.type !== "AUDIO") return null;
         return <Visualizer playerRef={player.mediaRef} src={player.props.src} key={player.props.src} />;
-    }
+    },
 });

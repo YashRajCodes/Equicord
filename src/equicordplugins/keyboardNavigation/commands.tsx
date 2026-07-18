@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import gitRemote from "~git-remote";
-import Plugins from "~plugins";
-
 import { showNotification } from "@api/Notifications";
 import { Settings } from "@api/Settings";
 import { gitHashShort } from "@shared/vencordUserAgent";
@@ -14,6 +11,9 @@ import { copyToClipboard } from "@utils/clipboard";
 import { relaunch, showItemInFolder } from "@utils/native";
 import { checkForUpdates, getRepo } from "@utils/updater";
 import { GuildStore, NavigationRouter, SettingsRouter, Toasts } from "@webpack/common";
+
+import gitRemote from "~git-remote";
+import Plugins from "~plugins";
 
 import { openMultipleChoice } from "./components/MultipleChoice";
 import { openSimpleTextInput } from "./components/TextInput";
@@ -26,66 +26,19 @@ export interface ButtonAction {
 }
 
 export const actions: ButtonAction[] = [
-    {
-        id: "openEquicordSettings",
-        label: "Open Equicord tab",
-        callback: async () => await SettingsRouter.openUserSettings("equicord_main_panel"),
-        registrar: "Equicord"
-    },
-    {
-        id: "openPluginSettings",
-        label: "Open Plugin tab",
-        callback: () => SettingsRouter.openUserSettings("equicord_plugins_panel"),
-        registrar: "Equicord"
-    },
-    {
-        id: "openThemesSettings",
-        label: "Open Themes tab",
-        callback: () => SettingsRouter.openUserSettings("equicord_themes_panel"),
-        registrar: "Equicord"
-    },
-    {
-        id: "openUpdaterSettings",
-        label: "Open Updater tab",
-        callback: () => SettingsRouter.openUserSettings("equicord_updater_panel"),
-        registrar: "Equicord"
-    },
-    {
-        id: "openEquicordCloudSettings",
-        label: "Open Cloud tab",
-        callback: () => SettingsRouter.openUserSettings("equicord_cloud_panel"),
-        registrar: "Equicord"
-    },
-    {
-        id: "openBackupSettings",
-        label: "Open Backup & Restore tab",
-        callback: () => SettingsRouter.openUserSettings("equicord_backup_restore_panel"),
-        registrar: "Equicord"
-    },
+    { id: "openEquicordSettings", label: "Open Equicord tab", callback: async () => await SettingsRouter.openUserSettings("equicord_main_panel"), registrar: "Equicord" },
+    { id: "openPluginSettings", label: "Open Plugin tab", callback: () => SettingsRouter.openUserSettings("equicord_plugins_panel"), registrar: "Equicord" },
+    { id: "openThemesSettings", label: "Open Themes tab", callback: () => SettingsRouter.openUserSettings("equicord_themes_panel"), registrar: "Equicord" },
+    { id: "openUpdaterSettings", label: "Open Updater tab", callback: () => SettingsRouter.openUserSettings("equicord_updater_panel"), registrar: "Equicord" },
+    { id: "openEquicordCloudSettings", label: "Open Cloud tab", callback: () => SettingsRouter.openUserSettings("equicord_cloud_panel"), registrar: "Equicord" },
+    { id: "openBackupSettings", label: "Open Backup & Restore tab", callback: () => SettingsRouter.openUserSettings("equicord_backup_restore_panel"), registrar: "Equicord" },
     { id: "restartClient", label: "Restart Client", callback: () => relaunch(), registrar: "Equicord" },
-    {
-        id: "openQuickCSSFile",
-        label: "Open Quick CSS File",
-        callback: () => VencordNative.quickCss.openEditor(),
-        registrar: "Equicord"
-    },
-    {
-        id: "openSettingsFolder",
-        label: "Open Settings Folder",
-        callback: async () => showItemInFolder(await VencordNative.settings.getSettingsDir()),
-        registrar: "Equicord"
-    },
-    {
-        id: "openInGithub",
-        label: "Open in Github",
-        callback: async () => VencordNative.native.openExternal(await getRepo()),
-        registrar: "Equicord"
-    },
+    { id: "openQuickCSSFile", label: "Open Quick CSS File", callback: () => VencordNative.quickCss.openEditor(), registrar: "Equicord" },
+    { id: "openSettingsFolder", label: "Open Settings Folder", callback: async () => showItemInFolder(await VencordNative.settings.getSettingsDir()), registrar: "Equicord" },
+    { id: "openInGithub", label: "Open in Github", callback: async () => VencordNative.native.openExternal(await getRepo()), registrar: "Equicord" },
 
     {
-        id: "openInBrowser",
-        label: "Open in Browser",
-        callback: async () => {
+        id: "openInBrowser", label: "Open in Browser", callback: async () => {
             const url = await openSimpleTextInput("Enter a URL");
             const newUrl = url.replace(/(https?:\/\/)?([a-zA-Z0-9-]+)\.([a-zA-Z0-9-]+)/, "https://$2.$3");
 
@@ -102,14 +55,11 @@ export const actions: ButtonAction[] = [
                     }
                 });
             }
-        },
-        registrar: "Equicord"
+        }, registrar: "Equicord"
     },
 
     {
-        id: "togglePlugin",
-        label: "Toggle Plugin",
-        callback: async () => {
+        id: "togglePlugin", label: "Toggle Plugin", callback: async () => {
             const plugins = Object.keys(Plugins);
             const options: ButtonAction[] = [];
 
@@ -130,18 +80,15 @@ export const actions: ButtonAction[] = [
             if (choice && enabled) {
                 return togglePlugin(choice, enabled.id === "enable");
             }
-        },
-        registrar: "Equicord"
+        }, registrar: "Equicord"
     },
 
     {
-        id: "quickFetch",
-        label: "Quick Fetch",
-        callback: async () => {
+        id: "quickFetch", label: "Quick Fetch", callback: async () => {
             try {
                 const url = await openSimpleTextInput("Enter URL to fetch (GET only)");
                 const newUrl = url.replace(/(https?:\/\/)?([a-zA-Z0-9-]+)\.([a-zA-Z0-9-]+)/, "https://$2.$3");
-                const res = await fetch(newUrl);
+                const res = (await fetch(newUrl));
                 const text = await res.text();
                 copyToClipboard(text);
 
@@ -153,6 +100,7 @@ export const actions: ButtonAction[] = [
                         position: Toasts.Position.BOTTOM
                     }
                 });
+
             } catch (e) {
                 Toasts.show({
                     message: "Issue fetching URL",
@@ -163,14 +111,11 @@ export const actions: ButtonAction[] = [
                     }
                 });
             }
-        },
-        registrar: "Equicord"
+        }, registrar: "Equicord"
     },
 
     {
-        id: "copyGitInfo",
-        label: "Copy Git Info",
-        callback: async () => {
+        id: "copyGitInfo", label: "Copy Git Info", callback: async () => {
             copyToClipboard(`gitHash: ${gitHashShort}\ngitRemote: ${gitRemote}`);
 
             Toasts.show({
@@ -181,30 +126,23 @@ export const actions: ButtonAction[] = [
                     position: Toasts.Position.BOTTOM
                 }
             });
-        },
-        registrar: "Equicord"
+        }, registrar: "Equicord"
     },
 
     {
-        id: "checkForUpdates",
-        label: "Check for Updates",
-        callback: async () => {
+        id: "checkForUpdates", label: "Check for Updates", callback: async () => {
             const isOutdated = await checkForUpdates();
 
             if (isOutdated) {
-                setTimeout(
-                    () =>
-                        showNotification({
-                            title: "A Equicord update is available!",
-                            body: "Click here to view the update",
-                            permanent: true,
-                            noPersist: true,
-                            onClick() {
-                                SettingsRouter.openUserSettings("equicord_updater_panel");
-                            }
-                        }),
-                    10_000
-                );
+                setTimeout(() => showNotification({
+                    title: "A Equicord update is available!",
+                    body: "Click here to view the update",
+                    permanent: true,
+                    noPersist: true,
+                    onClick() {
+                        SettingsRouter.openUserSettings("equicord_updater_panel");
+                    }
+                }), 10_000);
             } else {
                 Toasts.show({
                     message: "No updates available",
@@ -215,14 +153,11 @@ export const actions: ButtonAction[] = [
                     }
                 });
             }
-        },
-        registrar: "Equicord"
+        }, registrar: "Equicord"
     },
 
     {
-        id: "navToServer",
-        label: "Navigate to Server",
-        callback: async () => {
+        id: "navToServer", label: "Navigate to Server", callback: async () => {
             const allServers = Object.values(GuildStore.getGuilds());
             const options: ButtonAction[] = [];
 
@@ -238,12 +173,12 @@ export const actions: ButtonAction[] = [
             if (choice) {
                 NavigationRouter.transitionToGuild(choice.id);
             }
-        },
-        registrar: "Equicord"
+        }, registrar: "Equicord"
     }
 ];
 
 function togglePlugin(plugin: ButtonAction, enabled: boolean) {
+
     Settings.plugins[plugin.id].enabled = enabled;
 
     Toasts.show({

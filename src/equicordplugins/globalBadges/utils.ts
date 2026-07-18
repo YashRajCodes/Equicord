@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { classNameFactory } from "@utils/css";
 
 import { settings } from "./settings";
@@ -36,53 +37,49 @@ export const serviceMap: Record<string, string> = {
 const blockedMods = ["vencord", "equicord"];
 
 export async function loadBadges() {
-    const url = settings.store.apiUrl.endsWith("/")
-        ? settings.store.apiUrl + "users"
-        : settings.store.apiUrl + "/users";
+    const url = settings.store.apiUrl.endsWith("/") ? settings.store.apiUrl + "users" : settings.store.apiUrl + "/users";
     const globalBadges = await fetch(url, { cache: "no-cache" }).then(r => r.json());
-    const filteredUsers: Record<string, (typeof globalBadges.users)[string]> = {};
+    const filteredUsers: Record<string, typeof globalBadges.users[string]> = {};
 
     for (const key in globalBadges.users) {
-        filteredUsers[key] = globalBadges.users[key]
-            .filter(b => {
-                const { mod } = b;
-                if (!mod || blockedMods.includes(mod)) return false;
+        filteredUsers[key] = globalBadges.users[key].filter(b => {
+            const { mod } = b;
+            if (!mod || blockedMods.includes(mod)) return false;
 
-                const conditionalMods = {
-                    aero: settings.store.showAero,
-                    velocity: settings.store.showVelocity,
-                    badgevault: settings.store.showCustom,
-                    nekocord: settings.store.showNekocord,
-                    reviewdb: settings.store.showReviewDB,
-                    aliucord: settings.store.showAliucord,
-                    raincord: settings.store.showRaincord,
-                    enmity: settings.store.showEnmity,
-                    paicord: settings.store.showPaicord,
-                    bunny: settings.store.showBunny,
-                    goosemod: settings.store.showGooseMod,
-                    replugged: settings.store.showReplugged,
-                    betterdiscord: settings.store.showBetterDiscord,
-                    vendroidenhanced: settings.store.showVendroidEnhanced,
-                    revenge: settings.store.showRevenge,
-                    record: settings.store.showReCord
-                };
+            const conditionalMods = {
+                aero: settings.store.showAero,
+                velocity: settings.store.showVelocity,
+                badgevault: settings.store.showCustom,
+                nekocord: settings.store.showNekocord,
+                reviewdb: settings.store.showReviewDB,
+                aliucord: settings.store.showAliucord,
+                raincord: settings.store.showRaincord,
+                enmity: settings.store.showEnmity,
+                paicord: settings.store.showPaicord,
+                bunny: settings.store.showBunny,
+                goosemod: settings.store.showGooseMod,
+                replugged: settings.store.showReplugged,
+                betterdiscord: settings.store.showBetterDiscord,
+                vendroidenhanced: settings.store.showVendroidEnhanced,
+                revenge: settings.store.showRevenge,
+                record: settings.store.showReCord
+            };
 
-                if (mod in conditionalMods && !conditionalMods[mod]) return false;
+            if (mod in conditionalMods && !conditionalMods[mod]) return false;
 
-                return true;
-            })
-            .map(b => {
-                const modFormatted = serviceMap[b.mod];
-                const prefix = settings.store.showModStyle === "prefix" ? `${modFormatted} - ` : "";
-                const suffix = settings.store.showModStyle === "suffix" ? ` - ${modFormatted}` : "";
+            return true;
+        }).map(b => {
+            const modFormatted = serviceMap[b.mod];
+            const prefix = settings.store.showModStyle === "prefix" ? `${modFormatted} - ` : "";
+            const suffix = settings.store.showModStyle === "suffix" ? ` - ${modFormatted}` : "";
 
-                const tooltip = prefix + b.tooltip + suffix;
-                return {
-                    ...b,
-                    key: b.tooltip,
-                    tooltip
-                };
-            });
+            const tooltip = prefix + b.tooltip + suffix;
+            return {
+                ...b,
+                key: b.tooltip,
+                tooltip
+            };
+        });
     }
 
     GlobalBadges = filteredUsers;

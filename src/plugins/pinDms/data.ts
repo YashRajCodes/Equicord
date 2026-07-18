@@ -118,7 +118,9 @@ export function getCategoryChannels(category: Category): string[] {
 }
 
 export function getAllUncollapsedChannels() {
-    return currentUserCategories.filter(c => !c.collapsed).flatMap(getCategoryChannels);
+    return currentUserCategories
+        .filter(c => !c.collapsed)
+        .flatMap(getCategoryChannels);
 }
 
 // Move categories

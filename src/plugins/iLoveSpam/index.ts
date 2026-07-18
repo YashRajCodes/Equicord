@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { migratePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
@@ -31,8 +31,8 @@ export default definePlugin({
             find: "hasFlag:{writable",
             replacement: {
                 match: /if\((\i)<=(?:0x40000000|(?:1<<30|1073741824))\)return/,
-                replace: "if($1===(1<<20))return false;$&"
-            }
-        }
-    ]
+                replace: "if($1===(1<<20))return false;$&",
+            },
+        },
+    ],
 });

@@ -14,22 +14,21 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import "./shiki.css";
-import previewExampleText from "file://previewExample.tsx";
 
 import { enableStyle } from "@api/Styles";
 import { Devs } from "@utils/constants";
 import definePlugin, { ReporterTestable } from "@utils/types";
+import previewExampleText from "file://previewExample.tsx";
 
 import { shiki } from "./api/shiki";
 import { HighlighterContainer } from "./components/Highlighter";
+import deviconStyle from "./devicon.css?managed";
 import { settings } from "./settings";
 import { DeviconSetting } from "./types";
 import { clearStyles } from "./utils/createStyle";
-
-import deviconStyle from "./devicon.css?managed";
 
 export default definePlugin({
     name: "ShikiCodeblocks",
@@ -57,7 +56,8 @@ export default definePlugin({
     ],
 
     start: async () => {
-        if (settings.store.useDevIcon !== DeviconSetting.Disabled) enableStyle(deviconStyle);
+        if (settings.store.useDevIcon !== DeviconSetting.Disabled)
+            enableStyle(deviconStyle);
 
         await shiki.init(settings.store.customTheme || settings.store.theme);
     },
@@ -70,7 +70,7 @@ export default definePlugin({
 
     // exports
     shiki,
-    renderHighlighter: ({ lang, content }: { lang: string; content: string }) => {
+    renderHighlighter: ({ lang, content }: { lang: string; content: string; }) => {
         return <HighlighterContainer lang={lang?.toLowerCase()} content={content} isPreview={false} />;
-    }
+    },
 });

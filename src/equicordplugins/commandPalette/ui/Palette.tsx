@@ -38,15 +38,15 @@ function commandToRow(command: PaletteCommand): RowItem | null {
     const { page } = command;
     const actions: PaletteAction[] = page
         ? [
-              {
-                  id: `${command.id}.open`,
-                  label: "Open Command",
-                  icon: command.icon,
-                  keepOpen: true,
-                  run: context => context.push(page())
-              },
-              ...ownActions
-          ]
+            {
+                id: `${command.id}.open`,
+                label: "Open Command",
+                icon: command.icon,
+                keepOpen: true,
+                run: context => context.push(page())
+            },
+            ...ownActions
+        ]
         : ownActions;
 
     if (actions.length === 0) return null;
@@ -105,38 +105,30 @@ function calculatorRow(query: string): RowItem | null {
                 label: "Open Details",
                 icon: CalculatorIcon,
                 keepOpen: true,
-                run: context =>
-                    context.push({
-                        title: "Calculator",
-                        icon: CalculatorIcon,
-                        spec: {
-                            type: "detail",
-                            heading: result.formatted,
-                            rows: [
-                                { label: "Expression", value: expression },
-                                { label: "Result", value: result.plain }
-                            ],
-                            actions: [
-                                copyAction,
-                                {
-                                    id: "calculator.copyExpression",
-                                    label: "Copy Expression",
-                                    icon: CopyIcon,
-                                    run: () =>
-                                        copyWithToast(
-                                            `${expression} = ${result.plain}`,
-                                            "Calculation copied to clipboard."
-                                        )
-                                }
-                            ]
-                        }
-                    })
+                run: context => context.push({
+                    title: "Calculator",
+                    icon: CalculatorIcon,
+                    spec: {
+                        type: "detail",
+                        heading: result.formatted,
+                        rows: [
+                            { label: "Expression", value: expression },
+                            { label: "Result", value: result.plain }
+                        ],
+                        actions: [copyAction, {
+                            id: "calculator.copyExpression",
+                            label: "Copy Expression",
+                            icon: CopyIcon,
+                            run: () => copyWithToast(`${expression} = ${result.plain}`, "Calculation copied to clipboard.")
+                        }]
+                    }
+                })
             }
         ]
     };
 }
 
-function groupRanked(rows: { row: RowItem; section: string }[]): ResultSection[] {
+function groupRanked(rows: { row: RowItem; section: string; }[]): ResultSection[] {
     const sections: ResultSection[] = [];
     const byLabel = new Map<string, ResultSection>();
 
@@ -206,15 +198,11 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
         }
 
         let cancelled = false;
-        Promise.resolve(currentPage.spec.items(query))
-            .then(items => {
-                if (!cancelled) setListItems(items);
-            })
-            .catch(e => logger.error("List page items failed", e));
+        Promise.resolve(currentPage.spec.items(query)).then(items => {
+            if (!cancelled) setListItems(items);
+        }).catch(e => logger.error("List page items failed", e));
 
-        return () => {
-            cancelled = true;
-        };
+        return () => { cancelled = true; };
     }, [currentPage, query]);
 
     const expanded = currentPage != null || query.trim() !== "" || forceExpanded;
@@ -231,7 +219,7 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
 
             const ranked = rankCommands(trimmed, commands)
                 .map(entry => ({ row: commandToRow(entry.command), section: entry.command.section }))
-                .filter((entry): entry is { row: RowItem; section: string } => entry.row !== null);
+                .filter((entry): entry is { row: RowItem; section: string; } => entry.row !== null);
             sections.push(...groupRanked(ranked));
         } else if (expanded) {
             const byId = new Map(commands.map(c => [c.id, c]));
@@ -240,10 +228,7 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
             const pinnedRows = getPins()
                 .map(id => byId.get(id))
                 .filter((c): c is PaletteCommand => c != null)
-                .map(c => {
-                    shown.add(c.id);
-                    return commandToRow(c);
-                })
+                .map(c => { shown.add(c.id); return commandToRow(c); })
                 .filter((row): row is RowItem => row !== null);
             if (pinnedRows.length) sections.push({ label: "Pinned", items: pinnedRows });
 
@@ -251,34 +236,31 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
                 .map(id => byId.get(id))
                 .filter((c): c is PaletteCommand => c != null && !shown.has(c.id))
                 .slice(0, SUGGESTION_LIMIT)
-                .map(c => {
-                    shown.add(c.id);
-                    return commandToRow(c);
-                })
+                .map(c => { shown.add(c.id); return commandToRow(c); })
                 .filter((row): row is RowItem => row !== null);
             if (suggestionRows.length) sections.push({ label: "Suggestions", items: suggestionRows });
 
             const rest = commands
                 .filter(c => !shown.has(c.id))
                 .map(c => ({ row: commandToRow(c), section: c.section }))
-                .filter((entry): entry is { row: RowItem; section: string } => entry.row !== null);
+                .filter((entry): entry is { row: RowItem; section: string; } => entry.row !== null);
             sections.push(...groupRanked(rest));
         }
     } else if (pageType === "list") {
         const trimmed = query.trim();
         const filtered = trimmed
             ? listItems
-                  .map(item => ({
-                      item,
-                      score: Math.max(
-                          fuzzyScore(trimmed, item.label),
-                          ...(item.keywords ?? []).map(k => fuzzyScore(trimmed, k) * 0.7),
-                          item.sublabel ? fuzzyScore(trimmed, item.sublabel) * 0.5 : 0
-                      )
-                  }))
-                  .filter(entry => entry.score > 0)
-                  .sort((a, b) => b.score - a.score)
-                  .map(entry => entry.item)
+                .map(item => ({
+                    item,
+                    score: Math.max(
+                        fuzzyScore(trimmed, item.label),
+                        ...(item.keywords ?? []).map(k => fuzzyScore(trimmed, k) * 0.7),
+                        item.sublabel ? fuzzyScore(trimmed, item.sublabel) * 0.5 : 0
+                    )
+                }))
+                .filter(entry => entry.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .map(entry => entry.item)
             : listItems;
 
         if (filtered.length > 0) sections = [{ label: null, items: filtered.map(listItemToRow) }];
@@ -307,7 +289,7 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
     }
 
     function panelActions(): PaletteAction[] {
-        const detailActions = currentPage?.spec.type === "detail" ? (currentPage.spec.actions ?? []) : [];
+        const detailActions = currentPage?.spec.type === "detail" ? currentPage.spec.actions ?? [] : [];
         const rowActions = selectedRow?.actions ?? [];
         const base = pageType === "detail" ? detailActions : rowActions;
 
@@ -328,28 +310,25 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
                 label: "Set Alias",
                 icon: PencilIcon,
                 keepOpen: true,
-                run: context =>
-                    context.push({
-                        title: "Set Alias",
-                        icon: PencilIcon,
-                        spec: {
-                            type: "form",
-                            submitLabel: "Save Alias",
-                            fields: [
-                                {
-                                    key: "alias",
-                                    label: `Alias for ${selectedRow.label}`,
-                                    type: "text",
-                                    placeholder: "Leave empty to remove",
-                                    initial: getAlias(commandId) ?? ""
-                                }
-                            ],
-                            submit(values, context) {
-                                setAlias(commandId, values.alias);
-                                context.pop();
-                            }
+                run: context => context.push({
+                    title: "Set Alias",
+                    icon: PencilIcon,
+                    spec: {
+                        type: "form",
+                        submitLabel: "Save Alias",
+                        fields: [{
+                            key: "alias",
+                            label: `Alias for ${selectedRow.label}`,
+                            type: "text",
+                            placeholder: "Leave empty to remove",
+                            initial: getAlias(commandId) ?? ""
+                        }],
+                        submit(values, context) {
+                            setAlias(commandId, values.alias);
+                            context.pop();
                         }
-                    })
+                    }
+                })
             },
             {
                 id: "builtin.hotkey",
@@ -409,7 +388,8 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
                 setQuery("");
                 setSelectedIndex(0);
                 setForceExpanded(false);
-            } else if (currentPage) ctx.pop();
+            }
+            else if (currentPage) ctx.pop();
             else onClose();
             return true;
         }
@@ -461,12 +441,12 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
 
         if (key === "enter") {
             if (pageType === "detail") {
-                const detailActions = currentPage?.spec.type === "detail" ? (currentPage.spec.actions ?? []) : [];
+                const detailActions = currentPage?.spec.type === "detail" ? currentPage.spec.actions ?? [] : [];
                 if (detailActions[0]) void runAction(detailActions[0]);
                 return true;
             }
             if (selectedRow) {
-                const action = mod ? (selectedRow.actions[1] ?? selectedRow.actions[0]) : selectedRow.actions[0];
+                const action = mod ? selectedRow.actions[1] ?? selectedRow.actions[0] : selectedRow.actions[0];
                 void runAction(action, selectedRow.commandId);
             }
             return true;
@@ -495,21 +475,21 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
     const primaryLabel = recordingFor
         ? null
         : pageType === "form"
-          ? currentPage?.spec.type === "form"
-              ? (currentPage.spec.submitLabel ?? "Submit")
-              : null
-          : pageType === "detail"
-            ? currentPage?.spec.type === "detail"
-                ? (currentPage.spec.actions?.[0]?.label ?? null)
-                : null
-            : (selectedRow?.actions[0]?.label ?? null);
+            ? (currentPage?.spec.type === "form" ? currentPage.spec.submitLabel ?? "Submit" : null)
+            : pageType === "detail"
+                ? (currentPage?.spec.type === "detail" ? currentPage.spec.actions?.[0]?.label ?? null : null)
+                : selectedRow?.actions[0]?.label ?? null;
 
     const footerHint = recordingFor
         ? "Press a key combo, Backspace to clear, Esc to cancel"
-        : (currentPage?.title ?? "Equicord");
+        : currentPage?.title ?? "Equicord";
 
     return (
-        <div className={cl("shell")} onMouseDown={e => e.stopPropagation()} onClick={e => e.stopPropagation()}>
+        <div
+            className={cl("shell")}
+            onMouseDown={e => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
+        >
             <div
                 className={cl("backdrop")}
                 onMouseDown={e => {
@@ -525,24 +505,23 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
                 onMouseDown={e => e.stopPropagation()}
                 onClick={e => e.stopPropagation()}
             >
-                <div className={cl("header")}>
-                    {currentPage ? (
+            <div className={cl("header")}>
+                {currentPage
+                    ? (
                         <button type="button" className={cl("back")} onClick={() => ctx.pop()}>
                             <ChevronLeftIcon className={cl("back-icon")} />
                         </button>
-                    ) : (
-                        <SearchIcon className={cl("search-icon")} />
-                    )}
-                    {showSearch ? (
+                    )
+                    : <SearchIcon className={cl("search-icon")} />}
+                {showSearch
+                    ? (
                         <input
                             ref={inputRef}
                             className={cl("input")}
                             value={query}
-                            placeholder={
-                                currentPage?.spec.type === "list"
-                                    ? (currentPage.spec.placeholder ?? `Search ${currentPage.title.toLowerCase()}...`)
-                                    : "Search for commands..."
-                            }
+                            placeholder={currentPage?.spec.type === "list"
+                                ? currentPage.spec.placeholder ?? `Search ${currentPage.title.toLowerCase()}...`
+                                : "Search for commands..."}
                             onChange={e => ctx.setQuery(e.target.value)}
                             onMouseDown={e => e.stopPropagation()}
                             onBlur={() => {
@@ -550,7 +529,8 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
                                 inputRef.current?.focus();
                             }}
                         />
-                    ) : (
+                    )
+                    : (
                         <div className={cl("breadcrumb")}>
                             <div className={cl("chip-wrap", "chip-wrap-sm")}>
                                 <PaletteIcon icon={currentPage?.icon} className={cl("breadcrumb-icon")} />
@@ -558,38 +538,40 @@ export function Palette({ onClose, initialPage }: PaletteProps) {
                             <span>{currentPage?.title}</span>
                         </div>
                     )}
-                </div>
-                {expanded && (
-                    <>
-                        <div className={cl("body")}>
-                            {(pageType === "root" || pageType === "list") && (
-                                <ResultsList
-                                    sections={sections}
-                                    selectedIndex={Math.min(selectedIndex, Math.max(0, flatRows.length - 1))}
-                                    onSelect={setSelectedIndex}
-                                    onRun={row => void runAction(row.actions[0], row.commandId)}
-                                />
-                            )}
-                            {currentPage?.spec.type === "form" && (
-                                <FormPage spec={currentPage.spec} ctx={ctx} formRef={formRef} />
-                            )}
-                            {currentPage?.spec.type === "detail" && <DetailPage spec={currentPage.spec} />}
-                            {actionsOpen && (
-                                <ActionsPanel
-                                    actions={availablePanelActions}
-                                    selectedIndex={actionsIndex}
-                                    onSelect={setActionsIndex}
-                                    onRun={action => void runAction(action, selectedRow?.commandId)}
-                                />
-                            )}
-                        </div>
-                        <ActionBar
-                            hint={footerHint}
-                            primaryLabel={primaryLabel}
-                            showActionsHint={!recordingFor && availablePanelActions.length > 0}
-                        />
-                    </>
-                )}
+            </div>
+            {expanded && (
+                <>
+                    <div className={cl("body")}>
+                        {(pageType === "root" || pageType === "list") && (
+                            <ResultsList
+                                sections={sections}
+                                selectedIndex={Math.min(selectedIndex, Math.max(0, flatRows.length - 1))}
+                                onSelect={setSelectedIndex}
+                                onRun={row => void runAction(row.actions[0], row.commandId)}
+                            />
+                        )}
+                        {currentPage?.spec.type === "form" && (
+                            <FormPage spec={currentPage.spec} ctx={ctx} formRef={formRef} />
+                        )}
+                        {currentPage?.spec.type === "detail" && (
+                            <DetailPage spec={currentPage.spec} />
+                        )}
+                        {actionsOpen && (
+                            <ActionsPanel
+                                actions={availablePanelActions}
+                                selectedIndex={actionsIndex}
+                                onSelect={setActionsIndex}
+                                onRun={action => void runAction(action, selectedRow?.commandId)}
+                            />
+                        )}
+                    </div>
+                    <ActionBar
+                        hint={footerHint}
+                        primaryLabel={primaryLabel}
+                        showActionsHint={!recordingFor && availablePanelActions.length > 0}
+                    />
+                </>
+            )}
             </div>
         </div>
     );

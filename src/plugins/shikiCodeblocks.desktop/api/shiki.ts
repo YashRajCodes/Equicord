@@ -14,14 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { WorkerClient } from "@vap/core/ipc";
-import type { IShikiTheme, IThemedToken } from "@vap/shiki";
+*/
 
 import { dispatchTheme } from "@plugins/shikiCodeblocks.desktop/hooks/useTheme";
 import type { ShikiSpec } from "@plugins/shikiCodeblocks.desktop/types";
 import { shikiOnigasmSrc, shikiWorkerSrc } from "@utils/dependencies";
+import { WorkerClient } from "@vap/core/ipc";
+import type { IShikiTheme, IThemedToken } from "@vap/shiki";
 
 import { getGrammar, languages, loadLanguages, resolveLang } from "./languages";
 import { themes } from "./themes";
@@ -39,15 +38,18 @@ export const shiki = {
     themes,
     loadedThemes: new Set<string>(),
     loadedLangs: new Set<string>(),
-    clientPromise: new Promise<WorkerClient<ShikiSpec>>(resolve => (resolveClient = resolve)),
+    clientPromise: new Promise<WorkerClient<ShikiSpec>>(resolve => resolveClient = resolve),
 
     init: async (initThemeUrl: string | undefined) => {
         /** https://stackoverflow.com/q/58098143 */
         const workerBlob = await fetch(shikiWorkerSrc).then(res => res.blob());
 
-        const client = (shiki.client = new WorkerClient<ShikiSpec>("shiki-client", "shiki-host", workerBlob, {
-            name: "ShikiWorker"
-        }));
+        const client = shiki.client = new WorkerClient<ShikiSpec>(
+            "shiki-client",
+            "shiki-host",
+            workerBlob,
+            { name: "ShikiWorker" },
+        );
         await client.init();
 
         const themeUrl = initThemeUrl || themeUrls[0];
@@ -89,7 +91,7 @@ export const shiki = {
         await client.run("loadLanguage", {
             lang: {
                 ...lang,
-                grammar: lang.grammar ?? (await getGrammar(lang))
+                grammar: lang.grammar ?? await getGrammar(lang),
             }
         });
         shiki.loadedLangs.add(lang.id);
@@ -104,7 +106,7 @@ export const shiki = {
         return await client.run("codeToThemedTokens", {
             code,
             lang: langId,
-            theme: shiki.currentThemeUrl ?? themeUrls[0]
+            theme: shiki.currentThemeUrl ?? themeUrls[0],
         });
     },
     destroy() {

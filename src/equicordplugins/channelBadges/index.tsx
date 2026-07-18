@@ -5,12 +5,12 @@
  */
 
 import "./style.css";
-import { Channel } from "@vencord/discord-types";
-import { JSX } from "react";
 
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
+import { Channel } from "@vencord/discord-types";
 import { GuildStore, React, SelectedGuildStore } from "@webpack/common";
+import { JSX } from "react";
 
 import { isEnabled, returnChannelBadge, settings } from "./settings";
 
@@ -67,11 +67,7 @@ export default definePlugin({
         const badgeConditions = [
             { id: 6101, condition: isPrivate, title: "This channel is locked." },
             { id: 6100, condition: isNSFW, title: "This channel is marked as NSFW." },
-            {
-                id: 6102,
-                condition: guild?.rulesChannelId === channel.id,
-                title: "This channel is the server rules channel."
-            }
+            { id: 6102, condition: guild?.rulesChannelId === channel.id, title: "This channel is the server rules channel." },
         ];
 
         let badges: JSX.Element[] = [];

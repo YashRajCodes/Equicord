@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { StandingState } from "@vencord/discord-types/enums";
-import { findByCodeLazy, findStoreLazy } from "@webpack";
-import { ComponentType } from "react";
-
 import { ApplicationCommandInputType, sendBotMessage } from "@api/Commands";
 import { HeaderBarButton } from "@api/HeaderBar";
 import { addMessagePreSendListener, removeMessagePreSendListener } from "@api/MessageEvents";
@@ -15,27 +11,13 @@ import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings, migratePluginToSettings, Settings } from "@api/Settings";
 import { ShieldIcon, WarningIcon } from "@components/Icons";
 import customRPC from "@plugins/customRPC";
-import {
-    Devs,
-    EquicordDevs,
-    GUILD_ID,
-    SUPPORT_CHANNEL_ID,
-    SUPPORT_CHANNEL_IDS,
-    VC_SUPPORT_CHANNEL_IDS
-} from "@utils/constants";
+import { Devs, EquicordDevs, GUILD_ID, SUPPORT_CHANNEL_ID, SUPPORT_CHANNEL_IDS, VC_SUPPORT_CHANNEL_IDS } from "@utils/constants";
 import { isAnyPluginDev } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
-import {
-    Alerts,
-    ApplicationCommandIndexStore,
-    NavigationRouter,
-    React,
-    SettingsRouter,
-    UserGuildSettingsStore,
-    UserStore,
-    useStateFromStores,
-    VoiceStateStore
-} from "@webpack/common";
+import { StandingState } from "@vencord/discord-types/enums";
+import { findByCodeLazy, findStoreLazy } from "@webpack";
+import { Alerts, ApplicationCommandIndexStore, NavigationRouter, React, SettingsRouter, UserGuildSettingsStore, UserStore, useStateFromStores, VoiceStateStore } from "@webpack/common";
+import { ComponentType } from "react";
 
 import { PluginButtons } from "./pluginButtons";
 import { PluginCards } from "./pluginCards";
@@ -49,12 +31,12 @@ let clicked = false;
 const SafetyHubStore = findStoreLazy("SafetyHubStore");
 const fetchSafetyHub: () => Promise<void> = findByCodeLazy("SAFETY_HUB_FETCH_START");
 
-const StandingConfig: Record<number, { label: string; hoverColor: string; Icon: ComponentType<any> }> = {
+const StandingConfig: Record<number, { label: string; hoverColor: string; Icon: ComponentType<any>; }> = {
     [StandingState.ALL_GOOD]: { label: "All good!", hoverColor: "var(--status-positive)", Icon: ShieldIcon },
     [StandingState.LIMITED]: { label: "Limited", hoverColor: "var(--status-warning)", Icon: WarningIcon },
     [StandingState.VERY_LIMITED]: { label: "Very limited", hoverColor: "var(--orange-345)", Icon: WarningIcon },
     [StandingState.AT_RISK]: { label: "At risk", hoverColor: "var(--status-danger)", Icon: WarningIcon },
-    [StandingState.SUSPENDED]: { label: "Suspended", hoverColor: "var(--interactive-muted)", Icon: WarningIcon }
+    [StandingState.SUSPENDED]: { label: "Suspended", hoverColor: "var(--interactive-muted)", Icon: WarningIcon },
 };
 
 function StandingButton() {
@@ -63,17 +45,13 @@ function StandingButton() {
     const [hovered, setHovered] = React.useState(false);
 
     React.useEffect(() => {
-        if (!isInitialized) fetchSafetyHub().catch(() => {});
+        if (!isInitialized) fetchSafetyHub().catch(() => { });
     }, [isInitialized]);
 
     const config = StandingConfig[standing?.state] ?? StandingConfig[StandingState.ALL_GOOD];
 
     return (
-        <div
-            style={{ display: "contents" }}
-            onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
-        >
+        <div style={{ display: "contents" }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}>
             <HeaderBarButton
                 tooltip={config.label}
                 position="bottom"
@@ -94,24 +72,24 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Prevents the camera from being mirrored on your screen",
         restartNeeded: true,
-        default: false
+        default: false,
     },
     removeActivitySection: {
         type: OptionType.BOOLEAN,
         description: "Removes the activity section above member list",
         restartNeeded: true,
-        default: false
+        default: false,
     },
     showYourOwnActivityButtons: {
         type: OptionType.BOOLEAN,
         description: "Discord hides your own activity buttons for some reason",
         restartNeeded: true,
-        default: false
+        default: false,
     },
     refreshSlashCommands: {
         type: OptionType.BOOLEAN,
         description: "Refreshes Slash Commands to show newly added commands without restarting your client.",
-        default: false
+        default: false,
     },
     forceRoleIcon: {
         type: OptionType.BOOLEAN,
@@ -123,7 +101,7 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Show an account standing button in the header bar",
         restartNeeded: true,
-        default: false
+        default: false,
     },
     restoreFileDownloadButton: {
         type: OptionType.BOOLEAN,
@@ -147,19 +125,19 @@ const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Disable the prompt to adopt tags",
         restartNeeded: true,
-        default: false
+        default: false,
     },
     jsonGateway: {
         type: OptionType.BOOLEAN,
         description: "Forces JSON on gateway reconnect",
         restartNeeded: true,
-        default: false
+        default: false,
     },
     hideVoiceIndicatorForMutedChannels: {
         type: OptionType.BOOLEAN,
         description: "Hide voice indicator in server list when only active channels are muted",
         restartNeeded: true,
-        default: false
+        default: false,
     }
 });
 
@@ -184,7 +162,7 @@ export default definePlugin({
     settings,
     headerBarButton: {
         icon: ShieldIcon,
-        render: () => (settings.store.accountStandingButton ? <StandingButton /> : null)
+        render: () => (settings.store.accountStandingButton ? <StandingButton /> : null),
     },
     patches: [
         // Fixes Unknown Resolution/FPS Crashing
@@ -224,7 +202,7 @@ export default definePlugin({
             replacement: {
                 match: /mirror:\i/,
                 replace: "mirror:!1"
-            }
+            },
         },
         // Popout camera when not focused on voice channel
         {
@@ -234,14 +212,14 @@ export default definePlugin({
             replacement: {
                 match: /(\[\i\.\i\]:)\i/,
                 replace: "$1!1"
-            }
+            },
         },
         // Overriding css on Preview Camera/Change Video Background popup
         {
             find: ".PREVIEW_CAMERA_MODAL,",
             replacement: {
                 match: /className:\i.\i,(?=children:\()/,
-                replace: '$&style:{transform: "scalex(1)"},'
+                replace: "$&style:{transform: \"scalex(1)\"},"
             },
             predicate: () => settings.store.noMirroredCamera
         },
@@ -252,7 +230,7 @@ export default definePlugin({
             replacement: {
                 match: /null==\i\|\|0.{0,100}VIEW_CHANNEL\)&&/,
                 replace: "true||$&"
-            }
+            },
         },
         // Show your own activity buttons because discord removes them for who knows why
         {
@@ -287,7 +265,7 @@ export default definePlugin({
             predicate: () => settings.store.noModalAnimation,
             replacement: {
                 match: /300,/,
-                replace: "0,"
+                replace: "0,",
             }
         },
         // Removes Modal Animation
@@ -296,7 +274,7 @@ export default definePlugin({
             predicate: () => settings.store.noModalAnimation,
             replacement: {
                 match: /\?\?300/,
-                replace: "??0"
+                replace: "??0",
             }
         },
         // Removes Modal Animation
@@ -305,8 +283,8 @@ export default definePlugin({
             predicate: () => settings.store.noModalAnimation,
             replacement: {
                 match: /200:300/g,
-                replace: "0:0"
-            }
+                replace: "0:0",
+            },
         },
         {
             find: "GuildTagAvailableCoachmark",
@@ -330,7 +308,7 @@ export default definePlugin({
                 match: /case \i\.\i\.WINDOWS:/,
                 replace: 'case "WEB":'
             },
-            predicate: () => Settings.winNativeTitleBar
+            predicate: () => Settings.winNativeTitleBar,
         },
         {
             find: '"refresh-title-bar-small"',
@@ -344,7 +322,7 @@ export default definePlugin({
                     replace: "true"
                 }
             ],
-            predicate: () => Settings.winNativeTitleBar
+            predicate: () => Settings.winNativeTitleBar,
         },
         {
             find: "DirectMessage: getSpringConfigs()",
@@ -370,7 +348,7 @@ export default definePlugin({
                     replace: "$&.filter(e=>!$self.isChannelMuted($1?.guildId,e?.channelId))"
                 }
             ],
-            predicate: () => settings.store.hideVoiceIndicatorForMutedChannels
+            predicate: () => settings.store.hideVoiceIndicatorForMutedChannels,
         },
         // Add opening profile functionality to some connections
         {
@@ -381,7 +359,7 @@ export default definePlugin({
                     replace: "$&,getPlatformUserUrl:e=>$self.getPlatformUrl($1, e)"
                 }
             ]
-        }
+        },
     ],
     renderMessageAccessory(props) {
         return (
@@ -409,10 +387,10 @@ export default definePlugin({
                     cancelText: "Okay continue",
                     onCancel() {
                         clicked = true;
-                    }
+                    },
                 });
             }
-        }
+        },
     },
     commands: [
         {
@@ -424,11 +402,10 @@ export default definePlugin({
                 try {
                     ApplicationCommandIndexStore.indices = {};
                     sendBotMessage(ctx.channel.id, { content: "Slash Commands refreshed successfully." });
-                } catch (e) {
+                }
+                catch (e) {
                     console.error("[refreshSlashCommands] Failed to refresh commands:", e);
-                    sendBotMessage(ctx.channel.id, {
-                        content: "Failed to refresh commands. Check console for details."
-                    });
+                    sendBotMessage(ctx.channel.id, { content: "Failed to refresh commands. Check console for details." });
                 }
             }
         }
@@ -452,10 +429,9 @@ export default definePlugin({
         const voiceStates = VoiceStateStore.getVoiceStates(guildId);
         const currentUserVoiceState = VoiceStateStore.getVoiceStateForUser(UserStore.getCurrentUser()?.id);
 
-        return Object.values(voiceStates ?? {}).some(
-            voiceState =>
-                voiceState?.channelId === currentUserVoiceState?.channelId ||
-                !UserGuildSettingsStore.isChannelMuted(guildId, voiceState?.channelId!)
+        return Object.values(voiceStates ?? {}).some(voiceState =>
+            voiceState?.channelId === currentUserVoiceState?.channelId ||
+            !UserGuildSettingsStore.isChannelMuted(guildId, voiceState?.channelId!)
         );
     },
     getPlatformUrl(platform, args) {

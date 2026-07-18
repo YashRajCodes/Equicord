@@ -31,8 +31,7 @@ export const settings = definePluginSettings({
         type: OptionType.NUMBER,
         isValid: (value: number) => {
             if (value < MIN_RESOLUTION) return `Max resolution cannot be lower than ${MIN_RESOLUTION}`;
-            if (value % (settings.store.roundResolution ? 10 : 1) !== 0)
-                return "Max resolution must end with 0 if Round Resolution is on";
+            if (value % (settings.store.roundResolution ? 10 : 1) !== 0) return "Max resolution must end with 0 if Round Resolution is on";
             return true;
         }
     },
@@ -49,22 +48,12 @@ export const settings = definePluginSettings({
         type: OptionType.CUSTOM,
         description: "",
         hidden: true,
-        default: [
-            { label: "480p", value: 480 },
-            { label: "720p", value: 720 },
-            { label: "1080p", value: 1080 },
-            { label: "1440p", value: 1440 },
-            { label: "Source", value: 0 }
-        ]
+        default: [{ label: "480p", value: 480 }, { label: "720p", value: 720 }, { label: "1080p", value: 1080 }, { label: "1440p", value: 1440 }, { label: "Source", value: 0 }],
     },
     fpss: {
         type: OptionType.CUSTOM,
         description: "",
         hidden: true,
-        default: [
-            { label: "15fps", value: 15 },
-            { label: "30fps", value: 30 },
-            { label: "60fps", value: 60 }
-        ]
-    }
+        default: [{ label: "15fps", value: 15 }, { label: "30fps", value: 30 }, { label: "60fps", value: 60 }],
+    },
 });

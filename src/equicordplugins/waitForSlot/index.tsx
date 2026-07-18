@@ -4,33 +4,31 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { Channel } from "@vencord/discord-types";
-import { ChannelType } from "@vencord/discord-types/enums";
-
 import { playAudio } from "@api/AudioPlayer";
 import { NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { popNotice, showNotice } from "@api/Notices";
 import { definePluginSettings } from "@api/Settings";
 import { Devs, EquicordDevs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
+import type { Channel } from "@vencord/discord-types";
+import { ChannelType } from "@vencord/discord-types/enums";
 import { ChannelActions, ChannelStore, Menu, PermissionsBits, PermissionStore, VoiceStateStore } from "@webpack/common";
 
 let waitingChannelId: string | null = null;
 
-const NOTIFICATION_AUDIO_URL =
-    "https://raw.githubusercontent.com/Equicord/Equibored/main/sounds/waitForSlot/notification.mp3";
+const NOTIFICATION_AUDIO_URL = "https://raw.githubusercontent.com/Equicord/Equibored/main/sounds/waitForSlot/notification.mp3";
 
 const settings = definePluginSettings({
     autoJoin: {
         type: OptionType.BOOLEAN,
         description: "Join the channel immediately instead of showing a notice.",
-        default: false
+        default: false,
     },
     notificationSound: {
         type: OptionType.BOOLEAN,
         description: "Play a sound when a slot becomes available.",
-        default: true
-    }
+        default: true,
+    },
 });
 
 const ChannelContext: NavContextMenuPatchCallback = (children, { channel }) => {
@@ -40,15 +38,11 @@ const ChannelContext: NavContextMenuPatchCallback = (children, { channel }) => {
 
     const isWaiting = waitingChannelId === channel.id;
 
-    children.splice(
-        -1,
-        0,
+    children.splice(-1, 0,
         <Menu.MenuItem
             id="vc-wait-for-slot"
             label={isWaiting ? "Leave Queue" : "Join Queue"}
-            action={() => {
-                waitingChannelId = isWaiting ? null : channel.id;
-            }}
+            action={() => { waitingChannelId = isWaiting ? null : channel.id; }}
         />
     );
 };
@@ -84,7 +78,7 @@ export default definePlugin({
     ],
 
     contextMenus: {
-        "channel-context": ChannelContext
+        "channel-context": ChannelContext,
     },
     promptVoiceChannel,
 
@@ -101,26 +95,20 @@ export default definePlugin({
             if (Object.keys(VoiceStateStore.getVoiceStatesForChannel(waitingChannelId)).length < channel.userLimit) {
                 const channelId = waitingChannelId;
                 waitingChannelId = null;
-                if (settings.store.notificationSound) {
-                    playAudio(NOTIFICATION_AUDIO_URL);
-                }
+                if (settings.store.notificationSound) { playAudio(NOTIFICATION_AUDIO_URL); }
                 if (settings.store.autoJoin) {
                     ChannelActions.selectVoiceChannel(channelId);
                 } else {
-                    showNotice(
-                        `Hey, someone just left #${channel.name} and there's a spot for you now!`,
-                        "Join",
-                        () => {
-                            popNotice();
-                            ChannelActions.selectVoiceChannel(channelId);
-                        }
-                    );
+                    showNotice(`Hey, someone just left #${channel.name} and there's a spot for you now!`, "Join", () => {
+                        popNotice();
+                        ChannelActions.selectVoiceChannel(channelId);
+                    });
                 }
             }
-        }
+        },
     },
 
     stop() {
         waitingChannelId = null;
-    }
+    },
 });

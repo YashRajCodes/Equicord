@@ -5,6 +5,7 @@
  */
 
 import "./styles.css";
+
 import { MagnifyingGlassIcon } from "@components/Icons";
 import SettingsPlugin from "@plugins/_core/settings";
 import { EquicordDevs } from "@utils/constants";
@@ -25,7 +26,7 @@ export default definePlugin({
     toolboxActions: {
         "Open Icons Tab"() {
             SettingsRouter.openUserSettings("equicord_icon_viewer_panel");
-        }
+        },
     },
     settingsAboutComponent: SettingsAbout,
     start() {
@@ -38,5 +39,5 @@ export default definePlugin({
     },
     stop() {
         removeFromArray(SettingsPlugin.customEntries, e => e.key === "equicord_icon_viewer");
-    }
+    },
 });

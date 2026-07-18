@@ -14,10 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import "./styles.css";
-import { Message } from "@vencord/discord-types";
 
 import { definePluginSettings } from "@api/Settings";
 import { Button } from "@components/Button";
@@ -31,6 +30,7 @@ import { Devs, EquicordDevs, SUPPORT_CHANNEL_IDS } from "@utils/constants";
 import { classNameFactory } from "@utils/index";
 import { Logger } from "@utils/Logger";
 import definePlugin, { OptionType } from "@utils/types";
+import { Message } from "@vencord/discord-types";
 import { React, Select, TextInput, UserStore, useState } from "@webpack/common";
 
 const cl = classNameFactory("vc-textReplace-");
@@ -107,12 +107,13 @@ function stringToRegex(str: string) {
     const match = str.match(/^(\/)?(.+?)(?:\/([gimsuyv]*))?$/); // Regex to match regex
     return match
         ? new RegExp(
-              match[2], // Pattern
-              match[3]
-                  ?.split("") // Remove duplicate flags
-                  .filter((char, pos, flagArr) => flagArr.indexOf(char) === pos)
-                  .join("") ?? "g"
-          )
+            match[2], // Pattern
+            match[3]
+                ?.split("") // Remove duplicate flags
+                .filter((char, pos, flagArr) => flagArr.indexOf(char) === pos)
+                .join("")
+            ?? "g"
+        )
         : new RegExp(str); // Not a regex, return string
 }
 
@@ -121,15 +122,15 @@ function renderFindError(find: string) {
         stringToRegex(find);
         return null;
     } catch (e) {
-        return <span style={{ color: "var(--text-feedback-critical)" }}>{String(e)}</span>;
+        return (
+            <span style={{ color: "var(--text-feedback-critical)" }}>
+                {String(e)}
+            </span>
+        );
     }
 }
 
-function Input({
-    initialValue,
-    onChange,
-    placeholder
-}: {
+function Input({ initialValue, onChange, placeholder }: {
     placeholder: string;
     initialValue: string;
     onChange(value: string): void;
@@ -146,25 +147,17 @@ function Input({
     );
 }
 
-function TextRow({
-    label,
-    description,
-    value,
-    onChange
-}: {
-    label: string;
-    description: string;
-    value: string;
-    onChange(value: string): void;
-}) {
+function TextRow({ label, description, value, onChange }: { label: string; description: string; value: string; onChange(value: string): void; }) {
     return (
         <>
             <TooltipContainer text={description}>
-                <Span weight="medium" size="md">
-                    {label}
-                </Span>
+                <Span weight="medium" size="md">{label}</Span>
             </TooltipContainer>
-            <Input placeholder={description} initialValue={value} onChange={onChange} />
+            <Input
+                placeholder={description}
+                initialValue={value}
+                onChange={onChange}
+            />
         </>
     );
 }
@@ -175,9 +168,8 @@ function matchesRuleSearch(rule: Rule, query: string) {
     if (!query) return true;
 
     const normalizedQuery = query.trim().toLowerCase();
-    return [rule.name ?? "", rule.find, rule.replace, rule.onlyIfIncludes].some(value =>
-        value.toLowerCase().includes(normalizedQuery)
-    );
+    return [rule.name ?? "", rule.find, rule.replace, rule.onlyIfIncludes]
+        .some(value => value.toLowerCase().includes(normalizedQuery));
 }
 
 function normalizeRule(rule: Rule) {
@@ -198,13 +190,7 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
         rulesArray[index][key] = e;
 
         // If a rule is empty after editing and is not the last rule, remove it
-        if (
-            rulesArray[index].name === "" &&
-            rulesArray[index].find === "" &&
-            rulesArray[index].replace === "" &&
-            rulesArray[index].onlyIfIncludes === "" &&
-            index !== rulesArray.length - 1
-        ) {
+        if (rulesArray[index].name === "" && rulesArray[index].find === "" && rulesArray[index].replace === "" && rulesArray[index].onlyIfIncludes === "" && index !== rulesArray.length - 1) {
             rulesArray.splice(index, 1);
         }
     }
@@ -236,11 +222,17 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
             <div>
                 <HeadingSecondary>{title}</HeadingSecondary>
                 <Paragraph>{description}</Paragraph>
-                <TextInput placeholder="Search for a rule..." value={searchQuery} onChange={setSearchQuery} />
+                <TextInput
+                    placeholder="Search for a rule..."
+                    value={searchQuery}
+                    onChange={setSearchQuery}
+                />
             </div>
             <Flex flexDirection="column" style={{ gap: "0.5em", paddingBottom: "1.25em" }}>
-                {!filteredRules.length && searchQuery && <Paragraph>No rules match your search criteria.</Paragraph>}
-                {filteredRules.map(({ rule, index }) => (
+                {!filteredRules.length && searchQuery && (
+                    <Paragraph>No rules match your search criteria.</Paragraph>
+                )}
+                {filteredRules.map(({ rule, index }) =>
                     <div
                         key={rule.id}
                         onDragOver={e => e.preventDefault()}
@@ -308,13 +300,14 @@ function TextReplace({ title, description, rulesArray, isRegex = false }: TextRe
                                     {rule.name
                                         ? rule.name
                                         : isEmptyRule(rule)
-                                          ? `Empty Rule ${index + 1}`
-                                          : `Rule ${index + 1} - ${rule.find}`}
+                                            ? `Empty Rule ${index + 1}`
+                                            : `Rule ${index + 1} - ${rule.find}`
+                                    }
                                 </Paragraph>
                             </div>
                         </ExpandableSection>
                     </div>
-                ))}
+                )}
                 <Button
                     onClick={() => {
                         setSearchQuery("");
@@ -337,12 +330,7 @@ function TextReplaceTesting() {
             <HeadingSecondary>Rule Tester</HeadingSecondary>
             <Flex flexDirection="column" gap={6}>
                 <TextInput placeholder="Type a message to test rules on" onChange={setValue} />
-                <TextInput
-                    placeholder="Message with rules applied"
-                    editable={false}
-                    value={applyRules(value, "allMessages")}
-                    style={{ opacity: 0.7 }}
-                />
+                <TextInput placeholder="Message with rules applied" editable={false} value={applyRules(value, "allMessages")} style={{ opacity: 0.7 }} />
             </Flex>
         </div>
     );
@@ -397,8 +385,7 @@ const TEXT_REPLACE_RULES_EXEMPT_CHANNEL_IDS = [
 
 export default definePlugin({
     name: "TextReplace",
-    description:
-        "Replace text in your messages. You can find pre-made rules in the #textreplace-rules channel in Vencord's Server",
+    description: "Replace text in your messages. You can find pre-made rules in the #textreplace-rules channel in Vencord's Server",
     dependencies: ["MessagePopoverAPI"],
     tags: ["Chat", "Customisation", "Utility"],
     authors: [Devs.AutumnVN, Devs.TheKodeToad, EquicordDevs.Etorix, EquicordDevs.Ape],
@@ -411,10 +398,9 @@ export default definePlugin({
             find: "!1,hideSimpleEmbedContent",
             replacement: {
                 match: /(let{toAST:.{0,125}?)\(\i\?\?\i\).content/,
-                replace:
-                    "const textReplaceContent=$self.modifyIncomingMessage(arguments[2]?.contentMessage??arguments[1]);$1textReplaceContent"
+                replace: "const textReplaceContent=$self.modifyIncomingMessage(arguments[2]?.contentMessage??arguments[1]);$1textReplaceContent"
             }
-        }
+        },
     ],
 
     start() {

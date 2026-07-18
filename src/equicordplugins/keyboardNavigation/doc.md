@@ -9,18 +9,18 @@ Welcome to the Command Palette Actions Guide! This guide serves to inform you on
 
 ```ts
 registerAction({
-    id: "multipleChoiceCommand",
-    label: "Multiple Choice",
+    id: 'multipleChoiceCommand',
+    label: 'Multiple Choice',
     callback: async () => {
         // Open a modal with multiple choices
         const choice = await openMultipleChoice([
-            { id: "test1", label: "Test 1" },
-            { id: "test2", label: "Test 2" }
+            { id: 'test1', label: 'Test 1' },
+            { id: 'test2', label: 'Test 2' },
         ]);
 
         // Log the selected choice with its label and ID
         console.log(`Selected ${choice.label} with the ID ${choice.id}`);
-    }
+    },
 });
 ```
 
@@ -34,15 +34,15 @@ Inside the callback, the `openMultipleChoice` function opens a modal with a list
 
 ```ts
 registerAction({
-    id: "stringInputCommand",
-    label: "String Input",
+    id: 'stringInputCommand',
+    label: 'String Input',
     callback: async () => {
         // Open a modal with a text input
         const text = await openSimpleTextInput();
 
         // Log the inputted text to console
         console.log(`They typed: ${text}`);
-    }
+    },
 });
 ```
 

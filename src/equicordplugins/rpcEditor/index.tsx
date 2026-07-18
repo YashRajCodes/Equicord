@@ -4,14 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Activity } from "@vencord/discord-types";
-import { ActivityType } from "@vencord/discord-types/enums";
-
 import { DataStore } from "@api/index";
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { useForceUpdater } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
+import { Activity } from "@vencord/discord-types";
+import { ActivityType } from "@vencord/discord-types/enums";
 import { React } from "@webpack/common";
 
 import { ReplaceSettings, ReplaceTutorial } from "./ReplaceSettings";
@@ -24,12 +23,12 @@ export type AppIdSetting = {
     appId: string;
     enabled: boolean;
     newActivityType: ActivityType;
-    newName: string;
-    newDetails: string;
-    newState: string;
-    newLargeImageUrl: string;
-    newLargeImageText: string;
-    newSmallImageUrl: string;
+    newName: string,
+    newDetails: string,
+    newState: string,
+    newLargeImageUrl: string,
+    newLargeImageText: string,
+    newSmallImageUrl: string,
     newSmallImageText: string;
     newStreamUrl: string;
 };
@@ -68,7 +67,7 @@ const settings = definePluginSettings({
                 </>
             );
         }
-    }
+    },
 });
 
 export default definePlugin({
@@ -81,7 +80,7 @@ export default definePlugin({
             find: '"LocalActivityStore"',
             replacement: {
                 match: /\i\(\i\)\{.{0,25}activity:(\i).*?\}=\i;/,
-                replace: "$&$self.patchActivity($1);"
+                replace: "$&$self.patchActivity($1);",
             }
         }
     ],
@@ -89,7 +88,7 @@ export default definePlugin({
     settingsAboutComponent: () => <ReplaceTutorial />,
 
     async start() {
-        appIds = (await DataStore.get(APP_IDS_KEY)) ?? [makeEmptyAppId()];
+        appIds = await DataStore.get(APP_IDS_KEY) ?? [makeEmptyAppId()];
     },
     parseField(text: string, originalActivity: Activity): string {
         if (text === "null") return "";
@@ -113,18 +112,14 @@ export default definePlugin({
                 if (app.newDetails) activity.details = this.parseField(app.newDetails, oldActivity);
                 if (app.newState) activity.state = this.parseField(app.newState, oldActivity);
                 if (!activity.assets) activity.assets = {};
-                if (app.newLargeImageText)
-                    activity.assets.large_text = this.parseField(app.newLargeImageText, oldActivity);
-                if (app.newLargeImageUrl)
-                    activity.assets.large_image = this.parseField(app.newLargeImageUrl, oldActivity);
-                if (app.newSmallImageText)
-                    activity.assets.small_text = this.parseField(app.newSmallImageText, oldActivity);
-                if (app.newSmallImageUrl)
-                    activity.assets.small_image = this.parseField(app.newSmallImageUrl, oldActivity);
+                if (app.newLargeImageText) activity.assets.large_text = this.parseField(app.newLargeImageText, oldActivity);
+                if (app.newLargeImageUrl) activity.assets.large_image = this.parseField(app.newLargeImageUrl, oldActivity);
+                if (app.newSmallImageText) activity.assets.small_text = this.parseField(app.newSmallImageText, oldActivity);
+                if (app.newSmallImageUrl) activity.assets.small_image = this.parseField(app.newSmallImageUrl, oldActivity);
                 // @ts-ignore here we are intentionally nulling assets
                 if (app.disableAssets) activity.assets = {};
                 if (app.disableTimestamps) activity.timestamps = {};
             }
         });
-    }
+    },
 });

@@ -42,7 +42,7 @@ interface DiscordGif {
 
 interface TrendingCategories {
     trendingCategories: Record<"name" | "src", string>[];
-    trendingGIFPreview: { src: string };
+    trendingGIFPreview: { src: string; };
 }
 
 function toDiscordGif(item: TenorResult): DiscordGif | null {
@@ -65,16 +65,15 @@ function mapToDiscordGifs(items: TenorResult[]) {
 }
 
 async function tenorFetch<TResult>(path: string, params: Record<string, string>) {
-    const url =
-        `https://api.tenor.com/v1${path}?` +
-        new URLSearchParams({
-            key: TENOR_KEY,
-            locale: LocaleStore.locale.replace("-", "_").toLowerCase(),
-            ...params
-        });
+    const url = `https://api.tenor.com/v1${path}?` + new URLSearchParams({
+        key: TENOR_KEY,
+        locale: LocaleStore.locale.replace("-", "_").toLowerCase(),
+        ...params
+    });
 
     const res = await fetch(url);
-    if (!res.ok) throw new Error(`GET ${path}: Tenor API request failed with status ${res.status}`);
+    if (!res.ok)
+        throw new Error(`GET ${path}: Tenor API request failed with status ${res.status}`);
 
     return res.json() as Promise<TResult>;
 }
@@ -93,7 +92,7 @@ async function fetchTenorResults(path: string, limit: number, extra: Record<stri
         };
         if (pos) params.pos = pos;
 
-        const { next, results: page } = await tenorFetch<{ next?: string; results: TenorResult[] }>(path, params);
+        const { next, results: page } = await tenorFetch<{ next?: string; results: TenorResult[]; }>(path, params);
         if (!page.length) break;
 
         const previousLength = items.length;
@@ -114,7 +113,7 @@ async function fetchTenorResults(path: string, limit: number, extra: Record<stri
 }
 
 async function fetchCategories(): Promise<TrendingCategories | null> {
-    return tenorFetch<{ tags?: TenorCategoryTag[] }>("/categories", { type: "featured" })
+    return tenorFetch<{ tags?: TenorCategoryTag[]; }>("/categories", { type: "featured" })
         .then(({ tags }) => {
             if (!tags?.length) return null;
 
@@ -124,6 +123,7 @@ async function fetchCategories(): Promise<TrendingCategories | null> {
             };
         })
         .catch(() => null);
+
 }
 
 export default definePlugin({
@@ -136,8 +136,7 @@ export default definePlugin({
             find: "renderHeaderContent()",
             replacement: {
                 match: /placeholder:(\i),"aria-label":(\i)/,
-                replace:
-                    'placeholder:$1?.replace(/Giphy|Klipy/gi,"Tenor"),"aria-label":$2?.replace(/Giphy|Klipy/gi,"Tenor")'
+                replace: 'placeholder:$1?.replace(/Giphy|Klipy/gi,"Tenor"),"aria-label":$2?.replace(/Giphy|Klipy/gi,"Tenor")'
             }
         },
         {
@@ -175,7 +174,7 @@ export default definePlugin({
     ],
 
     async start() {
-        cachedCategories = (await fetchCategories()) ?? cachedCategories;
+        cachedCategories = await fetchCategories() ?? cachedCategories;
     },
 
     handleSearchFetch(query: string) {
@@ -197,7 +196,7 @@ export default definePlugin({
     async handleSuggestionsFetch(query: string) {
         if (!query) return;
 
-        const { results } = await tenorFetch<{ results?: string[] }>("/search_suggestions", { q: query, limit: "5" });
+        const { results } = await tenorFetch<{ results?: string[]; }>("/search_suggestions", { q: query, limit: "5" });
 
         FluxDispatcher.dispatch({ type: "GIF_PICKER_SUGGESTIONS_SUCCESS", query, items: results });
     },
@@ -221,7 +220,9 @@ export default definePlugin({
             .then(results => {
                 const items = mapToDiscordGifs(results);
                 FluxDispatcher.dispatch(
-                    items.length ? { type: "GIF_PICKER_QUERY_SUCCESS", items } : { type: "GIF_PICKER_QUERY_FAILURE" }
+                    items.length
+                        ? { type: "GIF_PICKER_QUERY_SUCCESS", items }
+                        : { type: "GIF_PICKER_QUERY_FAILURE" }
                 );
             })
             .catch(() => {

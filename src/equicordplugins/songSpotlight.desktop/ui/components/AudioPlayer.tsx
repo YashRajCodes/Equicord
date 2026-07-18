@@ -4,12 +4,11 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderInfoEntry, RenderInfoEntryAudio } from "@song-spotlight/api/handlers";
-import { RefObject } from "react";
-
 import { logger } from "@equicordplugins/songSpotlight.desktop/lib/utils";
 import settings from "@equicordplugins/songSpotlight.desktop/settings";
+import { RenderInfoEntry, RenderInfoEntryAudio } from "@song-spotlight/api/handlers";
 import { showToast, Toasts, useCallback, useEffect, useMemo, useRef } from "@webpack/common";
+import { RefObject } from "react";
 
 interface AudioItemProps {
     audio: RenderInfoEntryAudio;
@@ -26,17 +25,15 @@ function AudioItem({ audio, index, handleRef, handleLoaded, handleStopped }: Aud
     const pausedCallback = useCallback(() => handleStopped(index), [index, handleStopped]);
     const endedCallback = useCallback(() => handleStopped(index, true), [index, handleStopped]);
 
-    return (
-        <audio
-            src={audio.previewUrl}
-            preload="metadata"
-            ref={refCallback}
-            onLoadedData={loadedCallback}
-            onError={erroredCallback}
-            onPause={pausedCallback}
-            onEnded={endedCallback}
-        />
-    );
+    return <audio
+        src={audio.previewUrl}
+        preload="metadata"
+        ref={refCallback}
+        onLoadedData={loadedCallback}
+        onError={erroredCallback}
+        onPause={pausedCallback}
+        onEnded={endedCallback}
+    />;
 }
 
 interface AudioPlayerProps {
@@ -58,62 +55,48 @@ export default function AudioPlayer({ audioRef, list, playing, setPlaying, setLo
     const loaded = useRef(new Set<number>());
 
     const nodeEvents = useRef(new Map<number, () => void>());
-    const handleRef = useCallback(
-        (index: number, node: HTMLAudioElement | null) => {
-            if (node) {
-                nodes.current.set(index, node);
+    const handleRef = useCallback((index: number, node: HTMLAudioElement | null) => {
+        if (node) {
+            nodes.current.set(index, node);
 
-                const audio = audios[index];
-                if (audio?.previewStart === undefined || !audio.previewSlice) return;
+            const audio = audios[index];
+            if (audio?.previewStart === undefined || !audio.previewSlice) return;
 
-                const endTime = (audio.previewStart + audio.previewSlice) / 1000;
-                function timeUpdated() {
-                    if (node && node.currentTime >= endTime) {
-                        node.volume = 0;
-                        handleStopped(index, true);
-                    }
+            const endTime = (audio.previewStart + audio.previewSlice) / 1000;
+            function timeUpdated() {
+                if (node && node.currentTime >= endTime) {
+                    node.volume = 0;
+                    handleStopped(index, true);
                 }
-
-                node.addEventListener("timeupdate", timeUpdated);
-                nodeEvents.current.set(index, () => node.removeEventListener("timeupdate", timeUpdated));
-            } else {
-                nodes.current.delete(index);
-                nodeEvents.current.get(index)?.();
-                nodeEvents.current.delete(index);
             }
-        },
-        [audios]
-    );
 
-    const handleLoaded = useCallback(
-        (index: number, state: boolean) => {
-            if (state) loaded.current.add(index);
-            else loaded.current.delete(index);
-            setLoadedAudio(index, state);
-        },
-        [setLoadedAudio]
-    );
+            node.addEventListener("timeupdate", timeUpdated);
+            nodeEvents.current.set(index, () => node.removeEventListener("timeupdate", timeUpdated));
+        } else {
+            nodes.current.delete(index);
+            nodeEvents.current.get(index)?.();
+            nodeEvents.current.delete(index);
+        }
+    }, [audios]);
 
-    const handleStopped = useCallback(
-        (index: number, ended?: boolean) => {
-            if (ended) {
-                const nextIndex = loaded.current
-                    .values()
-                    .toArray()
-                    .sort()
-                    .find(x => x > index);
-                setPlaying(nextIndex !== -1 ? nextIndex : undefined);
-            } else if (playing === index) {
-                setPlaying(undefined);
-            }
-        },
-        [playing, setPlaying]
-    );
+    const handleLoaded = useCallback((index: number, state: boolean) => {
+        if (state) loaded.current.add(index);
+        else loaded.current.delete(index);
+        setLoadedAudio(index, state);
+    }, [setLoadedAudio]);
+
+    const handleStopped = useCallback((index: number, ended?: boolean) => {
+        if (ended) {
+            const nextIndex = loaded.current.values().toArray().sort().find(x => x > index);
+            setPlaying(nextIndex !== -1 ? nextIndex : undefined);
+        } else if (playing === index) {
+            setPlaying(undefined);
+        }
+    }, [playing, setPlaying]);
 
     useEffect(() => {
         if (playing !== undefined) {
-            const audio = audios[playing],
-                node = nodes.current.get(playing);
+            const audio = audios[playing], node = nodes.current.get(playing);
             if (audio && node && loaded.current.has(playing)) {
                 if (globalPlaying) globalPlaying.pause();
 
@@ -145,18 +128,17 @@ export default function AudioPlayer({ audioRef, list, playing, setPlaying, setLo
 
     return (
         <div style={{ display: "none" }} aria-hidden="true">
-            {audios.map(
-                (audio, index) =>
-                    audio && (
-                        <AudioItem
-                            key={audio.previewUrl}
-                            audio={audio}
-                            index={index}
-                            handleRef={handleRef}
-                            handleLoaded={handleLoaded}
-                            handleStopped={handleStopped}
-                        />
-                    )
+            {audios.map((audio, index) =>
+                audio && (
+                    <AudioItem
+                        key={audio.previewUrl}
+                        audio={audio}
+                        index={index}
+                        handleRef={handleRef}
+                        handleLoaded={handleLoaded}
+                        handleStopped={handleStopped}
+                    />
+                )
             )}
         </div>
     );

@@ -5,10 +5,10 @@
  */
 
 import "./styles.css";
-import { findComponentByCodeLazy } from "@webpack";
-import { ComponentType, HTMLAttributes } from "react";
 
 import { classNameFactory } from "@utils/css";
+import { findComponentByCodeLazy } from "@webpack";
+import { ComponentType, HTMLAttributes } from "react";
 
 export enum SpinnerTypes {
     WANDERING_CUBES = "wanderingCubes",
@@ -16,18 +16,16 @@ export enum SpinnerTypes {
     PULSING_ELLIPSIS = "pulsingEllipsis",
     SPINNING_CIRCLE = "spinningCircle",
     SPINNING_CIRCLE_SIMPLE = "spinningCircleSimple",
-    LOW_MOTION = "lowMotion"
+    LOW_MOTION = "lowMotion",
 }
 
-type Spinner = ComponentType<
-    Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
-        type?: SpinnerTypes;
-        animated?: boolean;
-        className?: string;
-        itemClassName?: string;
-        "aria-label"?: string;
-    }
-> & {
+type Spinner = ComponentType<Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
+    type?: SpinnerTypes;
+    animated?: boolean;
+    className?: string;
+    itemClassName?: string;
+    "aria-label"?: string;
+}> & {
     Type: typeof SpinnerTypes;
 };
 

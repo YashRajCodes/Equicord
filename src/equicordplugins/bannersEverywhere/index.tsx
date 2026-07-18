@@ -4,14 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { User } from "@vencord/discord-types";
-
 import * as DataStore from "@api/DataStore";
 import { isPluginEnabled } from "@api/PluginManager";
 import { definePluginSettings } from "@api/Settings";
 import usrbg from "@plugins/usrbg";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
+import { User } from "@vencord/discord-types";
 import { UserProfileStore } from "@webpack/common";
 
 import style from "./style.css?managed";
@@ -36,7 +35,7 @@ const settings = definePluginSettings({
         description: "prefer nameplate over banner",
         type: OptionType.BOOLEAN,
         default: false
-    }
+    },
 });
 
 const DATASTORE_KEY = "bannersEverywhere";
@@ -54,7 +53,7 @@ export default definePlugin({
                 {
                     // We add the banner as a property while we can still access the user id
                     match: /user:(\i).{0,150}nameplate:(\i).*?name:null.*?(?=avatar:)/,
-                    replace: "$&banner:$self.memberListBannerHook($1, $2),"
+                    replace: "$&banner:$self.memberListBannerHook($1, $2),",
                 },
                 {
                     match: /(?<=\),nameplate:)(\i)/,
@@ -63,7 +62,7 @@ export default definePlugin({
             ]
         },
         {
-            find: 'role:"listitem",innerRef',
+            find: "role:\"listitem\",innerRef",
             replacement: {
                 // We cant access the user id here, so we take the banner property we set earlier
                 match: /children:\[(?=.{0,100}\.MEMBER_LIST)/,
@@ -76,7 +75,7 @@ export default definePlugin({
     managedStyle: style,
 
     async start() {
-        this.data = (await DataStore.get(DATASTORE_KEY)) || {};
+        this.data = await DataStore.get(DATASTORE_KEY) || {};
     },
 
     stop() {
@@ -106,12 +105,7 @@ export default definePlugin({
         }
 
         return (
-            <img
-                alt=""
-                id={`vc-banners-everywhere-${user.id}`}
-                src={url}
-                className="vc-banners-everywhere-memberlist"
-            ></img>
+            <img alt="" id={`vc-banners-everywhere-${user.id}`} src={url} className="vc-banners-everywhere-memberlist"></img>
         );
     },
 
@@ -144,10 +138,9 @@ export default definePlugin({
         }
         const userProfile = UserProfileStore.getUserProfile(userId);
         if (userProfile?.banner) {
-            this.data[userId] =
-                `https://cdn.discordapp.com/banners/${userId}/${userProfile.banner}.${userProfile.banner.startsWith("a_") ? "gif" : "png"}`;
+            this.data[userId] = `https://cdn.discordapp.com/banners/${userId}/${userProfile.banner}.${userProfile.banner.startsWith("a_") ? "gif" : "png"}`;
             DataStore.set(DATASTORE_KEY, this.data);
         }
         return this.data[userId];
-    }
+    },
 });

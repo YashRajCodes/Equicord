@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
@@ -25,8 +25,8 @@ const settings = definePluginSettings({
         description: "Number of accounts that can be added, or 0 for no limit",
         default: 0,
         type: OptionType.NUMBER,
-        restartNeeded: true
-    }
+        restartNeeded: true,
+    },
 });
 
 export default definePlugin({
@@ -41,12 +41,12 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(\).length>)5/,
-                    replace: "$1$self.getMaxAccounts()"
+                    replace: "$1$self.getMaxAccounts()",
                 },
                 {
                     match: /(\i.splice\()5/,
-                    replace: "$1$self.getMaxAccounts()"
-                }
+                    replace: "$1$self.getMaxAccounts()",
+                },
             ]
         },
         {
@@ -54,16 +54,14 @@ export default definePlugin({
             replacement: [
                 {
                     match: /(maxNumAccounts:)5/,
-                    replace: "$1$self.getMaxAccounts()"
+                    replace: "$1$self.getMaxAccounts()",
                 },
                 {
                     match: /(\i.length(?:<|>=))5/g,
-                    replace: "$1$self.getMaxAccounts()"
-                }
+                    replace: "$1$self.getMaxAccounts()",
+                },
             ]
-        }
+        },
     ],
-    getMaxAccounts() {
-        return settings.store.maxAccounts === 0 ? Infinity : settings.store.maxAccounts;
-    }
+    getMaxAccounts() { return settings.store.maxAccounts === 0 ? Infinity : settings.store.maxAccounts; },
 });

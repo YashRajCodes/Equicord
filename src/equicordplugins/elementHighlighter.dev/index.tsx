@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-import { findComponentByCodeLazy } from "@webpack";
 
 import { definePluginSettings } from "@api/Settings";
 import { Button } from "@components/Button";
@@ -13,6 +12,7 @@ import { Devs, IS_MAC } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { copyWithToast } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
+import { findComponentByCodeLazy } from "@webpack";
 import { useEffect, useState } from "@webpack/common";
 
 const KeybindShortcut = findComponentByCodeLazy(".combo,", ".key,");
@@ -31,7 +31,7 @@ let pendingY = 0;
 let pendingElement: Element | null = null;
 
 const colorCache = new WeakMap<Element, string | null>();
-let cachedRules: { selector: string; specificity: number; color: string }[] = [];
+let cachedRules: { selector: string; specificity: number; color: string; }[] = [];
 
 function KeybindRecorder() {
     const [isListening, setIsListening] = useState(false);
@@ -84,9 +84,7 @@ function KeybindRecorder() {
             <Button
                 size="small"
                 variant="secondary"
-                onClick={() => {
-                    settings.store.keybind = DEFAULT_KEYBIND;
-                }}
+                onClick={() => { settings.store.keybind = DEFAULT_KEYBIND; }}
             >
                 Reset
             </Button>
@@ -164,7 +162,7 @@ function cacheRules() {
                     cachedRules.push({ selector: s, specificity: calcSpecificity(s), color });
                 }
             }
-        } catch {}
+        } catch { }
     }
     cachedRules.sort((a, b) => a.specificity - b.specificity);
 }
@@ -185,7 +183,7 @@ function getColorVarFromElement(el: Element): string | null {
     for (const r of cachedRules) {
         try {
             if (el.matches(r.selector)) result = r.color;
-        } catch {}
+        } catch { }
     }
     return result;
 }

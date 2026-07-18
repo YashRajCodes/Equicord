@@ -14,25 +14,25 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import "./style.css";
-import { FluxStore } from "@vencord/discord-types";
-import { findStoreLazy } from "@webpack";
 
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
+import { FluxStore } from "@vencord/discord-types";
+import { findStoreLazy } from "@webpack";
 
 import { MemberCount } from "./MemberCount";
 
 export const ChannelMemberStore = findStoreLazy("ChannelMemberStore") as FluxStore & {
-    getProps(guildId?: string, channelId?: string): { groups: { count: number; id: string }[] };
+    getProps(guildId?: string, channelId?: string): { groups: { count: number; id: string; }[]; };
 };
 export const ThreadMemberListStore = findStoreLazy("ThreadMemberListStore") as FluxStore & {
-    getMemberListSections(channelId?: string): { [sectionId: string]: { sectionId: string; userIds: string[] } };
+    getMemberListSections(channelId?: string): { [sectionId: string]: { sectionId: string; userIds: string[]; }; };
 };
 
 export const settings = definePluginSettings({
@@ -61,8 +61,7 @@ export const cl = classNameFactory("vc-membercount-");
 
 export default definePlugin({
     name: "MemberCount",
-    description:
-        "Shows the number of online members, total members, and users in voice channels on the server - in the member list and tooltip.",
+    description: "Shows the number of online members, total members, and users in voice channels on the server - in the member list and tooltip.",
     tags: ["Servers", "Utility"],
     authors: [Devs.Ven, Devs.Commandtechno, Devs.Apexo],
     settings,
@@ -73,8 +72,8 @@ export default definePlugin({
             replacement: [
                 {
                     match: /children:\[(\i\.useMemo[^}]+"aria-multiselectable")(?<=className:(\i),.+?)/,
-                    replace: "children:[$2?.includes('members')?$self.render():null,$1"
-                }
+                    replace: "children:[$2?.includes('members')?$self.render():null,$1",
+                },
             ],
             predicate: () => settings.store.memberList
         },

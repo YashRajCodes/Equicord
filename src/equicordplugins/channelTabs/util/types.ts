@@ -15,7 +15,7 @@ export interface ChannelTabsProps extends BasicChannelTabsProps {
 }
 export interface PersistedTabs {
     [userId: string]: {
-        openTabs: ChannelTabsProps[];
+        openTabs: ChannelTabsProps[],
         openTabIndex: number;
     };
 }
@@ -32,13 +32,13 @@ export interface BookmarkFolder {
     iconName?: string;
 }
 export interface BookmarkProps {
-    bookmarks: Bookmarks;
-    index: number;
+    bookmarks: Bookmarks,
+    index: number,
     methods: UseBookmarkMethods;
 }
 export type Bookmarks = (Bookmark | BookmarkFolder)[];
 export type UseBookmarkMethods = {
-    addBookmark: (bookmark: Omit<Bookmark, "name"> & { name?: string }, folderIndex?: number) => void;
+    addBookmark: (bookmark: Omit<Bookmark, "name"> & { name?: string; }, folderIndex?: number) => void;
     addFolder: (name?: string, iconColor?: string, iconName?: string) => number;
     deleteBookmark: (index: number, folderIndex?: number) => void;
     editBookmark: (index: number, bookmark: Partial<Bookmark | BookmarkFolder>, modalKey?) => void;

@@ -14,15 +14,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import JSONParser from "@streamparser/json/jsonparser.js";
-import { showSaveFilePicker } from "native-file-system-adapter";
-
 import { chooseFile as chooseFileWeb } from "@utils/web";
 import { Toasts } from "@webpack/common";
+import { showSaveFilePicker } from "native-file-system-adapter";
 
-import { clearLogs, Native } from "..";
+import { clearLogs,Native } from "..";
 import { addMessagesBulkIDB, iterateAllMessagesIDB } from "../db";
 import { LoggedMessageJSON } from "../types";
 
@@ -119,12 +118,10 @@ export async function exportLogs() {
         if (IS_WEB) {
             const handle = await showSaveFilePicker({
                 suggestedName: filename,
-                types: [
-                    {
-                        description: "JSON File",
-                        accept: { "application/json": [".json"] }
-                    }
-                ]
+                types: [{
+                    description: "JSON File",
+                    accept: { "application/json": [".json"] },
+                }],
             });
 
             const writable = await handle.createWritable();
@@ -166,7 +163,7 @@ export async function exportLogs() {
 async function* parseJsonStream(readChunk: () => Promise<string | null>) {
     const parser = new JSONParser({
         paths: ["$.messages.*"],
-        keepStack: false
+        keepStack: false,
     });
     const queue: any[] = [];
     let error: Error | null = null;
@@ -194,7 +191,8 @@ async function* parseJsonStream(readChunk: () => Promise<string | null>) {
     } catch (e) {
         throw e;
     } finally {
-        if (!parser.isEnded) parser.end();
+        if (!parser.isEnded)
+            parser.end();
     }
 
     if (error) throw error;

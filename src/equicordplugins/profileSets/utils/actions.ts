@@ -4,42 +4,25 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { isNonNullish } from "@utils/guards";
 import { ProfilePreset } from "@vencord/discord-types";
 import { findStoreLazy } from "@webpack";
-
-import { isNonNullish } from "@utils/guards";
 import { showToast, Toasts } from "@webpack/common";
 
 import { getCurrentProfile } from "./profile";
-import {
-    addPreset,
-    movePresetInArray,
-    presets,
-    PresetSection,
-    type ProfilePresetEx,
-    removePreset,
-    replaceAllPresets,
-    savePresetsData,
-    updatePreset
-} from "./storage";
+import { addPreset, movePresetInArray, presets, PresetSection, type ProfilePresetEx, removePreset, replaceAllPresets, savePresetsData, updatePreset } from "./storage";
 
 const UserProfileSettingsStore = findStoreLazy("UserProfileSettingsStore");
 
-function isImageInput(value: unknown): value is string | { imageUri: string } {
+function isImageInput(value: unknown): value is string | { imageUri: string; } {
     if (typeof value === "string") return value.length > 0;
-    return (
-        typeof value === "object" &&
-        isNonNullish(value) &&
-        "imageUri" in value &&
-        typeof (value as { imageUri: unknown }).imageUri === "string"
-    );
+    return typeof value === "object" && isNonNullish(value) && "imageUri" in value && typeof (value as { imageUri: unknown }).imageUri === "string";
 }
 
 function getFreshPendingAvatar(section: PresetSection, guildId?: string): string | null {
-    const pending =
-        (section === "server" && guildId
-            ? UserProfileSettingsStore.getPendingChanges?.(guildId)
-            : UserProfileSettingsStore.getPendingChanges?.()) ?? {};
+    const pending = (section === "server" && guildId
+        ? UserProfileSettingsStore.getPendingChanges?.(guildId)
+        : UserProfileSettingsStore.getPendingChanges?.()) ?? {};
     const pendingObj = pending as Record<string, unknown>;
     const selected = [pendingObj.pendingAvatar].find(isImageInput);
     if (!selected) return null;
@@ -55,7 +38,7 @@ export async function savePreset(name: string, section: PresetSection, guildId?:
         name,
         timestamp: Date.now(),
         ...profile,
-        avatarDataUrl: effectiveAvatar
+        avatarDataUrl: effectiveAvatar,
     };
     addPreset(newPreset);
     await savePresetsData(section);

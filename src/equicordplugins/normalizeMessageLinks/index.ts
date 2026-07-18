@@ -17,11 +17,11 @@ export default definePlugin({
             find: "#{intl::COPY_MESSAGE_LINK}",
             replacement: {
                 match: /(?<=\/\/\$\{)location\.host/,
-                replace: "$self.normalizeHost(location.host)"
-            }
-        }
+                replace: "$self.normalizeHost(location.host)",
+            },
+        },
     ],
     normalizeHost(host: string) {
         return host.replace(/(^|\b)(canary\.|ptb\.)(discord.com)$/, "$1$3");
-    }
+    },
 });

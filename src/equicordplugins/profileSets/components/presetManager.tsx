@@ -141,7 +141,7 @@ export function PresetManager({ section, guildId }: PresetManagerProps) {
     const shouldShowPagination = filteredPresets.length > PRESETS_PER_PAGE;
 
     return (
-        <div className={classes(cl("section"), isServerSection ? cl("section-server") : "")}>
+        <div className={classes(cl("section"), isServerSection ? cl("section-server") : "")} >
             <Heading tag="h3" className={cl("heading")}>
                 Saved Profiles
             </Heading>
@@ -196,7 +196,11 @@ export function PresetManager({ section, guildId }: PresetManagerProps) {
                 >
                     Import
                 </Button>
-                <Button size="small" variant="secondary" onClick={() => exportPresets(resolvedSection)}>
+                <Button
+                    size="small"
+                    variant="secondary"
+                    onClick={() => exportPresets(resolvedSection)}
+                >
                     Export All
                 </Button>
             </div>
@@ -248,7 +252,9 @@ export function PresetManager({ section, guildId }: PresetManagerProps) {
                                     }}
                                     className={cl("page-input")}
                                 />
-                                <span className={cl("page-of")}>/ {totalPages}</span>
+                                <span className={cl("page-of")}>
+                                    / {totalPages}
+                                </span>
                             </div>
                             <Button
                                 size="small"
@@ -265,7 +271,9 @@ export function PresetManager({ section, guildId }: PresetManagerProps) {
                 </>
             )}
             <hr className={cl("block")} />
-            {resolvedSection === "server" && <hr className={cl("block")} />}
+            {resolvedSection === "server" && (
+                <hr className={cl("block")} />
+            )}
         </div>
     );
 }

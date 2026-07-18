@@ -20,9 +20,11 @@ const toast = (type: string, message: string) =>
         id: Toasts.genId()
     });
 
-const toastSuccess = () => toast(Toasts.Type.SUCCESS, "Settings successfully imported. Restart to apply changes!");
+const toastSuccess = () =>
+    toast(Toasts.Type.SUCCESS, "Settings successfully imported. Restart to apply changes!");
 
-const toastFailure = (err: any) => toast(Toasts.Type.FAILURE, `Failed to import settings: ${String(err)}`);
+const toastFailure = (err: any) =>
+    toast(Toasts.Type.FAILURE, `Failed to import settings: ${String(err)}`);
 
 const logger = new Logger("SettingsSync:Offline", "#39b7e0");
 
@@ -31,12 +33,7 @@ function deepMerge<T extends object>(target: T, source: T): T {
         const sourceVal = source[key];
 
         if (sourceVal !== null && typeof sourceVal === "object" && !Array.isArray(sourceVal)) {
-            if (
-                target[key] === null ||
-                target[key] === undefined ||
-                typeof target[key] !== "object" ||
-                Array.isArray(target[key])
-            ) {
+            if (target[key] === null || target[key] === undefined || typeof target[key] !== "object" || Array.isArray(target[key])) {
                 target[key] = {} as any;
             }
             deepMerge(target[key] as object, sourceVal as object);
@@ -70,11 +67,12 @@ export async function importSettings(data: string, type: BackupType = "all", clo
         throw new Error("Failed to parse JSON: " + String(err));
     }
 
-    if (!isSafeObject(parsed)) throw new Error("Unsafe Settings");
+    if (!isSafeObject(parsed))
+        throw new Error("Unsafe Settings");
 
     switch (type) {
         case "all": {
-            if (!cloud && !("settings" in parsed))
+            if (!cloud && (!("settings" in parsed)))
                 throw new Error("Invalid Settings. Plugin settings is required for this import try a different one.");
 
             if (parsed.settings) {
@@ -107,15 +105,7 @@ export async function importSettings(data: string, type: BackupType = "all", clo
     }
 }
 
-export async function exportSettings({
-    syncDataStore = true,
-    type = "all",
-    minify
-}: {
-    syncDataStore?: boolean;
-    type?: BackupType;
-    minify?: boolean;
-}) {
+export async function exportSettings({ syncDataStore = true, type = "all", minify }: { syncDataStore?: boolean; type?: BackupType; minify?: boolean; }) {
     const settings = VencordNative.settings.get();
     const quickCss = await VencordNative.quickCss.get();
     let dataStore: any;
@@ -128,10 +118,7 @@ export async function exportSettings({
 
             if (type === "all") {
                 logger.warn("Skipping DataStore in backup due to size. Export DataStore separately if needed.");
-                toast(
-                    Toasts.Type.MESSAGE,
-                    "DataStore too large - exported without it. Use 'Export DataStore' separately if needed."
-                );
+                toast(Toasts.Type.MESSAGE, "DataStore too large - exported without it. Use 'Export DataStore' separately if needed.");
                 dataStore = undefined;
             } else if (type === "datastore") {
                 throw new Error("DataStore is too large to export. Please clear some plugin data and try again.");
@@ -141,11 +128,7 @@ export async function exportSettings({
 
     switch (type) {
         case "all": {
-            return JSON.stringify(
-                { settings, quickCss, ...(dataStore && { dataStore }) },
-                null,
-                minify ? undefined : 4
-            );
+            return JSON.stringify({ settings, quickCss, ...(dataStore && { dataStore }) }, null, minify ? undefined : 4);
         }
         case "plugins": {
             return JSON.stringify({ settings }, null, minify ? undefined : 4);
@@ -159,7 +142,7 @@ export async function exportSettings({
     }
 }
 
-export async function downloadSettingsBackup(type: BackupType = "all", { minify }: { minify?: boolean } = {}) {
+export async function downloadSettingsBackup(type: BackupType = "all", { minify }: { minify?: boolean; } = {}) {
     try {
         const syncDataStore = type === "all" || type === "datastore";
         const backup = await exportSettings({ minify, type, syncDataStore });

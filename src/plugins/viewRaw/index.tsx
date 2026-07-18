@@ -14,11 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import "./style.css";
-import { Message } from "@vencord/discord-types";
-import { MouseEventHandler } from "react";
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { definePluginSettings, migratePluginSettings } from "@api/Settings";
@@ -30,7 +28,9 @@ import { Devs } from "@utils/constants";
 import { copyWithToast, getCurrentGuild, getIntlMessage } from "@utils/discord";
 import { isTruthy } from "@utils/guards";
 import definePlugin, { IconComponent, OptionType } from "@utils/types";
+import { Message } from "@vencord/discord-types";
 import { ChannelStore, GuildRoleStore, Menu, Modal, openModal, UserProfileStore } from "@webpack/common";
+import { MouseEventHandler } from "react";
 
 const CopyRawIcon: IconComponent = ({ height = 20, width = 20, className }) => {
     return (
@@ -54,7 +54,12 @@ function sortObject<T extends object>(obj: T): T {
 
 function cleanMessage(msg: Message) {
     const clone = sortObject(JSON.parse(JSON.stringify(msg)));
-    for (const key of ["email", "phone", "mfaEnabled", "personalConnectionId"]) delete clone.author[key];
+    for (const key of [
+        "email",
+        "phone",
+        "mfaEnabled",
+        "personalConnectionId"
+    ]) delete clone.author[key];
 
     // message logger added properties
     const cloneAny = clone as any;
@@ -95,7 +100,7 @@ function openViewRawModal(json: string, type: string, msgContent?: string) {
                 )}
                 <CodeBlock className="vc-viewRaw-codeBlock" content={json} lang="json" />
             </Modal>
-        </ErrorBoundary>
+        </ErrorBoundary >
     ));
 }
 
@@ -122,10 +127,7 @@ const settings = definePluginSettings({
     }
 });
 
-function MakeContextCallback(
-    name: "Guild" | "Role" | "User" | "Channel" | "Message" | "Profile",
-    getData?: (props: any) => any
-): NavContextMenuPatchCallback {
+function MakeContextCallback(name: "Guild" | "Role" | "User" | "Channel" | "Message" | "Profile", getData?: (props: any) => any): NavContextMenuPatchCallback {
     return (children, props) => {
         const value = getData ? getData(props) : props[name.toLowerCase()];
         if (!value) return;
@@ -141,15 +143,18 @@ function MakeContextCallback(
 
         const devContainer = findGroupChildrenByChildId(`devmode-copy-id-${value.id}`, children);
 
-        (devContainer ?? children).splice(
-            -1,
-            0,
-            <Menu.MenuItem id={id} label="View Raw" action={action} icon={CopyRawIcon} />
+        (devContainer ?? children).splice(-1, 0,
+            <Menu.MenuItem
+                id={id}
+                label="View Raw"
+                action={action}
+                icon={CopyRawIcon}
+            />
         );
     };
 }
 
-const devContextCallback: NavContextMenuPatchCallback = (children, { id }: { id: string }) => {
+const devContextCallback: NavContextMenuPatchCallback = (children, { id }: { id: string; }) => {
     const guild = getCurrentGuild();
     if (!guild) return;
 
@@ -183,13 +188,8 @@ export default definePlugin({
         "gdm-context": MakeContextCallback("Channel"),
         "user-context": MakeContextCallback("User"),
         "dev-context": devContextCallback,
-        message: MakeContextCallback("Message"),
-        "user-profile-overflow-menu": MakeContextCallback(
-            "Profile",
-            props =>
-                UserProfileStore.getGuildMemberProfile(props.user?.id, props.guildId) ??
-                UserProfileStore.getUserProfile(props.user?.id)
-        )
+        "message": MakeContextCallback("Message"),
+        "user-profile-overflow-menu": MakeContextCallback("Profile", props => UserProfileStore.getGuildMemberProfile(props.user?.id, props.guildId) ?? UserProfileStore.getUserProfile(props.user?.id))
     },
 
     messagePopoverButton: {
@@ -215,10 +215,9 @@ export default definePlugin({
                 }
             };
 
-            const label =
-                settings.store.clickMethod === "Right"
-                    ? "Copy Raw (Left Click) / View Raw (Right Click)"
-                    : "View Raw (Left Click) / Copy Raw (Right Click)";
+            const label = settings.store.clickMethod === "Right"
+                ? "Copy Raw (Left Click) / View Raw (Right Click)"
+                : "View Raw (Left Click) / Copy Raw (Right Click)";
 
             return {
                 label,

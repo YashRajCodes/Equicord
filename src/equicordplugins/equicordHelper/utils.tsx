@@ -26,14 +26,16 @@ function restartPrompt(): Promise<boolean> {
             title: "Restart Required",
             body: (
                 <>
-                    <p style={{ textAlign: "center" }}>Some plugins require a restart to fully disable.</p>
+                    <p style={{ textAlign: "center" }}>
+                        Some plugins require a restart to fully disable.
+                    </p>
                     <p style={{ textAlign: "center" }}>Would you like to restart now?</p>
                 </>
             ),
             confirmText: "Restart Now",
             cancelText: "Later",
             onConfirm: () => resolve(true),
-            onCancel: () => resolve(false)
+            onCancel: () => resolve(false),
         });
     });
 }
@@ -123,8 +125,7 @@ export function getMacOSName(release: string) {
 export function platformName() {
     if (typeof DiscordNative === "undefined") return navigator.platform;
     if (DiscordNative.process.platform === "win32") return `${getWindowsName(DiscordNative.os.release)}`;
-    if (DiscordNative.process.platform === "darwin")
-        return `${getMacOSName(DiscordNative.os.release)} (${DiscordNative.process.arch === "arm64" ? "Apple Silicon" : "Intel Silicon"})`;
+    if (DiscordNative.process.platform === "darwin") return `${getMacOSName(DiscordNative.os.release)} (${DiscordNative.process.arch === "arm64" ? "Apple Silicon" : "Intel Silicon"})`;
     if (DiscordNative.process.platform === "linux") return `${navigator.platform} (${DiscordNative.os.release})`;
     return DiscordNative.process.platform;
 }

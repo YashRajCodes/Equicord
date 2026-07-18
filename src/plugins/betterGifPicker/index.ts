@@ -14,7 +14,7 @@ const settings = definePluginSettings({
         description: "Keeps the gif picker open after selecting a gif",
         type: OptionType.BOOLEAN,
         default: false
-    }
+    },
 });
 
 export default definePlugin({
@@ -58,7 +58,7 @@ export default definePlugin({
                 match: /\i\.setState\(\{activeView:null/,
                 replace: "$self.consumeCloseSuppress()||$&"
             }
-        }
+        },
     ],
 
     onGifSelect() {

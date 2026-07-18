@@ -11,13 +11,7 @@ export type QuestButtonIndicatorMode = "pill" | "badge" | "both" | "none";
 export type QuestButtonAction = "open-quests" | "context-menu" | "plugin-settings" | "nothing";
 export type QuestTileGradient = "intense" | "default" | "black" | "hide";
 export type QuestOrderStatus = "UNCLAIMED" | "CLAIMED" | "IGNORED" | "EXPIRED";
-export type QuestSubsort =
-    | "Recent ASC"
-    | "Recent DESC"
-    | "Expiring ASC"
-    | "Expiring DESC"
-    | "Claimed ASC"
-    | "Claimed DESC";
+export type QuestSubsort = "Recent ASC" | "Recent DESC" | "Expiring ASC" | "Expiring DESC" | "Claimed ASC" | "Claimed DESC";
 export interface QuestTileColorSetting {
     enabled: boolean;
     color: number;
@@ -29,28 +23,11 @@ export const defaultQuestTileIgnoredColor = 8334124;
 export const defaultQuestTileExpiredColor = 2368553;
 export const defaultQuestTileGradient: QuestTileGradient = "intense";
 export const defaultQuestTilePreload = true;
-export const defaultQuestTileUnclaimedColorSetting: QuestTileColorSetting = {
-    enabled: true,
-    color: defaultQuestTileUnclaimedColor
-};
-export const defaultQuestTileClaimedColorSetting: QuestTileColorSetting = {
-    enabled: true,
-    color: defaultQuestTileClaimedColor
-};
-export const defaultQuestTileIgnoredColorSetting: QuestTileColorSetting = {
-    enabled: true,
-    color: defaultQuestTileIgnoredColor
-};
-export const defaultQuestTileExpiredColorSetting: QuestTileColorSetting = {
-    enabled: true,
-    color: defaultQuestTileExpiredColor
-};
-export const defaultQuestOrder = [
-    "UNCLAIMED",
-    "CLAIMED",
-    "IGNORED",
-    "EXPIRED"
-] as const satisfies readonly QuestOrderStatus[];
+export const defaultQuestTileUnclaimedColorSetting: QuestTileColorSetting = { enabled: true, color: defaultQuestTileUnclaimedColor };
+export const defaultQuestTileClaimedColorSetting: QuestTileColorSetting = { enabled: true, color: defaultQuestTileClaimedColor };
+export const defaultQuestTileIgnoredColorSetting: QuestTileColorSetting = { enabled: true, color: defaultQuestTileIgnoredColor };
+export const defaultQuestTileExpiredColorSetting: QuestTileColorSetting = { enabled: true, color: defaultQuestTileExpiredColor };
+export const defaultQuestOrder = ["UNCLAIMED", "CLAIMED", "IGNORED", "EXPIRED"] as const satisfies readonly QuestOrderStatus[];
 
 export const defaultQuestButtonBadgeColor = defaultQuestTileUnclaimedColor;
 export const defaultQuestButtonDisplay: QuestButtonDisplayMode = "always";
@@ -88,7 +65,7 @@ const questTaskTypes = [
     QuestTaskType.PLAY_ON_DESKTOP_V2,
     QuestTaskType.STREAM_ON_DESKTOP,
     QuestTaskType.PLAY_ON_PLAYSTATION,
-    QuestTaskType.PLAY_ON_XBOX
+    QuestTaskType.PLAY_ON_XBOX,
 ] as const satisfies readonly QuestTaskType[];
 
 export const autoCompleteQuestTaskTypes = [
@@ -98,14 +75,14 @@ export const autoCompleteQuestTaskTypes = [
     QuestTaskType.PLAY_ACTIVITY,
     QuestTaskType.WATCH_VIDEO,
     QuestTaskType.WATCH_VIDEO_ON_MOBILE,
-    QuestTaskType.ACHIEVEMENT_IN_ACTIVITY
+    QuestTaskType.ACHIEVEMENT_IN_ACTIVITY,
 ] as const satisfies readonly QuestTaskType[];
 
 const desktopOnlyAutoCompleteQuestTypes = new Set<QuestTaskType>([
     QuestTaskType.PLAY_ON_DESKTOP,
     QuestTaskType.PLAY_ON_PLAYSTATION,
     QuestTaskType.PLAY_ON_XBOX,
-    QuestTaskType.PLAY_ACTIVITY
+    QuestTaskType.PLAY_ACTIVITY,
 ]);
 
 export function isDesktopCompatible(questType: QuestTaskType): boolean {
@@ -126,7 +103,7 @@ export const defaultQuestButtonIncludedTypes: QuestButtonIncludedTypes = {
     [QuestRewardType.IN_GAME]: true,
     [QuestRewardType.COLLECTIBLE]: true,
     [QuestRewardType.VIRTUAL_CURRENCY]: true,
-    [QuestRewardType.FRACTIONAL_PREMIUM]: true
+    [QuestRewardType.FRACTIONAL_PREMIUM]: true,
 } as QuestButtonIncludedTypes;
 
 export const defaultQuestButtonBadgeCount = 0;
@@ -144,10 +121,8 @@ export const defaultIsOnQuestsPage = false;
 export const defaultRememberQuestPageSort = true;
 export const defaultRememberQuestPageFilters = true;
 export const defaultLastQuestPageSort = "questify";
-export const defaultLastQuestPageFilters = {} as Record<string, { group: string; filter: string }>;
+export const defaultLastQuestPageFilters = {} as Record<string, { group: string, filter: string; }>;
 export const ignoredQuestIDsKey = "questIDs";
 export const defaultIgnoredQuestIDs = { [ignoredQuestIDsKey]: [] } as Record<typeof ignoredQuestIDsKey, string[]>;
-export const defaultResumeQuestIDs = {} as Record<
-    string, // key: UserID
-    { timestamp: number; questIDs: string[] }
->;
+export const defaultResumeQuestIDs = {} as Record<string, // key: UserID
+    { timestamp: number, questIDs: string[]; }>;

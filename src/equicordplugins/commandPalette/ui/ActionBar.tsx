@@ -11,13 +11,11 @@ import { formatComboKeys } from "./keyboard";
 
 const cl = classNameFactory("vc-cmdpal-");
 
-export function Shortcut({ combo }: { combo: string[] }) {
+export function Shortcut({ combo }: { combo: string[]; }) {
     return (
         <span className={cl("shortcut")}>
             {formatComboKeys(combo).map((key, i) => (
-                <kbd key={i} className={cl("key")}>
-                    {key}
-                </kbd>
+                <kbd key={i} className={cl("key")}>{key}</kbd>
             ))}
         </span>
     );

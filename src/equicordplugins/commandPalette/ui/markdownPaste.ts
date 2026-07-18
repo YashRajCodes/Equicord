@@ -4,9 +4,8 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { ClipboardEvent } from "react";
-
 import { parseUrl } from "@utils/misc";
+import type { ClipboardEvent } from "react";
 
 export function tryMaskedLinkPaste(
     e: ClipboardEvent<HTMLTextAreaElement>,

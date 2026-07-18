@@ -5,9 +5,8 @@
  */
 
 import { RenderInfoEntry } from "@song-spotlight/api/handlers";
-import { JSX, RefObject } from "react";
-
 import { useEffect, useMemo, useState } from "@webpack/common";
+import { JSX, RefObject } from "react";
 
 interface ProgressCircleProps extends SvgProps {
     border: number;
@@ -24,18 +23,16 @@ export default function ProgressCircle({ border, audioRef, playingRef, ...props 
         return {
             radius,
             stroke: border * 2,
-            circumference: Math.PI * 2 * radius
+            circumference: Math.PI * 2 * radius,
         };
     }, [border]);
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
         let handle = requestAnimationFrame(function update() {
-            const audio = audioRef.current,
-                playing = playingRef.current?.audio;
+            const audio = audioRef.current, playing = playingRef.current?.audio;
             if (audio && playing && !Number.isNaN(audio.duration) && !audio.paused) {
-                let start = 0,
-                    slice = audio.duration;
+                let start = 0, slice = audio.duration;
                 if (playing.previewStart !== undefined && playing.previewSlice) {
                     start = playing.previewStart / 1000;
                     slice = playing.previewSlice / 1000;
@@ -52,7 +49,10 @@ export default function ProgressCircle({ border, audioRef, playingRef, ...props 
     }, [audioRef]);
 
     return (
-        <svg {...props} viewBox={`0 0 ${SIZE * 2} ${SIZE * 2}`}>
+        <svg
+            {...props}
+            viewBox={`0 0 ${SIZE * 2} ${SIZE * 2}`}
+        >
             <circle
                 cx={SIZE}
                 cy={SIZE}

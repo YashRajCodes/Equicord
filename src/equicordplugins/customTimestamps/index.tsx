@@ -5,6 +5,7 @@
  */
 
 import "./style.css";
+
 import { definePluginSettings, useSettings } from "@api/Settings";
 import { Divider } from "@components/Divider";
 import { Heading, HeadingPrimary } from "@components/Heading";
@@ -43,16 +44,13 @@ const format = (date: Date, formatTemplate: string): string => {
     const lastWeekFormat = settings.store?.formats?.lastWeekFormat || timeFormats.lastWeekFormat.default;
     const sameElseFormat = settings.store?.formats?.sameElseFormat || timeFormats.sameElseFormat.default;
 
-    return mmt
-        .format(formatTemplate)
-        .replace("calendar", () =>
-            mmt.calendar(null, {
-                sameDay: sameDayFormat,
-                lastDay: lastDayFormat,
-                lastWeek: lastWeekFormat,
-                sameElse: sameElseFormat
-            })
-        )
+    return mmt.format(formatTemplate)
+        .replace("calendar", () => mmt.calendar(null, {
+            sameDay: sameDayFormat,
+            lastDay: lastDayFormat,
+            lastWeek: lastWeekFormat,
+            sameElse: sameElseFormat
+        }))
         .replace("relative", () => mmt.fromNow());
 };
 
@@ -100,11 +98,15 @@ const settings = definePluginSettings({
                                     </Paragraph>
                                 </div>
                             )}
-                            <TimeRow id={key} format={value} onChange={setNewValue} pluginSettings={settingsState} />
+                            <TimeRow
+                                id={key}
+                                format={value}
+                                onChange={setNewValue}
+                                pluginSettings={settingsState}
+                            />
                         </section>
                     ))}
-                </>
-            );
+                </>);
         }
     }
 }).withPrivateSettings<{
@@ -132,13 +134,10 @@ export default definePlugin({
             <Paragraph>
                 <Link href="https://momentjs.com/docs/#/displaying/format/">Moment.js formatting documentation</Link>
                 <div className={Margins.top8}>
-                    Additionally you can use these in your inputs:
-                    <br />
-                    <b>[calendar]</b> enables dynamic date formatting such as &quot;Today&quot; or
-                    &quot;Yesterday&quot;.
-                    <br />
-                    <b>[relative]</b> gives you times such as &quot;4 hours ago&quot;.
-                    <br />
+                    Additionally you can use these in your inputs:<br />
+                    <b>[calendar]</b> enables dynamic date formatting such
+                    as &quot;Today&quot; or &quot;Yesterday&quot;.<br />
+                    <b>[relative]</b> gives you times such as &quot;4 hours ago&quot;.<br />
                 </div>
             </Paragraph>
         </div>
@@ -155,13 +154,13 @@ export default definePlugin({
                 {
                     // Timestamps on messages
                     match: /\i\.useMemo\(.{0,50}"LT".{0,30}\]\)/,
-                    replace: "$self.renderTimestamp(arguments[0].timestamp,arguments[0].compact?'compact':'cozy')"
+                    replace: "$self.renderTimestamp(arguments[0].timestamp,arguments[0].compact?'compact':'cozy')",
                 },
                 {
                     // Tooltips when hovering over message timestamps
                     match: /(__unsupportedReactNodeAsText:).{0,25}"LLLL"\)/,
-                    replace: "$1$self.renderTimestamp(arguments[0].timestamp,'tooltip')"
-                }
+                    replace: "$1$self.renderTimestamp(arguments[0].timestamp,'tooltip')",
+                },
             ]
         },
         {

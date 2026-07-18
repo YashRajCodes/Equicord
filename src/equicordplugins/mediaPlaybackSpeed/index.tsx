@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-import { RefObject } from "react";
 
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -13,6 +12,7 @@ import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
 import { ContextMenuApi, FluxDispatcher, Menu, React, Tooltip, useEffect } from "@webpack/common";
+import { RefObject } from "react";
 
 import SpeedIcon from "./components/SpeedIcon";
 
@@ -27,20 +27,20 @@ const settings = definePluginSettings({
         type: OptionType.SLIDER,
         default: 1,
         description: "Voice messages",
-        markers: speeds
+        markers: speeds,
     },
     defaultVideoSpeed: {
         type: OptionType.SLIDER,
         default: 1,
         description: "Videos",
-        markers: speeds
+        markers: speeds,
     },
     defaultAudioSpeed: {
         type: OptionType.SLIDER,
         default: 1,
         description: "Audios",
-        markers: speeds
-    }
+        markers: speeds,
+    },
 });
 
 type MediaRef = RefObject<HTMLMediaElement> | undefined;
@@ -54,7 +54,7 @@ export default definePlugin({
     patches: [
         // replace voice message embed speed control because ours provides more speeds
         {
-            find: '"--:--"',
+            find: "\"--:--\"",
             replacement: {
                 match: /\(0,\i\.jsxs?\)\(.{0,50}\.\i,onClick:\(\).+?\}\)\}\)(?<=playbackCacheKey:\i\}=\i,(\i).+?)/,
                 replace: "$self.renderPlaybackSpeedComponent({mediaRef:$1})"
@@ -70,14 +70,14 @@ export default definePlugin({
             }
         },
         {
-            find: 'AUDIO:"AUDIO"',
+            find: "AUDIO:\"AUDIO\"",
             replacement: {
                 match: /sliderWrapperClassName:\i.\i\}\)\}\),/,
                 replace: "$&$self.renderPlaybackSpeedComponent({mediaRef:this?.props?.mediaRef}),"
             }
         }
     ],
-    renderPlaybackSpeedComponent: ErrorBoundary.wrap(({ mediaRef }: { mediaRef: MediaRef }) => {
+    renderPlaybackSpeedComponent: ErrorBoundary.wrap(({ mediaRef }: { mediaRef: MediaRef; }) => {
         const changeSpeed = (speed: number) => {
             const media = mediaRef?.current;
             if (media) {
@@ -92,13 +92,7 @@ export default definePlugin({
                 const isVoiceMessage = media.className.includes("audioElement");
                 if (isVoiceMessage) {
                     // Workaround because Discord seems to override it somewhere
-                    media.addEventListener(
-                        "play",
-                        () => {
-                            changeSpeed(settings.store.defaultVoiceMessageSpeed);
-                        },
-                        { once: true }
-                    );
+                    media.addEventListener("play", () => { changeSpeed(settings.store.defaultVoiceMessageSpeed); }, { once: true });
                 } else {
                     changeSpeed(settings.store.defaultAudioSpeed);
                 }
@@ -114,13 +108,15 @@ export default definePlugin({
                         {...tooltipProps}
                         className={cl("icon")}
                         onClick={e => {
-                            ContextMenuApi.openContextMenu(e, () => (
+                            ContextMenuApi.openContextMenu(e, () =>
                                 <Menu.Menu
                                     navId="vc-playback-speed"
                                     onClose={() => FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" })}
                                     aria-label="Playback speed control"
                                 >
-                                    <Menu.MenuGroup label="Playback speed">
+                                    <Menu.MenuGroup
+                                        label="Playback speed"
+                                    >
                                         {speeds.map(speed => (
                                             <Menu.MenuItem
                                                 key={speed}
@@ -131,9 +127,8 @@ export default definePlugin({
                                         ))}
                                     </Menu.MenuGroup>
                                 </Menu.Menu>
-                            ));
-                        }}
-                    >
+                            );
+                        }}>
                         <SpeedIcon />
                     </button>
                 )}

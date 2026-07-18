@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
+import { getUserSettingLazy } from "@api/UserSettings";
 import type { Theme } from "@vencord/discord-types";
 import { findByCodeLazy } from "@webpack";
-
-import { getUserSettingLazy } from "@api/UserSettings";
 import { showToast, ThemeStore, Toasts, VoiceActions } from "@webpack/common";
 
 import type { PaletteCommand } from "../api/types";
@@ -23,7 +22,7 @@ const THEMES = [
     { value: "darker", label: "Ash" },
     { value: "dark", label: "Dark" },
     { value: "midnight", label: "Onyx" }
-] as const satisfies ReadonlyArray<{ value: Theme; label: string }>;
+] as const satisfies ReadonlyArray<{ value: Theme; label: string; }>;
 
 const STATUSES = [
     { value: "online", label: "Online" },
@@ -39,13 +38,11 @@ export const discordCommands: PaletteCommand[] = [
         section: SECTION,
         keywords: ["mute", "microphone", "voice"],
         icon: MicIcon,
-        actions: [
-            {
-                id: "run",
-                label: "Toggle Mute",
-                run: () => VoiceActions.toggleSelfMute()
-            }
-        ]
+        actions: [{
+            id: "run",
+            label: "Toggle Mute",
+            run: () => VoiceActions.toggleSelfMute()
+        }]
     },
     {
         id: "discord.toggleDeafen",
@@ -53,13 +50,11 @@ export const discordCommands: PaletteCommand[] = [
         section: SECTION,
         keywords: ["deafen", "audio", "voice"],
         icon: HeadphonesIcon,
-        actions: [
-            {
-                id: "run",
-                label: "Toggle Deafen",
-                run: () => VoiceActions.toggleSelfDeaf()
-            }
-        ]
+        actions: [{
+            id: "run",
+            label: "Toggle Deafen",
+            run: () => VoiceActions.toggleSelfDeaf()
+        }]
     },
     {
         id: "discord.setStatus",
@@ -73,23 +68,20 @@ export const discordCommands: PaletteCommand[] = [
             spec: {
                 type: "list",
                 placeholder: "Search statuses...",
-                items: () =>
-                    STATUSES.map(status => ({
-                        id: status.value,
-                        label: status.label,
-                        sublabel: StatusSetting?.getSetting() === status.value ? "Current" : undefined,
-                        icon: CircleIcon,
-                        actions: [
-                            {
-                                id: "set",
-                                label: `Set ${status.label}`,
-                                run() {
-                                    StatusSetting?.updateSetting(status.value);
-                                    showToast(`Status set to ${status.label}.`, Toasts.Type.SUCCESS);
-                                }
-                            }
-                        ]
-                    }))
+                items: () => STATUSES.map(status => ({
+                    id: status.value,
+                    label: status.label,
+                    sublabel: StatusSetting?.getSetting() === status.value ? "Current" : undefined,
+                    icon: CircleIcon,
+                    actions: [{
+                        id: "set",
+                        label: `Set ${status.label}`,
+                        run() {
+                            StatusSetting?.updateSetting(status.value);
+                            showToast(`Status set to ${status.label}.`, Toasts.Type.SUCCESS);
+                        }
+                    }]
+                }))
             }
         })
     },
@@ -99,17 +91,15 @@ export const discordCommands: PaletteCommand[] = [
         section: SECTION,
         keywords: ["theme", "light", "ash", "dark", "onyx", "appearance"],
         icon: MoonIcon,
-        actions: [
-            {
-                id: "run",
-                label: "Toggle Theme",
-                run() {
-                    const currentIdx = THEMES.findIndex(theme => theme.value === ThemeStore.theme);
-                    const next = THEMES[(currentIdx + 1) % THEMES.length];
-                    updateDiscordTheme({ theme: next.value });
-                    showToast(`Theme set to ${next.label}.`, Toasts.Type.SUCCESS);
-                }
+        actions: [{
+            id: "run",
+            label: "Toggle Theme",
+            run() {
+                const currentIdx = THEMES.findIndex(theme => theme.value === ThemeStore.theme);
+                const next = THEMES[(currentIdx + 1) % THEMES.length];
+                updateDiscordTheme({ theme: next.value });
+                showToast(`Theme set to ${next.label}.`, Toasts.Type.SUCCESS);
             }
-        ]
+        }]
     }
 ];

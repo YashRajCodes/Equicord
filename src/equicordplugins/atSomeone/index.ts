@@ -20,10 +20,9 @@ export default definePlugin({
             replacement: [
                 {
                     match: /&(\i)\(\)\((\i),\i\(\)\.test\)&&(\i)\.push\(\i\(\)\)/g,
-                    replace:
-                        "$&,$1()($2,/someone/.test)&&$3.push({text:'@someone',description:'Mention someone randomly'})"
-                }
-            ]
+                    replace: "$&,$1()($2,/someone/.test)&&$3.push({text:'@someone',description:'Mention someone randomly'})"
+                },
+            ],
         },
         {
             find: "inQuote:",

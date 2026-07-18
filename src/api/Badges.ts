@@ -14,13 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { ComponentType, HTMLProps } from "react";
+*/
 
 import ErrorBoundary from "@components/ErrorBoundary";
 import globalBadges from "@equicordplugins/globalBadges";
 import BadgeAPIPlugin from "@plugins/_api/badges";
+import { ComponentType, HTMLProps } from "react";
 
 import { isPluginEnabled } from "./PluginManager";
 
@@ -33,7 +32,7 @@ export interface ProfileBadge {
     /**
      * Badge id, unused by vencord, required by discord
      */
-    id: string;
+    id: string,
     /** The tooltip to show on hover. Required for image badges */
     description?: string;
     /** Custom component for the badge (tooltip not included) */
@@ -93,10 +92,10 @@ export function _getBadges(args: BadgeUserArgs) {
 
         const b = badge.getBadges
             ? badge.getBadges(args).map(badge => ({
-                  ...args,
-                  ...badge,
-                  component: badge.component && ErrorBoundary.wrap(badge.component, { noop: true })
-              }))
+                ...args,
+                ...badge,
+                component: badge.component && ErrorBoundary.wrap(badge.component, { noop: true })
+            }))
             : [{ ...args, ...badge }];
 
         if (badge.position === BadgePosition.START) {
@@ -115,7 +114,7 @@ export function _getBadges(args: BadgeUserArgs) {
         badges.unshift(
             ...GlobalBadges.map(badge => ({
                 ...args,
-                ...badge
+                ...badge,
             }))
         );
     }
@@ -124,7 +123,7 @@ export function _getBadges(args: BadgeUserArgs) {
         badges.unshift(
             ...donorBadges.map(badge => ({
                 ...args,
-                ...badge
+                ...badge,
             }))
         );
     }
@@ -133,7 +132,7 @@ export function _getBadges(args: BadgeUserArgs) {
         badges.unshift(
             ...equicordDonorBadges.map(badge => ({
                 ...args,
-                ...badge
+                ...badge,
             }))
         );
     }

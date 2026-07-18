@@ -5,6 +5,7 @@
  */
 
 import "./VencordTab.css";
+
 import { openNotificationLogModal } from "@api/Notifications/notificationLog";
 import { plugins } from "@api/PluginManager";
 import { useSettings } from "@api/Settings";
@@ -48,89 +49,68 @@ type KeysOfType<Object, Type> = {
 }[keyof Object];
 
 function Switches() {
-    const settings = useSettings([
-        "useQuickCss",
-        "enableReactDevtools",
-        "mainWindowFrameless",
-        "frameless",
-        "winNativeTitleBar",
-        "transparent",
-        "winCtrlQ",
-        "disableMinSize"
-    ]);
+    const settings = useSettings(["useQuickCss", "enableReactDevtools", "mainWindowFrameless", "frameless", "winNativeTitleBar", "transparent", "winCtrlQ", "disableMinSize"]);
 
     const Switches = [
         {
             key: "useQuickCss",
             title: "Enable Custom CSS",
-            description:
-                "Load custom CSS from the QuickCSS editor. This allows you to customize Discord's appearance with your own styles."
+            description: "Load custom CSS from the QuickCSS editor. This allows you to customize Discord's appearance with your own styles.",
         },
         !IS_WEB && {
             key: "enableReactDevtools",
             title: "Enable React Developer Tools",
-            description:
-                "Enable the React Developer Tools extension for debugging Discord's React components. Useful for plugin development.",
-            restartRequired: true
+            description: "Enable the React Developer Tools extension for debugging Discord's React components. Useful for plugin development.",
+            restartRequired: true,
         },
-        ((!IS_WEB && !IS_DISCORD_DESKTOP) || !IS_WINDOWS) && {
+        (!IS_WEB && !IS_DISCORD_DESKTOP || !IS_WINDOWS) && {
             key: "mainWindowFrameless",
             title: "Disable the Main Window Frame",
-            description:
-                "Remove the native window frame for a cleaner look. You can still move the window by dragging the title bar area.",
-            restartRequired: true
+            description: "Remove the native window frame for a cleaner look. You can still move the window by dragging the title bar area.",
+            restartRequired: true,
         },
-        !IS_WEB &&
-            (!IS_DISCORD_DESKTOP || !IS_WINDOWS
-                ? {
-                      key: "frameless",
-                      title: "Disable All Window Frames",
-                      description:
-                          "Remove the native window frame for a cleaner look. You can still move the window by dragging the title bar area.",
-                      restartRequired: true
-                  }
-                : {
-                      key: "winNativeTitleBar",
-                      title: "Use Windows' native title bar instead of Discord's custom one",
-                      description:
-                          "Replace Discord's custom title bar with the standard Windows title bar. This may improve compatibility with some window management tools.",
-                      restartRequired: true
-                  }),
+        !IS_WEB && (!IS_DISCORD_DESKTOP || !IS_WINDOWS
+            ? {
+                key: "frameless",
+                title: "Disable All Window Frames",
+                description: "Remove the native window frame for a cleaner look. You can still move the window by dragging the title bar area.",
+                restartRequired: true,
+            }
+            : {
+                key: "winNativeTitleBar",
+                title: "Use Windows' native title bar instead of Discord's custom one",
+                description: "Replace Discord's custom title bar with the standard Windows title bar. This may improve compatibility with some window management tools.",
+                restartRequired: true,
+            }
+        ),
         !IS_WEB && {
             key: "transparent",
             title: "Enable Window Transparency",
-            description:
-                "Make the Discord window transparent. A theme that supports transparency is required or this will do nothing.",
+            description: "Make the Discord window transparent. A theme that supports transparency is required or this will do nothing.",
             restartRequired: true,
             warning: IS_WINDOWS
                 ? "This will stop the window from being resizable and prevents you from snapping the window to screen edges."
-                : "This will stop the window from being resizable."
+                : "This will stop the window from being resizable.",
         },
         IS_DISCORD_DESKTOP && {
             key: "disableMinSize",
             title: "Disable Minimum Window Size",
-            description:
-                "Allow the Discord window to be resized smaller than its default minimum size. Useful for tiling window managers or small screens.",
-            restartRequired: true
+            description: "Allow the Discord window to be resized smaller than its default minimum size. Useful for tiling window managers or small screens.",
+            restartRequired: true,
         },
-        !IS_WEB &&
-            IS_WINDOWS && {
-                key: "winCtrlQ",
-                title: "Register Ctrl+Q as shortcut to close Discord",
-                description:
-                    "Add Ctrl+Q as a keyboard shortcut to close Discord. This provides an alternative to Alt+F4 for quickly closing the application.",
-                restartRequired: true
-            }
-    ] satisfies Array<
-        | false
-        | {
-              key: KeysOfType<typeof settings, boolean>;
-              title: string;
-              description?: string;
-              restartRequired?: boolean;
-              warning?: string;
-          }
-    >;
+        !IS_WEB && IS_WINDOWS && {
+            key: "winCtrlQ",
+            title: "Register Ctrl+Q as shortcut to close Discord",
+            description: "Add Ctrl+Q as a keyboard shortcut to close Discord. This provides an alternative to Alt+F4 for quickly closing the application.",
+            restartRequired: true,
+        },
+    ] satisfies Array<false | {
+        key: KeysOfType<typeof settings, boolean>;
+        title: string;
+        description?: string;
+        restartRequired?: boolean;
+        warning?: string;
+    }>;
 
     return Switches.map(setting => {
         if (!setting) {
@@ -176,13 +156,16 @@ function Switches() {
 }
 
 function EquicordSettings() {
-    const donateImage = useMemo(() => (Math.random() > 0.5 ? DEFAULT_DONATE_IMAGE : SHIGGY_DONATE_IMAGE), []);
+    const donateImage = useMemo(() =>
+        Math.random() > 0.5 ? DEFAULT_DONATE_IMAGE : SHIGGY_DONATE_IMAGE,
+        []
+    );
 
     const user = UserStore?.getCurrentUser();
 
     return (
         <SettingsTab>
-            {isEquicordDonor(user?.id) || isVencordDonor(user?.id) ? (
+            {(isEquicordDonor(user?.id) || isVencordDonor(user?.id)) ? (
                 <SpecialCard
                     title="Donations"
                     subtitle="Thank you for donating!"
@@ -190,8 +173,8 @@ function EquicordSettings() {
                         isEquicordDonor(user?.id) && isVencordDonor(user?.id)
                             ? "All Vencord users can see your Vencord donor badge, and Equicord users can see your Equicord donor badge. To change your Vencord donor badge, contact @vending.machine. For your Equicord donor badge, make a ticket in Equicord's server."
                             : isVencordDonor(user?.id)
-                              ? "All Vencord users can see your badge! You can manage your perks by messaging @vending.machine."
-                              : "All Equicord users can see your badge! You can manage your perks by making a ticket in Equicord's server."
+                                ? "All Vencord users can see your badge! You can manage your perks by messaging @vending.machine."
+                                : "All Equicord users can see your badge! You can manage your perks by making a ticket in Equicord's server."
                     }
                     cardImage={VENNIE_DONATOR_IMAGE}
                     backgroundImage={DONOR_BACKGROUND_IMAGE}
@@ -234,18 +217,27 @@ function EquicordSettings() {
 
             <Heading className={Margins.top16}>Quick Actions</Heading>
             <Paragraph className={Margins.bottom16}>
-                Common actions you might want to perform. These shortcuts give you quick access to frequently used
-                features without navigating through menus.
+                Common actions you might want to perform. These shortcuts give you quick access to frequently used features without navigating through menus.
             </Paragraph>
 
             <QuickActionCard>
-                <QuickAction Icon={LogIcon} text="Notification Log" action={openNotificationLogModal} />
+                <QuickAction
+                    Icon={LogIcon}
+                    text="Notification Log"
+                    action={openNotificationLogModal}
+                />
                 <QuickAction
                     Icon={PaintbrushIcon}
                     text="Edit QuickCSS"
                     action={() => VencordNative.quickCss.openEditor()}
                 />
-                {!IS_WEB && <QuickAction Icon={RestartIcon} text="Relaunch Discord" action={relaunch} />}
+                {!IS_WEB && (
+                    <QuickAction
+                        Icon={RestartIcon}
+                        text="Relaunch Discord"
+                        action={relaunch}
+                    />
+                )}
                 {!IS_WEB && (
                     <QuickAction
                         Icon={FolderIcon}
@@ -256,7 +248,11 @@ function EquicordSettings() {
                 <QuickAction
                     Icon={GithubIcon}
                     text="View Source Code"
-                    action={() => VencordNative.native.openExternal("https://github.com/" + gitRemote)}
+                    action={() =>
+                        VencordNative.native.openExternal(
+                            "https://github.com/" + gitRemote,
+                        )
+                    }
                 />
             </QuickActionCard>
 
@@ -264,8 +260,7 @@ function EquicordSettings() {
 
             <Heading className={Margins.top20}>Client Settings</Heading>
             <Paragraph className={Margins.bottom16}>
-                Configure how Equicord behaves and integrates with Discord. These settings affect the Discord client's
-                appearance and behavior.
+                Configure how Equicord behaves and integrates with Discord. These settings affect the Discord client's appearance and behavior.
             </Paragraph>
             <Notice.Info className={Margins.bottom20} style={{ width: "100%" }}>
                 You can customize where this settings section appears in Discord's settings menu by configuring the{" "}
@@ -275,8 +270,7 @@ function EquicordSettings() {
                     style={{ cursor: "pointer", color: "var(--text-link)" }}
                 >
                     Settings Plugin
-                </a>
-                .
+                </a>.
             </Notice.Info>
 
             <Switches />
@@ -285,7 +279,7 @@ function EquicordSettings() {
             <WindowsMaterialSettings />
 
             <NotificationSection />
-        </SettingsTab>
+        </SettingsTab >
     );
 }
 

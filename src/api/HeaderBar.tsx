@@ -4,21 +4,17 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
-import type { ComponentType, JSX, MouseEventHandler, ReactNode } from "react";
-
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Logger } from "@utils/Logger";
 import { classes } from "@utils/misc";
+import { findComponentByCodeLazy, findCssClassesLazy } from "@webpack";
 import { Clickable, Tooltip, useEffect, useState } from "@webpack/common";
+import type { ComponentType, JSX, MouseEventHandler, ReactNode } from "react";
 
 const logger = new Logger("HeaderBarAPI");
 
 const HeaderBarClasses = findCssClassesLazy("clickable", "selected", "badge", "badgeContainer");
-const HeaderBarIcon = findComponentByCodeLazy(
-    ".HEADER_BAR_BADGE_TOP:",
-    '"aria-haspopup":'
-) as ComponentType<ChannelToolbarButtonProps>;
+const HeaderBarIcon = findComponentByCodeLazy(".HEADER_BAR_BADGE_TOP:", '"aria-haspopup":') as ComponentType<ChannelToolbarButtonProps>;
 
 export interface HeaderBarButtonProps {
     /** The icon component to render inside the button */
@@ -84,7 +80,7 @@ interface ButtonEntry {
  *     onClick={() => console.log("clicked")}
  * />
  */
-export function HeaderBarButton(props: HeaderBarButtonProps & { ref?: React.RefObject<any> }) {
+export function HeaderBarButton(props: HeaderBarButtonProps & { ref?: React.RefObject<any>; }) {
     const {
         icon: Icon,
         tooltip,
@@ -95,7 +91,7 @@ export function HeaderBarButton(props: HeaderBarButtonProps & { ref?: React.RefO
         position = "bottom",
         selected,
         ref,
-        "aria-label": ariaLabel
+        "aria-label": ariaLabel,
     } = props;
 
     const label = ariaLabel ?? (typeof tooltip === "string" ? tooltip : undefined);
@@ -104,14 +100,9 @@ export function HeaderBarButton(props: HeaderBarButtonProps & { ref?: React.RefO
         <Tooltip text={tooltip ?? ""} position={position} shouldShow={tooltip != null}>
             {({ onMouseEnter, onMouseLeave }) => (
                 <Clickable
-                    {...({ innerRef: ref } as any)}
+                    {...{ innerRef: ref } as any}
                     className={classes(HeaderBarClasses.clickable, className)}
-                    style={{
-                        width: Math.max(iconSize, 24),
-                        height: Math.max(iconSize, 24),
-                        boxSizing: "content-box",
-                        justifyContent: "center"
-                    }}
+                    style={{ width: Math.max(iconSize, 24), height: Math.max(iconSize, 24), boxSizing: "content-box", justifyContent: "center" }}
                     onClick={onClick}
                     onContextMenu={onContextMenu}
                     onMouseEnter={onMouseEnter}
@@ -218,19 +209,13 @@ function HeaderBarButtons() {
     useEffect(() => {
         const listener = () => forceUpdate(n => n + 1);
         headerBarListeners.add(listener);
-        return () => {
-            headerBarListeners.delete(listener);
-        };
+        return () => { headerBarListeners.delete(listener); };
     }, []);
 
     return Array.from(headerBarButtons)
         .sort(([, a], [, b]) => a.priority - b.priority)
         .map(([id, { render: Button }]) => (
-            <ErrorBoundary
-                noop
-                key={id}
-                onError={e => logger.error(`Failed to render header bar button: ${id}`, e.error)}
-            >
+            <ErrorBoundary noop key={id} onError={e => logger.error(`Failed to render header bar button: ${id}`, e.error)}>
                 <Button />
             </ErrorBoundary>
         ));
@@ -242,19 +227,13 @@ function ChannelToolbarButtons() {
     useEffect(() => {
         const listener = () => forceUpdate(n => n + 1);
         channelToolbarListeners.add(listener);
-        return () => {
-            channelToolbarListeners.delete(listener);
-        };
+        return () => { channelToolbarListeners.delete(listener); };
     }, []);
 
     return Array.from(channelToolbarButtons)
         .sort(([, a], [, b]) => a.priority - b.priority)
         .map(([id, { render: Button }]) => (
-            <ErrorBoundary
-                noop
-                key={id}
-                onError={e => logger.error(`Failed to render channel toolbar button: ${id}`, e.error)}
-            >
+            <ErrorBoundary noop key={id} onError={e => logger.error(`Failed to render channel toolbar button: ${id}`, e.error)}>
                 <Button />
             </ErrorBoundary>
         ));

@@ -34,7 +34,7 @@ export async function getLyricsSpotify(trackId: string, customBaseUrl?: string):
 
     let data: LyricsAPIResp;
     try {
-        data = (await resp.json()) as LyricsAPIResp;
+        data = await resp.json() as LyricsAPIResp;
     } catch (e) {
         return null;
     }
@@ -51,7 +51,7 @@ export async function getLyricsSpotify(trackId: string, customBaseUrl?: string):
                 const trimmedText = line.words.trim();
                 return {
                     time: Number(line.startTimeMs) / 1000,
-                    text: trimmedText === "" || trimmedText === "♪" ? null : trimmedText
+                    text: (trimmedText === "" || trimmedText === "♪") ? null : trimmedText
                 };
             })
         }

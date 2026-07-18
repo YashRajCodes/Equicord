@@ -14,10 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { User } from "@vencord/discord-types";
-
 import { MessageStore } from "@webpack/common";
 
 import { LoggedMessageJSON, RefrencedMessage } from "../types";
@@ -33,8 +32,7 @@ export function stripTransientRenderState(message: any) {
 }
 
 export function cleanupMessage(message: any, removeDetails: boolean = true): LoggedMessageJSON {
-    const ret: LoggedMessageJSON =
-        typeof message.toJS === "function" ? JSON.parse(JSON.stringify(message.toJS())) : { ...message };
+    const ret: LoggedMessageJSON = typeof message.toJS === "function" ? JSON.parse(JSON.stringify(message.toJS())) : { ...message };
     stripTransientRenderState(ret);
     if (removeDetails) {
         ret.author.phone = undefined;
@@ -45,7 +43,7 @@ export function cleanupMessage(message: any, removeDetails: boolean = true): Log
     ret.guildId = ret.guild_id ?? getGuildIdByChannel(ret.channel_id);
     ret.embeds = (ret.embeds ?? []).map(cleanupEmbed);
     ret.deleted = ret.deleted ?? false;
-    ret.deletedTimestamp = ret.deleted ? new Date().toISOString() : undefined;
+    ret.deletedTimestamp = ret.deleted ? (new Date()).toISOString() : undefined;
     ret.editHistory = ret.editHistory ?? [];
     if (ret.type === 19) {
         ret.message_reference = message.message_reference || message.messageReference;
@@ -53,9 +51,7 @@ export function cleanupMessage(message: any, removeDetails: boolean = true): Log
             if (message.referenced_message) {
                 ret.referenced_message = cleanupMessage(message.referenced_message) as RefrencedMessage;
             } else if (MessageStore.getMessage(ret.message_reference.channel_id, ret.message_reference.message_id)) {
-                ret.referenced_message = cleanupMessage(
-                    MessageStore.getMessage(ret.message_reference.channel_id, ret.message_reference.message_id)
-                ) as RefrencedMessage;
+                ret.referenced_message = cleanupMessage(MessageStore.getMessage(ret.message_reference.channel_id, ret.message_reference.message_id)) as RefrencedMessage;
             }
         }
     }
@@ -81,32 +77,14 @@ export function cleanupEmbed(embed) {
     if (typeof embed.type !== "undefined") retEmbed.type = embed.type;
     if (typeof embed.url !== "undefined") retEmbed.url = embed.url;
     if (typeof embed.provider === "object") retEmbed.provider = { name: embed.provider.name, url: embed.provider.url };
-    if (typeof embed.footer === "object")
-        retEmbed.footer = {
-            text: embed.footer.text,
-            icon_url: embed.footer.iconURL,
-            proxy_icon_url: embed.footer.iconProxyURL
-        };
-    if (typeof embed.author === "object")
-        retEmbed.author = {
-            name: embed.author.name,
-            url: embed.author.url,
-            icon_url: embed.author.iconURL,
-            proxy_icon_url: embed.author.iconProxyURL
-        };
-    if (typeof embed.timestamp === "object" && embed.timestamp._isAMomentObject)
-        retEmbed.timestamp = embed.timestamp.milliseconds();
+    if (typeof embed.footer === "object") retEmbed.footer = { text: embed.footer.text, icon_url: embed.footer.iconURL, proxy_icon_url: embed.footer.iconProxyURL };
+    if (typeof embed.author === "object") retEmbed.author = { name: embed.author.name, url: embed.author.url, icon_url: embed.author.iconURL, proxy_icon_url: embed.author.iconProxyURL };
+    if (typeof embed.timestamp === "object" && embed.timestamp._isAMomentObject) retEmbed.timestamp = embed.timestamp.milliseconds();
     if (typeof embed.thumbnail === "object") {
-        if (
-            typeof embed.thumbnail.proxyURL === "string" ||
-            (typeof embed.thumbnail.url === "string" && !embed.thumbnail.url.endsWith("?format=jpeg"))
-        ) {
+        if (typeof embed.thumbnail.proxyURL === "string" || (typeof embed.thumbnail.url === "string" && !embed.thumbnail.url.endsWith("?format=jpeg"))) {
             retEmbed.thumbnail = {
                 url: embed.thumbnail.url,
-                proxy_url:
-                    typeof embed.thumbnail.proxyURL === "string"
-                        ? embed.thumbnail.proxyURL.split("?format")[0]
-                        : undefined,
+                proxy_url: typeof embed.thumbnail.proxyURL === "string" ? embed.thumbnail.proxyURL.split("?format")[0] : undefined,
                 width: embed.thumbnail.width,
                 height: embed.thumbnail.height
             };

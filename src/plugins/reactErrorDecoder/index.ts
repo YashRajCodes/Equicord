@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -32,8 +32,7 @@ export default definePlugin({
             find: "React has blocked a javascript: URL as a security precaution.",
             replacement: {
                 match: /"https:\/\/react.dev\/errors\/"\+\i;/,
-                replace:
-                    "$&const vcDecodedError=$self.decodeError(...arguments);if(vcDecodedError)return vcDecodedError;"
+                replace: "$&const vcDecodedError=$self.decodeError(...arguments);if(vcDecodedError)return vcDecodedError;"
             }
         }
     ],

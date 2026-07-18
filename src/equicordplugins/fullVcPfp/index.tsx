@@ -19,15 +19,15 @@ export default definePlugin({
     managedStyle: style,
     patches: [
         {
-            find: '"data-selenium-video-tile":',
+            find: "\"data-selenium-video-tile\":",
             replacement: {
                 match: /(?<=function\((\i),\i\)\{)/,
-                replace: "Object.assign($1.style=$1.style||{},$self.getVoiceBackgroundStyles($1));"
+                replace: "Object.assign($1.style=$1.style||{},$self.getVoiceBackgroundStyles($1));",
             }
-        }
+        },
     ],
 
-    getVoiceBackgroundStyles({ className, participantUserId }: { className?: string; participantUserId?: string }) {
+    getVoiceBackgroundStyles({ className, participantUserId }: { className?: string; participantUserId?: string; }) {
         if (!className?.includes("tile") || !participantUserId) return;
 
         const user = UserStore.getUser(participantUserId);
@@ -37,13 +37,11 @@ export default definePlugin({
         if (!channelId) return;
 
         const guildId = ChannelStore.getChannel(channelId)?.guild_id;
-        const isSpeaking = ChannelRTCStore.getSpeakingParticipants(channelId).some(
-            p => p.user.id === participantUserId && p.speaking
-        );
+        const isSpeaking = ChannelRTCStore.getSpeakingParticipants(channelId).some(p => p.user.id === participantUserId && p.speaking);
         const avatarUrl = getUserAvatarUrl(user, guildId, isSpeaking, 1024);
 
         return {
             "--full-res-avatar": `url(${avatarUrl})`
         };
-    }
+    },
 });

@@ -14,12 +14,11 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { join } from "path";
-import { pathToFileURL } from "url";
+*/
 
 import { app, net, protocol } from "electron";
+import { join } from "path";
+import { pathToFileURL } from "url";
 
 import { initCsp } from "./csp";
 import { ensureSafePath } from "./ipcMain";
@@ -30,9 +29,7 @@ import { installExt } from "./utils/extensions";
 if (!IS_VANILLA && !IS_EXTENSION) {
     app.whenReady().then(() => {
         protocol.handle("vencord", ({ url: unsafeUrl }) => {
-            let url = decodeURI(unsafeUrl)
-                .slice("vencord://".length)
-                .replace(/\?v=\d+$/, "");
+            let url = decodeURI(unsafeUrl).slice("vencord://".length).replace(/\?v=\d+$/, "");
 
             if (url.endsWith("/")) url = url.slice(0, -1);
 
@@ -66,9 +63,7 @@ if (!IS_VANILLA && !IS_EXTENSION) {
         });
 
         protocol.handle("equicord", ({ url: unsafeUrl }) => {
-            let url = decodeURI(unsafeUrl)
-                .slice("equicord://".length)
-                .replace(/\?v=\d+$/, "");
+            let url = decodeURI(unsafeUrl).slice("equicord://".length).replace(/\?v=\d+$/, "");
 
             if (url.endsWith("/")) url = url.slice(0, -1);
 
@@ -106,7 +101,7 @@ if (!IS_VANILLA && !IS_EXTENSION) {
                 installExt("fmkadmapgofadopljbjfkapdkoienihi")
                     .then(() => console.info("[Equicord] Installed React Developer Tools"))
                     .catch(err => console.error("[Equicord] Failed to install React Developer Tools", err));
-        } catch {}
+        } catch { }
 
         initCsp();
     });

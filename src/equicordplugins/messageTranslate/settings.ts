@@ -11,57 +11,52 @@ export const settings = definePluginSettings({
     targetLanguage: {
         type: OptionType.STRING,
         description: "Target language code for translations (e.g. en, es, fr, de, ja).",
-        default: "en"
+        default: "en",
     },
     confidenceRequirement: {
         type: OptionType.NUMBER,
         description: "Minimum confidence (0 to 1) required to show a translation.",
-        default: 0.8
+        default: 0.8,
     },
     autoTranslate: {
         type: OptionType.BOOLEAN,
         description: "Automatically translate messages as they appear.",
-        default: true
+        default: true,
     },
     skipOwnMessages: {
         type: OptionType.BOOLEAN,
         description: "Do not translate your own messages.",
-        default: true
+        default: true,
     },
     skipBotMessages: {
         type: OptionType.BOOLEAN,
         description: "Do not translate bot messages.",
-        default: false
+        default: false,
     },
     ignoredGuilds: {
         type: OptionType.STRING,
         description: "Comma-separated list of server IDs to not translate in.",
-        default: ""
+        default: "",
     },
     ignoredChannels: {
         type: OptionType.STRING,
         description: "Comma-separated list of channel IDs to not translate in.",
-        default: ""
+        default: "",
     },
     ignoredUsers: {
         type: OptionType.STRING,
         description: "Comma-separated list of user IDs to not translate.",
-        default: ""
+        default: "",
     },
     showIndicator: {
         type: OptionType.BOOLEAN,
         description: "Append a small (translated) indicator to translated messages.",
-        default: true
-    }
+        default: true,
+    },
 });
 
 function parseIdList(value: string): Set<string> {
-    return new Set(
-        value
-            .split(",")
-            .map(s => s.trim())
-            .filter(Boolean)
-    );
+    return new Set(value.split(",").map(s => s.trim()).filter(Boolean));
 }
 
 export function getIgnoredGuilds(): Set<string> {

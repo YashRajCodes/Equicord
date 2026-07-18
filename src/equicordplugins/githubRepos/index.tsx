@@ -5,14 +5,14 @@
  */
 
 import "./styles.css";
-import { User } from "@vencord/discord-types";
-import { findByCodeLazy } from "@webpack";
 
 import { definePluginSettings } from "@api/Settings";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
+import { User } from "@vencord/discord-types";
+import { findByCodeLazy } from "@webpack";
 import { React, UserProfileStore } from "@webpack/common";
 
 import { ProfilePopoutComponent } from "./components/ProfilePopoutComponent";
@@ -32,7 +32,7 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Show repository language",
         default: true
-    }
+    },
 });
 
 export default definePlugin({
@@ -49,7 +49,7 @@ export default definePlugin({
             find: "#{intl::USER_PROFILE_ACTIVITY}",
             replacement: {
                 match: /(\i)\.id!==\i\?\.id&&\i&&\(.{0,300}\.MUTUAL_GUILDS\}\)\)(?=,(\i))/,
-                replace: '$&,$self.shouldShowGitHub($1.id)&&$2.push({text:"GitHub",section:"GITHUB"})'
+                replace: '$&,$self.shouldShowGitHub($1.id)&&$2.push({text:"GitHub",section:"GITHUB"})',
             }
         },
         // User Profile Modal v2 tab content
@@ -57,25 +57,31 @@ export default definePlugin({
             find: ".WIDGETS?",
             replacement: {
                 match: /(\i)===\i\.\i\.WISHLIST/,
-                replace: '$1==="GITHUB"?$self.renderProfileRepositoriesTab(arguments[0]):$&'
+                replace: '$1==="GITHUB"?$self.renderProfileRepositoriesTab(arguments[0]):$&',
             }
         }
     ],
     shouldShowGitHub(userId: string) {
-        return (
-            UserProfileStore.getUserProfile(userId)?.connectedAccounts?.some((c: any) => c.type === "github") ?? false
-        );
+        return UserProfileStore.getUserProfile(userId)?.connectedAccounts?.some((c: any) => c.type === "github") ?? false;
     },
     renderProfileCollection: {
-        render: (props: { user: User; displayProfile?: any }) => {
-            return <ProfilePopoutComponent {...props} id={props.user.id} />;
+        render: (props: { user: User; displayProfile?: any; }) => {
+            return (
+                <ProfilePopoutComponent
+                    {...props}
+                    id={props.user.id}
+                />
+            );
         },
-        priority: 0
+        priority: 0,
     },
-    renderProfileRepositoriesTab: ErrorBoundary.wrap(
-        (props: { user: User; displayProfile?: any }) => {
-            return <ProfileTabComponent {...props} id={props.user.id} theme={getProfileThemeProps(props).theme} />;
-        },
-        { noop: true }
-    )
+    renderProfileRepositoriesTab: ErrorBoundary.wrap((props: { user: User; displayProfile?: any; }) => {
+        return (
+            <ProfileTabComponent
+                {...props}
+                id={props.user.id}
+                theme={getProfileThemeProps(props).theme}
+            />
+        );
+    }, { noop: true }),
 });

@@ -4,8 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { deflateSync, inflateSync } from "fflate";
-
 import * as DataStore from "@api/DataStore";
 import { showNotification } from "@api/Notifications";
 import { PlainSettings, Settings } from "@api/Settings";
@@ -13,6 +11,7 @@ import { localStorage } from "@utils/localStorage";
 import { Logger } from "@utils/Logger";
 import { relaunch } from "@utils/native";
 import { SettingsRouter } from "@webpack/common";
+import { deflateSync, inflateSync } from "fflate";
 
 import { deauthorizeCloud, getCloudAuth, getCloudUrl } from "./cloudSetup";
 import { exportSettings, importSettings } from "./offline";
@@ -28,14 +27,13 @@ type ApiVersion = "v2" | "v1";
 const SYNC_DIRECTION_KEY = "Vencord_cloudSyncDirection";
 const SETTINGS_DIRTY_KEY = "Vencord_settingsDirty";
 export const getCloudSyncDirection = () => localStorage.getItem(SYNC_DIRECTION_KEY) || "both";
-export const setCloudSyncDirection = (direction: "push" | "pull" | "both" | "manual") =>
-    localStorage.setItem(SYNC_DIRECTION_KEY, direction);
+export const setCloudSyncDirection = (direction: "push" | "pull" | "both" | "manual") => localStorage.setItem(SYNC_DIRECTION_KEY, direction);
 export const areLocalSettingsDirty = () => localStorage.getItem(SETTINGS_DIRTY_KEY) === "true";
 export const markLocalSettingsDirty = () => localStorage.setItem(SETTINGS_DIRTY_KEY, "true");
 export const markLocalSettingsClean = () => localStorage.removeItem(SETTINGS_DIRTY_KEY);
 
 async function loadApiVersionMap(): Promise<Record<string, ApiVersion>> {
-    return (await DataStore.get<Record<string, ApiVersion>>(API_VERSION_STORE_KEY)) ?? {};
+    return await DataStore.get<Record<string, ApiVersion>>(API_VERSION_STORE_KEY) ?? {};
 }
 
 async function getApiVersion(): Promise<ApiVersion> {
@@ -53,14 +51,16 @@ async function setApiVersion(version: ApiVersion) {
 
 function toBase64(data: Uint8Array): string {
     let binary = "";
-    for (let i = 0; i < data.length; i++) binary += String.fromCharCode(data[i]);
+    for (let i = 0; i < data.length; i++)
+        binary += String.fromCharCode(data[i]);
     return btoa(binary);
 }
 
 function fromBase64(b64: string): Uint8Array {
     const binary = atob(b64);
     const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    for (let i = 0; i < binary.length; i++)
+        bytes[i] = binary.charCodeAt(i);
     return bytes;
 }
 
@@ -71,7 +71,7 @@ async function computeChecksum(data: Uint8Array): Promise<string> {
 }
 
 async function getLocalManifest(): Promise<ManifestEntry[]> {
-    return (await DataStore.get<ManifestEntry[]>(MANIFEST_STORE_KEY)) ?? [];
+    return await DataStore.get<ManifestEntry[]>(MANIFEST_STORE_KEY) ?? [];
 }
 
 async function saveLocalManifest(manifest: ManifestEntry[]) {
@@ -130,24 +130,21 @@ function handleAuthFailure() {
         title: "Cloud Settings",
         body: "Cloud sync was disabled because this account isn't connected. Reconnect in Cloud Settings.",
         color: "var(--yellow-360)",
-        onClick: () => SettingsRouter.openUserSettings("equicord_cloud_panel")
+        onClick: () => SettingsRouter.openUserSettings("equicord_cloud_panel"),
     });
     Settings.cloud.authenticated = false;
 }
 
-async function doSyncV2(
-    uploads: SyncRequest["uploads"],
-    clientManifest: ManifestEntry[]
-): Promise<SyncResponse | null> {
+async function doSyncV2(uploads: SyncRequest["uploads"], clientManifest: ManifestEntry[]): Promise<SyncResponse | null> {
     let res: Response;
     try {
         res = await fetch(new URL("/v2/sync", getCloudUrl()), {
             method: "POST",
             headers: {
                 Authorization: await getCloudAuth(),
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
             },
-            body: JSON.stringify({ client_manifest: clientManifest, uploads } satisfies SyncRequest)
+            body: JSON.stringify({ client_manifest: clientManifest, uploads } satisfies SyncRequest),
         });
     } catch (e) {
         logger.error("v2 sync network error, will retry next sync", e);
@@ -170,7 +167,7 @@ async function doSyncV2(
         showNotification({
             title: "Cloud Settings",
             body: `Could not synchronize settings (API returned ${res.status}).`,
-            color: "var(--red-360)"
+            color: "var(--red-360)",
         });
         return null;
     }
@@ -189,7 +186,8 @@ async function putV2(manual?: boolean) {
         const checksum = await computeChecksum(value);
         const existing = manifestMap.get(key);
 
-        if (!existing || existing.checksum !== checksum) uploads.push({ key, value: toBase64(value), checksum });
+        if (!existing || existing.checksum !== checksum)
+            uploads.push({ key, value: toBase64(value), checksum });
     }
 
     if (uploads.length === 0 && !manual) {
@@ -201,7 +199,8 @@ async function putV2(manual?: boolean) {
     const response = await doSyncV2(uploads, localManifest);
     if (!response) return;
 
-    for (const err of response.errors) logger.error(`Sync error for ${err.key}: ${err.error}`);
+    for (const err of response.errors)
+        logger.error(`Sync error for ${err.key}: ${err.error}`);
 
     const hadDownloads = await applyDownloads(response.downloads);
     await saveLocalManifest(response.server_manifest);
@@ -219,7 +218,7 @@ async function putV2(manual?: boolean) {
                 : "Settings synchronized to the cloud!",
             color: "var(--green-360)",
             onClick: hadDownloads ? (IS_WEB ? () => location.reload() : relaunch) : undefined,
-            noPersist: true
+            noPersist: true,
         });
     }
 
@@ -232,7 +231,8 @@ async function getV2(shouldNotify: boolean, force: boolean) {
     const response = await doSyncV2([], localManifest);
     if (!response) return false;
 
-    for (const err of response.errors) logger.error(`Sync error for ${err.key}: ${err.error}`);
+    for (const err of response.errors)
+        logger.error(`Sync error for ${err.key}: ${err.error}`);
 
     if (response.downloads.length === 0) {
         logger.info("Settings up to date");
@@ -240,7 +240,7 @@ async function getV2(shouldNotify: boolean, force: boolean) {
             showNotification({
                 title: "Cloud Settings",
                 body: "Your settings are up to date.",
-                noPersist: true
+                noPersist: true,
             });
         return false;
     }
@@ -261,7 +261,7 @@ async function getV2(shouldNotify: boolean, force: boolean) {
                 : "Cloud data synchronized.",
             color: "var(--green-360)",
             onClick: settingsChanged ? (IS_WEB ? () => location.reload() : relaunch) : undefined,
-            noPersist: true
+            noPersist: true,
         });
 
     delete localStorage.Vencord_settingsDirty;
@@ -272,29 +272,28 @@ async function deleteV2() {
     const auth = await getCloudAuth();
 
     const manifestRes = await fetch(new URL("/v2/manifest", getCloudUrl()), {
-        headers: { Authorization: auth }
+        headers: { Authorization: auth },
     });
 
     if (!manifestRes.ok) {
         showNotification({
             title: "Cloud Settings",
             body: `Could not fetch manifest for deletion (API returned ${manifestRes.status}).`,
-            color: "var(--red-360)"
+            color: "var(--red-360)",
         });
         return;
     }
 
-    const { entries }: { entries: ManifestEntry[] } = await manifestRes.json();
+    const { entries }: { entries: ManifestEntry[]; } = await manifestRes.json();
 
-    await Promise.all(
-        entries.map(async entry => {
-            const res = await fetch(new URL(`/v2/data/${encodeURIComponent(entry.key)}`, getCloudUrl()), {
-                method: "DELETE",
-                headers: { Authorization: auth }
-            });
-            if (!res.ok && res.status !== 404) logger.error(`Failed to delete key ${entry.key}: ${res.status}`);
-        })
-    );
+    await Promise.all(entries.map(async entry => {
+        const res = await fetch(new URL(`/v2/data/${encodeURIComponent(entry.key)}`, getCloudUrl()), {
+            method: "DELETE",
+            headers: { Authorization: auth },
+        });
+        if (!res.ok && res.status !== 404)
+            logger.error(`Failed to delete key ${entry.key}: ${res.status}`);
+    }));
 
     await saveLocalManifest([]);
 
@@ -305,7 +304,7 @@ async function deleteV2() {
     showNotification({
         title: "Cloud Settings",
         body: "Settings deleted from cloud!",
-        color: "var(--green-360)"
+        color: "var(--green-360)",
     });
 }
 
@@ -316,9 +315,9 @@ async function putV1(manual?: boolean) {
         method: "PUT",
         headers: {
             Authorization: await getCloudAuth(),
-            "Content-Type": "application/octet-stream"
+            "Content-Type": "application/octet-stream",
         },
-        body: deflateSync(new TextEncoder().encode(settings)) as Uint8Array<ArrayBuffer>
+        body: deflateSync(new TextEncoder().encode(settings)) as Uint8Array<ArrayBuffer>,
     });
 
     if (!res.ok) {
@@ -326,7 +325,7 @@ async function putV1(manual?: boolean) {
         showNotification({
             title: "Cloud Settings",
             body: `Could not synchronize settings to cloud (API returned ${res.status}).`,
-            color: "var(--red-360)"
+            color: "var(--red-360)",
         });
         return;
     }
@@ -341,7 +340,7 @@ async function putV1(manual?: boolean) {
         showNotification({
             title: "Cloud Settings",
             body: "Synchronized settings to the cloud!",
-            noPersist: true
+            noPersist: true,
         });
     }
 
@@ -354,8 +353,8 @@ async function getV1(shouldNotify: boolean, force: boolean) {
         headers: {
             Authorization: await getCloudAuth(),
             Accept: "application/octet-stream",
-            "If-None-Match": Settings.cloud.settingsSyncVersion.toString()
-        }
+            "If-None-Match": Settings.cloud.settingsSyncVersion.toString(),
+        },
     });
 
     if (res.status === 401) {
@@ -369,7 +368,7 @@ async function getV1(shouldNotify: boolean, force: boolean) {
             showNotification({
                 title: "Cloud Settings",
                 body: "There are no settings in the cloud.",
-                noPersist: true
+                noPersist: true,
             });
         return false;
     }
@@ -380,7 +379,7 @@ async function getV1(shouldNotify: boolean, force: boolean) {
             showNotification({
                 title: "Cloud Settings",
                 body: "Your settings are up to date.",
-                noPersist: true
+                noPersist: true,
             });
         return false;
     }
@@ -390,7 +389,7 @@ async function getV1(shouldNotify: boolean, force: boolean) {
         showNotification({
             title: "Cloud Settings",
             body: `Could not synchronize settings from the cloud (API returned ${res.status}).`,
-            color: "var(--red-360)"
+            color: "var(--red-360)",
         });
         return false;
     }
@@ -403,7 +402,7 @@ async function getV1(shouldNotify: boolean, force: boolean) {
             showNotification({
                 title: "Cloud Settings",
                 body: "Your local settings are newer than the cloud ones.",
-                noPersist: true
+                noPersist: true,
             });
         return false;
     }
@@ -422,7 +421,7 @@ async function getV1(shouldNotify: boolean, force: boolean) {
             body: "Your settings have been updated! Click here to restart to fully apply changes!",
             color: "var(--green-360)",
             onClick: IS_WEB ? () => location.reload() : relaunch,
-            noPersist: true
+            noPersist: true,
         });
 
     delete localStorage.Vencord_settingsDirty;
@@ -432,7 +431,7 @@ async function getV1(shouldNotify: boolean, force: boolean) {
 async function deleteV1() {
     const res = await fetch(new URL("/v1/settings", getCloudUrl()), {
         method: "DELETE",
-        headers: { Authorization: await getCloudAuth() }
+        headers: { Authorization: await getCloudAuth() },
     });
 
     if (!res.ok) {
@@ -440,7 +439,7 @@ async function deleteV1() {
         showNotification({
             title: "Cloud Settings",
             body: `Could not delete settings (API returned ${res.status}).`,
-            color: "var(--red-360)"
+            color: "var(--red-360)",
         });
         return;
     }
@@ -449,7 +448,7 @@ async function deleteV1() {
     showNotification({
         title: "Cloud Settings",
         body: "Settings deleted from cloud!",
-        color: "var(--green-360)"
+        color: "var(--green-360)",
     });
 }
 
@@ -463,7 +462,8 @@ export async function putCloudSettings(manual?: boolean) {
         const version = await getApiVersion();
         if (version === "v2") {
             await putV2(manual);
-            if ((await getApiVersion()) === "v1") await putV1(manual);
+            if (await getApiVersion() === "v1")
+                await putV1(manual);
         } else {
             await putV1(manual);
         }
@@ -472,7 +472,7 @@ export async function putCloudSettings(manual?: boolean) {
         showNotification({
             title: "Cloud Settings",
             body: `Could not synchronize settings to the cloud (${e.toString()}).`,
-            color: "var(--red-360)"
+            color: "var(--red-360)",
         });
     }
 }
@@ -482,7 +482,8 @@ export async function getCloudSettings(shouldNotify = true, force = false) {
         const version = await getApiVersion();
         if (version === "v2") {
             const result = await getV2(shouldNotify, force);
-            if ((await getApiVersion()) === "v1") return await getV1(shouldNotify, force);
+            if (await getApiVersion() === "v1")
+                return await getV1(shouldNotify, force);
             return result;
         }
         return await getV1(shouldNotify, force);
@@ -491,7 +492,7 @@ export async function getCloudSettings(shouldNotify = true, force = false) {
         showNotification({
             title: "Cloud Settings",
             body: `Could not synchronize settings from the cloud (${e.toString()}).`,
-            color: "var(--red-360)"
+            color: "var(--red-360)",
         });
         return false;
     }
@@ -500,14 +501,16 @@ export async function getCloudSettings(shouldNotify = true, force = false) {
 export async function deleteCloudSettings() {
     try {
         const version = await getApiVersion();
-        if (version === "v2") await deleteV2();
-        else await deleteV1();
+        if (version === "v2")
+            await deleteV2();
+        else
+            await deleteV1();
     } catch (e: any) {
         logger.error("Failed to delete", e);
         showNotification({
             title: "Cloud Settings",
             body: `Could not delete settings (${e.toString()}).`,
-            color: "var(--red-360)"
+            color: "var(--red-360)",
         });
     }
 }
@@ -515,7 +518,7 @@ export async function deleteCloudSettings() {
 export async function eraseAllCloudData() {
     const res = await fetch(new URL("/v1/", getCloudUrl()), {
         method: "DELETE",
-        headers: { Authorization: await getCloudAuth() }
+        headers: { Authorization: await getCloudAuth() },
     });
 
     if (!res.ok) {
@@ -523,7 +526,7 @@ export async function eraseAllCloudData() {
         showNotification({
             title: "Cloud Integrations",
             body: `Could not erase all data (API returned ${res.status}), please contact support.`,
-            color: "var(--red-360)"
+            color: "var(--red-360)",
         });
         return;
     }
@@ -535,6 +538,6 @@ export async function eraseAllCloudData() {
     showNotification({
         title: "Cloud Integrations",
         body: "Successfully erased all data.",
-        color: "var(--green-360)"
+        color: "var(--green-360)",
     });
 }

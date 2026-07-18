@@ -4,9 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findLazy } from "@webpack";
-import { ComponentType, Ref, SyntheticEvent } from "react";
-
 import { AudioPlayerInterface, playAudio } from "@api/AudioPlayer";
 import { Button } from "@components/Button";
 import { Card } from "@components/Card";
@@ -16,7 +13,9 @@ import { classNameFactory } from "@utils/css";
 import { Margins } from "@utils/margins";
 import { useForceUpdater } from "@utils/react";
 import { makeRange } from "@utils/types";
+import { findLazy } from "@webpack";
 import { React, Select, showToast, Slider } from "@webpack/common";
+import { ComponentType, Ref, SyntheticEvent } from "react";
 
 import { deleteAudio, getAllAudio, saveAudio, StoredAudioFile } from "./audioStore";
 import { ensureDataURICached } from "./index";
@@ -26,20 +25,17 @@ type FileInput = ComponentType<{
     ref: Ref<HTMLInputElement>;
     onChange: (e: SyntheticEvent<HTMLInputElement>) => void;
     multiple?: boolean;
-    filters?: { name?: string; extensions: string[] }[];
+    filters?: { name?: string; extensions: string[]; }[];
 }>;
 
 const AUDIO_EXTENSIONS = ["mp3", "wav", "ogg", "m4a", "aac", "flac", "webm", "wma", "mp4"];
 const cl = classNameFactory("vc-custom-sounds-");
 const FileInput: FileInput = findLazy(m => m.prototype?.activateUploadDialogue && m.prototype.setRef);
 
-const capitalizeWords = (str: string) => str.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+const capitalizeWords = (str: string) =>
+    str.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
 
-export function SoundOverrideComponent({
-    type,
-    override,
-    onChange
-}: {
+export function SoundOverrideComponent({ type, override, onChange }: {
     type: SoundType;
     override: SoundOverride;
     onChange: () => Promise<void>;
@@ -78,8 +74,7 @@ export function SoundOverrideComponent({
                 }
 
                 sound.current = playAudio(dataUri, {
-                    volume: override.volume,
-                    onError: e => {
+                    volume: override.volume, onError: e => {
                         console.error("[CustomSounds] Error playing custom audio:", e);
                         showToast("Error playing custom sound. File may be corrupted.");
                     }
@@ -184,10 +179,16 @@ export function SoundOverrideComponent({
             {override.enabled && (
                 <>
                     <div className={cl("override-controls")}>
-                        <Button variant="positive" onClick={previewSound}>
+                        <Button
+                            variant="positive"
+                            onClick={previewSound}
+                        >
                             Preview
                         </Button>
-                        <Button variant="dangerPrimary" onClick={() => sound.current?.stop()}>
+                        <Button
+                            variant="dangerPrimary"
+                            onClick={() => sound.current?.stop()}
+                        >
                             Stop
                         </Button>
                     </div>
@@ -238,7 +239,10 @@ export function SoundOverrideComponent({
                             <div className={Margins.bottom8}>
                                 <Heading>Custom File</Heading>
                                 <Select
-                                    options={[{ value: "", label: "Select a file..." }, ...customFileOptions]}
+                                    options={[
+                                        { value: "", label: "Select a file..." },
+                                        ...customFileOptions
+                                    ]}
                                     isSelected={v => v === (override.selectedFileId || "")}
                                     select={async id => {
                                         if (!id) {
@@ -261,7 +265,10 @@ export function SoundOverrideComponent({
                                 onChange={uploadFile}
                             />
                             <div className={cl("override-controls")}>
-                                <Button variant="primary" onClick={() => fileInputRef.current?.click()}>
+                                <Button
+                                    variant="primary"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
                                     Upload New
                                 </Button>
 

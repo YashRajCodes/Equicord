@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { definePluginSettings } from "@api/Settings";
 import { OptionType } from "@utils/types";
@@ -22,8 +22,7 @@ import { OptionType } from "@utils/types";
 export default definePluginSettings({
     notices: {
         type: OptionType.BOOLEAN,
-        description:
-            "Also show a notice at the top of your screen when removed (use this if you don't want to miss any notifications).",
+        description: "Also show a notice at the top of your screen when removed (use this if you don't want to miss any notifications).",
         default: false
     },
     offlineRemovals: {

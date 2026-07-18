@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { downloadSettingsBackup, uploadSettingsBackup } from "@api/SettingsSync/offline";
 import { Button } from "@components/Button";
@@ -31,42 +31,52 @@ function BackupAndRestoreTab() {
         <SettingsTab>
             <Heading className={Margins.top16}>Backup & Restore</Heading>
             <Paragraph className={Margins.bottom20}>
-                Import and export your Equicord settings as a JSON file. This allows you to easily transfer your
-                settings to another device, or recover them after reinstalling Equicord or Discord.
+                Import and export your Equicord settings as a JSON file. This allows you to easily transfer your settings to another device, or recover them after reinstalling Equicord or Discord.
             </Paragraph>
 
             <Notice.Warning className={Margins.bottom20}>
-                Importing a settings file will overwrite your current settings. Make sure to export a backup first if
-                you want to keep your current configuration.
+                Importing a settings file will overwrite your current settings. Make sure to export a backup first if you want to keep your current configuration.
             </Notice.Warning>
 
             <Heading>What's included in a backup</Heading>
             <Paragraph className={Margins.bottom20}>
-                • Custom QuickCSS
-                <br />• Theme Links
-                <br />• Plugin Settings
-                <br />• DataStore Data
+                • Custom QuickCSS<br />
+                • Theme Links<br />
+                • Plugin Settings<br />
+                • DataStore Data
             </Paragraph>
 
             <Divider className={Margins.bottom20} />
 
             <Heading>Import Settings</Heading>
             <Paragraph className={Margins.bottom16}>
-                Select a previously exported settings file to restore your configuration. This will replace all your
-                current settings with the ones from the backup.
+                Select a previously exported settings file to restore your configuration. This will replace all your current settings with the ones from the backup.
             </Paragraph>
 
             <Flex gap="8px" className={Margins.bottom20} style={{ flexWrap: "wrap" }}>
-                <Button onClick={() => uploadSettingsBackup("all")} size="small" variant="secondary">
+                <Button
+                    onClick={() => uploadSettingsBackup("all")}
+                    size="small"
+                    variant="secondary"
+                >
                     Import All Settings
                 </Button>
-                <Button onClick={() => uploadSettingsBackup("plugins")} size="small">
+                <Button
+                    onClick={() => uploadSettingsBackup("plugins")}
+                    size="small"
+                >
                     Import Plugins
                 </Button>
-                <Button onClick={() => uploadSettingsBackup("css")} size="small">
+                <Button
+                    onClick={() => uploadSettingsBackup("css")}
+                    size="small"
+                >
                     Import QuickCSS
                 </Button>
-                <Button onClick={() => uploadSettingsBackup("datastore")} size="small">
+                <Button
+                    onClick={() => uploadSettingsBackup("datastore")}
+                    size="small"
+                >
                     Import DataStore
                 </Button>
             </Flex>
@@ -75,21 +85,33 @@ function BackupAndRestoreTab() {
 
             <Heading>Export Settings</Heading>
             <Paragraph className={Margins.bottom16}>
-                Download your current settings as a backup file. You can export everything at once, or choose to export
-                only specific parts of your configuration.
+                Download your current settings as a backup file. You can export everything at once, or choose to export only specific parts of your configuration.
             </Paragraph>
 
             <Flex gap="8px" style={{ flexWrap: "wrap" }}>
-                <Button onClick={() => downloadSettingsBackup("all")} size="small" variant="secondary">
+                <Button
+                    onClick={() => downloadSettingsBackup("all")}
+                    size="small"
+                    variant="secondary"
+                >
                     Export All Settings
                 </Button>
-                <Button onClick={() => downloadSettingsBackup("plugins")} size="small">
+                <Button
+                    onClick={() => downloadSettingsBackup("plugins")}
+                    size="small"
+                >
                     Export Plugins
                 </Button>
-                <Button onClick={() => downloadSettingsBackup("css")} size="small">
+                <Button
+                    onClick={() => downloadSettingsBackup("css")}
+                    size="small"
+                >
                     Export QuickCSS
                 </Button>
-                <Button onClick={() => downloadSettingsBackup("datastore")} size="small">
+                <Button
+                    onClick={() => downloadSettingsBackup("datastore")}
+                    size="small"
+                >
                     Export DataStore
                 </Button>
             </Flex>

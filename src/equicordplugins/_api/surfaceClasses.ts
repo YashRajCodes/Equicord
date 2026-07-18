@@ -9,8 +9,7 @@ import definePlugin from "@utils/types";
 
 export default definePlugin({
     name: "SurfaceClassesAPI",
-    description:
-        "API to add plugin-owned semantic data attributes and limited props to stable Discord layout surfaces.",
+    description: "API to add plugin-owned semantic data attributes and limited props to stable Discord layout surfaces.",
     authors: [EquicordDevs.benjii],
 
     patches: [
@@ -41,15 +40,14 @@ export default definePlugin({
                 {
                     match: /"aria-label":.{0,50}#{intl::GUILDS_BAR_A11Y_LABEL}\),children:/,
                     replace: '...Vencord.Api.SurfaceClasses._useSurfaceProps("guildBar"),$&'
-                }
+                },
             ]
         },
         {
             find: "#{intl::MEMBERS_LIST_LANDMARK_LABEL}",
             replacement: {
                 match: /"aria-labelledby":.{0,130}#{intl::MEMBERS_LIST_LANDMARK_LABEL}/,
-                replace:
-                    '...(Vencord.Api.SurfaceClasses._trackSurfaceInstance("membersList",this),Vencord.Api.SurfaceClasses._getSurfaceProps("membersList")),$&'
+                replace: '...(Vencord.Api.SurfaceClasses._trackSurfaceInstance("membersList",this),Vencord.Api.SurfaceClasses._getSurfaceProps("membersList")),$&'
             }
         },
         {

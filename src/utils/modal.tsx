@@ -14,10 +14,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { filters, findComponentByCodeLazy, mapMangledModuleLazy } from "@webpack";
-
 import { closeAllModals, closeModal, openMediaModal, openModal, openModalLazy } from "@webpack/common";
 
 import { LazyComponent } from "./react";
@@ -27,7 +26,7 @@ export const enum ModalSize {
     SMALL = "small",
     MEDIUM = "medium",
     LARGE = "large",
-    DYNAMIC = "dynamic"
+    DYNAMIC = "dynamic",
 }
 
 /** @deprecated Migrate to new Modals */

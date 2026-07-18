@@ -4,10 +4,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Message } from "@vencord/discord-types";
-import { proxyLazyWebpack } from "@webpack";
-import { Dispatch, MouseEvent, ReactNode, SetStateAction } from "react";
-
 import { definePluginSettings, migratePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -18,10 +14,12 @@ import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { sendMessage } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
+import { Message } from "@vencord/discord-types";
+import { proxyLazyWebpack } from "@webpack";
 import { ChannelActionCreators, ChannelStore, Checkbox, React, Tooltip, useMemo, useState } from "@webpack/common";
+import { Dispatch, MouseEvent, ReactNode, SetStateAction } from "react";
 
 import { ChannelName, ForwardPicker, GuildName, Timestamp } from "./components";
-
 import managedStyle from "./style.css?managed";
 
 export const cl = classNameFactory("vc-betterforwards-");
@@ -50,7 +48,7 @@ export const ForwardOptionsContext = proxyLazyWebpack(() =>
 );
 
 let ignore = false;
-const getId = ({ id, type }: { id: string; type: string }) => {
+const getId = ({ id, type }: { id: string; type: string; }) => {
     if (type !== "user") return id;
     return (
         ChannelStore.getDMFromUserId(id) ??
@@ -61,8 +59,7 @@ const getId = ({ id, type }: { id: string; type: string }) => {
 // Taken From Signature :)
 const settings = definePluginSettings({
     resendOnFail: {
-        description:
-            "This will attempt to resend a forwarded message if the forward fails. Could cause unintentional pings or text spam. Bypasses NSFW restrictions.",
+        description: "This will attempt to resend a forwarded message if the forward fails. Could cause unintentional pings or text spam. Bypasses NSFW restrictions.",
         type: OptionType.BOOLEAN,
         default: true,
         restartNeeded: true
@@ -162,12 +159,7 @@ export default definePlugin({
         }
     ],
 
-    async sendForward(
-        additionalMessage: string | null,
-        channels: { id: string; type: string }[],
-        message: Message,
-        options: ForwardOptions
-    ) {
+    async sendForward(additionalMessage: string | null, channels: { id: string; type: string }[], message: Message, options: ForwardOptions) {
         const contentMessage = message.messageSnapshots[0]?.message ?? message;
 
         const newLine = `\n${settings.store.forwardPreface} `;

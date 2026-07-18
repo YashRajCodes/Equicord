@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findByPropsLazy } from "@webpack";
-
 import * as DataStore from "@api/DataStore";
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import { hasGuildFeature } from "@utils/discord";
 import definePlugin, { OptionType } from "@utils/types";
+import { findByPropsLazy } from "@webpack";
 import { ChannelStore, GuildStore } from "@webpack/common";
 
 const SummaryStore = findByPropsLazy("allSummaries", "findSummary");
@@ -18,11 +17,10 @@ const SummaryStore = findByPropsLazy("allSummaries", "findSummary");
 const settings = definePluginSettings({
     summaryExpiryThresholdDays: {
         type: OptionType.SLIDER,
-        description:
-            "The time in days before a summary is removed. Note that only up to 50 summaries are kept per channel",
+        description: "The time in days before a summary is removed. Note that only up to 50 summaries are kept per channel",
         markers: [1, 3, 5, 7, 10, 15, 20, 25, 30],
         stickToMarkers: false,
-        default: 3
+        default: 3,
     }
 });
 
@@ -61,14 +59,13 @@ function createChannelSummaryFromServer(s: Summary, channelId: string): ChannelS
         count: s.count,
         channelId,
         source: s.source,
-        type: s.type as any
+        type: s.type as any,
     } as any as ChannelSummary;
 }
 
 export default definePlugin({
     name: "Summaries",
-    description:
-        "Enables Discord's experimental Summaries feature on every server, displaying AI generated summaries of conversations",
+    description: "Enables Discord's experimental Summaries feature on every server, displaying AI generated summaries of conversations",
     tags: ["Chat", "Fun"],
     authors: [Devs.mantikafasi],
     settings,
@@ -99,9 +96,7 @@ export default definePlugin({
             // idk if this is good for performance but it doesnt seem to be a problem in my experience
             DataStore.update("summaries-data", summaries => {
                 summaries ??= {};
-                summaries[data.channel_id]
-                    ? summaries[data.channel_id].unshift(...incomingSummaries)
-                    : (summaries[data.channel_id] = incomingSummaries);
+                summaries[data.channel_id] ? summaries[data.channel_id].unshift(...incomingSummaries) : (summaries[data.channel_id] = incomingSummaries);
                 if (summaries[data.channel_id].length > 50)
                     summaries[data.channel_id] = summaries[data.channel_id].slice(0, 50);
 
@@ -115,10 +110,7 @@ export default definePlugin({
             summaries ??= {};
             for (const key of Object.keys(summaries)) {
                 for (let i = summaries[key].length - 1; i >= 0; i--) {
-                    if (
-                        summaries[key][i].time <
-                        Date.now() - 1000 * 60 * 60 * 24 * settings.store.summaryExpiryThresholdDays
-                    ) {
+                    if (summaries[key][i].time < Date.now() - 1000 * 60 * 60 * 24 * settings.store.summaryExpiryThresholdDays) {
                         summaries[key].splice(i, 1);
                     }
                 }

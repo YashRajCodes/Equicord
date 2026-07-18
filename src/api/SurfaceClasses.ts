@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { CSSProperties, FocusEventHandler, MouseEventHandler, RefCallback } from "react";
-
 import { Logger } from "@utils/Logger";
 import { useForceUpdater } from "@utils/react";
 import { useEffect } from "@webpack/common";
+import type { CSSProperties, FocusEventHandler, MouseEventHandler, RefCallback } from "react";
 
 /**
  * Adds plugin-owned semantic data attributes and a limited set of props to
@@ -76,7 +75,10 @@ function getListenerSet(surfaceId: SurfaceId) {
     return set;
 }
 
-function chainHandlers<E>(first?: (event: E) => void, second?: (event: E) => void) {
+function chainHandlers<E>(
+    first?: (event: E) => void,
+    second?: (event: E) => void
+) {
     if (!first) return second;
     if (!second) return first;
 
@@ -190,9 +192,7 @@ export function _useSurfaceProps(surfaceId: SurfaceId) {
         const listener = () => forceUpdate();
 
         getListenerSet(surfaceId).add(listener);
-        return () => {
-            listeners.get(surfaceId)?.delete(listener);
-        };
+        return () => { listeners.get(surfaceId)?.delete(listener); };
     }, [surfaceId]);
 
     return getSurfaceProps(surfaceId);

@@ -4,25 +4,13 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { RenderModalProps } from "@vencord/discord-types";
-import { findByPropsLazy } from "@webpack";
-
 import { Button } from "@components/Button";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { Heading } from "@components/Heading";
 import { classNameFactory } from "@utils/css";
-import {
-    ChannelStore,
-    closeModal,
-    DraftType,
-    Modal,
-    openModal,
-    showToast,
-    TextInput,
-    Toasts,
-    UploadManager,
-    useState
-} from "@webpack/common";
+import { RenderModalProps } from "@vencord/discord-types";
+import { findByPropsLazy } from "@webpack";
+import { ChannelStore, closeModal, DraftType, Modal, openModal, showToast, TextInput, Toasts, UploadManager, useState } from "@webpack/common";
 
 import { ScheduledAttachment } from "../types";
 import { addScheduledMessage, getChannelDisplayInfo } from "../utils";
@@ -31,13 +19,7 @@ import { ErrorIcon } from "./Icons";
 const cl = classNameFactory("vc-scheduled-msg-");
 const ComponentDispatch = findByPropsLazy("dispatchToLastSubscribed");
 
-function ScheduleTimeModalInner({
-    channelId,
-    content,
-    attachments,
-    rootProps,
-    close
-}: {
+function ScheduleTimeModalInner({ channelId, content, attachments, rootProps, close }: {
     channelId: string;
     content: string;
     attachments?: ScheduledAttachment[];
@@ -111,9 +93,7 @@ function ScheduleTimeModalInner({
                 </span>
             </div>
 
-            <Heading tag="h5" className={cl("field-label")}>
-                Schedule Type
-            </Heading>
+            <Heading tag="h5" className={cl("field-label")}>Schedule Type</Heading>
             <div className={cl("schedule-type-buttons")}>
                 <Button
                     size="small"
@@ -133,16 +113,17 @@ function ScheduleTimeModalInner({
 
             {scheduleType === "delay" ? (
                 <>
-                    <Heading tag="h5" className={cl("field-label")}>
-                        Delay (minutes)
-                    </Heading>
-                    <TextInput value={delayMinutes} onChange={setDelayMinutes} placeholder="5" type="number" />
+                    <Heading tag="h5" className={cl("field-label")}>Delay (minutes)</Heading>
+                    <TextInput
+                        value={delayMinutes}
+                        onChange={setDelayMinutes}
+                        placeholder="5"
+                        type="number"
+                    />
                 </>
             ) : (
                 <>
-                    <Heading tag="h5" className={cl("field-label")}>
-                        Date & Time
-                    </Heading>
+                    <Heading tag="h5" className={cl("field-label")}>Date & Time</Heading>
                     <input
                         type="datetime-local"
                         className={cl("datetime-input")}

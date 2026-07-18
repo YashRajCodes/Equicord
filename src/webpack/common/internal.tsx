@@ -14,21 +14,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { FilterFn, filters, lazyWebpackSearchHistory, waitFor } from "@webpack";
-import { ComponentType } from "react";
+*/
 
 import { Logger } from "@utils/Logger";
 import { LazyComponent, LazyComponentWrapper } from "@utils/react";
+import { FilterFn, filters, lazyWebpackSearchHistory, waitFor } from "@webpack";
+import { ComponentType } from "react";
 
 const logger = new Logger("Webpack");
 
-export function waitForComponent<T extends ComponentType<any> = ComponentType<any> & Record<string, any>>(
-    name: string,
-    filter: FilterFn | string | string[],
-    fallbackValue: ComponentType<any> | null = null
-) {
+export function waitForComponent<T extends ComponentType<any> = ComponentType<any> & Record<string, any>>(name: string, filter: FilterFn | string | string[], fallbackValue: ComponentType<any> | null = null) {
     if (IS_REPORTER) lazyWebpackSearchHistory.push(["waitForComponent", Array.isArray(filter) ? filter : [filter]]);
 
     let myValue: T | null = null;
@@ -44,14 +39,10 @@ export function waitForComponent<T extends ComponentType<any> = ComponentType<an
         return fallbackValue!;
     }) as LazyComponentWrapper<T>;
 
-    waitFor(
-        filter,
-        (v: any) => {
-            myValue = v;
-            Object.assign(lazyComponent, v);
-        },
-        { isIndirect: true }
-    );
+    waitFor(filter, (v: any) => {
+        myValue = v;
+        Object.assign(lazyComponent, v);
+    }, { isIndirect: true });
 
     return lazyComponent;
 }

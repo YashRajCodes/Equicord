@@ -10,24 +10,11 @@ import { Alerts, Button, FluxDispatcher, Menu, showToast, Toasts } from "@webpac
 
 import { settings } from "../settings";
 import { Gif } from "../types";
-import {
-    addToCollection,
-    cache_collections,
-    deleteCollection,
-    getGifById,
-    getItemCollectionNameFromId,
-    removeFromCollection
-} from "../utils/collectionManager";
+import { addToCollection, cache_collections, deleteCollection, getGifById, getItemCollectionNameFromId, removeFromCollection } from "../utils/collectionManager";
 import { getGif } from "../utils/getGif";
 import { stripPrefix } from "../utils/misc";
 import { uuidv4 } from "../utils/uuidv4";
-import {
-    openCollectionInfoModal,
-    openCreateCollectionModal,
-    openGifInfoModal,
-    openMoveToCollectionModal,
-    openRenameCollectionModal
-} from "./modals";
+import { openCollectionInfoModal, openCreateCollectionModal, openGifInfoModal, openMoveToCollectionModal, openRenameCollectionModal } from "./modals";
 
 function dispatchRefresh(collectionName: string) {
     FluxDispatcher.dispatch({ type: "GIF_PICKER_QUERY", query: "" });
@@ -37,15 +24,14 @@ function dispatchRefresh(collectionName: string) {
 function AddToCollectionMenu(gif: Gif) {
     return (
         <Menu.MenuItem label="Add To Collection" key="add-to-collection" id="add-to-collection">
-            {cache_collections.length > 0 &&
-                cache_collections.map(col => (
-                    <Menu.MenuItem
-                        key={col.name}
-                        id={col.name}
-                        label={stripPrefix(col.name)}
-                        action={() => addToCollection(col.name, gif)}
-                    />
-                ))}
+            {cache_collections.length > 0 && cache_collections.map(col => (
+                <Menu.MenuItem
+                    key={col.name}
+                    id={col.name}
+                    label={stripPrefix(col.name)}
+                    action={() => addToCollection(col.name, gif)}
+                />
+            ))}
             {cache_collections.length > 0 && <Menu.MenuSeparator key="separator" />}
             <Menu.MenuItem
                 key="create-collection"
@@ -63,8 +49,7 @@ export const addCollectionContextMenuPatch: NavContextMenuPatchCallback = (child
     const gif = getGif(message, itemSrc ?? itemHref, target);
     if (!gif) return;
 
-    const group =
-        findGroupChildrenByChildId("open-native-link", children) ?? findGroupChildrenByChildId("copy-link", children);
+    const group = findGroupChildrenByChildId("open-native-link", children) ?? findGroupChildrenByChildId("copy-link", children);
     if (!group || group.some(child => child?.props?.id === "add-to-collection")) return;
 
     if (settings.store.showCopyImageLink) {
@@ -84,15 +69,7 @@ export const addCollectionContextMenuPatch: NavContextMenuPatchCallback = (child
     group.push(AddToCollectionMenu(gif));
 };
 
-export function RemoveItemContextMenuItems({
-    type,
-    nameOrId,
-    instance
-}: {
-    type: "collection" | "gif";
-    nameOrId: string;
-    instance: { forceUpdate: () => void };
-}) {
+export function RemoveItemContextMenuItems({ type, nameOrId, instance }: { type: "collection" | "gif"; nameOrId: string; instance: { forceUpdate: () => void; }; }) {
     return (
         <Menu.MenuGroup key={`remove-item-${nameOrId}`}>
             {type === "collection" && (
@@ -174,7 +151,7 @@ export function RemoveItemContextMenuItems({
                         confirmText: type === "collection" ? "Delete" : "Remove",
                         confirmColor: Button.Colors.RED,
                         cancelText: "Nevermind",
-                        onConfirm: doDelete
+                        onConfirm: doDelete,
                     });
                 }}
             />
@@ -182,7 +159,7 @@ export function RemoveItemContextMenuItems({
     );
 }
 
-export function GifPickerContextMenu({ gif }: { gif: Gif }) {
+export function GifPickerContextMenu({ gif }: { gif: Gif; }) {
     return (
         <Menu.Menu
             navId="gif-collection-id"

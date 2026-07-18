@@ -14,10 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { Message } from "@vencord/discord-types";
-import { filters, findByCodeLazy, waitFor } from "@webpack";
+*/
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import { migratePluginSettings } from "@api/Settings";
@@ -25,6 +22,8 @@ import { Devs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
 import { NoopComponent } from "@utils/react";
 import definePlugin from "@utils/types";
+import { Message } from "@vencord/discord-types";
+import { filters, findByCodeLazy, waitFor } from "@webpack";
 import { ChannelStore, ContextMenuApi, UserStore } from "@webpack/common";
 
 const useMessageMenu = findByCodeLazy(".MESSAGE,commandTargetId:");
@@ -35,10 +34,11 @@ interface CopyIdMenuItemProps {
 }
 
 let CopyIdMenuItem: (props: CopyIdMenuItemProps) => React.ReactElement | null = NoopComponent;
-waitFor(filters.componentByCode('"cannot copy null text"'), m => (CopyIdMenuItem = m));
+waitFor(filters.componentByCode('"cannot copy null text"'), m => CopyIdMenuItem = m);
 
 function MessageMenu({ message, channel, onHeightUpdate }) {
-    const canReport = message.author && !(message.author.id === UserStore.getCurrentUser().id || message.author.system);
+    const canReport = message.author &&
+        !(message.author.id === UserStore.getCurrentUser().id || message.author.system);
 
     return useMessageMenu({
         navId: "message-actions",
@@ -72,7 +72,9 @@ const contextMenuPatch: NavContextMenuPatchCallback = (children, props: MessageA
     if (props?.isFullSearchContextMenu == null) return;
 
     const group = findGroupChildrenByChildId("devmode-copy-id", children, true);
-    group?.push(CopyIdMenuItem({ id: props.message.author.id, label: getIntlMessage("COPY_ID_AUTHOR") }));
+    group?.push(
+        CopyIdMenuItem({ id: props.message.author.id, label: getIntlMessage("COPY_ID_AUTHOR") })
+    );
 };
 
 migratePluginSettings("FullSearchContext", "SearchReply");
@@ -82,15 +84,13 @@ export default definePlugin({
     tags: ["Utility"],
     authors: [Devs.Ven, Devs.Aria],
 
-    patches: [
-        {
-            find: "Listbox navigator was given an unhandled action",
-            replacement: {
-                match: /this(?=\.handleContextMenu\(\i,\i\))/,
-                replace: "$self"
-            }
+    patches: [{
+        find: "Listbox navigator was given an unhandled action",
+        replacement: {
+            match: /this(?=\.handleContextMenu\(\i,\i\))/,
+            replace: "$self"
         }
-    ],
+    }],
 
     handleContextMenu(event: React.MouseEvent, message: Message) {
         const channel = ChannelStore.getChannel(message.channel_id);
@@ -98,9 +98,13 @@ export default definePlugin({
 
         event.stopPropagation();
 
-        ContextMenuApi.openContextMenu(event, contextMenuProps => (
-            <MessageMenu message={message} channel={channel} onHeightUpdate={contextMenuProps.onHeightUpdate} />
-        ));
+        ContextMenuApi.openContextMenu(event, contextMenuProps =>
+            <MessageMenu
+                message={message}
+                channel={channel}
+                onHeightUpdate={contextMenuProps.onHeightUpdate}
+            />
+        );
     },
 
     contextMenus: {

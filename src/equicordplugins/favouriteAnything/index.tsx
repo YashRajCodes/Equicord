@@ -4,29 +4,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Embed, MessageAttachment } from "@vencord/discord-types";
-import { proxyLazyWebpack } from "@webpack";
-import { ComponentType, ReactNode } from "react";
-
 import { Devs, EquicordDevs } from "@utils/constants";
 import { getIntlMessage } from "@utils/discord";
 import definePlugin from "@utils/types";
+import { Embed, MessageAttachment } from "@vencord/discord-types";
+import { proxyLazyWebpack } from "@webpack";
 import { React } from "@webpack/common";
+import { ComponentType, ReactNode } from "react";
 
 import { AttachmentAccessory, EmbedAccessory, FilePicker } from "./components";
 import { SignedUrlsStore } from "./stores";
-import {
-    AttachmentItem,
-    CV2Attachment,
-    EmbedComponent,
-    ExpressionPickerTabProps,
-    ExpressionPickerView,
-    FavouriteItem,
-    FavouriteItemFormat
-} from "./types";
-import { getThumbnailUrl, transformAttachment } from "./utils";
-
 import managedStyle from "./style.css?managed";
+import { AttachmentItem, CV2Attachment, EmbedComponent, ExpressionPickerTabProps, ExpressionPickerView, FavouriteItem, FavouriteItemFormat } from "./types";
+import { getThumbnailUrl, transformAttachment } from "./utils";
 
 export const EmbedContext = proxyLazyWebpack(() => React.createContext<null | Embed>(null));
 export const EmbedMosaicContext = proxyLazyWebpack(() => React.createContext<null | number>(null));
@@ -148,56 +138,33 @@ export default definePlugin({
             </>
         );
     },
-    renderFilePicker(activeView: ExpressionPickerView, onSelectGIF: (item: { url: string }) => void) {
+    renderFilePicker(activeView: ExpressionPickerView, onSelectGIF: (item: { url: string; }) => void) {
         return activeView === ExpressionPickerView.FILES ? <FilePicker onSelectItem={onSelectGIF} /> : null;
     },
-    renderAttachment(
-        children: ReactNode,
-        props: { item: AttachmentItem<MessageAttachment | { media: CV2Attachment }> }
-    ) {
-        const {
-            item: { originalItem, ...rest }
-        } = props;
+    renderAttachment(children: ReactNode, props: { item: AttachmentItem<MessageAttachment | { media: CV2Attachment; }>; }) {
+        const { item: { originalItem, ...rest } } = props;
 
         // Regular media attachments and cv2 media attachments are structured differently
         const raw: MessageAttachment =
             "media" in originalItem
                 ? {
-                      ...originalItem.media,
-                      id: rest.uniqueId,
-                      size: 0,
-                      spoiler: rest.spoiler,
-                      filename: (rest.spoiler ? "SPOILER_" : "") + rest.uniqueId,
-                      content_type: originalItem.media.contentType,
-                      proxy_url: originalItem.media.proxyUrl
-                  }
+                    ...originalItem.media,
+                    id: rest.uniqueId,
+                    size: 0,
+                    spoiler: rest.spoiler,
+                    filename: (rest.spoiler ? "SPOILER_" : "") + rest.uniqueId,
+                    content_type: originalItem.media.contentType,
+                    proxy_url: originalItem.media.proxyUrl,
+                }
                 : originalItem;
 
-        return (
-            <AttachmentContext.Provider value={{ originalItem: raw, ...rest }}>{children}</AttachmentContext.Provider>
-        );
+        return <AttachmentContext.Provider value={{ originalItem: raw, ...rest }}>{children}</AttachmentContext.Provider>;
     },
-    renderCV2File(
-        children: ReactNode,
-        key: React.Key,
-        props: { id: string; size: number; name: string; spoiler: boolean; file: CV2Attachment }
-    ) {
+    renderCV2File(children: ReactNode, key: React.Key, props: { id: string; size: number; name: string; spoiler: boolean; file: CV2Attachment; }) {
         const { id, size, name, spoiler, file } = props;
-        const raw = {
-            ...file,
-            size,
-            filename: name,
-            id,
-            spoiler,
-            content_type: file.contentType,
-            proxy_url: file.proxyUrl
-        };
+        const raw = { ...file, size, filename: name, id, spoiler, content_type: file.contentType, proxy_url: file.proxyUrl };
 
-        return (
-            <AttachmentContext.Provider value={transformAttachment(raw)} key={key}>
-                {children}
-            </AttachmentContext.Provider>
-        );
+        return <AttachmentContext.Provider value={transformAttachment(raw)} key={key}>{children}</AttachmentContext.Provider>;
     },
     renderEmbed(this: EmbedComponent) {
         return <EmbedContext.Provider value={this.props.embed}>{this.__render()}</EmbedContext.Provider>;
@@ -208,7 +175,7 @@ export default definePlugin({
     renderAttachmentAccessory: () => <AttachmentAccessory />,
     renderEmbedAccessory: () => <EmbedAccessory />,
     filterGifs: (item: FavouriteItem) => item.format !== FavouriteItemFormat.NONE,
-    interceptAddToFavourites: async (item: FavouriteItem & { url: string }) => {
+    interceptAddToFavourites: async (item: FavouriteItem & { url: string; }) => {
         if (item.format !== FavouriteItemFormat.NONE) return item;
 
         SignedUrlsStore.addSigned(item.url);

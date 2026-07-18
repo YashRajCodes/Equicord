@@ -4,19 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { CloudUploadPlatform } from "@vencord/discord-types/enums";
-
 import { openPrivateChannel, sendMessage } from "@utils/discord";
 import { sleep } from "@utils/misc";
-import {
-    ChannelStore,
-    CloudUploader,
-    IconUtils,
-    RelationshipStore,
-    showToast,
-    Toasts,
-    UserStore
-} from "@webpack/common";
+import { CloudUploadPlatform } from "@vencord/discord-types/enums";
+import { ChannelStore, CloudUploader, IconUtils, RelationshipStore, showToast, Toasts, UserStore } from "@webpack/common";
 
 import type { FormFieldOption, FormSubmitExtras, PaletteCommand } from "../api/types";
 import { fuzzyScore } from "../search/ranker";
@@ -70,21 +61,8 @@ export const sendDmCommand: PaletteCommand = {
             type: "form",
             submitLabel: "Send DM",
             fields: [
-                {
-                    key: "recipient",
-                    label: "Recipient",
-                    type: "picker",
-                    placeholder: "Search friends...",
-                    suggestions: friendOptions
-                },
-                {
-                    key: "message",
-                    label: "Message",
-                    type: "textarea",
-                    placeholder: "Message content",
-                    markdown: true,
-                    attachments: true
-                }
+                { key: "recipient", label: "Recipient", type: "picker", placeholder: "Search friends...", suggestions: friendOptions },
+                { key: "message", label: "Message", type: "textarea", placeholder: "Message content", markdown: true, attachments: true },
             ],
             validate(values, extras?: FormSubmitExtras) {
                 if (!UserStore.getUser(values.recipient)) return "Pick a recipient from the suggestions.";
@@ -97,12 +75,10 @@ export const sendDmCommand: PaletteCommand = {
                 if (!channelId) throw new Error("Unable to open a DM with that user.");
 
                 const files = extras?.files?.message ?? [];
-                const uploads = files.map(
-                    file => new CloudUploader({ file, platform: CloudUploadPlatform.WEB }, channelId)
-                );
+                const uploads = files.map(file => new CloudUploader({ file, platform: CloudUploadPlatform.WEB }, channelId));
 
                 await sendMessage(channelId, { content: values.message.trim() }, true, {
-                    attachmentsToUpload: uploads
+                    attachmentsToUpload: uploads,
                 });
 
                 const user = UserStore.getUser(values.recipient);

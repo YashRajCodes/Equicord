@@ -14,11 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { RenderModalProps } from "@vencord/discord-types";
-import { nanoid } from "nanoid";
-import type { DispatchWithoutAction } from "react";
+*/
 
 import * as DataStore from "@api/DataStore";
 import { Settings } from "@api/Settings";
@@ -26,17 +22,10 @@ import { Paragraph } from "@components/Paragraph";
 import { openNotificationSettingsModal } from "@components/settings/tabs/vencord/NotificationSettings";
 import { classNameFactory } from "@utils/css";
 import { useAwaiter } from "@utils/react";
-import {
-    ConfirmModal,
-    ListScrollerThin,
-    Modal,
-    openModal,
-    React,
-    Timestamp,
-    useEffect,
-    useReducer,
-    useState
-} from "@webpack/common";
+import { RenderModalProps } from "@vencord/discord-types";
+import { ConfirmModal, ListScrollerThin, Modal, openModal, React, Timestamp, useEffect, useReducer, useState } from "@webpack/common";
+import { nanoid } from "nanoid";
+import type { DispatchWithoutAction } from "react";
 
 import NotificationComponent from "./NotificationComponent";
 import type { NotificationData } from "./Notifications";
@@ -49,7 +38,7 @@ interface PersistentNotificationData extends Pick<NotificationData, "title" | "b
 const KEY = "notification-log";
 
 const getLog = async () => {
-    const log = (await DataStore.get(KEY)) as PersistentNotificationData[] | undefined;
+    const log = await DataStore.get(KEY) as PersistentNotificationData[] | undefined;
     return log ?? [];
 };
 
@@ -66,7 +55,10 @@ export async function persistNotification(notification: NotificationData) {
         const log = old ?? [];
 
         // Omit stuff we don't need
-        const { onClick, onClose, richBody, permanent, noPersist, dismissOnClick, ...pureNotification } = notification;
+        const {
+            onClick, onClose, richBody, permanent, noPersist, dismissOnClick,
+            ...pureNotification
+        } = notification;
 
         log.unshift({
             ...pureNotification,
@@ -74,7 +66,8 @@ export async function persistNotification(notification: NotificationData) {
             id: nanoid()
         });
 
-        if (log.length > limit && limit !== 200) log.length = limit;
+        if (log.length > limit && limit !== 200)
+            log.length = limit;
 
         return log;
     });
@@ -108,7 +101,7 @@ export function useLogs() {
     return [log, pending] as const;
 }
 
-function NotificationEntry({ data }: { data: PersistentNotificationData }) {
+function NotificationEntry({ data }: { data: PersistentNotificationData; }) {
     const [removing, setRemoving] = useState(false);
 
     return (
@@ -130,16 +123,18 @@ function NotificationEntry({ data }: { data: PersistentNotificationData }) {
                     </div>
                 }
             />
-        </div>
+        </div >
     );
 }
 
-export function NotificationLog({ log, pending }: { log: PersistentNotificationData[]; pending: boolean }) {
+export function NotificationLog({ log, pending }: { log: PersistentNotificationData[], pending: boolean; }) {
     if (!log.length && !pending)
         return (
             <div>
                 <div className={cl("empty")} />
-                <Paragraph style={{ textAlign: "center" }}>No notifications yet</Paragraph>
+                <Paragraph style={{ textAlign: "center" }}>
+                    No notifications yet
+                </Paragraph>
             </div>
         );
 
@@ -174,7 +169,7 @@ function LogModal(props: RenderModalProps) {
                     variant: "critical-primary",
                     disabled: !log.length,
                     onClick() {
-                        openModal(props => (
+                        openModal(props =>
                             <ConfirmModal
                                 {...props}
                                 title="Are you sure?"
@@ -185,7 +180,7 @@ function LogModal(props: RenderModalProps) {
                                     signals.forEach(x => x());
                                 }}
                             />
-                        ));
+                        );
                     }
                 }
             ]}

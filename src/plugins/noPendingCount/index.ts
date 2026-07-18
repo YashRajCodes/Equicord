@@ -14,13 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { findByPropsLazy } from "@webpack";
+*/
 
 import { definePluginSettings } from "@api/Settings";
 import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
+import { findByPropsLazy } from "@webpack";
 
 const MessageRequestStore = findByPropsLazy("getMessageRequestsCount");
 

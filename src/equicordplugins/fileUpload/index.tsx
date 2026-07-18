@@ -5,8 +5,6 @@
  */
 
 import "./styles.css";
-import { CloudUpload } from "@vencord/discord-types";
-import { findByPropsLazy } from "@webpack";
 
 import { findGroupChildrenByChildId, NavContextMenuPatchCallback } from "@api/ContextMenu";
 import ErrorBoundary from "@components/ErrorBoundary";
@@ -14,35 +12,14 @@ import { OpenExternalIcon } from "@components/Icons";
 import { Devs, EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin from "@utils/types";
-import {
-    DraftType,
-    FluxDispatcher,
-    Menu,
-    PermissionsBits,
-    PermissionStore,
-    React,
-    showToast,
-    Toasts,
-    UploadAttachmentStore,
-    useEffect,
-    UserStore,
-    useState
-} from "@webpack/common";
+import { CloudUpload } from "@vencord/discord-types";
+import { findByPropsLazy } from "@webpack";
+import { DraftType, FluxDispatcher, Menu, PermissionsBits, PermissionStore, React, showToast, Toasts, UploadAttachmentStore, useEffect, UserStore, useState } from "@webpack/common";
 
 import { settings } from "./settings";
 import { serviceLabels, ServiceType } from "./types";
 import { getMediaUrl } from "./utils/getMediaUrl";
-import {
-    cancelCurrentUpload,
-    getUploadState,
-    isConfigured,
-    isFileTypeAllowed,
-    logger,
-    subscribeUploadState,
-    uploadFile,
-    uploadPickedFile,
-    uploadProvidedFiles
-} from "./utils/upload";
+import { cancelCurrentUpload, getUploadState, isConfigured, isFileTypeAllowed, logger, subscribeUploadState, uploadFile, uploadPickedFile, uploadProvidedFiles } from "./utils/upload";
 const cl = classNameFactory("vc-file-upload-");
 const { getUserMaxFileSize } = findByPropsLazy("getUserMaxFileSize");
 let uploadAddFilesInterceptor: ((event: unknown) => void) | null = null;
@@ -64,9 +41,7 @@ type UploadAddFilesEvent = {
 function shouldInterceptUploadFiles(files: readonly File[], payload: UploadAddFilesEvent): boolean {
     if (!settings.store.bypassDiscordUploadOnlyOverLimit) return true;
 
-    const directLimit = [payload.maxFileSize, payload.fileSizeLimit, payload.limits?.fileSize].find(limit =>
-        Number.isFinite(limit)
-    ) as number | undefined;
+    const directLimit = [payload.maxFileSize, payload.fileSizeLimit, payload.limits?.fileSize].find(limit => Number.isFinite(limit)) as number | undefined;
     const fallbackLimit = getUserMaxFileSize(UserStore.getCurrentUser());
     const discordLimit = Math.max(0, directLimit ?? fallbackLimit);
 
@@ -156,33 +131,45 @@ const ProgressBarInner = () => {
     if (state.phase === "idle") return null;
 
     const percentage = Math.max(0, Math.min(100, state.percent));
-    const progressLabel =
-        state.totalBytes > 0
-            ? `${Math.round(percentage)}% - ${formatBytes(state.transferredBytes)} of ${formatBytes(state.totalBytes)}`
-            : `${Math.round(percentage)}%`;
+    const progressLabel = state.totalBytes > 0
+        ? `${Math.round(percentage)}% - ${formatBytes(state.transferredBytes)} of ${formatBytes(state.totalBytes)}`
+        : `${Math.round(percentage)}%`;
 
     return (
-        <div className={cl("progress-wrap")} data-phase={state.phase}>
+        <div
+            className={cl("progress-wrap")}
+            data-phase={state.phase}
+        >
             <div className={cl("progress-head")}>
-                <div className={cl("progress-label")}>{state.status || "Uploading..."}</div>
+                <div className={cl("progress-label")}>
+                    {state.status || "Uploading..."}
+                </div>
                 <div className={cl("progress-meta")}>
-                    <span className={cl("progress-percent")}>{progressLabel}</span>
+                    <span className={cl("progress-percent")}>
+                        {progressLabel}
+                    </span>
                     <span className={cl("progress-attempt")}>
                         {state.attempt > 0 && state.totalAttempts > 0 ? `${state.attempt}/${state.totalAttempts}` : ""}
                     </span>
                     {state.canCancel && (
-                        <button className={cl("progress-cancel")} type="button" onClick={cancelCurrentUpload}>
+                        <button
+                            className={cl("progress-cancel")}
+                            type="button"
+                            onClick={cancelCurrentUpload}
+                        >
                             Cancel
                         </button>
                     )}
                 </div>
             </div>
             <div className={cl("progress-track")}>
-                <div className={cl("progress-fill")} style={{ width: `${percentage}%` }} />
+                <div
+                    className={cl("progress-fill")}
+                    style={{ width: `${percentage}%` }}
+                />
             </div>
             <div className={cl("progress-file")}>
-                {state.fileName || ""}
-                {state.currentServiceLabel ? ` • ${state.currentServiceLabel}` : ""}
+                {state.fileName || ""}{state.currentServiceLabel ? ` • ${state.currentServiceLabel}` : ""}
             </div>
         </div>
     );
@@ -198,8 +185,8 @@ const messageContextMenuPatch: NavContextMenuPatchCallback = (children, props) =
 
     if (!url) return;
 
-    const group =
-        findGroupChildrenByChildId("open-native-link", children) ?? findGroupChildrenByChildId("copy-link", children);
+    const group = findGroupChildrenByChildId("open-native-link", children)
+        ?? findGroupChildrenByChildId("copy-link", children);
 
     if (group && !group.some(child => child?.props?.id === "file-upload")) {
         const serviceType = settings.store.serviceType as ServiceType;
@@ -269,18 +256,13 @@ const channelAttachMenuPatch: NavContextMenuPatchCallback = (children, props) =>
     const channel = props?.channel;
     if (!channel) return;
     if (channel.guild_id && !PermissionStore.can(PermissionsBits.SEND_MESSAGES, channel)) return;
-    if (children.some(child => child?.props?.id === "file-upload-manual" || child?.props?.id === "file-upload-uploads"))
-        return;
+    if (children.some(child => child?.props?.id === "file-upload-manual" || child?.props?.id === "file-upload-uploads")) return;
 
     const uploads = UploadAttachmentStore.getUploads(channel.id, DraftType.ChannelMessage);
-    const draftUploads = Array.isArray(uploads)
-        ? uploads.filter((u: CloudUpload) => u.item?.file && isFileTypeAllowed(u.item.file))
-        : [];
+    const draftUploads = Array.isArray(uploads) ? uploads.filter((u: CloudUpload) => u.item?.file && isFileTypeAllowed(u.item.file)) : [];
 
     if (draftUploads.length > 0) {
-        children.splice(
-            1,
-            0,
+        children.splice(1, 0,
             <Menu.MenuItem
                 id="file-upload-uploads"
                 key="file-upload-uploads"
@@ -309,9 +291,7 @@ const channelAttachMenuPatch: NavContextMenuPatchCallback = (children, props) =>
             </Menu.MenuItem>
         );
     } else {
-        children.splice(
-            1,
-            0,
+        children.splice(1, 0,
             <Menu.MenuItem
                 id="file-upload-manual"
                 key="file-upload-manual"
@@ -348,10 +328,10 @@ export default definePlugin({
                 match: /(?<=MAX_FILE_SIZE_250_MB.{0,250})Array\.from\(\i\)\.some/,
                 replace: "$self.shouldBypassDiscordUploadSizeCheck()?false:$&"
             }
-        }
+        },
     ],
     contextMenus: {
-        message: messageContextMenuPatch,
+        "message": messageContextMenuPatch,
         "image-context": imageContextMenuPatch,
         "channel-attach": channelAttachMenuPatch
     },

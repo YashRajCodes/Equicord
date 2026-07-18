@@ -14,13 +14,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { RenderModalProps } from "@vencord/discord-types";
+*/
 
 import { FormSwitch } from "@components/FormSwitch";
 import { Heading } from "@components/Heading";
 import { insertTextIntoChatInputBox } from "@utils/discord";
+import { RenderModalProps } from "@vencord/discord-types";
 import { Modal, openModal, React, TextInput } from "@webpack/common";
 
 import { encrypt } from "../index";

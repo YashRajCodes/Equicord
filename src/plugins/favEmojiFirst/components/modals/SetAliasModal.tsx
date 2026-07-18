@@ -23,7 +23,7 @@ export function SetAliasModal({
 
     const validationError = getValidationError(input);
     const duplicateAlias = isDuplicateAlias(input);
-    const finalError = duplicateAlias ? "Duplicate alias" : (error ?? validationError);
+    const finalError = duplicateAlias ? "Duplicate alias" : error ?? validationError;
     const canSave = !validationError && !duplicateAlias;
 
     return (
@@ -57,7 +57,9 @@ export function SetAliasModal({
                 placeholder='Alias, e.g. "sob"'
             />
             {finalError && (
-                <BaseText style={{ color: "var(--text-feedback-critical)", marginTop: 8 }}>{finalError}</BaseText>
+                <BaseText style={{ color: "var(--text-feedback-critical)", marginTop: 8 }}>
+                    {finalError}
+                </BaseText>
             )}
         </Modal>
     );

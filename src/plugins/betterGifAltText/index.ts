@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Devs } from "@utils/constants";
 import definePlugin from "@utils/types";
@@ -22,15 +22,17 @@ import definePlugin from "@utils/types";
 export default definePlugin({
     name: "BetterGifAltText",
     authors: [Devs.Ven],
-    description: "Change GIF alt text from simply being 'GIF' to containing the gif tags / filename",
+    description:
+        "Change GIF alt text from simply being 'GIF' to containing the gif tags / filename",
     tags: ["Media", "Accessibility", "Customisation"],
     patches: [
         {
             find: ".modalContext})};",
             replacement: {
                 match: /(return.{0,10}\.jsx.{0,50}isWindowFocused)/,
-                replace: "$self.altify(e);$1"
-            }
+                replace:
+                    "$self.altify(e);$1",
+            },
         },
         {
             find: "#{intl::GIF}",
@@ -38,9 +40,9 @@ export default definePlugin({
                 match: /alt:(\i)=(\i\.\i\.string\(\i\.\i#{intl::GIF}\))(?=,[^}]*\}=(\i))/,
                 replace:
                     // rename prop so we can always use default value
-                    "alt_$$:$1=$self.altify($3)||$2"
-            }
-        }
+                    "alt_$$:$1=$self.altify($3)||$2",
+            },
+        },
     ],
 
     altify(props: any) {
@@ -50,7 +52,7 @@ export default definePlugin({
         let url: string = props.original || props.src;
         try {
             url = decodeURI(url);
-        } catch {}
+        } catch { }
 
         let name = url
             .slice(url.lastIndexOf("/") + 1)
@@ -66,5 +68,5 @@ export default definePlugin({
         if (name) props.alt += ` - ${name}`;
 
         return props.alt;
-    }
+    },
 });

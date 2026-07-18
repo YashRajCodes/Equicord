@@ -17,36 +17,28 @@ import { React, TextInput } from "@webpack/common";
 
 const cl = classNameFactory("vc-settings-theme-");
 
-export function Validator({ link, onValidate }: { link: string; onValidate: (valid: boolean) => void }) {
-    const [res, err, pending] = useAwaiter(() =>
-        fetch(link).then(res => {
-            if (res.status > 300) throw `${res.status} ${res.statusText}`;
-            const contentType = res.headers.get("Content-Type");
-            if (!contentType?.startsWith("text/css") && !contentType?.startsWith("text/plain")) {
-                onValidate(false);
-                throw "Not a CSS file. Remember to use the raw link!";
-            }
+export function Validator({ link, onValidate }: { link: string; onValidate: (valid: boolean) => void; }) {
+    const [res, err, pending] = useAwaiter(() => fetch(link).then(res => {
+        if (res.status > 300) throw `${res.status} ${res.statusText}`;
+        const contentType = res.headers.get("Content-Type");
+        if (!contentType?.startsWith("text/css") && !contentType?.startsWith("text/plain")) {
+            onValidate(false);
+            throw "Not a CSS file. Remember to use the raw link!";
+        }
 
-            onValidate(true);
-            return "Okay!";
-        })
-    );
+        onValidate(true);
+        return "Okay!";
+    }));
 
     const text = pending
         ? "Checking..."
         : err
-          ? `Error: ${err instanceof Error ? err.message : String(err)}`
-          : "Valid!";
+            ? `Error: ${err instanceof Error ? err.message : String(err)}`
+            : "Valid!";
 
-    return (
-        <Paragraph
-            style={{
-                color: pending ? "var(--text-muted)" : err ? "var(--text-feedback-critical)" : "var(--status-positive)"
-            }}
-        >
-            {text}
-        </Paragraph>
-    );
+    return <Paragraph style={{
+        color: pending ? "var(--text-muted)" : err ? "var(--text-feedback-critical)" : "var(--status-positive)"
+    }}>{text}</Paragraph>;
 }
 
 export interface OnlineThemesSectionProps {
@@ -72,8 +64,7 @@ export function OnlineThemesSection({
         <>
             <Heading className={Margins.top20}>Online Themes</Heading>
             <Paragraph className={Margins.bottom16}>
-                Load themes directly from URLs instead of local files. Online themes auto-update when the source
-                changes, so you always have the latest version without manual downloads.
+                Load themes directly from URLs instead of local files. Online themes auto-update when the source changes, so you always have the latest version without manual downloads.
             </Paragraph>
             <FormSwitch
                 title="Enable Online Themes"
@@ -83,9 +74,7 @@ export function OnlineThemesSection({
             />
 
             <Notice.Info className={Margins.bottom16} style={{ width: "100%" }}>
-                Looking for themes? Check out <Link href="https://betterdiscord.app/themes">BetterDiscord Themes</Link>{" "}
-                or search on <Link href="https://github.com/search?q=discord+theme">GitHub</Link>. When downloading from
-                BetterDiscord, click "Download" and place the .theme.css file into your themes folder.
+                Looking for themes? Check out <Link href="https://betterdiscord.app/themes">BetterDiscord Themes</Link> or search on <Link href="https://github.com/search?q=discord+theme">GitHub</Link>. When downloading from BetterDiscord, click "Download" and place the .theme.css file into your themes folder.
             </Notice.Info>
 
             <div className={cl("link-row")}>
@@ -95,10 +84,7 @@ export function OnlineThemesSection({
                     onChange={setCurrentThemeLink}
                     disabled={!enableOnlineThemes}
                 />
-                <Button
-                    onClick={() => addThemeLink(currentThemeLink)}
-                    disabled={!themeLinkValid || !enableOnlineThemes}
-                >
+                <Button onClick={() => addThemeLink(currentThemeLink)} disabled={!themeLinkValid || !enableOnlineThemes}>
                     Add
                 </Button>
             </div>

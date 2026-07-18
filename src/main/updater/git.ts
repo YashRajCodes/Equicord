@@ -14,15 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { execFile as cpExecFile } from "child_process";
-import { join } from "path";
-import { promisify } from "util";
-
-import { ipcMain } from "electron";
+*/
 
 import { IpcEvents } from "@shared/IpcEvents";
+import { execFile as cpExecFile } from "child_process";
+import { ipcMain } from "electron";
+import { join } from "path";
+import { promisify } from "util";
 
 import { serializeErrors } from "./common";
 
@@ -44,8 +42,7 @@ function git(...args: string[]) {
 
 async function getRepo() {
     const res = await git("remote", "get-url", "origin");
-    return res.stdout
-        .trim()
+    return res.stdout.trim()
         .replace(/git@(.+):/, "https://$1/")
         .replace(/\.git$/, "");
 }
@@ -61,16 +58,13 @@ async function calculateGitChanges() {
     const res = await git("log", `HEAD...origin/${branch}`, "--pretty=format:%an/%h/%s");
 
     const commits = res.stdout.trim();
-    return commits
-        ? commits.split("\n").map(line => {
-              const [author, hash, ...rest] = line.split("/");
-              return {
-                  hash,
-                  author,
-                  message: rest.join("/").split("\n")[0]
-              };
-          })
-        : [];
+    return commits ? commits.split("\n").map(line => {
+        const [author, hash, ...rest] = line.split("/");
+        return {
+            hash, author,
+            message: rest.join("/").split("\n")[0]
+        };
+    }) : [];
 }
 
 async function pull() {

@@ -4,10 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import type { ReactNode } from "react";
-
 import { classNameFactory } from "@utils/css";
 import { useEffect, useRef } from "@webpack/common";
+import type { ReactNode } from "react";
 
 import type { PaletteAction, PaletteIcon as PaletteIconType } from "../api/types";
 import { PaletteIcon } from "./PaletteIcon";
@@ -40,13 +39,7 @@ export function flattenSections(sections: ResultSection[]): RowItem[] {
     return sections.flatMap(section => section.items);
 }
 
-function Row({
-    item,
-    selected,
-    index,
-    onSelect,
-    onRun
-}: {
+function Row({ item, selected, index, onSelect, onRun }: {
     item: RowItem;
     selected: boolean;
     index: number;
@@ -63,16 +56,11 @@ function Row({
         <div
             ref={ref}
             className={cl("row", { "row-selected": selected })}
-            onMouseMove={() => {
-                if (!selected) onSelect(index);
-            }}
+            onMouseMove={() => { if (!selected) onSelect(index); }}
             onClick={() => onRun(item)}
         >
             <div className={cl("chip-wrap")}>
-                <PaletteIcon
-                    icon={item.icon}
-                    className={typeof item.icon === "string" ? cl("chip-img") : cl("row-icon")}
-                />
+                <PaletteIcon icon={item.icon} className={typeof item.icon === "string" ? cl("chip-img") : cl("row-icon")} />
             </div>
             <div className={cl("row-text")}>
                 <span className={cl("row-label")}>{item.label}</span>
@@ -107,7 +95,9 @@ export function ResultsList({ sections, selectedIndex, onSelect, onRun }: Result
                     })}
                 </div>
             ))}
-            {sections.length === 0 && <div className={cl("empty")}>No results</div>}
+            {sections.length === 0 && (
+                <div className={cl("empty")}>No results</div>
+            )}
         </div>
     );
 }

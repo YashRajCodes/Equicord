@@ -22,7 +22,7 @@ const getUserId = () => {
 };
 
 export async function getAuthorization() {
-    const secrets = (await DataStore.get<Record<string, string>>("Vencord_cloudSecret")) ?? {};
+    const secrets = await DataStore.get<Record<string, string>>("Vencord_cloudSecret") ?? {};
 
     const origin = getCloudUrlOrigin();
 
@@ -60,7 +60,7 @@ export async function deauthorizeCloud() {
 }
 
 export async function authorizeCloud() {
-    if ((await getAuthorization()) !== undefined) {
+    if (await getAuthorization() !== undefined) {
         Settings.cloud.authenticated = true;
         return;
     }
@@ -77,53 +77,54 @@ export async function authorizeCloud() {
         return;
     }
 
-    openModal((props: any) => (
-        <OAuth2AuthorizeModal
-            {...props}
-            scopes={["identify"]}
-            responseType="code"
-            redirectUri={redirectUri}
-            permissions={0n}
-            clientId={clientId}
-            cancelCompletesFlow={false}
-            callback={async ({ location }: any) => {
-                if (!location) {
-                    Settings.cloud.authenticated = false;
-                    return;
-                }
+    openModal((props: any) => <OAuth2AuthorizeModal
+        {...props}
+        scopes={["identify"]}
+        responseType="code"
+        redirectUri={redirectUri}
+        permissions={0n}
+        clientId={clientId}
+        cancelCompletesFlow={false}
+        callback={async ({ location }: any) => {
+            if (!location) {
+                Settings.cloud.authenticated = false;
+                return;
+            }
 
-                try {
-                    const res = await fetch(location, {
-                        headers: { Accept: "application/json" }
-                    });
-                    const data = await res.json();
-                    if (data.secret) {
-                        logger.info("Authorized with cloud");
-                        await setAuthorization(data.secret);
-                        showNotification({
-                            title: "Cloud Integration",
-                            body: "Cloud integrations enabled!"
-                        });
-                        Settings.cloud.authenticated = true;
-                    } else {
-                        logger.error("OAuth callback returned no secret", data);
-                        showNotification({
-                            title: "Cloud Integration",
-                            body: data.error ? `Setup failed: ${data.error}` : "Setup failed (no secret returned)."
-                        });
-                        Settings.cloud.authenticated = false;
-                    }
-                } catch (e: any) {
-                    logger.error("Failed to authorize", e);
+            try {
+                const res = await fetch(location, {
+                    headers: { Accept: "application/json" }
+                });
+                const data = await res.json();
+                if (data.secret) {
+                    logger.info("Authorized with cloud");
+                    await setAuthorization(data.secret);
                     showNotification({
                         title: "Cloud Integration",
-                        body: `Setup failed (${e.toString()}).`
+                        body: "Cloud integrations enabled!"
+                    });
+                    Settings.cloud.authenticated = true;
+                } else {
+                    logger.error("OAuth callback returned no secret", data);
+                    showNotification({
+                        title: "Cloud Integration",
+                        body: data.error
+                            ? `Setup failed: ${data.error}`
+                            : "Setup failed (no secret returned)."
                     });
                     Settings.cloud.authenticated = false;
                 }
-            }}
-        />
-    ));
+            } catch (e: any) {
+                logger.error("Failed to authorize", e);
+                showNotification({
+                    title: "Cloud Integration",
+                    body: `Setup failed (${e.toString()}).`
+                });
+                Settings.cloud.authenticated = false;
+            }
+        }
+        }
+    />);
 }
 
 export async function getCloudAuth() {

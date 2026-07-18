@@ -5,8 +5,6 @@
  */
 
 import "./styles.css";
-import type { Channel, VoiceState } from "@vencord/discord-types";
-import { findByCodeLazy, findByPropsLazy } from "@webpack";
 
 import { definePluginSettings } from "@api/Settings";
 import { UserAreaButton, UserAreaRenderProps } from "@api/UserArea";
@@ -17,27 +15,9 @@ import { debounce } from "@shared/debounce";
 import { Devs, EquicordDevs, IS_MAC } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { makeRange, OptionType } from "@utils/types";
-import {
-    ChannelActions,
-    ChannelRouter,
-    ChannelStore,
-    ContextMenuApi,
-    FluxDispatcher,
-    GuildStore,
-    MediaEngineStore,
-    Menu,
-    PermissionsBits,
-    PermissionStore,
-    React,
-    RelationshipStore,
-    SelectedChannelStore,
-    Toasts,
-    useEffect,
-    UserStore,
-    useState,
-    VoiceActions,
-    VoiceStateStore
-} from "@webpack/common";
+import type { Channel, VoiceState } from "@vencord/discord-types";
+import { findByCodeLazy, findByPropsLazy } from "@webpack";
+import { ChannelActions, ChannelRouter, ChannelStore, ContextMenuApi, FluxDispatcher, GuildStore, MediaEngineStore, Menu, PermissionsBits, PermissionStore, React, RelationshipStore, SelectedChannelStore, Toasts, useEffect, UserStore, useState, VoiceActions, VoiceStateStore } from "@webpack/common";
 
 const startStream = findByCodeLazy('type:"STREAM_START"');
 const getDesktopSources = findByCodeLazy("desktop sources");
@@ -51,16 +31,7 @@ const cl = classNameFactory("vc-random-voice-");
 
 type RandomVoiceOperation = "<" | ">" | "==" | string;
 type StateFilterKey = "mute" | "deafen" | "video" | "stream";
-type SelfSettingKey =
-    | "selfMute"
-    | "selfDeafen"
-    | "autoCamera"
-    | "autoStream"
-    | "leaveEmpty"
-    | "autoNavigate"
-    | "avoidStages"
-    | "avoidAfk"
-    | "prioritizeFriends";
+type SelfSettingKey = "selfMute" | "selfDeafen" | "autoCamera" | "autoStream" | "leaveEmpty" | "autoNavigate" | "avoidStages" | "avoidAfk" | "prioritizeFriends";
 type PostJoinAction = () => void | Promise<void>;
 
 interface OperationOption {
@@ -77,14 +48,14 @@ interface ToggleOption<K extends string> {
 const operationOptions: OperationOption[] = [
     { label: "More than", value: "<", default: false },
     { label: "Less than", value: ">", default: false },
-    { label: "Equal to", value: "==", default: true }
+    { label: "Equal to", value: "==", default: true },
 ];
 
 const stateFilters: ToggleOption<StateFilterKey>[] = [
     { key: "mute", label: "Muted" },
     { key: "deafen", label: "Deafened" },
     { key: "video", label: "Camera" },
-    { key: "stream", label: "Stream" }
+    { key: "stream", label: "Stream" },
 ];
 
 const selfSettings: ToggleOption<SelfSettingKey>[] = [
@@ -96,7 +67,7 @@ const selfSettings: ToggleOption<SelfSettingKey>[] = [
     { key: "autoNavigate", label: "Auto Navigate" },
     { key: "prioritizeFriends", label: "Prioritize Friends" },
     { key: "avoidStages", label: "Avoid Stage" },
-    { key: "avoidAfk", label: "Avoid AFK" }
+    { key: "avoidAfk", label: "Avoid AFK" },
 ];
 
 interface RandomVoiceStateLike {
@@ -141,30 +112,13 @@ function RandomVoiceKeybindSettings() {
     return (
         <div className={cl("record")}>
             <div className={cl("keybind")}>Keybind</div>
-            <Switch
-                checked={keybindEnabled}
-                onChange={value => {
-                    settings.store.keybindEnabled = value;
-                }}
-            />
+            <Switch checked={keybindEnabled} onChange={value => { settings.store.keybindEnabled = value; }} />
             {keybindEnabled && (
                 <div className={cl("recording")}>
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setIsListening(true)}
-                        disabled={isListening}
-                    >
+                    <Button type="button" variant="secondary" onClick={() => setIsListening(true)} disabled={isListening}>
                         {isListening ? "Recording..." : formatKeybind(keybind)}
                     </Button>
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => {
-                            settings.store.keybind = DEFAULT_KEYBIND;
-                        }}
-                        disabled={isListening}
-                    >
+                    <Button type="button" variant="secondary" onClick={() => { settings.store.keybind = DEFAULT_KEYBIND; }} disabled={isListening}>
                         Reset
                     </Button>
                 </div>
@@ -176,11 +130,7 @@ function RandomVoiceKeybindSettings() {
 function formatKeybind(keybind: string | string[]) {
     const keybindString = Array.isArray(keybind) ? keybind.join("+") : keybind;
     return IS_MAC
-        ? keybindString
-              .replace(/Control/gi, "^")
-              .replace(/Meta|Command|Cmd/gi, "⌘")
-              .replace(/Alt|Option/gi, "⌥")
-              .replace(/Shift/gi, "⇧")
+        ? keybindString.replace(/Control/gi, "^").replace(/Meta|Command|Cmd/gi, "⌘").replace(/Alt|Option/gi, "⌥").replace(/Shift/gi, "⇧")
         : keybindString;
 }
 
@@ -278,23 +228,20 @@ function normalizeCode(code: string) {
 }
 
 function shouldIgnoreKeybindTarget(target: EventTarget | null) {
-    return (
-        target instanceof HTMLElement &&
-        (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName))
-    );
+    return target instanceof HTMLElement && (target.isContentEditable || ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
 }
 
 const settings = definePluginSettings({
     keybind: {
         type: OptionType.COMPONENT,
         default: DEFAULT_KEYBIND,
-        component: ErrorBoundary.wrap(RandomVoiceKeybindSettings)
+        component: ErrorBoundary.wrap(RandomVoiceKeybindSettings),
     },
     keybindEnabled: {
         description: "Show the random voice keybind controls",
         type: OptionType.BOOLEAN,
         default: false,
-        hidden: true
+        hidden: true,
     },
     UserAmountOperation: {
         description: "Select an operation for the amounts of users",
@@ -302,15 +249,15 @@ const settings = definePluginSettings({
         options: [
             { label: "More than", value: "<", default: true },
             { label: "Less than", value: ">", default: false },
-            { label: "Equal to", value: "==", default: false }
-        ]
+            { label: "Equal to", value: "==", default: false },
+        ],
     },
     UserAmount: {
         description: "Select amount of users",
         type: OptionType.SLIDER,
         markers: makeRange(0, 15, 1),
         default: 3,
-        stickToMarkers: true
+        stickToMarkers: true,
     },
     spacesLeftOperation: {
         description: "Select an operation for the maximum amounts of users",
@@ -318,15 +265,15 @@ const settings = definePluginSettings({
         options: [
             { label: "More than", value: "<", default: true },
             { label: "Less than", value: ">", default: false },
-            { label: "Equal to", value: "==", default: false }
-        ]
+            { label: "Equal to", value: "==", default: false },
+        ],
     },
     spacesLeft: {
         description: "Select amount of max users",
         type: OptionType.SLIDER,
         markers: makeRange(0, 15, 1),
         default: 3,
-        stickToMarkers: true
+        stickToMarkers: true,
     },
     vcLimitOperation: {
         description: "Select an operation for the voice-channel.",
@@ -334,96 +281,96 @@ const settings = definePluginSettings({
         options: [
             { label: "More than", value: "<", default: true },
             { label: "Less than", value: ">", default: false },
-            { label: "Equal to", value: "==", default: false }
-        ]
+            { label: "Equal to", value: "==", default: false },
+        ],
     },
     vcLimit: {
         description: "Select a voice-channel limit",
         type: OptionType.SLIDER,
         markers: makeRange(1, 15, 1),
         default: 5,
-        stickToMarkers: true
+        stickToMarkers: true,
     },
     Servers: {
         description: "Servers that are included",
         type: OptionType.STRING,
-        default: ""
+        default: "",
     },
     autoNavigate: {
         type: OptionType.BOOLEAN,
         description: "Automatically navigates to the voice-channel.",
-        default: false
+        default: false,
     },
     autoCamera: {
         type: OptionType.BOOLEAN,
         description: "Automatically turns on camera",
-        default: false
+        default: false,
     },
     autoStream: {
         type: OptionType.BOOLEAN,
         description: "Automatically turns on stream",
-        default: false
+        default: false,
     },
     selfMute: {
         type: OptionType.BOOLEAN,
         description: "Automatically mutes your mic when joining voice-channel.",
-        default: false
+        default: false,
     },
     selfDeafen: {
         type: OptionType.BOOLEAN,
         description: "Automatically deafems your mic when joining voice-channel.",
-        default: false
+        default: false,
     },
     leaveEmpty: {
         type: OptionType.BOOLEAN,
         description: "Finds a random-call, when the voice chat is empty.",
-        default: false
+        default: false,
     },
     prioritizeFriends: {
         type: OptionType.BOOLEAN,
         description: "Prefer channels with your friends in them when possible.",
-        default: false
+        default: false,
     },
     avoidStages: {
         type: OptionType.BOOLEAN,
         description: "Avoids joining stage voice-channels.",
-        default: false
+        default: false,
     },
     avoidAfk: {
         type: OptionType.BOOLEAN,
         description: "Avoids joining AFK voice-channels.",
-        default: false
+        default: false,
     },
     video: {
         type: OptionType.BOOLEAN,
         description: "Searches for users with their video on",
-        default: false
+        default: false,
     },
     stream: {
         type: OptionType.BOOLEAN,
         description: "Searches for users who are streaming",
-        default: false
+        default: false,
     },
     mute: {
         type: OptionType.BOOLEAN,
         description: "Searches for users who are muted",
-        default: false
+        default: false,
     },
     deafen: {
         type: OptionType.BOOLEAN,
         description: "Searches for users who are deafened",
-        default: false
+        default: false,
     },
     includeStates: {
         type: OptionType.BOOLEAN,
         description: "Option to include states",
-        default: false
+        default: false,
     },
     avoidStates: {
         type: OptionType.BOOLEAN,
         description: "Option to avoid states",
-        default: false
-    }
+        default: false,
+    },
 });
 
 function showToast(message: string, type: (typeof Toasts.Type)[keyof typeof Toasts.Type]) {
@@ -431,11 +378,11 @@ function showToast(message: string, type: (typeof Toasts.Type)[keyof typeof Toas
         message,
         type,
         id: Toasts.genId(),
-        options: { position: Toasts.Position.BOTTOM }
+        options: { position: Toasts.Position.BOTTOM },
     });
 }
 
-function RandomVoiceIcon({ className }: { className?: string }) {
+function RandomVoiceIcon({ className }: { className?: string; }) {
     return (
         <svg className={className} width="18" height="18" viewBox="0 0 24 24">
             <g fill="currentColor">
@@ -452,11 +399,14 @@ function getCurrentUserId() {
 function getCurrentVoiceChannelId(userId = getCurrentUserId()) {
     if (!userId) return null;
 
-    return VoiceStateStore.getVoiceStateForUser(userId)?.channelId ?? SelectedChannelStore.getVoiceChannelId() ?? null;
+    return VoiceStateStore.getVoiceStateForUser(userId)?.channelId
+        ?? SelectedChannelStore.getVoiceChannelId()
+        ?? null;
 }
 
 function parseServerIds(store = settings.store) {
-    return store.Servers.split("/")
+    return store.Servers
+        .split("/")
         .map(id => id.trim())
         .filter(id => id && id !== NO_SERVERS);
 }
@@ -472,13 +422,16 @@ function getSelectedServerIds(store = settings.store) {
 
 function getRenderableGuilds() {
     return Object.values(GuildStore.getGuilds())
-        .filter((guild): guild is NonNullable<typeof guild> => guild != null && typeof guild.id === "string")
+        .filter((guild): guild is NonNullable<typeof guild> =>
+            guild != null
+            && typeof guild.id === "string"
+        )
         .sort((left, right) => left.name.localeCompare(right.name));
 }
 
 function getGuildVoiceStates() {
     return getRenderableGuilds().flatMap(({ id }) =>
-        Object.entries((VoiceStateStore.getVoiceStates(id) as Record<string, RandomVoiceStateLike> | null) ?? {})
+        Object.entries(VoiceStateStore.getVoiceStates(id) as Record<string, RandomVoiceStateLike> | null ?? {})
     );
 }
 
@@ -522,10 +475,7 @@ function isJoinableChannel(channelId: string, store = settings.store) {
     if (!PermissionStore.can(PermissionsBits.CONNECT, channel)) return false;
 
     const currentUserId = getCurrentUserId();
-    const voiceStates = VoiceStateStore.getVoiceStatesForChannel(channelId) as Record<
-        string,
-        RandomVoiceStateLike
-    > | null;
+    const voiceStates = VoiceStateStore.getVoiceStatesForChannel(channelId) as Record<string, RandomVoiceStateLike> | null;
     const usersInChannel = Object.keys(voiceStates ?? {}).length;
 
     if (channel.userLimit > 0 && usersInChannel >= channel.userLimit) return false;
@@ -538,10 +488,7 @@ function matchesChannelFilters(channelId: string, store = settings.store) {
     const channel = ChannelStore.getChannel(channelId);
     if (!channel) return false;
 
-    const voiceStates = VoiceStateStore.getVoiceStatesForChannel(channelId) as Record<
-        string,
-        RandomVoiceStateLike
-    > | null;
+    const voiceStates = VoiceStateStore.getVoiceStatesForChannel(channelId) as Record<string, RandomVoiceStateLike> | null;
     const usersInChannel = Object.keys(voiceStates ?? {}).length;
     const channelLimit = channel.userLimit || 99;
     const spacesLeft = channelLimit - usersInChannel;
@@ -603,7 +550,7 @@ async function enableCamera() {
 
     FluxDispatcher.dispatch({
         type: "MEDIA_ENGINE_SET_VIDEO_ENABLED",
-        enabled: true
+        enabled: true,
     });
 }
 
@@ -623,7 +570,7 @@ async function startChannelStream(channel: Channel) {
         sourceName: source.name,
         audioSourceId: null,
         sound: true,
-        previewDisabled: false
+        previewDisabled: false,
     });
 }
 
@@ -688,11 +635,7 @@ function RandomVoiceButton({ iconForeground, hideTooltips, nameplate }: UserArea
     return (
         <UserAreaButton
             onClick={() => void joinRandomVoice()}
-            onContextMenu={event =>
-                ContextMenuApi.openContextMenu(event, () => (
-                    <RandomVoiceMenu onClose={ContextMenuApi.closeContextMenu} />
-                ))
-            }
+            onContextMenu={event => ContextMenuApi.openContextMenu(event, () => <RandomVoiceMenu onClose={ContextMenuApi.closeContextMenu} />)}
             role="switch"
             tooltipText={hideTooltips ? void 0 : "Random Voice"}
             icon={<RandomVoiceIcon className={iconForeground} />}
@@ -701,19 +644,18 @@ function RandomVoiceButton({ iconForeground, hideTooltips, nameplate }: UserArea
     );
 }
 
-function RandomVoiceMenu({ onClose }: { onClose(): void }) {
+function RandomVoiceMenu({ onClose }: { onClose(): void; }) {
     const [, rerender] = React.useReducer(value => value + 1, 0);
     const { store } = settings;
     const guilds = getRenderableGuilds();
     const allServerIds = guilds.map(guild => guild.id);
     const selectedServerIds = getSelectedServerIds(store) ?? allServerIds;
 
-    const update = <K extends keyof typeof store>(key: K, value: (typeof store)[K]) => {
+    const update = <K extends keyof typeof store>(key: K, value: typeof store[K]) => {
         store[key] = value;
         rerender();
     };
-    const toggle = <K extends SelfSettingKey | StateFilterKey | "includeStates" | "avoidStates">(key: K) =>
-        update(key, !store[key]);
+    const toggle = <K extends SelfSettingKey | StateFilterKey | "includeStates" | "avoidStates">(key: K) => update(key, !store[key]);
     const selectAllServers = () => {
         setServerIds(guilds.map(guild => guild.id));
         rerender();
@@ -807,7 +749,7 @@ function RandomVoiceMenu({ onClose }: { onClose(): void }) {
                 sliderValue: store.UserAmount,
                 operationValue: store.UserAmountOperation,
                 onOperationChange: value => update("UserAmountOperation", value),
-                onSliderChange: setSlider("UserAmount")
+                onSliderChange: setSlider("UserAmount"),
             })}
 
             <Menu.MenuSeparator />
@@ -820,7 +762,7 @@ function RandomVoiceMenu({ onClose }: { onClose(): void }) {
                 sliderValue: store.spacesLeft,
                 operationValue: store.spacesLeftOperation,
                 onOperationChange: value => update("spacesLeftOperation", value),
-                onSliderChange: setSlider("spacesLeft")
+                onSliderChange: setSlider("spacesLeft"),
             })}
 
             <Menu.MenuSeparator />
@@ -833,7 +775,7 @@ function RandomVoiceMenu({ onClose }: { onClose(): void }) {
                 sliderValue: store.vcLimit,
                 operationValue: store.vcLimitOperation,
                 onOperationChange: value => update("vcLimitOperation", value),
-                onSliderChange: setSlider("vcLimit")
+                onSliderChange: setSlider("vcLimit"),
             })}
 
             <Menu.MenuSeparator />
@@ -863,7 +805,7 @@ function renderOperationGroup({
     sliderValue,
     operationValue,
     onOperationChange,
-    onSliderChange
+    onSliderChange,
 }: {
     id: string;
     label: string;
@@ -919,7 +861,7 @@ export default definePlugin({
 
     userAreaButton: {
         icon: RandomVoiceIcon,
-        render: RandomVoiceButton
+        render: RandomVoiceButton,
     },
 
     start() {
@@ -942,37 +884,32 @@ export default definePlugin({
     },
 
     flux: {
-        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[] }) {
+        VOICE_STATE_UPDATES({ voiceStates }: { voiceStates: VoiceState[]; }) {
             const currentUserId = getCurrentUserId();
             if (!currentUserId || !settings.store.leaveEmpty) return;
 
             const myChannelId = getCurrentVoiceChannelId(currentUserId);
             if (!myChannelId) return;
 
-            const touchedCurrentChannel = voiceStates.some(
-                state =>
-                    state.userId === currentUserId ||
-                    state.channelId === myChannelId ||
-                    state.oldChannelId === myChannelId
+            const touchedCurrentChannel = voiceStates.some(state =>
+                state.userId === currentUserId ||
+                state.channelId === myChannelId ||
+                state.oldChannelId === myChannelId
             );
             if (!touchedCurrentChannel) return;
 
-            const myOwnJoin = voiceStates.some(
-                state =>
-                    state.userId === currentUserId &&
-                    state.channelId === myChannelId &&
-                    state.oldChannelId !== myChannelId
+            const myOwnJoin = voiceStates.some(state =>
+                state.userId === currentUserId &&
+                state.channelId === myChannelId &&
+                state.oldChannelId !== myChannelId
             );
             if (myOwnJoin) return;
 
-            const channelStates = VoiceStateStore.getVoiceStatesForChannel(myChannelId) as Record<
-                string,
-                VoiceState
-            > | null;
+            const channelStates = VoiceStateStore.getVoiceStatesForChannel(myChannelId) as Record<string, VoiceState> | null;
             const otherUsers = Object.values(channelStates ?? {}).filter(state => state.userId !== currentUserId);
             if (!otherUsers.length) {
                 void joinRandomVoice();
             }
-        }
-    }
+        },
+    },
 });

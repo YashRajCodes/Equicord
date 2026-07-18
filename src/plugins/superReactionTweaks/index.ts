@@ -9,35 +9,30 @@ import { Devs } from "@utils/constants";
 import definePlugin, { OptionType } from "@utils/types";
 import { OverridePremiumTypeStore } from "@webpack/common";
 
-export const settings = definePluginSettings(
-    {
-        superReactByDefault: {
-            type: OptionType.BOOLEAN,
-            description: "Reaction picker will default to Super Reactions",
-            default: true
-        },
-        unlimitedSuperReactionPlaying: {
-            type: OptionType.BOOLEAN,
-            description: "Remove the limit on Super Reactions playing at once",
-            default: false
-        },
-
-        superReactionPlayingLimit: {
-            description: "Max Super Reactions to play at once. 0 to disable playing Super Reactions",
-            type: OptionType.SLIDER,
-            default: 20,
-            markers: [0, 5, 10, 20, 40, 60, 80, 100],
-            stickToMarkers: true
-        }
+export const settings = definePluginSettings({
+    superReactByDefault: {
+        type: OptionType.BOOLEAN,
+        description: "Reaction picker will default to Super Reactions",
+        default: true,
     },
-    {
-        superReactionPlayingLimit: {
-            disabled() {
-                return this.store.unlimitedSuperReactionPlaying;
-            }
-        }
+    unlimitedSuperReactionPlaying: {
+        type: OptionType.BOOLEAN,
+        description: "Remove the limit on Super Reactions playing at once",
+        default: false,
+    },
+
+    superReactionPlayingLimit: {
+        description: "Max Super Reactions to play at once. 0 to disable playing Super Reactions",
+        type: OptionType.SLIDER,
+        default: 20,
+        markers: [0, 5, 10, 20, 40, 60, 80, 100],
+        stickToMarkers: true,
+    },
+}, {
+    superReactionPlayingLimit: {
+        disabled() { return this.store.unlimitedSuperReactionPlaying; },
     }
-);
+});
 
 export default definePlugin({
     name: "SuperReactionTweaks",
@@ -59,8 +54,7 @@ export default definePlugin({
             find: ".EMOJI_PICKER_CONSTANTS_EMOJI_CONTAINER_PADDING_HORIZONTAL)",
             replacement: {
                 match: /(openPopoutType:void 0(?=.+?isBurstReaction:(\i).+?;(\i===\i\.\i\.REACTION)&&\i\.push\().+?\[\2,\i\]=\i\.useState\()!1\)/,
-                replace: (_, rest, _isBurstReactionVariable, isReactionIntention) =>
-                    `${rest}$self.shouldSuperReactByDefault&&${isReactionIntention})`
+                replace: (_, rest, _isBurstReactionVariable, isReactionIntention) => `${rest}$self.shouldSuperReactByDefault&&${isReactionIntention})`
             }
         }
     ],
@@ -73,6 +67,6 @@ export default definePlugin({
     },
 
     get shouldSuperReactByDefault() {
-        return settings.store.superReactByDefault && OverridePremiumTypeStore.getState().premiumTypeActual != null;
+        return settings.store.superReactByDefault && (OverridePremiumTypeStore.getState().premiumTypeActual != null);
     }
 });

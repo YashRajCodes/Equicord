@@ -14,7 +14,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 import { Button, MediaEngineStore, useState } from "@webpack/common";
 
@@ -34,40 +34,38 @@ export const VoiceRecorderWeb: VoiceRecorder = ({ setAudioBlob, onRecordingChang
         const nowRecording = !recording;
 
         if (nowRecording) {
-            navigator.mediaDevices
-                .getUserMedia({
-                    audio: {
-                        echoCancellation: settings.store.echoCancellation,
-                        noiseSuppression: settings.store.noiseSuppression,
-                        deviceId: MediaEngineStore.getInputDeviceId()
-                    }
-                })
-                .then(mediaStream => {
-                    const chunks: Blob[] = [];
+            navigator.mediaDevices.getUserMedia({
+                audio: {
+                    echoCancellation: settings.store.echoCancellation,
+                    noiseSuppression: settings.store.noiseSuppression,
+                    deviceId: MediaEngineStore.getInputDeviceId()
+                }
+            }).then(mediaStream => {
+                const chunks: Blob[] = [];
 
-                    const recorder = new MediaRecorder(mediaStream);
-                    setRecorder(recorder);
+                const recorder = new MediaRecorder(mediaStream);
+                setRecorder(recorder);
 
-                    const handleDataAvailable = (e: BlobEvent) => {
-                        chunks.push(e.data);
-                    };
+                const handleDataAvailable = (e: BlobEvent) => {
+                    chunks.push(e.data);
+                };
 
-                    const handleStop = () => {
-                        setAudioBlob(new Blob(chunks, { type: "audio/ogg; codecs=opus" }));
-                        changeRecording(false);
+                const handleStop = () => {
+                    setAudioBlob(new Blob(chunks, { type: "audio/ogg; codecs=opus" }));
+                    changeRecording(false);
 
-                        recorder.removeEventListener("dataavailable", handleDataAvailable);
-                        recorder.removeEventListener("stop", handleStop);
+                    recorder.removeEventListener("dataavailable", handleDataAvailable);
+                    recorder.removeEventListener("stop", handleStop);
 
-                        mediaStream.getTracks().forEach(track => track.stop());
-                    };
+                    mediaStream.getTracks().forEach(track => track.stop());
+                };
 
-                    recorder.addEventListener("dataavailable", handleDataAvailable);
-                    recorder.addEventListener("stop", handleStop, { once: true });
-                    recorder.start();
+                recorder.addEventListener("dataavailable", handleDataAvailable);
+                recorder.addEventListener("stop", handleStop, { once: true });
+                recorder.start();
 
-                    changeRecording(true);
-                });
+                changeRecording(true);
+            });
         } else {
             recorder?.stop();
         }
@@ -75,7 +73,9 @@ export const VoiceRecorderWeb: VoiceRecorder = ({ setAudioBlob, onRecordingChang
 
     return (
         <>
-            <Button onClick={toggleRecording}>{recording ? "Stop" : "Start"} recording</Button>
+            <Button onClick={toggleRecording}>
+                {recording ? "Stop" : "Start"} recording
+            </Button>
 
             <Button
                 disabled={!recording}

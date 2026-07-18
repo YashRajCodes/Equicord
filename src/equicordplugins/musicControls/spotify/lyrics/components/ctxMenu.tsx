@@ -4,11 +4,10 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findComponentByCodeLazy } from "@webpack";
-
 import { providers } from "@equicordplugins/musicControls/spotify/lyrics/api";
 import { lyricsAlternative } from "@equicordplugins/musicControls/spotify/lyrics/providers/store";
 import { copyWithToast } from "@utils/discord";
+import { findComponentByCodeLazy } from "@webpack";
 import { FluxDispatcher, Menu } from "@webpack/common";
 
 import { useLyrics } from "./util";
@@ -27,6 +26,7 @@ export function LyricsContextMenu() {
             onClose={() => FluxDispatcher.dispatch({ type: "CONTEXT_MENU_CLOSE" })}
             aria-label="Spotify Lyrics Menu"
         >
+
             <Menu.MenuItem
                 key="copy-lyric"
                 id="copy-lyric"
@@ -36,8 +36,12 @@ export function LyricsContextMenu() {
                 icon={CopyIcon}
             />
 
-            <Menu.MenuItem navId="spotify-lyrics-provider" id="spotify-lyrics-provider" label="Lyrics Provider">
-                {[...providers, ...lyricsAlternative].map(provider => (
+            <Menu.MenuItem
+                navId="spotify-lyrics-provider"
+                id="spotify-lyrics-provider"
+                label="Lyrics Provider"
+            >
+                {[...providers, ...lyricsAlternative].map(provider =>
                     <Menu.MenuRadioItem
                         key={`lyrics-provider-${provider}`}
                         id={`switch-provider-${provider.toLowerCase()}`}
@@ -49,11 +53,11 @@ export function LyricsContextMenu() {
                             FluxDispatcher.dispatch({
                                 // @ts-ignore
                                 type: "SPOTIFY_LYRICS_PROVIDER_CHANGE",
-                                provider: provider
+                                provider: provider,
                             });
                         }}
                     />
-                ))}
+                )}
             </Menu.MenuItem>
         </Menu.Menu>
     );

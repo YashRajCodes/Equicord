@@ -4,9 +4,9 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import plugins from "~plugins";
-
 import { DataStore } from "@api/index";
+
+import plugins from "~plugins";
 
 export type KnownPluginSettingsMap = Map<string, Set<string>>;
 
@@ -19,7 +19,10 @@ function getSettingsSetForPlugin(plugin: string): Set<string> {
 }
 
 function getCurrentSettings(pluginList: string[]): KnownPluginSettingsMap {
-    return new Map(pluginList.map(name => [name, getSettingsSetForPlugin(name)]));
+    return new Map(pluginList.map(name => [
+        name,
+        getSettingsSetForPlugin(name)
+    ]));
 }
 
 export async function getKnownSettings(): Promise<Map<string, Set<string>>> {
@@ -27,18 +30,16 @@ export async function getKnownSettings(): Promise<Map<string, Set<string>>> {
     let map: Map<string, Set<string>>;
 
     if (!raw) {
-        const knownPlugins = (await DataStore.get(KNOWN_PLUGINS_LEGACY_DATA_KEY)) ?? ([] as string[]);
+        const knownPlugins = await DataStore.get(KNOWN_PLUGINS_LEGACY_DATA_KEY) ?? [] as string[];
         const Plugins = [...Object.keys(plugins), ...knownPlugins];
         map = getCurrentSettings(Plugins);
-        await DataStore.set(
-            KNOWN_SETTINGS_DATA_KEY,
-            [...map.entries()].map(([plugin, settings]) => [plugin, [...settings]])
-        );
+        await DataStore.set(KNOWN_SETTINGS_DATA_KEY, [...map.entries()].map(
+            ([plugin, settings]) => [plugin, [...settings]]
+        ));
     } else {
-        map =
-            raw instanceof Map
-                ? raw
-                : new Map(raw.map(([plugin, settings]: [string, string[]]) => [plugin, new Set(settings)]));
+        map = raw instanceof Map
+            ? raw
+            : new Map(raw.map(([plugin, settings]: [string, string[]]) => [plugin, new Set(settings)]));
     }
 
     return map;
@@ -71,10 +72,10 @@ export async function writeKnownSettings() {
     const knownSettings = await getKnownSettings();
     const allSettings = new Map();
     new Set([...currentSettings.keys(), ...knownSettings.keys()]).forEach(plugin => {
-        allSettings.set(
-            plugin,
-            new Set([...(currentSettings.get(plugin) || []), ...(knownSettings.get(plugin) || [])])
-        );
+        allSettings.set(plugin, new Set([
+            ...(currentSettings.get(plugin) || []),
+            ...(knownSettings.get(plugin) || [])
+        ]));
     });
     await DataStore.set(KNOWN_SETTINGS_DATA_KEY, allSettings);
 }
@@ -90,9 +91,9 @@ export async function debugWipeSomeData() {
     await DataStore.set(KNOWN_SETTINGS_DATA_KEY, settings);
 }
 
-export async function editRawData(patcher: (data: KnownPluginSettingsMap) => Promise<any> | any) {
+export async function editRawData(patcher: (data: KnownPluginSettingsMap) => (Promise<any> | any)) {
     if (!patcher) return;
-    const map = (await DataStore.get(KNOWN_SETTINGS_DATA_KEY)) as KnownPluginSettingsMap;
+    const map = await DataStore.get(KNOWN_SETTINGS_DATA_KEY) as KnownPluginSettingsMap;
     const newMap = new Map(map);
     await patcher(newMap);
     await DataStore.set(KNOWN_SETTINGS_DATA_KEY, newMap ?? map);

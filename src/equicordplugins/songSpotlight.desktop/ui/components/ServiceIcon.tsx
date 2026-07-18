@@ -4,23 +4,17 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { getServiceLabel } from "@song-spotlight/api/util";
-import { JSX } from "react";
-
 import { cl } from "@equicordplugins/songSpotlight.desktop/lib/utils";
-import {
-    AppleMusicIcon,
-    SoundcloudIcon,
-    SpotifyIcon,
-    TidalIcon
-} from "@equicordplugins/songSpotlight.desktop/ui/common";
+import { AppleMusicIcon, SoundcloudIcon, SpotifyIcon, TidalIcon } from "@equicordplugins/songSpotlight.desktop/ui/common";
+import { getServiceLabel } from "@song-spotlight/api/util";
 import { Tooltip, useMemo } from "@webpack/common";
+import { JSX } from "react";
 
 const serviceIcons = {
     applemusic: AppleMusicIcon,
     soundcloud: SoundcloudIcon,
     spotify: SpotifyIcon,
-    tidal: TidalIcon
+    tidal: TidalIcon,
 };
 
 interface ServiceIconProps extends SvgProps {
@@ -32,20 +26,17 @@ export default function ServiceIcon({ service, width, height, ...props }: Servic
     const Icon: typeof SpotifyIcon = useMemo(() => serviceIcons[service], [service]);
     const label = useMemo(() => getServiceLabel(service), [service]);
 
-    return (
-        Icon &&
-        label && (
-            <Tooltip text={label}>
-                {tooltipProps => (
-                    <Icon
-                        {...tooltipProps}
-                        {...props}
-                        className={cl("icon")}
-                        width={width ?? 20}
-                        height={height ?? 20}
-                    />
-                )}
-            </Tooltip>
-        )
+    return Icon && label && (
+        <Tooltip text={label}>
+            {tooltipProps => (
+                <Icon
+                    {...tooltipProps}
+                    {...props}
+                    className={cl("icon")}
+                    width={width ?? 20}
+                    height={height ?? 20}
+                />
+            )}
+        </Tooltip>
     );
 }

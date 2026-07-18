@@ -14,13 +14,10 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
+*/
 
 // This plugin is a port from Alyxia's Vendetta plugin
 import "./styles.css";
-import { User, UserProfile } from "@vencord/discord-types";
-import { findComponentByCodeLazy } from "@webpack";
-import virtualMerge from "virtual-merge";
 
 import { definePluginSettings } from "@api/Settings";
 import { BaseText } from "@components/BaseText";
@@ -35,7 +32,10 @@ import { Margins } from "@utils/margins";
 import { classes } from "@utils/misc";
 import { useAwaiter } from "@utils/react";
 import definePlugin, { OptionType } from "@utils/types";
+import { User, UserProfile } from "@vencord/discord-types";
+import { findComponentByCodeLazy } from "@webpack";
 import { Button, ColorPicker, Forms, React, UserProfileStore, UserStore, useState } from "@webpack/common";
+import virtualMerge from "virtual-merge";
 
 interface Colors {
     primary: number;
@@ -59,10 +59,12 @@ function decode(bio: string): Array<number> | null {
     if (bio == null) return null;
 
     const colorString = bio.match(
-        /\u{e005b}\u{e0023}([\u{e0061}-\u{e0066}\u{e0041}-\u{e0046}\u{e0030}-\u{e0039}]{1,6})\u{e002c}\u{e0023}([\u{e0061}-\u{e0066}\u{e0041}-\u{e0046}\u{e0030}-\u{e0039}]{1,6})\u{e005d}/u
+        /\u{e005b}\u{e0023}([\u{e0061}-\u{e0066}\u{e0041}-\u{e0046}\u{e0030}-\u{e0039}]{1,6})\u{e002c}\u{e0023}([\u{e0061}-\u{e0066}\u{e0041}-\u{e0046}\u{e0030}-\u{e0039}]{1,6})\u{e005d}/u,
     );
     if (colorString != null) {
-        const parsed = [...colorString[0]].map(x => String.fromCodePoint(x.codePointAt(0)! - 0xe0000)).join("");
+        const parsed = [...colorString[0]]
+            .map(x => String.fromCodePoint(x.codePointAt(0)! - 0xe0000))
+            .join("");
         const colors = parsed
             .substring(1, parsed.length - 1)
             .split(",")
@@ -80,7 +82,7 @@ const settings = definePluginSettings({
         type: OptionType.SELECT,
         options: [
             { label: "Nitro colors", value: true, default: true },
-            { label: "Fake colors", value: false }
+            { label: "Fake colors", value: false },
         ]
     }
 });
@@ -100,12 +102,7 @@ interface ProfileModalProps {
     isTryItOut: boolean;
 }
 
-const ProfileModal = findComponentByCodeLazy<ProfileModalProps>(
-    "isTryItOut:",
-    "pendingThemeColors:",
-    "pendingAvatarDecoration:",
-    "EDIT_PROFILE_BANNER"
-);
+const ProfileModal = findComponentByCodeLazy<ProfileModalProps>("isTryItOut:", "pendingThemeColors:", "pendingAvatarDecoration:", "EDIT_PROFILE_BANNER");
 
 function SettingsAboutComponentWrapper() {
     const [, , userProfileLoading] = useAwaiter(() => fetchUserProfile(UserStore.getCurrentUser().id));
@@ -114,7 +111,9 @@ function SettingsAboutComponentWrapper() {
 }
 
 function SettingsAboutComponent() {
-    const existingColors = decode(UserProfileStore.getUserProfile(UserStore.getCurrentUser().id)?.bio ?? "") ?? [0, 0];
+    const existingColors = decode(
+        UserProfileStore.getUserProfile(UserStore.getCurrentUser().id)?.bio ?? ""
+    ) ?? [0, 0];
     const [color1, setColor1] = useState(existingColors[0]);
     const [color2, setColor2] = useState(existingColors[1]);
 
@@ -122,8 +121,8 @@ function SettingsAboutComponent() {
         <section>
             <HeadingSecondary>Usage</HeadingSecondary>
             <Paragraph>
-                After enabling this plugin, you will see custom colors in the profiles of other people using compatible
-                plugins.{" "}
+                After enabling this plugin, you will see custom colors in
+                the profiles of other people using compatible plugins.{" "}
             </Paragraph>
             <Paragraph className={Margins.top8}>
                 <strong>To set your own profile theme colors:</strong>
@@ -132,13 +131,18 @@ function SettingsAboutComponent() {
                     <li>&mdash; click the "Copy 3y3" button</li>
                     <li>&mdash; paste the invisible text anywhere in your bio</li>
                 </ul>
-                <Divider className={classes(Margins.top8, Margins.bottom8)} />
+                <Divider
+                    className={classes(Margins.top8, Margins.bottom8)}
+                />
                 <Forms.FormTitle tag="h3">Color pickers</Forms.FormTitle>
                 <Flex gap="1em">
                     <ColorPicker
                         color={color1}
                         label={
-                            <BaseText size="xs" style={{ marginTop: "4px" }}>
+                            <BaseText
+                                size="xs"
+                                style={{ marginTop: "4px" }}
+                            >
                                 Primary
                             </BaseText>
                         }
@@ -149,7 +153,10 @@ function SettingsAboutComponent() {
                     <ColorPicker
                         color={color2}
                         label={
-                            <BaseText size="xs" style={{ marginTop: "4px" }}>
+                            <BaseText
+                                size="xs"
+                                style={{ marginTop: "4px" }}
+                            >
                                 Accent
                             </BaseText>
                         }
@@ -169,14 +176,16 @@ function SettingsAboutComponent() {
                         Copy 3y3
                     </Button>
                 </Flex>
-                <Divider className={classes(Margins.top8, Margins.bottom8)} />
+                <Divider
+                    className={classes(Margins.top8, Margins.bottom8)}
+                />
                 <HeadingSecondary>Preview</HeadingSecondary>
                 <div className="vc-fpt-preview">
                     <ProfileModal
                         user={UserStore.getCurrentUser()}
                         pendingThemeColors={[color1, color2]}
-                        onAvatarChange={() => {}}
-                        onBannerChange={() => {}}
+                        onAvatarChange={() => { }}
+                        onBannerChange={() => { }}
                         canUsePremiumCustomization={true}
                         hideExampleButton={true}
                         hideFakeActivity={true}
@@ -199,7 +208,7 @@ export default definePlugin({
             replacement: {
                 match: /(?<=getUserProfile\(\i\){return )(.+?)(?=})/,
                 replace: "$self.colorDecodeHook($1)"
-            }
+            },
         },
         {
             find: "#{intl::USER_SETTINGS_RESET_PROFILE_THEME}),onClick:",
@@ -237,21 +246,16 @@ export default definePlugin({
         }
         return user;
     },
-    addCopy3y3Button: ErrorBoundary.wrap(
-        function ({ primary, accent }: Colors) {
-            return (
-                <Button
-                    onClick={() => {
-                        const colorString = encode(primary, accent);
-                        copyWithToast(colorString);
-                    }}
-                    color={Button.Colors.PRIMARY}
-                    size={Button.Sizes.XLARGE}
-                >
-                    Copy 3y3
-                </Button>
-            );
-        },
-        { noop: true }
-    )
+    addCopy3y3Button: ErrorBoundary.wrap(function ({ primary, accent }: Colors) {
+        return <Button
+            onClick={() => {
+                const colorString = encode(primary, accent);
+                copyWithToast(colorString);
+            }}
+            color={Button.Colors.PRIMARY}
+            size={Button.Sizes.XLARGE}
+        >
+            Copy 3y3
+        </Button>;
+    }, { noop: true }),
 });

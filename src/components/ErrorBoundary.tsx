@@ -14,14 +14,13 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- */
-
-import { ComponentType } from "react";
+*/
 
 import { LazyComponent, LazyComponentWrapper } from "@utils/lazyReact";
 import { Logger } from "@utils/Logger";
 import { Margins } from "@utils/margins";
 import type { React } from "@webpack/common";
+import { ComponentType } from "react";
 
 import { ErrorCard } from "./ErrorCard";
 
@@ -29,11 +28,9 @@ interface Props<T = any> {
     /** Render nothing if an error occurs */
     noop?: boolean;
     /** Fallback component to render if an error occurs */
-    fallback?: React.ComponentType<
-        React.PropsWithChildren<{ error: any; message: string; stack: string; wrappedProps: T }>
-    >;
+    fallback?: React.ComponentType<React.PropsWithChildren<{ error: any; message: string; stack: string; wrappedProps: T; }>>;
     /** called when an error occurs. The props property is only available if using .wrap */
-    onError?(data: { error: Error; errorInfo: React.ErrorInfo; props: T }): void;
+    onError?(data: { error: Error, errorInfo: React.ErrorInfo, props: T; }): void;
     /** Custom error message */
     message?: string;
 
@@ -91,14 +88,15 @@ const ErrorBoundary = LazyComponent(() => {
 
             if (this.props.fallback)
                 return (
-                    <this.props.fallback wrappedProps={this.props.wrappedProps} {...this.state}>
+                    <this.props.fallback
+                        wrappedProps={this.props.wrappedProps}
+                        {...this.state}
+                    >
                         {this.props.children}
                     </this.props.fallback>
                 );
 
-            const msg =
-                this.props.message ||
-                "An error occurred while rendering this Component. More info can be found below and in your console.";
+            const msg = this.props.message || "An error occurred while rendering this Component. More info can be found below and in your console.";
 
             return (
                 <ErrorCard style={{ overflow: "hidden" }}>
@@ -106,20 +104,20 @@ const ErrorBoundary = LazyComponent(() => {
                     <p>{msg}</p>
                     <code>
                         {this.state.message}
-                        {!!this.state.stack && <pre className={Margins.top8}>{this.state.stack}</pre>}
+                        {!!this.state.stack && (
+                            <pre className={Margins.top8}>
+                                {this.state.stack}
+                            </pre>
+                        )}
                     </code>
                 </ErrorCard>
             );
         }
     };
-}) as LazyComponentWrapper<
-    React.ComponentType<React.PropsWithChildren<Props>> & {
-        wrap<T extends object = any>(
-            Component: React.ComponentType<T>,
-            errorBoundaryProps?: Omit<Props<T>, "wrappedProps"> & { displayName?: string }
-        ): React.FunctionComponent<T>;
-    }
->;
+}) as
+    LazyComponentWrapper<React.ComponentType<React.PropsWithChildren<Props>> & {
+        wrap<T extends object = any>(Component: React.ComponentType<T>, errorBoundaryProps?: Omit<Props<T>, "wrappedProps"> & { displayName?: string; }): React.FunctionComponent<T>;
+    }>;
 
 ErrorBoundary.wrap = (Component, errorBoundaryProps) => {
     const wrapper: ComponentType<any> = props => (

@@ -4,33 +4,19 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findCssClassesLazy } from "@webpack";
-
 import { Paragraph } from "@components/Paragraph";
 import { Span } from "@components/Span";
-import {
-    fetchReposByUserId,
-    fetchReposByUsername,
-    fetchUserInfo,
-    GitHubUserInfo
-} from "@equicordplugins/githubRepos/githubApi";
+import { fetchReposByUserId, fetchReposByUsername, fetchUserInfo, GitHubUserInfo } from "@equicordplugins/githubRepos/githubApi";
 import { GitHubRepo } from "@equicordplugins/githubRepos/types";
 import { classes } from "@utils/misc";
-import { Clickable, openModal, React, useEffect, UserProfileStore, useState } from "@webpack/common";
+import { findCssClassesLazy } from "@webpack";
+import { Clickable, openModal,React, useEffect, UserProfileStore, useState } from "@webpack/common";
 
 import { ReposModal } from "./ReposModal";
 
 const DMSideBarClasses = findCssClassesLazy("widgetPreviews");
 const ProfileCardClasses = findCssClassesLazy("cardsList", "firstCardContainer", "card", "container");
-const ProfileCardContainerClasses = findCssClassesLazy(
-    "innerContainer",
-    "icons",
-    "icon",
-    "displayCount",
-    "displayCountText",
-    "displayCountTextColor",
-    "breadcrumb"
-);
+const ProfileCardContainerClasses = findCssClassesLazy("innerContainer", "icons", "icon", "displayCount", "displayCountText", "displayCountTextColor", "breadcrumb");
 const ProfileCardOverlayClasses = findCssClassesLazy("overlay", "isPrivate", "outer");
 
 const LANGUAGE_MAP: Record<string, string> = {
@@ -40,12 +26,12 @@ const LANGUAGE_MAP: Record<string, string> = {
     "q#": "qsharp",
     "objective-c": "objectivec",
     "visual basic": "visualbasic",
-    shell: "bash",
-    batchfile: "bash",
+    "shell": "bash",
+    "batchfile": "bash",
     "vim script": "vim",
-    dockerfile: "docker",
-    gdscript: "godot",
-    html: "html5"
+    "dockerfile": "docker",
+    "gdscript": "godot",
+    "html": "html5",
 };
 
 function getLanguageIconUrl(language: string | null): string {
@@ -55,7 +41,7 @@ function getLanguageIconUrl(language: string | null): string {
     return `https://cdn.jsdelivr.net/gh/devicons/devicon@develop/icons/${normalized}/${normalized}-original.svg`;
 }
 
-export function ProfilePopoutComponent({ id, isSideBar = false }: { id: string; isSideBar?: boolean }) {
+export function ProfilePopoutComponent({ id, isSideBar = false }: { id: string, isSideBar?: boolean; }) {
     const [repos, setRepos] = useState<GitHubRepo[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -64,29 +50,22 @@ export function ProfilePopoutComponent({ id, isSideBar = false }: { id: string; 
     const openReposModal = () => {
         if (!userInfo) return;
         const sortedRepos = [...repos].sort((a, b) => b.stargazers_count - a.stargazers_count);
-        openModal(props => <ReposModal repos={sortedRepos} username={userInfo.username} rootProps={props} />);
+        openModal(props => (
+            <ReposModal repos={sortedRepos} username={userInfo.username} rootProps={props} />
+        ));
     };
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const profile = UserProfileStore.getUserProfile(id);
-                if (!profile) {
-                    setLoading(false);
-                    return;
-                }
+                if (!profile) { setLoading(false); return; }
 
                 const connections = profile.connectedAccounts;
-                if (!connections?.length) {
-                    setLoading(false);
-                    return;
-                }
+                if (!connections?.length) { setLoading(false); return; }
 
                 const githubConnection = connections.find(conn => conn.type === "github");
-                if (!githubConnection) {
-                    setLoading(false);
-                    return;
-                }
+                if (!githubConnection) { setLoading(false); return; }
 
                 const username = githubConnection.name;
                 const userInfoData = await fetchUserInfo(username);
@@ -95,11 +74,7 @@ export function ProfilePopoutComponent({ id, isSideBar = false }: { id: string; 
                 const githubId = githubConnection.id;
 
                 const reposById = await fetchReposByUserId(githubId);
-                if (reposById) {
-                    setRepos(reposById);
-                    setLoading(false);
-                    return;
-                }
+                if (reposById) { setRepos(reposById); setLoading(false); return; }
 
                 const reposByUsername = await fetchReposByUsername(username);
                 setRepos(reposByUsername);
@@ -122,13 +97,7 @@ export function ProfilePopoutComponent({ id, isSideBar = false }: { id: string; 
             <ul className={ProfileCardClasses.cardsList} tabIndex={-1}>
                 <li className={ProfileCardClasses.firstCardContainer}>
                     <Clickable className={ProfileCardContainerClasses.breadcrumb} onClick={openReposModal}>
-                        <div
-                            className={classes(
-                                ProfileCardOverlayClasses.overlay,
-                                ProfileCardContainerClasses.innerContainer,
-                                ProfileCardClasses.card
-                            )}
-                        >
+                        <div className={classes(ProfileCardOverlayClasses.overlay, ProfileCardContainerClasses.innerContainer, ProfileCardClasses.card)}>
                             <Paragraph size={isSideBar ? "sm" : "xs"} weight="medium">
                                 GitHub Repositories
                             </Paragraph>
@@ -142,19 +111,11 @@ export function ProfilePopoutComponent({ id, isSideBar = false }: { id: string; 
                                                 <img
                                                     src={getLanguageIconUrl(repo.language)}
                                                     alt={repo.language ?? "Unknown"}
-                                                    className={
-                                                        showCount ? ProfileCardContainerClasses.displayCount : undefined
-                                                    }
+                                                    className={showCount ? ProfileCardContainerClasses.displayCount : undefined}
                                                 />
                                                 {showCount && (
                                                     <div className={ProfileCardContainerClasses.displayCountText}>
-                                                        <Span
-                                                            className={
-                                                                ProfileCardContainerClasses.displayCountTextColor
-                                                            }
-                                                            size={isSideBar ? "sm" : "xs"}
-                                                            weight="medium"
-                                                        >
+                                                        <Span className={ProfileCardContainerClasses.displayCountTextColor} size={isSideBar ? "sm" : "xs"} weight="medium">
                                                             +{repos.length - 4}
                                                         </Span>
                                                     </div>
@@ -171,5 +132,7 @@ export function ProfilePopoutComponent({ id, isSideBar = false }: { id: string; 
         </section>
     );
 
-    return isSideBar ? <div className={DMSideBarClasses.widgetPreviews}>{reposSection}</div> : reposSection;
+    return isSideBar
+        ? <div className={DMSideBarClasses.widgetPreviews}>{reposSection}</div>
+        : reposSection;
 }

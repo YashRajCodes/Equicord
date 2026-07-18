@@ -5,7 +5,6 @@
  */
 
 import type { UserData } from "@song-spotlight/api/structs";
-
 import { proxyLazy } from "@utils/lazy";
 import { UserStore, zustandCreate } from "@webpack/common";
 
@@ -19,38 +18,44 @@ interface Data {
 interface SongState {
     users: Record<string, Data>;
     self?: Data;
-    update(props: { userId?: string; data: UserData; at?: string }): void;
+    update(props: {
+        userId?: string;
+        data: UserData;
+        at?: string;
+    }): void;
     delete(userId?: string): void;
     $refresh(): void;
 }
 
 export const useSongStore: ZustandStore<SongState> = proxyLazy(() =>
-    zustandCreate(((set, get) => ({
-        users: {},
-        update({ userId, data, at }) {
-            userId ??= UserStore.getCurrentUser()?.id;
-            if (userId) {
+    zustandCreate(
+        ((set, get) => ({
+            users: {},
+            update({ userId, data, at }) {
+                userId ??= UserStore.getCurrentUser()?.id;
+                if (userId) {
+                    set({
+                        users: {
+                            ...get().users,
+                            [userId]: { data, at },
+                        },
+                    });
+                }
+                get().$refresh();
+            },
+            delete(userId) {
+                userId ??= UserStore.getCurrentUser()?.id;
+                if (userId) {
+                    const { [userId]: _, ...users } = get().users;
+                    set({ users });
+                }
+                get().$refresh();
+            },
+            $refresh() {
                 set({
-                    users: {
-                        ...get().users,
-                        [userId]: { data, at }
-                    }
+                    self: get().users[UserStore.getCurrentUser()?.id],
                 });
-            }
-            get().$refresh();
-        },
-        delete(userId) {
-            userId ??= UserStore.getCurrentUser()?.id;
-            if (userId) {
-                const { [userId]: _, ...users } = get().users;
-                set({ users });
-            }
-            get().$refresh();
-        },
-        $refresh() {
-            set({
-                self: get().users[UserStore.getCurrentUser()?.id]
-            });
-        }
-    })) as ZustandDefinition<SongState>)
+            },
+        })) as ZustandDefinition<SongState>,
+    )
 );

@@ -6,13 +6,7 @@
 
 import { useEffect, useState } from "@webpack/common";
 
-import {
-    countMessagesByStatusIDB,
-    countMessagesIDB,
-    DBMessageRecord,
-    DBMessageStatus,
-    getDateStortedMessagesByStatusIDB
-} from "../db";
+import { countMessagesByStatusIDB, countMessagesIDB, DBMessageRecord, DBMessageStatus, getDateStortedMessagesByStatusIDB } from "../db";
 import { doesMatch, tokenizeQuery } from "../utils/parseQuery";
 import { LogTabs } from "./LogsModal";
 
@@ -55,7 +49,7 @@ export function useMessages(query: string, currentTab: LogTabs, sortNewest: bool
             if (debouncedQuery === "") {
                 const [messages, statusTotal] = await Promise.all([
                     getDateStortedMessagesByStatusIDB(sortNewest, numDisplayedMessages, status),
-                    countMessagesByStatusIDB(status)
+                    countMessagesByStatusIDB(status),
                 ]);
 
                 if (isMounted) {
@@ -65,11 +59,7 @@ export function useMessages(query: string, currentTab: LogTabs, sortNewest: bool
 
                 setPending(false);
             } else {
-                const allMessages = await getDateStortedMessagesByStatusIDB(
-                    sortNewest,
-                    Number.MAX_SAFE_INTEGER,
-                    status
-                );
+                const allMessages = await getDateStortedMessagesByStatusIDB(sortNewest, Number.MAX_SAFE_INTEGER, status);
                 const { queries, rest } = tokenizeQuery(debouncedQuery);
 
                 const filteredMessages = allMessages.filter(record => {
@@ -80,7 +70,9 @@ export function useMessages(query: string, currentTab: LogTabs, sortNewest: bool
                         }
                     }
 
-                    return rest.every(r => record.message.content.toLowerCase().includes(r.toLowerCase()));
+                    return rest.every(r =>
+                        record.message.content.toLowerCase().includes(r.toLowerCase())
+                    );
                 });
 
                 if (isMounted) {
@@ -96,6 +88,7 @@ export function useMessages(query: string, currentTab: LogTabs, sortNewest: bool
         return () => {
             isMounted = false;
         };
+
     }, [debouncedQuery, sortNewest, numDisplayedMessages, currentTab, pending]);
 
     return { messages, statusTotal, total, pending, reset: () => setPending(true) };

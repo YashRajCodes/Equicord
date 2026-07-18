@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-import { findComponentByCodeLazy } from "@webpack";
 
 import { definePluginSettings } from "@api/Settings";
 import { Button } from "@components/Button";
@@ -14,6 +13,7 @@ import { Heading } from "@components/Heading";
 import { Devs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import definePlugin, { OptionType } from "@utils/types";
+import { findComponentByCodeLazy } from "@webpack";
 import { ColorPicker, TextInput } from "@webpack/common";
 
 interface PatternEntry {
@@ -31,59 +31,56 @@ const PlusIcon = findComponentByCodeLazy("0v-5h5a1");
 const hexToInt = (hex: string): number => parseInt(hex.replace("#", ""), 16);
 const intToHex = (n: number): string => "#" + n.toString(16).padStart(6, "0");
 
-const PatternsComponent = ErrorBoundary.wrap(
-    () => {
-        const { patterns } = settings.store;
+const PatternsComponent = ErrorBoundary.wrap(() => {
+    const { patterns } = settings.store;
 
-        return (
-            <section>
-                <Heading>URL Patterns</Heading>
-                {patterns.map((entry, i) => (
-                    <div key={i} className={cl("pattern-wrapper")}>
-                        <TextInput
-                            value={entry.pattern}
-                            onChange={v => {
-                                patterns[i].pattern = v;
+    return (
+        <section>
+            <Heading>URL Patterns</Heading>
+            {patterns.map((entry, i) => (
+                <div key={i} className={cl("pattern-wrapper")}>
+                    <TextInput
+                        value={entry.pattern}
+                        onChange={v => {
+                            patterns[i].pattern = v;
+                            settings.store.patterns = patterns;
+                        }}
+                        placeholder="*.example.com"
+                    />
+                    <div className={cl("color-picker")}>
+                        <ColorPicker
+                            color={hexToInt(entry.color)}
+                            onChange={(c: number) => {
+                                patterns[i].color = intToHex(c);
                                 settings.store.patterns = patterns;
                             }}
-                            placeholder="*.example.com"
+                            showEyeDropper={false}
                         />
-                        <div className={cl("color-picker")}>
-                            <ColorPicker
-                                color={hexToInt(entry.color)}
-                                onChange={(c: number) => {
-                                    patterns[i].color = intToHex(c);
-                                    settings.store.patterns = patterns;
-                                }}
-                                showEyeDropper={false}
-                            />
-                        </div>
-                        <Button
-                            className={cl("remove-button")}
-                            variant="secondary"
-                            size="small"
-                            onClick={() => {
-                                patterns.splice(i, 1);
-                                settings.store.patterns = patterns;
-                            }}
-                        >
-                            <TrashIcon className={cl("icon")} />
-                        </Button>
                     </div>
-                ))}
-                <Button
-                    onClick={() => settings.store.patterns.push({ pattern: "", color: DEFAULT_COLOR })}
-                    className={cl("add-button")}
-                    variant="secondary"
-                    size="small"
-                >
-                    <PlusIcon className={cl("icon")} /> Add New
-                </Button>
-            </section>
-        );
-    },
-    { noop: true }
-);
+                    <Button
+                        className={cl("remove-button")}
+                        variant="secondary"
+                        size="small"
+                        onClick={() => {
+                            patterns.splice(i, 1);
+                            settings.store.patterns = patterns;
+                        }}
+                    >
+                        <TrashIcon className={cl("icon")} />
+                    </Button>
+                </div>
+            ))}
+            <Button
+                onClick={() => settings.store.patterns.push({ pattern: "", color: DEFAULT_COLOR })}
+                className={cl("add-button")}
+                variant="secondary"
+                size="small"
+            >
+                <PlusIcon className={cl("icon")} /> Add New
+            </Button>
+        </section>
+    );
+}, { noop: true });
 
 const settings = definePluginSettings({
     patterns: {
@@ -138,7 +135,7 @@ export default definePlugin({
         }
     ],
 
-    getProps(props: { href?: string; title?: string }) {
+    getProps(props: { href?: string; title?: string; }) {
         if (!props.href) return {};
         if (!settings.store.highlightEmbeds && props.href !== props.title) return {};
 

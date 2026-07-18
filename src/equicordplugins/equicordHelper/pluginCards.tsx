@@ -5,9 +5,6 @@
  */
 
 import "./pluginCards.css";
-import { Message } from "@vencord/discord-types";
-import { JSX } from "react";
-import plugins, { ExcludedPlugins } from "~plugins";
 
 import { isPluginEnabled, isPluginRequired } from "@api/PluginManager";
 import { useSettings } from "@api/Settings";
@@ -19,12 +16,18 @@ import { PluginCard } from "@components/settings/tabs/plugins/PluginCard";
 import { TooltipContainer } from "@components/TooltipContainer";
 import { EQUIBOT_USER_ID } from "@utils/constants";
 import { isEquicordGuild, isEquicordSupport } from "@utils/misc";
+import { Message } from "@vencord/discord-types";
 import { showToast, Tooltip, useMemo } from "@webpack/common";
+import { JSX } from "react";
 
-export function ChatPluginCard({ url, description }: { url: string; description: string }) {
+import plugins, { ExcludedPlugins } from "~plugins";
+
+export function ChatPluginCard({ url, description }: { url: string, description: string; }) {
     const pluginNameFromUrl = new URL(url).pathname.split("/")[2];
 
-    const actualPluginName = Object.keys(plugins).find(name => name.toLowerCase() === pluginNameFromUrl?.toLowerCase());
+    const actualPluginName = Object.keys(plugins).find(name =>
+        name.toLowerCase() === pluginNameFromUrl?.toLowerCase()
+    );
 
     const pluginName = actualPluginName || pluginNameFromUrl;
 
@@ -45,13 +48,15 @@ export function ChatPluginCard({ url, description }: { url: string; description:
                 name={pluginName}
                 description={description || toolTipText}
                 enabled={false}
-                setEnabled={() => {}}
+                setEnabled={() => { }}
                 disabled={true}
                 infoButton={<WarningIcon />}
             />
         );
 
-        return description ? <TooltipContainer text={toolTipText}>{card}</TooltipContainer> : card;
+        return description
+            ? <TooltipContainer text={toolTipText}>{card}</TooltipContainer>
+            : card;
     }
 
     const onRestartNeeded = () => showToast("A restart is required for the change to take effect!");
@@ -74,16 +79,13 @@ export function ChatPluginCard({ url, description }: { url: string; description:
     const dependents = depMap[p.name]?.filter(d => isPluginEnabled(d));
 
     if (required) {
-        const tooltipText =
-            p.required || !dependents.length ? (
-                "This plugin is required for Equicord to function."
-            ) : (
-                <PluginDependencyList deps={dependents} />
-            );
+        const tooltipText = p.required || !dependents.length
+            ? "This plugin is required for Equicord to function."
+            : <PluginDependencyList deps={dependents} />;
 
         return (
             <Tooltip text={tooltipText} key={p.name}>
-                {({ onMouseLeave, onMouseEnter }) => (
+                {({ onMouseLeave, onMouseEnter }) =>
                     <PluginCard
                         key={p.name}
                         onMouseLeave={onMouseLeave}
@@ -92,71 +94,79 @@ export function ChatPluginCard({ url, description }: { url: string; description:
                         plugin={p}
                         disabled
                     />
-                )}
+                }
             </Tooltip>
         );
     }
 
-    return <PluginCard key={p.name} onRestartNeeded={onRestartNeeded} plugin={p} />;
+    return (
+        <PluginCard
+            key={p.name}
+            onRestartNeeded={onRestartNeeded}
+            plugin={p}
+        />
+    );
 }
 
-export const PluginCards = ErrorBoundary.wrap(
-    function PluginCards({ message }: { message: Message }) {
-        const seenPlugins = new Set<string>();
-        const pluginCards: JSX.Element[] = [];
+export const PluginCards = ErrorBoundary.wrap(function PluginCards({ message }: { message: Message; }) {
+    const seenPlugins = new Set<string>();
+    const pluginCards: JSX.Element[] = [];
 
-        // Process embeds
-        message.embeds?.forEach(embed => {
-            if (
-                !embed.url?.startsWith("https://equicord.org/plugins/") &&
-                !embed.url?.startsWith("https://vencord.dev/plugins/")
-            )
-                return;
+    // Process embeds
+    message.embeds?.forEach(embed => {
+        if (!embed.url?.startsWith("https://equicord.org/plugins/") && !embed.url?.startsWith("https://vencord.dev/plugins/")) return;
 
-            const isEquicord = isEquicordGuild(message.channel_id) && isEquicordSupport(message.author.id);
-            if (!isEquicord) return;
+        const isEquicord = isEquicordGuild(message.channel_id) && isEquicordSupport(message.author.id);
+        if (!isEquicord) return;
 
-            const pluginNameFromUrl = new URL(embed.url).pathname.split("/")[2];
-            const actualPluginName = Object.keys(plugins).find(
-                name => name.toLowerCase() === pluginNameFromUrl?.toLowerCase()
+        const pluginNameFromUrl = new URL(embed.url).pathname.split("/")[2];
+        const actualPluginName = Object.keys(plugins).find(name =>
+            name.toLowerCase() === pluginNameFromUrl?.toLowerCase()
+        );
+        const pluginName = actualPluginName || pluginNameFromUrl;
+
+        if (!pluginName || seenPlugins.has(pluginName)) return;
+        seenPlugins.add(pluginName);
+
+        pluginCards.push(
+            <ChatPluginCard
+                key={embed.url}
+                url={embed.url}
+                description={embed.rawDescription}
+            />
+        );
+    });
+
+    // Process components
+    const components = (message.components?.[0] as any)?.components;
+    if (message.author.id === EQUIBOT_USER_ID && components?.length >= 4) {
+        const description = components[1]?.content;
+        const pluginUrl = components.find((c: any) => c?.components)?.components[0]?.url;
+        if (pluginUrl?.startsWith("https://equicord.org/plugins/") || pluginUrl?.startsWith("https://vencord.dev/plugins/")) {
+            const pluginNameFromUrl = new URL(pluginUrl).pathname.split("/")[2];
+            const actualPluginName = Object.keys(plugins).find(name =>
+                name.toLowerCase() === pluginNameFromUrl?.toLowerCase()
             );
             const pluginName = actualPluginName || pluginNameFromUrl;
 
-            if (!pluginName || seenPlugins.has(pluginName)) return;
-            seenPlugins.add(pluginName);
-
-            pluginCards.push(<ChatPluginCard key={embed.url} url={embed.url} description={embed.rawDescription} />);
-        });
-
-        // Process components
-        const components = (message.components?.[0] as any)?.components;
-        if (message.author.id === EQUIBOT_USER_ID && components?.length >= 4) {
-            const description = components[1]?.content;
-            const pluginUrl = components.find((c: any) => c?.components)?.components[0]?.url;
-            if (
-                pluginUrl?.startsWith("https://equicord.org/plugins/") ||
-                pluginUrl?.startsWith("https://vencord.dev/plugins/")
-            ) {
-                const pluginNameFromUrl = new URL(pluginUrl).pathname.split("/")[2];
-                const actualPluginName = Object.keys(plugins).find(
-                    name => name.toLowerCase() === pluginNameFromUrl?.toLowerCase()
+            if (pluginName && !seenPlugins.has(pluginName)) {
+                seenPlugins.add(pluginName);
+                pluginCards.push(
+                    <ChatPluginCard
+                        key={pluginUrl}
+                        url={pluginUrl}
+                        description={description}
+                    />
                 );
-                const pluginName = actualPluginName || pluginNameFromUrl;
-
-                if (pluginName && !seenPlugins.has(pluginName)) {
-                    seenPlugins.add(pluginName);
-                    pluginCards.push(<ChatPluginCard key={pluginUrl} url={pluginUrl} description={description} />);
-                }
             }
         }
+    }
 
-        if (pluginCards.length === 0) return null;
+    if (pluginCards.length === 0) return null;
 
-        return (
-            <div className="vc-plugins-management-cards vc-plugins-grid" style={{ marginTop: "0px" }}>
-                {pluginCards}
-            </div>
-        );
-    },
-    { noop: true }
-);
+    return (
+        <div className="vc-plugins-management-cards vc-plugins-grid" style={{ marginTop: "0px" }}>
+            {pluginCards}
+        </div>
+    );
+}, { noop: true });

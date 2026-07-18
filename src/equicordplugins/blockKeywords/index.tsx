@@ -5,7 +5,6 @@
  */
 
 import "./styles.css";
-import { Message } from "@vencord/discord-types";
 
 import { definePluginSettings } from "@api/Settings";
 import { Card } from "@components/Card";
@@ -16,6 +15,7 @@ import { EquicordDevs } from "@utils/constants";
 import { classNameFactory } from "@utils/css";
 import { classes } from "@utils/misc";
 import definePlugin, { OptionType } from "@utils/types";
+import { Message } from "@vencord/discord-types";
 import { React, TextInput } from "@webpack/common";
 
 let blockedKeywords: Array<RegExp>;
@@ -36,16 +36,17 @@ function RegexHelper() {
 
     const results = React.useMemo(() => {
         const caseSensitiveFlag = caseSensitive ? "" : "i";
-        return splitPatterns(blockedWords).map(pattern => {
-            try {
-                const regex = useRegex
-                    ? new RegExp(pattern, caseSensitiveFlag)
-                    : new RegExp(`\\b${pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, caseSensitiveFlag);
-                return { pattern, matches: regex.test(testInput) };
-            } catch (e: unknown) {
-                return { pattern, matches: false, error: e instanceof Error ? e.message : String(e) };
-            }
-        });
+        return splitPatterns(blockedWords)
+            .map(pattern => {
+                try {
+                    const regex = useRegex
+                        ? new RegExp(pattern, caseSensitiveFlag)
+                        : new RegExp(`\\b${pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, caseSensitiveFlag);
+                    return { pattern, matches: regex.test(testInput) };
+                } catch (e: unknown) {
+                    return { pattern, matches: false, error: e instanceof Error ? e.message : String(e) };
+                }
+            });
     }, [testInput, blockedWords, caseSensitive, useRegex]);
 
     return (
@@ -58,82 +59,73 @@ function RegexHelper() {
                 onChange={setTestInput}
                 maxLength={null}
             />
-            {results.length === 0 ? (
-                <Card key="vc-no-patterns-regex" variant="warning" className={classes(cl("card"), Margins.top8)}>
+            {results.length === 0 ?
+                <Card
+                    key="vc-no-patterns-regex"
+                    variant="warning"
+                    className={classes(cl("card"), Margins.top8)}
+                >
                     <code>No patterns configured</code>
-                </Card>
-            ) : (
-                results.map(({ pattern, matches, error }, i) => (
-                    <Card
-                        key={`vc-pattern-card-${i}`}
-                        variant={error ? "danger" : matches ? "success" : "primary"}
-                        className={classes(cl("card"), Margins.top8)}
-                    >
-                        <code>{pattern}</code>
-                        {error && <span className={cl("error")}>{error}</span>}
-                    </Card>
-                ))
-            )}
+                </Card> : (
+                    results.map(({ pattern, matches, error }, i) => (
+                        <Card
+                            key={`vc-pattern-card-${i}`}
+                            variant={error ? "danger" : matches ? "success" : "primary"}
+                            className={classes(cl("card"), Margins.top8)}
+                        >
+                            <code>{pattern}</code>
+                            {error && <span className={cl("error")}>{error}</span>}
+                        </Card>
+                    )))}
         </Card>
     );
 }
 
-const settings = definePluginSettings(
-    {
-        blockedWords: {
-            type: OptionType.STRING,
-            description: "Comma-separated list of words to block",
-            default: "",
-            restartNeeded: true
-        },
-        useRegex: {
-            type: OptionType.BOOLEAN,
-            description: "Use each value as a regular expression when checking message content (advanced)",
-            default: false,
-            restartNeeded: true
-        },
-        regexHelper: {
-            type: OptionType.COMPONENT,
-            description: "Test your regular expressions against a sample input",
-            component: () => (
-                <ErrorBoundary noop>
-                    <RegexHelper />
-                </ErrorBoundary>
-            )
-        },
-        caseSensitive: {
-            type: OptionType.BOOLEAN,
-            description: "Whether to use a case sensitive search or not",
-            default: false,
-            restartNeeded: true
-        },
-        ignoreBlockedMessages: {
-            description: "Completely ignores (recent) new messages bar",
-            type: OptionType.BOOLEAN,
-            default: true,
-            restartNeeded: true
-        }
+const settings = definePluginSettings({
+    blockedWords: {
+        type: OptionType.STRING,
+        description: "Comma-separated list of words to block",
+        default: "",
+        restartNeeded: true
     },
-    {
-        regexHelper: {
-            hidden() {
-                return !this.store.useRegex;
-            }
-        }
+    useRegex: {
+        type: OptionType.BOOLEAN,
+        description: "Use each value as a regular expression when checking message content (advanced)",
+        default: false,
+        restartNeeded: true
+    },
+    regexHelper: {
+        type: OptionType.COMPONENT,
+        description: "Test your regular expressions against a sample input",
+        component: () => <ErrorBoundary noop><RegexHelper /></ErrorBoundary>,
+    },
+    caseSensitive: {
+        type: OptionType.BOOLEAN,
+        description: "Whether to use a case sensitive search or not",
+        default: false,
+        restartNeeded: true
+    },
+    ignoreBlockedMessages: {
+        description: "Completely ignores (recent) new messages bar",
+        type: OptionType.BOOLEAN,
+        default: true,
+        restartNeeded: true,
+    },
+}, {
+    regexHelper: {
+        hidden() { return !this.store.useRegex; }
     }
-);
+});
 
 export function containsBlockedKeywords(message: Message) {
     if (!blockedKeywords) return false;
 
     // test a nullable string against all keywords
-    const testField = (text: string | null | undefined) =>
-        text != null && blockedKeywords.some(regex => regex.test(text));
+    const testField = (text: string | null | undefined) => text != null && blockedKeywords.some(regex => regex.test(text));
 
-    return (
-        blockedKeywords.some(regex => regex.test(message.content)) ||
-        message.embeds.some(embed => testField(embed.rawDescription) || testField(embed.rawTitle))
-    );
+    return blockedKeywords.some(regex =>
+        regex.test(message.content)) || message.embeds.some(embed =>
+            testField(embed.rawDescription) || testField(embed.rawTitle));
 }
 
 export default definePlugin({
@@ -169,7 +161,7 @@ export default definePlugin({
                     replace: (_, props) => `if($self.containsBlockedKeywords(${props}.message))return;`
                 }
             ]
-        }
+        },
     ],
 
     settings,
@@ -194,8 +186,8 @@ export default definePlugin({
     },
 
     blockMessagesWithKeywords(messageList) {
-        return messageList.reset(
-            messageList.map(message => message.set("blocked", message.blocked || this.containsBlockedKeywords(message)))
-        );
+        return messageList.reset(messageList.map(
+            message => message.set("blocked", message.blocked || this.containsBlockedKeywords(message))
+        ));
     }
 });

@@ -4,42 +4,15 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { findComponentByCodeLazy, findStoreLazy } from "@webpack";
-
 import { Flex } from "@components/Flex";
 import { Heading } from "@components/Heading";
 import { Paragraph } from "@components/Paragraph";
-import {
-    BasicChannelTabsProps,
-    ChannelTabsProps,
-    clearStaleNavigationContext,
-    closeTab,
-    createTab,
-    handleChannelSwitch,
-    isNavigationFromSource,
-    isTabSelected,
-    moveToTab,
-    openedTabs,
-    openStartupTabs,
-    saveTabs,
-    settings,
-    setUpdaterFunction,
-    useGhostTabs
-} from "@equicordplugins/channelTabs/util";
+import { BasicChannelTabsProps, ChannelTabsProps, clearStaleNavigationContext, closeTab, createTab, handleChannelSwitch, isNavigationFromSource, isTabSelected, moveToTab, openedTabs, openStartupTabs, saveTabs, settings, setUpdaterFunction, useGhostTabs } from "@equicordplugins/channelTabs/util";
 import { classNameFactory } from "@utils/css";
 import { classes } from "@utils/misc";
 import { useForceUpdater } from "@utils/react";
-import {
-    Button,
-    ContextMenuApi,
-    FluxDispatcher,
-    useCallback,
-    useEffect,
-    useRef,
-    UserStore,
-    useState,
-    useStateFromStores
-} from "@webpack/common";
+import { findComponentByCodeLazy, findStoreLazy } from "@webpack";
+import { Button, ContextMenuApi, FluxDispatcher, useCallback, useEffect, useRef, UserStore, useState, useStateFromStores } from "@webpack/common";
 
 import channelTabs from "..";
 import BookmarkContainer, { HorizontalScroller } from "./BookmarkContainer";
@@ -161,7 +134,7 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
         if (ref.current) {
             try {
                 channelTabs.containerHeight = ref.current.clientHeight;
-            } catch {}
+            } catch { }
         }
     }, [userId, showBookmarkBar, tabBarPosition]);
 
@@ -204,31 +177,26 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
 
             // special handling for TAB key
             if (mainKey === "tab") {
-                return (
-                    hasCtrl === ctrlPressed &&
-                    hasShift === shiftPressed &&
-                    hasAlt === altPressed &&
-                    keyPressed === "tab"
-                );
+                return hasCtrl === ctrlPressed && hasShift === shiftPressed && hasAlt === altPressed && keyPressed === "tab";
             }
 
             // special handling for SPACE
             if (mainKey === "space") {
-                return (
-                    hasCtrl === ctrlPressed && hasShift === shiftPressed && hasAlt === altPressed && keyPressed === " "
-                );
+                return hasCtrl === ctrlPressed && hasShift === shiftPressed && hasAlt === altPressed && keyPressed === " ";
             }
 
-            return (
-                hasCtrl === ctrlPressed && hasShift === shiftPressed && hasAlt === altPressed && keyPressed === mainKey
-            );
+            return hasCtrl === ctrlPressed && hasShift === shiftPressed && hasAlt === altPressed && keyPressed === mainKey;
         };
 
         const handleKeyDown = (event: KeyboardEvent) => {
             const target = event.target as HTMLElement;
 
             // skip if typing in input fields
-            if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
+            if (
+                target.tagName === "INPUT" ||
+                target.tagName === "TEXTAREA" ||
+                target.isContentEditable
+            ) {
                 return;
             }
 
@@ -330,7 +298,10 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
 
     const shouldFollowNewTabButton = newTabButtonBehavior && !tabsOverflow;
     const newTabButton = (
-        <button onClick={() => createTab(props, true)} className={cl("button", "new-button", "hoverable")}>
+        <button
+            onClick={() => createTab(props, true)}
+            className={cl("button", "new-button", "hoverable")}
+        >
             <PlusSmallIcon />
         </button>
     );
@@ -359,48 +330,38 @@ export default function ChannelsTabsContainer(props: BasicChannelTabsProps) {
                 !compactAutoExpandOnHover && cl("no-compact-hover-expand")
             )}
             ref={ref}
-            style={
-                {
-                    "--tab-width-scale": tabWidthScale / 100,
-                    "--tab-height-scale": tabHeightScale / 100
-                } as React.CSSProperties
-            }
+            style={{ "--tab-width-scale": tabWidthScale / 100, "--tab-height-scale": tabHeightScale / 100 } as React.CSSProperties}
             onContextMenu={e => ContextMenuApi.openContextMenu(e, () => <BasicContextMenu />)}
         >
-            {showBookmarkBar && (
-                <>
-                    <BookmarkContainer {...props} userId={userId} />
-                    <div className={cl("separator")} />
-                </>
-            )}
+            {showBookmarkBar && <>
+                <BookmarkContainer {...props} userId={userId} />
+                <div className={cl("separator")} />
+            </>}
             <div className={cl("tab-container")}>
                 <HorizontalScroller
-                    customRef={node => {
-                        scrollerRef.current = node;
-                    }}
+                    customRef={node => { scrollerRef.current = node; }}
                     className={cl("tab-scroller", shouldFollowNewTabButton && "tab-scroller-following")}
                 >
-                    {openedTabs
-                        .filter(tab => tab != null)
-                        .map((tab, i) => (
-                            <ChannelTab {...tab} index={i} key={tab.id} />
-                        ))}
+                    {openedTabs.filter(tab => tab != null).map((tab, i) =>
+                        <ChannelTab {...tab} index={i} key={tab.id} />
+                    )}
                     {GhostTabs}
                     {shouldFollowNewTabButton && newTabButton}
                 </HorizontalScroller>
 
                 {!shouldFollowNewTabButton && newTabButton}
-            </div>
+            </div >
+
         </div>
     );
 }
 
-export function ChannelTabsPreview(p: { setValue: (v: TabSet) => void }) {
+export function ChannelTabsPreview(p: { setValue: (v: TabSet) => void; }) {
     const id = UserStore.getCurrentUser()?.id;
     if (!id) return <Paragraph>there's no logged in account?????</Paragraph>;
 
     const { setValue } = p;
-    const { tabSet }: { tabSet: TabSet } = settings.use(["tabSet"]);
+    const { tabSet }: { tabSet: TabSet; } = settings.use(["tabSet"]);
 
     const placeholder = [{ guildId: "@me", channelId: undefined as any }];
     const [currentTabs, setCurrentTabs] = useState(tabSet?.[id] ?? placeholder);
@@ -409,11 +370,9 @@ export function ChannelTabsPreview(p: { setValue: (v: TabSet) => void }) {
         <>
             <Heading>Startup tabs</Heading>
             <Flex flexDirection="row" style={{ gap: "2px" }}>
-                {currentTabs.map(t => (
-                    <>
-                        <PreviewTab {...t} />
-                    </>
-                ))}
+                {currentTabs.map(t => <>
+                    <PreviewTab {...t} />
+                </>)}
             </Flex>
             <Flex flexDirection="row-reverse">
                 <Button
@@ -421,9 +380,7 @@ export function ChannelTabsPreview(p: { setValue: (v: TabSet) => void }) {
                         setCurrentTabs([...openedTabs]);
                         setValue({ ...tabSet, [id]: [...openedTabs] });
                     }}
-                >
-                    Set to currently open tabs
-                </Button>
+                >Set to currently open tabs</Button>
             </Flex>
         </>
     );

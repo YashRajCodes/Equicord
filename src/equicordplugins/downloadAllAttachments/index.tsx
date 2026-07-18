@@ -4,13 +4,12 @@
  * SPDX-License-Identifier: GPL-3.0-or-later
  */
 
-import { Message, MessageAttachment } from "@vencord/discord-types";
-
 import { CloudDownloadIcon } from "@components/Icons";
 import { EquicordDevs } from "@utils/constants";
 import { Logger } from "@utils/Logger";
 import { pluralise } from "@utils/misc";
 import definePlugin from "@utils/types";
+import { Message, MessageAttachment } from "@vencord/discord-types";
 import { ChannelStore, showToast, Toasts } from "@webpack/common";
 
 const logger = new Logger("DownloadAllAttachments");
@@ -23,27 +22,27 @@ async function downloadAll(attachments: MessageAttachment[]) {
         usedNames.set(original, count + 1);
         if (count === 0) return original;
         const dot = original.lastIndexOf(".");
-        return dot === -1 ? `${original}_${count}` : `${original.slice(0, dot)}_${count}${original.slice(dot)}`;
+        return dot === -1
+            ? `${original}_${count}`
+            : `${original.slice(0, dot)}_${count}${original.slice(dot)}`;
     }
 
-    const results = await Promise.allSettled(
-        attachments.map(async attachment => {
-            const filename = uniqueName(attachment.filename);
-            if (!attachment.proxy_url) throw new Error("Missing Proxy URL");
+    const results = await Promise.allSettled(attachments.map(async attachment => {
+        const filename = uniqueName(attachment.filename);
+        if (!attachment.proxy_url) throw new Error("Missing Proxy URL");
 
-            const res = await fetch(attachment.proxy_url);
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch(attachment.proxy_url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-            const blob = await res.blob();
-            const url = URL.createObjectURL(blob);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
 
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
-        })
-    );
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    }));
 
     const failed = results.filter(r => {
         if (r.status === "rejected") {
@@ -55,12 +54,10 @@ async function downloadAll(attachments: MessageAttachment[]) {
 
     const succeeded = attachments.length - failed;
 
-    if (failed === 0) showToast(`Downloaded ${pluralise(succeeded, "attachment")}.`, Toasts.Type.SUCCESS);
+    if (failed === 0)
+        showToast(`Downloaded ${pluralise(succeeded, "attachment")}.`, Toasts.Type.SUCCESS);
     else
-        showToast(
-            `Downloaded ${succeeded} of ${attachments.length} attachments. ${failed} failed.`,
-            Toasts.Type.FAILURE
-        );
+        showToast(`Downloaded ${succeeded} of ${attachments.length} attachments. ${failed} failed.`, Toasts.Type.FAILURE);
 }
 
 export default definePlugin({
