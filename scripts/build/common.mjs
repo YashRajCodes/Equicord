@@ -44,7 +44,10 @@ if (!IS_COMPANION_TEST && process.argv.includes("--companion-test"))
     console.error("--companion-test must be run with --reporter for any effect");
 
 export const IS_UPDATER_DISABLED = process.argv.includes("--disable-updater");
-export const gitHash = process.env.EQUICORD_HASH || new TextDecoder().decode(Bun.spawnSync(["git", "rev-parse", "HEAD"]).stdout).trim();
+const _gitProc = Bun.spawnSync(["git", "rev-parse", "HEAD"]);
+if (_gitProc.exitCode !== 0)
+    throw new Error(`git rev-parse HEAD failed with exit code ${_gitProc.exitCode}`);
+export const gitHash = process.env.EQUICORD_HASH || new TextDecoder().decode(_gitProc.stdout).trim();
 
 export const banner = {
     js: `
