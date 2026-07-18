@@ -57,10 +57,10 @@ Install dependencies:
 
 ```shell
 cd packages/vencord-types
-bun link @vencord/types
+bun link
 
 cd ../discord-types
-bun link @vencord/discord-types
+bun link
 cd ../..
 
 bun install
