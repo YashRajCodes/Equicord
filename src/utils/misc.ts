@@ -86,7 +86,7 @@ export const shouldShowEquicordContributorBadge = (id: string) => isEquicordPlug
 
 export const isAnyPluginDev = (id: string) => Object.hasOwn(VencordDevsById, id) || Object.hasOwn(EquicordDevsById, id);
 
-export function pluralise(amount: number, singular: string, plural = singular + "s") {
+export function pluralize(amount: number, singular: string, plural = singular + "s") {
     return amount === 1 ? `${amount} ${singular}` : `${amount} ${plural}`;
 }
 

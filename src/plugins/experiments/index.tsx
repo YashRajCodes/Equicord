@@ -5,7 +5,6 @@
  */
 
 import { definePluginSettings } from "@api/Settings";
-import { disableStyle, enableStyle } from "@api/Styles";
 import { BaseText } from "@components/BaseText";
 import ErrorBoundary from "@components/ErrorBoundary";
 import { ErrorCard } from "@components/ErrorCard";
@@ -15,7 +14,7 @@ import { Devs, IS_MAC } from "@utils/constants";
 import { Margins } from "@utils/margins";
 import definePlugin, { OptionType } from "@utils/types";
 import { findByPropsLazy } from "@webpack";
-import { ExperimentStore, React } from "@webpack/common";
+import { React } from "@webpack/common";
 
 const KbdStyles = findByPropsLazy("key", "combo");
 const modKey = IS_MAC ? "cmd" : "ctrl";
