@@ -86,7 +86,7 @@ export const shouldShowEquicordContributorBadge = (id: string) => isEquicordPlug
 
 export const isAnyPluginDev = (id: string) => Object.hasOwn(VencordDevsById, id) || Object.hasOwn(EquicordDevsById, id);
 
-export function pluralize(amount: number, singular: string, plural = singular + "s") {
+export function pluralise(amount: number, singular: string, plural = singular + "s") {
     return amount === 1 ? `${amount} ${singular}` : `${amount} ${plural}`;
 }
 
@@ -151,3 +151,6 @@ export function getUserAvatarUrl(user: User, guildId?: string, canAnimate?: bool
 
     return IconUtils.getUserAvatarURL(user, canAnimate, size) ?? IconUtils.getDefaultAvatarURL(user.id, user?.discriminator);
 }
+
+// this is all the way down here because i dont feel like dealing with conflicts
+export const pluralize = pluralise;
