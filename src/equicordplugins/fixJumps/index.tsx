@@ -11,11 +11,11 @@ let lastJumpAt = -Infinity;
 let lastChannelId: string | null = null;
 
 export default definePlugin({
-    name: "fixJumps",
+    name: "FixJumps",
     description: "Prevents chat from repeatedly jumping to the bottom when you press Esc for a bit too long.",
     authors: [EquicordDevs.yash],
     patches: [{
-        find: '"MessageActionCreators"',
+        find: "MessageActionCreators",
         replacement: {
             match: /jumpToPresent\((\i)[^)]*\)\{/,
             replace: "$&if($self.shouldBlockJump($1))return;"
