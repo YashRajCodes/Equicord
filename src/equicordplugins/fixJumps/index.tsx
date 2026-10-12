@@ -7,8 +7,7 @@
 import { EquicordDevs } from "@utils/constants";
 import definePlugin from "@utils/types";
 
-let lastJumpAt = -Infinity;
-let lastChannelId: string | null = null;
+let lastJumpAt = -Infinity, lastChannelId = "";
 
 export default definePlugin({
     name: "FixJumps",
