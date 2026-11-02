@@ -10,6 +10,8 @@ import { Notice } from "@components/Notice";
 import { useCspPermission } from "@utils/csp";
 import { OptionType } from "@utils/types";
 
+import { AIProvider } from "./providers";
+
 function EndpointNotice() {
     const { endpoint } = settings.use(["endpoint"]);
     const [isAllowed, allow] = useCspPermission(endpoint, ["connect-src"], "TriviaAI");
@@ -23,6 +25,15 @@ function EndpointNotice() {
 }
 
 export const settings = definePluginSettings({
+    provider: {
+        type: OptionType.SELECT,
+        description: "AI provider to use.",
+        options: [
+            { label: "OpenAI Compatible", value: AIProvider.OpenAICompatible, default: true },
+            { label: "OpenRouter", value: AIProvider.OpenRouter },
+            { label: "Google AI Studio", value: AIProvider.GoogleAIStudio }
+        ]
+    },
     apiKey: {
         type: OptionType.STRING,
         description: "API Key.",
@@ -93,5 +104,11 @@ export const settings = definePluginSettings({
         type: OptionType.BOOLEAN,
         description: "Send images to the AI as base64.",
         default: false
+    }
+}, {
+    endpoint: {
+        hidden() {
+            return this.store.provider !== AIProvider.OpenAICompatible;
+        }
     }
 });

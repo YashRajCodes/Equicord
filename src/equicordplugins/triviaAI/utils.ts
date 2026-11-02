@@ -10,29 +10,10 @@ import { Logger } from "@utils/Logger";
 import { Message } from "@vencord/discord-types";
 import { MessageStore, showToast, UserStore } from "@webpack/common";
 
+import { ApiMessage, ContentPayload, getProvider, ImagePart, TextPart } from "./providers";
 import { settings } from "./settings";
 
 const logger = new Logger("TriviaAI");
-
-type TextPart = {
-    type: "text";
-    text: string;
-};
-
-type ImagePart = {
-    type: "image_url";
-    image_url: {
-        url: string;
-        detail?: "auto" | "high" | "low";
-    };
-};
-
-export type ContentPayload = string | (TextPart | ImagePart)[];
-
-export type ApiMessage = {
-    role: "user" | "assistant";
-    content: ContentPayload;
-};
 
 export async function getPayload(message: Message): Promise<ApiMessage[] | null> {
     const prevMessages = getPreviousMessages(message, settings.store.context);
@@ -224,54 +205,19 @@ function getSystemPrompt() {
 }
 
 export async function getResponse(payload: ApiMessage[]): Promise<string> {
-    if (!settings.store.apiKey || !settings.store.endpoint || !settings.store.model) {
-        showToast({ text: "TriviaAI: API settings are incomplete.", variant: "critical" });
-        return "";
-    }
+    const { apiKey, endpoint, maxTokens, model, provider } = settings.store;
 
     try {
-        const req = await fetch(settings.store.endpoint, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${settings.store.apiKey}`
+        return await getProvider(provider).createChatCompletion([
+            {
+                role: "system",
+                content: getSystemPrompt()
             },
-            body: JSON.stringify({
-                model: settings.store.model,
-                messages: [
-                    {
-                        role: "system",
-                        content: getSystemPrompt()
-                    },
-                    ...payload
-                ],
-                max_tokens: settings.store.maxTokens,
-            })
-        });
-
-        const rawBody = await req.text();
-        const data: { error?: { message?: string; }, choices?: { message: { content: string; }; }[]; } = (() => {
-            try { return JSON.parse(rawBody); }
-            catch { return {}; }
-        })();
-
-        if (!req.ok || data.error) {
-            const errorMsg = data.error?.message ?? rawBody ?? `Status ${req.status}`;
-            logger.error(`API Error: ${errorMsg}`);
-            showToast({ text: errorMsg, variant: "critical" });
-            return "";
-        }
-
-        const response = data.choices?.[0]?.message?.content;
-        if (!response?.trim()) {
-            logger.warn("no response from AI model");
-            return "";
-        }
-
-        return response;
+            ...payload
+        ], { apiKey, endpoint, maxTokens, model });
     } catch (e) {
         logger.error("Error getting response from AI model", e);
-        showToast({ text: "Error getting response from AI model", variant: "critical" });
+        showToast({ text: e instanceof Error ? e.message : "Error getting response from AI model", variant: "critical" });
         return "";
     }
 }

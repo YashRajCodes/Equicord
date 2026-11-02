@@ -11,6 +11,7 @@ import definePlugin from "@utils/types";
 import { Message } from "@vencord/discord-types";
 import { ChannelStore, Menu } from "@webpack/common";
 
+import { AIProvider, getProvider as getAIProvider } from "./providers";
 import { settings } from "./settings";
 import { getPayload, getResponse, handleResponse } from "./utils";
 
@@ -44,6 +45,9 @@ export default definePlugin({
     tags: ["Appearance", "Customisation", "Fun"],
     authors: [EquicordDevs.yash],
     settings,
+    getProvider(provider: AIProvider = settings.store.provider) {
+        return getAIProvider(provider);
+    },
     contextMenus: {
         "message": messageCtxPatch
     },
